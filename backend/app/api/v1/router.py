@@ -4,13 +4,14 @@ API V1 Router - Combines all endpoint routers
 from fastapi import APIRouter
 
 # Import routers
-from app.api.v1.endpoints import auth, onboarding
+from app.api.v1.endpoints import auth, onboarding, resume
 
 api_router = APIRouter()
 
 # Include endpoint routers
 api_router.include_router(auth.router)
 api_router.include_router(onboarding.router)
+api_router.include_router(resume.router)
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users, resumes, jobs, applications
