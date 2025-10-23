@@ -1,18 +1,19 @@
 """Resume and ResumeVersion models"""
-from sqlalchemy import Column, String, TIMESTAMP, UUID, ForeignKey, JSON, Boolean, Text
+from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, JSON, Boolean, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
 
 from app.db.base import Base
+from app.db.types import GUID
 
 
 class Resume(Base):
     """Original uploaded resume"""
     __tablename__ = "resumes"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     original_file_url = Column(Text)  # S3/Supabase Storage URL
     parsed_data = Column(JSON, default={})  # Extracted resume data
     created_at = Column(TIMESTAMP, server_default=func.now())
@@ -26,9 +27,9 @@ class ResumeVersion(Base):
     """AI-generated resume versions"""
     __tablename__ = "resume_versions"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    resume_id = Column(UUID(as_uuid=True), ForeignKey("resumes.id", ondelete="CASCADE"), nullable=True)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    resume_id = Column(GUID(), ForeignKey("resumes.id", ondelete="CASCADE"), nullable=True)
     version_name = Column(String(255))  # e.g., "Software Engineer - FAANG"
     content = Column(JSON, default={})  # Structured resume content
     tone = Column(String(50))  # 'formal', 'concise', 'conversational'

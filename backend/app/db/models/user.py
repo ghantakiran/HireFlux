@@ -1,17 +1,18 @@
 """User and Profile models"""
-from sqlalchemy import Boolean, Column, String, TIMESTAMP, UUID, ForeignKey, ARRAY, Integer, JSON
+from sqlalchemy import Boolean, Column, String, TIMESTAMP, ForeignKey, Integer, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
 
 from app.db.base import Base
+from app.db.types import GUID
 
 
 class User(Base):
     """User model for authentication"""
     __tablename__ = "users"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=True)
     oauth_provider = Column(String(50), nullable=True)  # 'google', 'linkedin'
@@ -37,17 +38,17 @@ class Profile(Base):
     """User profile with job search preferences"""
     __tablename__ = "profiles"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
     first_name = Column(String(100))
     last_name = Column(String(100))
     phone = Column(String(20))
     location = Column(String(255))
-    target_titles = Column(ARRAY(String), default=[])  # Array of job titles
+    target_titles = Column(JSON, default=[])  # Array of job titles
     salary_min = Column(Integer)
     salary_max = Column(Integer)
-    industries = Column(ARRAY(String), default=[])  # Array of industries
-    skills = Column(ARRAY(String), default=[])  # Array of skills
+    industries = Column(JSON, default=[])  # Array of industries
+    skills = Column(JSON, default=[])  # Array of skills
     preferences = Column(JSON, default={})  # {remote: true, visa_friendly: true, etc.}
     onboarding_complete = Column(Boolean, default=False)
     created_at = Column(TIMESTAMP, server_default=func.now())

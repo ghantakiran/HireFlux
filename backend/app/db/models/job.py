@@ -1,17 +1,18 @@
 """Job, JobSource, and MatchScore models"""
-from sqlalchemy import Column, String, TIMESTAMP, UUID, ForeignKey, Text, Integer, Boolean
+from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Text, Integer, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
 
 from app.db.base import Base
+from app.db.types import GUID
 
 
 class JobSource(Base):
     """Job board/API sources"""
     __tablename__ = "job_sources"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     name = Column(String(255))  # 'Greenhouse', 'Lever', etc.
     api_url = Column(Text)
     is_active = Column(Boolean, default=True)
@@ -26,8 +27,8 @@ class Job(Base):
     """Job postings from various sources"""
     __tablename__ = "jobs"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    source_id = Column(UUID(as_uuid=True), ForeignKey("job_sources.id", ondelete="SET NULL"), nullable=True)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    source_id = Column(GUID(), ForeignKey("job_sources.id", ondelete="SET NULL"), nullable=True)
     external_id = Column(String(255))  # ID from job board
     title = Column(String(255), index=True)
     company = Column(String(255), index=True)
@@ -53,9 +54,9 @@ class MatchScore(Base):
     """Job matching scores for users"""
     __tablename__ = "match_scores"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    job_id = Column(UUID(as_uuid=True), ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    job_id = Column(GUID(), ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
     fit_index = Column(Integer)  # 0-100
     rationale = Column(Text)  # Why this job matches
     created_at = Column(TIMESTAMP, server_default=func.now())

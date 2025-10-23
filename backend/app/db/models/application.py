@@ -1,21 +1,22 @@
 """Application tracking model"""
-from sqlalchemy import Column, String, TIMESTAMP, UUID, ForeignKey, Text
+from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
 
 from app.db.base import Base
+from app.db.types import GUID
 
 
 class Application(Base):
     """Job applications"""
     __tablename__ = "applications"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    job_id = Column(UUID(as_uuid=True), ForeignKey("jobs.id", ondelete="SET NULL"), nullable=True)
-    resume_version_id = Column(UUID(as_uuid=True), ForeignKey("resume_versions.id", ondelete="SET NULL"), nullable=True)
-    cover_letter_id = Column(UUID(as_uuid=True), ForeignKey("cover_letters.id", ondelete="SET NULL"), nullable=True)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    job_id = Column(GUID(), ForeignKey("jobs.id", ondelete="SET NULL"), nullable=True)
+    resume_version_id = Column(GUID(), ForeignKey("resume_versions.id", ondelete="SET NULL"), nullable=True)
+    cover_letter_id = Column(GUID(), ForeignKey("cover_letters.id", ondelete="SET NULL"), nullable=True)
     status = Column(String(50), index=True, default='saved')  # 'saved', 'applied', 'interview', 'offer', 'rejected'
     applied_at = Column(TIMESTAMP)
     notes = Column(Text)
