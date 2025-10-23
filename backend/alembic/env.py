@@ -12,6 +12,16 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from app.db.base import Base
 from app.core.config import settings
 
+# Import all models for Alembic to detect them
+from app.db.models.user import User, Profile
+from app.db.models.resume import Resume, ResumeVersion
+from app.db.models.cover_letter import CoverLetter
+from app.db.models.job import Job, JobSource, MatchScore
+from app.db.models.application import Application
+from app.db.models.billing import CreditWallet, CreditLedger, Subscription
+from app.db.models.audit import EventAudit
+from app.db.models.interview import InterviewSession
+
 # this is the Alembic Config object
 config = context.config
 

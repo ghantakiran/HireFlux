@@ -33,6 +33,18 @@ class ValidationError(APIException):
         )
 
 
+class BadRequestError(APIException):
+    """Bad Request Error"""
+
+    def __init__(self, message: str = "Bad request", details: Optional[List[Dict[str, Any]]] = None):
+        super().__init__(
+            message=message,
+            code="BAD_REQUEST",
+            status_code=400,
+            details=details,
+        )
+
+
 class UnauthorizedError(APIException):
     """Unauthorized Access Error"""
 

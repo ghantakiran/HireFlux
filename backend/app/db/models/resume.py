@@ -14,9 +14,17 @@ class Resume(Base):
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    file_name = Column(String(255))  # Original filename
+    file_size = Column(String(50))  # File size in bytes
+    file_type = Column(String(100))  # MIME type
     original_file_url = Column(Text)  # S3/Supabase Storage URL
     parsed_data = Column(JSON, default={})  # Extracted resume data
+    parse_status = Column(String(50), default="pending")  # pending, processing, completed, failed
+    parse_error = Column(JSON)  # Error details if parsing failed
+    is_default = Column(Boolean, default=False)  # Is this the default resume
+    is_deleted = Column(Boolean, default=False)  # Soft delete flag
     created_at = Column(TIMESTAMP, server_default=func.now())
+    parsed_at = Column(TIMESTAMP)  # When parsing completed
 
     # Relationships
     user = relationship("User", back_populates="resumes")

@@ -21,17 +21,17 @@ class User(Base):
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
-    # Relationships
-    profile = relationship("Profile", back_populates="user", uselist=False, cascade="all, delete-orphan")
-    resumes = relationship("Resume", back_populates="user", cascade="all, delete-orphan")
-    resume_versions = relationship("ResumeVersion", back_populates="user", cascade="all, delete-orphan")
-    cover_letters = relationship("CoverLetter", back_populates="user", cascade="all, delete-orphan")
-    applications = relationship("Application", back_populates="user", cascade="all, delete-orphan")
-    match_scores = relationship("MatchScore", back_populates="user", cascade="all, delete-orphan")
-    credit_wallet = relationship("CreditWallet", back_populates="user", uselist=False, cascade="all, delete-orphan")
-    credit_ledger = relationship("CreditLedger", back_populates="user", cascade="all, delete-orphan")
-    subscriptions = relationship("Subscription", back_populates="user", cascade="all, delete-orphan")
-    interview_sessions = relationship("InterviewSession", back_populates="user", cascade="all, delete-orphan")
+    # Relationships (using string references for lazy loading)
+    profile = relationship("Profile", back_populates="user", uselist=False, cascade="all, delete-orphan", lazy="select")
+    resumes = relationship("Resume", back_populates="user", cascade="all, delete-orphan", lazy="select")
+    resume_versions = relationship("ResumeVersion", back_populates="user", cascade="all, delete-orphan", lazy="select")
+    cover_letters = relationship("CoverLetter", back_populates="user", cascade="all, delete-orphan", lazy="select")
+    applications = relationship("Application", back_populates="user", cascade="all, delete-orphan", lazy="select")
+    match_scores = relationship("MatchScore", back_populates="user", cascade="all, delete-orphan", lazy="select")
+    credit_wallet = relationship("CreditWallet", back_populates="user", uselist=False, cascade="all, delete-orphan", lazy="select")
+    credit_ledger = relationship("CreditLedger", back_populates="user", cascade="all, delete-orphan", lazy="select")
+    subscriptions = relationship("Subscription", back_populates="user", cascade="all, delete-orphan", lazy="select")
+    interview_sessions = relationship("InterviewSession", back_populates="user", cascade="all, delete-orphan", lazy="select")
 
 
 class Profile(Base):

@@ -13,6 +13,9 @@ from app.core.config import settings
 from app.api.v1.router import api_router
 from app.core.exceptions import APIException
 
+# Import all models to ensure SQLAlchemy relationship resolution
+import app.db.models  # noqa: F401
+
 # Initialize Sentry
 if settings.SENTRY_DSN:
     sentry_sdk.init(
