@@ -1,0 +1,59 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "POSTGRES_CONNECTION_STRING": "${SUPABASE_DB_URL}"
+      }
+    },
+    "redis": {
+      "command": "python",
+      "args": ["mcp-servers/redis/server.py"],
+      "env": {
+        "REDIS_URL": "${REDIS_URL}"
+      }
+    },
+    "openai": {
+      "command": "python",
+      "args": ["mcp-servers/openai/server.py"],
+      "env": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "COST_TRACKING_ENABLED": "true",
+        "REDIS_URL": "${REDIS_URL}"
+      }
+    },
+    "pinecone": {
+      "command": "python",
+      "args": ["mcp-servers/pinecone/server.py"],
+      "env": {
+        "PINECONE_API_KEY": "${PINECONE_API_KEY}",
+        "PINECONE_ENVIRONMENT": "us-west1-gcp",
+        "PINECONE_INDEX": "jobs-production"
+      }
+    },
+    "stripe": {
+      "command": "python",
+      "args": ["mcp-servers/stripe/server.py"],
+      "env": {
+        "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}",
+        "STRIPE_WEBHOOK_SECRET": "${STRIPE_WEBHOOK_SECRET}"
+      }
+    },
+    "audit_log": {
+      "command": "python",
+      "args": ["mcp-servers/audit-log/server.py"],
+      "env": {
+        "POSTGRES_CONNECTION_STRING": "${SUPABASE_DB_URL}",
+        "IMMUTABLE_STORAGE": "enabled"
+      }
+    }
+  }
+}
