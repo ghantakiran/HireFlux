@@ -1,5 +1,5 @@
 """Job, JobSource, and MatchScore models"""
-from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Text, Integer, Boolean
+from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Text, Integer, Boolean, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -29,22 +29,43 @@ class Job(Base):
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     source_id = Column(GUID(), ForeignKey("job_sources.id", ondelete="SET NULL"), nullable=True)
+    source = Column(String(50))  # 'greenhouse', 'lever', 'manual'
     external_id = Column(String(255))  # ID from job board
     title = Column(String(255), index=True)
     company = Column(String(255), index=True)
     description = Column(Text)
     location = Column(String(255))
-    remote_policy = Column(String(50))  # 'remote', 'hybrid', 'onsite'
+    location_type = Column(String(50))  # 'remote', 'hybrid', 'onsite'
+
+    # Skills
+    required_skills = Column(JSON, default=[])
+    preferred_skills = Column(JSON, default=[])
+
+    # Experience
+    experience_requirement = Column(String(100))
+    experience_min_years = Column(Integer)
+    experience_max_years = Column(Integer)
+    experience_level = Column(String(50))  # entry, mid, senior, staff, principal
+
+    # Salary
     salary_min = Column(Integer)
     salary_max = Column(Integer)
-    visa_friendly = Column(Boolean, default=False)
-    posted_at = Column(TIMESTAMP)
+
+    # Additional info
+    department = Column(String(255))
+    employment_type = Column(String(50))  # full-time, part-time, contract
+    requires_visa_sponsorship = Column(Boolean, default=False)
+    external_url = Column(Text)
+
+    # Dates
+    posted_date = Column(TIMESTAMP)
     expires_at = Column(TIMESTAMP)
     is_active = Column(Boolean, default=True, index=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    source = relationship("JobSource", back_populates="jobs")
+    job_source = relationship("JobSource", back_populates="jobs")
     match_scores = relationship("MatchScore", back_populates="job", cascade="all, delete-orphan")
     cover_letters = relationship("CoverLetter", back_populates="job")
     applications = relationship("Application", back_populates="job")
