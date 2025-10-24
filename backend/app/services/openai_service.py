@@ -396,3 +396,61 @@ class OpenAIService:
             "total_tokens": sum(log["total_tokens"] for log in logs),
             "total_cost": sum(log["cost"] for log in logs)
         }
+
+    def create_embedding(self, text: str) -> List[float]:
+        """
+        Create embedding vector for text using OpenAI
+
+        Args:
+            text: Text to embed
+
+        Returns:
+            Embedding vector (1536 dimensions)
+        """
+        try:
+            # Check rate limit
+            if not self.check_rate_limit():
+                time.sleep(1)
+
+            response = self.client.embeddings.create(
+                model=settings.OPENAI_EMBEDDINGS_MODEL,
+                input=text
+            )
+
+            # Track request time for rate limiting
+            self._request_times.append(datetime.utcnow())
+
+            return response.data[0].embedding
+
+        except Exception as e:
+            raise ServiceError(f"Failed to create embedding: {str(e)}")
+
+    def create_embeddings_batch(self, texts: List[str]) -> List[List[float]]:
+        """
+        Create embeddings for multiple texts in batch
+
+        Args:
+            texts: List of texts to embed
+
+        Returns:
+            List of embedding vectors
+        """
+        try:
+            # Check rate limit
+            if not self.check_rate_limit():
+                time.sleep(1)
+
+            response = self.client.embeddings.create(
+                model=settings.OPENAI_EMBEDDINGS_MODEL,
+                input=texts
+            )
+
+            # Track request time for rate limiting
+            self._request_times.append(datetime.utcnow())
+
+            # Extract embeddings in same order as input
+            embeddings = [item.embedding for item in response.data]
+            return embeddings
+
+        except Exception as e:
+            raise ServiceError(f"Failed to create batch embeddings: {str(e)}")
