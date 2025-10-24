@@ -103,9 +103,26 @@ class NormalizedJob(BaseModel):
     raw_metadata: Dict[str, Any] = {}
 
 
+class JobMetadata(BaseModel):
+    """Metadata for job fetch results"""
+    total_fetched: int
+    new_jobs: int
+    updated_jobs: int
+    failed_jobs: int
+    fetch_duration_seconds: float
+    errors: List[str] = []
+
+
+class JobFetchResult(BaseModel):
+    """Result of fetching jobs from a source"""
+    jobs: List[Any]  # List of GreenhouseJob or LeverJob
+    metadata: JobMetadata
+    source: JobSource
+
+
 class JobIngestionRequest(BaseModel):
     """Request to ingest jobs from source"""
-    source_id: str
+    sources: Optional[List[Any]] = None  # List of source configurations
     incremental: bool = Field(default=True, description="Only fetch updated jobs")
     max_jobs: Optional[int] = Field(None, ge=1, le=1000)
     department_filter: Optional[List[str]] = None
@@ -113,10 +130,9 @@ class JobIngestionRequest(BaseModel):
 
 class JobIngestionResult(BaseModel):
     """Result of job ingestion"""
-    source: JobSource
-    total_fetched: int
-    jobs_created: int
-    jobs_updated: int
+    success: bool
+    message: str
+    metadata: JobMetadata
     jobs_skipped: int
     errors: int
     processing_time_seconds: float

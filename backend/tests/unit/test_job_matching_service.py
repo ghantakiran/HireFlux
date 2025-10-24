@@ -7,7 +7,7 @@ from datetime import datetime
 from app.services.job_matching_service import JobMatchingService
 from app.schemas.job_matching import (
     JobMatchRequest,
-    JobFilters,
+    # JobFilters,  # TODO: Add to schema if needed
     SkillVector,
     MatchQuality
 )
