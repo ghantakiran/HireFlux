@@ -91,7 +91,11 @@ class JobIngestionService:
         return JobIngestionResult(
             success=len(errors) == 0,
             message=f"Ingested {new_count} new jobs, updated {updated_count} jobs",
-            metadata=metadata
+            metadata=metadata,
+            jobs_skipped=skipped_count,
+            errors=len(errors),
+            processing_time_seconds=duration,
+            error_messages=errors
         )
 
     def _ingest_from_greenhouse(self, source_config) -> List[NormalizedJob]:
@@ -220,7 +224,7 @@ class JobIngestionService:
             requires_visa_sponsorship=self.normalizer.detect_visa_sponsorship(
                 normalized_job.description
             ),
-            external_url=normalized_job.external_url,
+            external_url=normalized_job.application_url,
             posted_date=normalized_job.posted_date,
             is_active=True
         )
@@ -259,7 +263,7 @@ class JobIngestionService:
         existing_job.requires_visa_sponsorship = self.normalizer.detect_visa_sponsorship(
             normalized_job.description
         )
-        existing_job.external_url = normalized_job.external_url
+        existing_job.external_url = normalized_job.application_url
         existing_job.updated_at = datetime.utcnow()
 
         self.db.commit()
