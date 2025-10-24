@@ -151,33 +151,64 @@ class JobSyncConfig(BaseModel):
     batch_size: int = Field(default=50, ge=1, le=100)
 
 
+class GreenhouseDepartment(BaseModel):
+    """Greenhouse department"""
+    id: str
+    name: str
+
+
+class GreenhouseOffice(BaseModel):
+    """Greenhouse office/location"""
+    id: str
+    name: str
+    location: Optional[str] = None
+
+
 class GreenhouseJob(BaseModel):
     """Greenhouse API job format"""
-    id: int
-    name: str
-    updated_at: datetime
-    location: Dict[str, Any]
+    id: str
+    title: str
+    location: str
+    location_type: str = "onsite"
     absolute_url: str
-    internal_job_id: int
-    metadata: Optional[List[Dict[str, Any]]] = None
-    departments: List[Dict[str, Any]] = []
-    offices: List[Dict[str, Any]] = []
+    metadata: List[Any] = []
+    updated_at: Optional[str] = None
+    requisition_id: Optional[str] = None
+    departments: List[GreenhouseDepartment] = []
+    offices: List[GreenhouseOffice] = []
     content: Optional[str] = None
-    education: Optional[str] = None
+
+
+class LeverCategory(BaseModel):
+    """Lever job category"""
+    commitment: Optional[str] = None
+    department: Optional[str] = None
+    level: Optional[str] = None
+    location: Optional[str] = None
+    team: Optional[str] = None
+
+
+class LeverLocation(BaseModel):
+    """Lever location"""
+    name: str
 
 
 class LeverJob(BaseModel):
     """Lever API job format"""
     id: str
     text: str
-    createdAt: int  # Unix timestamp
-    state: str
-    categories: Dict[str, Optional[str]]
-    description: str
-    lists: List[Dict[str, Any]]
-    additional: Optional[str] = None
     hostedUrl: str
     applyUrl: str
+    location_type: Optional[str] = None
+    employment_type: Optional[str] = None
+    createdAt: int = 0  # Unix timestamp
+    categories: List[LeverCategory] = []
+    description: str = ""
+    descriptionPlain: Optional[str] = None
+    lists: List[Dict[str, Any]] = []
+    additional: Optional[str] = None
+    additionalPlain: Optional[str] = None
+    workplaceType: Optional[str] = None
 
 
 class JobSourceHealthCheck(BaseModel):
