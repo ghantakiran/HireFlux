@@ -41,7 +41,15 @@ class ResumeVersion(Base):
     version_name = Column(String(255))  # e.g., "Software Engineer - FAANG"
     content = Column(JSON, default={})  # Structured resume content
     tone = Column(String(50))  # 'formal', 'concise', 'conversational'
+    length = Column(String(50))  # 'one_page', 'two_page', 'detailed'
+    style = Column(String(50))  # 'ats_optimized', 'creative', 'executive', 'technical'
     target_title = Column(String(255))
+    target_company = Column(String(255))
+    keywords = Column(JSON, default=[])  # List of emphasized keywords
+    strict_factual = Column(Boolean, default=True)  # Hallucination prevention flag
+    token_usage = Column(String(50))  # Total tokens used
+    cost = Column(String(50))  # Estimated cost in USD
+    status = Column(String(50), default="pending")  # pending, processing, completed, failed
     is_default = Column(Boolean, default=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

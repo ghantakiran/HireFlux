@@ -133,3 +133,14 @@ class ExternalServiceError(APIException):
             status_code=502,
             details=[{"service": service}],
         )
+
+
+class ServiceError(APIException):
+    """General Service Error"""
+
+    def __init__(self, message: str = "Service error"):
+        super().__init__(
+            message=message,
+            code="SERVICE_ERROR",
+            status_code=500,
+        )
