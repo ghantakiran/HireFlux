@@ -93,7 +93,7 @@ class JobNormalizationService:
             experience_level=self.extract_experience_level(description),
             salary=self.extract_salary_range(description),
             department=job.departments[0].name if job.departments else None,
-            external_url=job.absolute_url,
+            application_url=job.absolute_url,
             posted_date=datetime.fromisoformat(job.updated_at.replace("Z", "+00:00")) if job.updated_at else None
         )
 
@@ -130,7 +130,7 @@ class JobNormalizationService:
             salary=self.extract_salary_range(description),
             department=department,
             employment_type=job.employment_type,
-            external_url=job.hostedUrl,
+            application_url=job.hostedUrl,
             posted_date=datetime.fromtimestamp(job.createdAt / 1000) if job.createdAt else None
         )
 
