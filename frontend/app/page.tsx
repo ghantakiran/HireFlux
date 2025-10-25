@@ -4,13 +4,27 @@ import { Button } from '@/components/ui/button';
 export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Navigation */}
+      <nav className="border-b">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          <div className="text-xl font-bold">HireFlux</div>
+          <div className="flex gap-4">
+            <Link href="/signin">
+              <Button variant="ghost">Sign In</Button>
+            </Link>
+            <Link href="/signup">
+              <Button>Sign Up</Button>
+            </Link>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <main className="flex-1">
         <section className="container mx-auto px-4 py-24 md:py-32">
           <div className="mx-auto max-w-4xl text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              Land Your Dream Job with{' '}
-              <span className="text-primary">AI-Powered Assistance</span>
+              AI-Powered Job Application Copilot
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
               HireFlux streamlines your job search with tailored resumes, personalized cover
