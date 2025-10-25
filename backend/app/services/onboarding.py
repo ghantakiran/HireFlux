@@ -10,7 +10,7 @@ from app.schemas.onboarding import (
     SkillsUpdate,
     WorkPreferencesUpdate,
     OnboardingProgress,
-    CompleteProfileResponse
+    CompleteProfileResponse,
 )
 from app.core.exceptions import NotFoundError
 
@@ -29,9 +29,7 @@ class OnboardingService:
         return profile
 
     def update_basic_profile(
-        self,
-        user_id: uuid.UUID,
-        profile_data: BasicProfileUpdate
+        self, user_id: uuid.UUID, profile_data: BasicProfileUpdate
     ) -> Profile:
         """
         Update basic profile information (Step 1 of onboarding)
@@ -59,9 +57,7 @@ class OnboardingService:
         return profile
 
     def update_job_preferences(
-        self,
-        user_id: uuid.UUID,
-        preferences_data: JobPreferencesUpdate
+        self, user_id: uuid.UUID, preferences_data: JobPreferencesUpdate
     ) -> Profile:
         """
         Update job preferences (Step 2 of onboarding)
@@ -82,7 +78,7 @@ class OnboardingService:
         # Remove case-insensitive duplicates from target_titles
         seen_lower = set()
         unique_titles = []
-        for title in (preferences_data.target_titles or []):
+        for title in preferences_data.target_titles or []:
             title_lower = title.lower()
             if title_lower not in seen_lower:
                 seen_lower.add(title_lower)
@@ -97,11 +93,7 @@ class OnboardingService:
         self.db.refresh(profile)
         return profile
 
-    def update_skills(
-        self,
-        user_id: uuid.UUID,
-        skills_data: SkillsUpdate
-    ) -> Profile:
+    def update_skills(self, user_id: uuid.UUID, skills_data: SkillsUpdate) -> Profile:
         """
         Update skills (Step 3 of onboarding)
 
@@ -119,10 +111,7 @@ class OnboardingService:
 
         # Convert skills to dict format for JSON storage
         skills_list = [
-            {
-                "name": skill.name,
-                "proficiency": skill.proficiency.value
-            }
+            {"name": skill.name, "proficiency": skill.proficiency.value}
             for skill in skills_data.skills
         ]
 
@@ -133,9 +122,7 @@ class OnboardingService:
         return profile
 
     def update_work_preferences(
-        self,
-        user_id: uuid.UUID,
-        work_prefs_data: WorkPreferencesUpdate
+        self, user_id: uuid.UUID, work_prefs_data: WorkPreferencesUpdate
     ) -> Profile:
         """
         Update work preferences (Step 4 of onboarding)
@@ -188,10 +175,10 @@ class OnboardingService:
     def _is_onboarding_complete(self, profile: Profile) -> bool:
         """Check if all onboarding steps are complete"""
         return (
-            self._is_profile_step_complete(profile) and
-            self._is_preferences_step_complete(profile) and
-            self._is_skills_step_complete(profile) and
-            self._is_work_prefs_step_complete(profile)
+            self._is_profile_step_complete(profile)
+            and self._is_preferences_step_complete(profile)
+            and self._is_skills_step_complete(profile)
+            and self._is_work_prefs_step_complete(profile)
         )
 
     def _get_current_step(self, profile: Profile) -> int:

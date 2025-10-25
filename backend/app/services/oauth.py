@@ -32,7 +32,7 @@ class OAuthService:
                 response = await client.get(
                     "https://www.googleapis.com/oauth2/v3/userinfo",
                     headers={"Authorization": f"Bearer {access_token}"},
-                    timeout=10.0
+                    timeout=10.0,
                 )
 
                 if response.status_code != 200:
@@ -47,7 +47,7 @@ class OAuthService:
                     first_name=user_data.get("given_name"),
                     last_name=user_data.get("family_name"),
                     provider="google",
-                    provider_user_id=user_data.get("sub")
+                    provider_user_id=user_data.get("sub"),
                 )
         except httpx.RequestError as e:
             raise UnauthorizedError(f"Failed to verify Google token: {str(e)}")
@@ -73,9 +73,9 @@ class OAuthService:
                     f"https://graph.facebook.com/debug_token",
                     params={
                         "input_token": access_token,
-                        "access_token": f"{settings.FACEBOOK_CLIENT_ID}|{settings.FACEBOOK_CLIENT_SECRET}"
+                        "access_token": f"{settings.FACEBOOK_CLIENT_ID}|{settings.FACEBOOK_CLIENT_SECRET}",
                     },
-                    timeout=10.0
+                    timeout=10.0,
                 )
 
                 if verify_response.status_code != 200:
@@ -90,9 +90,9 @@ class OAuthService:
                     "https://graph.facebook.com/me",
                     params={
                         "fields": "id,email,first_name,last_name",
-                        "access_token": access_token
+                        "access_token": access_token,
                     },
-                    timeout=10.0
+                    timeout=10.0,
                 )
 
                 if user_response.status_code != 200:
@@ -103,7 +103,9 @@ class OAuthService:
                 # Facebook doesn't guarantee email, check if present
                 email = user_data.get("email")
                 if not email:
-                    raise BadRequestError("Email permission not granted by Facebook user")
+                    raise BadRequestError(
+                        "Email permission not granted by Facebook user"
+                    )
 
                 return OAuthUserInfo(
                     email=email,
@@ -111,7 +113,7 @@ class OAuthService:
                     first_name=user_data.get("first_name"),
                     last_name=user_data.get("last_name"),
                     provider="facebook",
-                    provider_user_id=user_data.get("id")
+                    provider_user_id=user_data.get("id"),
                 )
         except httpx.RequestError as e:
             raise UnauthorizedError(f"Failed to verify Facebook token: {str(e)}")
@@ -134,8 +136,7 @@ class OAuthService:
             # Get Apple's public keys
             async with httpx.AsyncClient() as client:
                 keys_response = await client.get(
-                    "https://appleid.apple.com/auth/keys",
-                    timeout=10.0
+                    "https://appleid.apple.com/auth/keys", timeout=10.0
                 )
 
                 if keys_response.status_code != 200:
@@ -164,7 +165,7 @@ class OAuthService:
                     public_key,
                     algorithms=["RS256"],
                     audience=settings.APPLE_CLIENT_ID,
-                    issuer="https://appleid.apple.com"
+                    issuer="https://appleid.apple.com",
                 )
             except pyjwt.InvalidTokenError as e:
                 raise UnauthorizedError(f"Invalid Apple ID token: {str(e)}")
@@ -182,14 +183,16 @@ class OAuthService:
                 first_name=None,
                 last_name=None,
                 provider="apple",
-                provider_user_id=payload.get("sub")
+                provider_user_id=payload.get("sub"),
             )
 
         except pyjwt.PyJWTError as e:
             raise UnauthorizedError(f"Failed to verify Apple token: {str(e)}")
 
     @staticmethod
-    async def verify_oauth_token(provider: str, access_token: str, id_token: Optional[str] = None) -> OAuthUserInfo:
+    async def verify_oauth_token(
+        provider: str, access_token: str, id_token: Optional[str] = None
+    ) -> OAuthUserInfo:
         """
         Verify OAuth token based on provider
 

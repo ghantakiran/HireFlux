@@ -13,7 +13,7 @@ from app.schemas.job_matching import (
     VectorSearchResult,
     EmbeddingRequest,
     EmbeddingResponse,
-    SkillVector
+    SkillVector,
 )
 
 
@@ -26,17 +26,16 @@ class PineconeService:
             # Initialize Pinecone
             pinecone.init(
                 api_key=settings.PINECONE_API_KEY,
-                environment=settings.PINECONE_ENVIRONMENT
+                environment=settings.PINECONE_ENVIRONMENT,
             )
 
             # Get or create indexes
             self.jobs_index = self._get_or_create_index(
                 settings.PINECONE_INDEX_NAME_JOBS,
-                dimension=1536  # OpenAI ada-002 embeddings
+                dimension=1536,  # OpenAI ada-002 embeddings
             )
             self.users_index = self._get_or_create_index(
-                settings.PINECONE_INDEX_NAME_USERS,
-                dimension=1536
+                settings.PINECONE_INDEX_NAME_USERS, dimension=1536
             )
 
             # Initialize OpenAI service for embeddings
@@ -58,17 +57,13 @@ class PineconeService:
                     dimension=dimension,
                     metric="cosine",
                     pods=1,
-                    pod_type="p1.x1"
+                    pod_type="p1.x1",
                 )
             return pinecone.Index(index_name)
         except Exception as e:
             raise ServiceError(f"Failed to get/create index {index_name}: {str(e)}")
 
-    def generate_embedding(
-        self,
-        text: str,
-        use_cache: bool = True
-    ) -> List[float]:
+    def generate_embedding(self, text: str, use_cache: bool = True) -> List[float]:
         """Generate embedding vector for text using OpenAI"""
         # Create cache key
         cache_key = hashlib.sha256(text.encode()).hexdigest()
@@ -94,15 +89,13 @@ class PineconeService:
             raise ServiceError(f"Failed to generate embedding: {str(e)}")
 
     def batch_generate_embeddings(
-        self,
-        texts: List[str],
-        batch_size: int = 20
+        self, texts: List[str], batch_size: int = 20
     ) -> List[List[float]]:
         """Generate embeddings for multiple texts in batches"""
         all_vectors = []
 
         for i in range(0, len(texts), batch_size):
-            batch = texts[i:i + batch_size]
+            batch = texts[i : i + batch_size]
             try:
                 vectors = self.openai_service.create_embeddings_batch(batch)
                 all_vectors.extend(vectors)
@@ -112,10 +105,7 @@ class PineconeService:
         return all_vectors
 
     def index_user_skills(
-        self,
-        user_id: str,
-        skills: List[SkillVector],
-        resume_id: Optional[str] = None
+        self, user_id: str, skills: List[SkillVector], resume_id: Optional[str] = None
     ):
         """Index user skills in Pinecone"""
         try:
@@ -139,7 +129,7 @@ class PineconeService:
                     "category": skill.category or "",
                     "years": skill.years_experience or 0,
                     "proficiency": skill.proficiency or "",
-                    "indexed_at": datetime.utcnow().isoformat()
+                    "indexed_at": datetime.utcnow().isoformat(),
                 }
 
                 vectors_to_upsert.append((vector_id, skill.vector, metadata))
@@ -156,7 +146,7 @@ class PineconeService:
         job_title: str,
         job_description: str,
         required_skills: List[str],
-        metadata: Dict[str, Any]
+        metadata: Dict[str, Any],
     ):
         """Index job posting in Pinecone"""
         try:
@@ -176,8 +166,10 @@ class PineconeService:
                 "required_skills": required_skills,
                 "experience_level": metadata.get("experience_level", ""),
                 "visa_sponsorship": metadata.get("visa_sponsorship", False),
-                "posted_date": metadata.get("posted_date", datetime.utcnow().isoformat()),
-                "indexed_at": datetime.utcnow().isoformat()
+                "posted_date": metadata.get(
+                    "posted_date", datetime.utcnow().isoformat()
+                ),
+                "indexed_at": datetime.utcnow().isoformat(),
             }
 
             # Upsert to Pinecone
@@ -191,7 +183,7 @@ class PineconeService:
                 skill_metadata = {
                     **job_metadata,
                     "skill": skill,
-                    "is_skill_vector": True
+                    "is_skill_vector": True,
                 }
                 skill_vectors.append((skill_id, skill_vector, skill_metadata))
 
@@ -205,7 +197,7 @@ class PineconeService:
         self,
         user_skills: List[SkillVector],
         top_k: int = 10,
-        filters: Optional[Dict[str, Any]] = None
+        filters: Optional[Dict[str, Any]] = None,
     ) -> VectorSearchResponse:
         """Search for jobs similar to user skills"""
         try:
@@ -223,45 +215,44 @@ class PineconeService:
             pinecone_filter = {}
             if filters:
                 if filters.get("visa_sponsorship") is not None:
-                    pinecone_filter["visa_sponsorship"] = {"$eq": filters["visa_sponsorship"]}
+                    pinecone_filter["visa_sponsorship"] = {
+                        "$eq": filters["visa_sponsorship"]
+                    }
                 if filters.get("min_salary"):
                     pinecone_filter["salary_min"] = {"$gte": filters["min_salary"]}
                 if filters.get("experience_level"):
-                    pinecone_filter["experience_level"] = {"$in": filters["experience_level"]}
+                    pinecone_filter["experience_level"] = {
+                        "$in": filters["experience_level"]
+                    }
 
             # Query Pinecone
             results = self.jobs_index.query(
                 vector=query_vector,
                 top_k=top_k,
                 include_metadata=True,
-                filter=pinecone_filter if pinecone_filter else None
+                filter=pinecone_filter if pinecone_filter else None,
             )
 
             # Convert to response format
             matches = [
                 VectorSearchResult(
-                    id=match.id,
-                    score=match.score,
-                    metadata=match.metadata
+                    id=match.id, score=match.score, metadata=match.metadata
                 )
                 for match in results.matches
-                if not match.metadata.get("is_skill_vector", False)  # Exclude skill vectors
+                if not match.metadata.get(
+                    "is_skill_vector", False
+                )  # Exclude skill vectors
             ]
 
             query_time = (datetime.utcnow() - start_time).total_seconds() * 1000
 
-            return VectorSearchResponse(
-                matches=matches,
-                query_time_ms=int(query_time)
-            )
+            return VectorSearchResponse(matches=matches, query_time_ms=int(query_time))
 
         except Exception as e:
             raise ServiceError(f"Failed to search jobs: {str(e)}")
 
     def search_similar_users(
-        self,
-        job_skills: List[str],
-        top_k: int = 10
+        self, job_skills: List[str], top_k: int = 10
     ) -> VectorSearchResponse:
         """Search for users with skills similar to job requirements"""
         try:
@@ -273,27 +264,20 @@ class PineconeService:
 
             # Query Pinecone
             results = self.users_index.query(
-                vector=query_vector,
-                top_k=top_k,
-                include_metadata=True
+                vector=query_vector, top_k=top_k, include_metadata=True
             )
 
             # Convert to response format
             matches = [
                 VectorSearchResult(
-                    id=match.id,
-                    score=match.score,
-                    metadata=match.metadata
+                    id=match.id, score=match.score, metadata=match.metadata
                 )
                 for match in results.matches
             ]
 
             query_time = (datetime.utcnow() - start_time).total_seconds() * 1000
 
-            return VectorSearchResponse(
-                matches=matches,
-                query_time_ms=int(query_time)
-            )
+            return VectorSearchResponse(matches=matches, query_time_ms=int(query_time))
 
         except Exception as e:
             raise ServiceError(f"Failed to search users: {str(e)}")
@@ -306,7 +290,7 @@ class PineconeService:
                 vector=[0.0] * 1536,  # Dummy vector
                 top_k=10000,
                 filter={"user_id": {"$eq": user_id}},
-                include_metadata=False
+                include_metadata=False,
             )
 
             # Delete vectors
@@ -328,7 +312,7 @@ class PineconeService:
                 vector=[0.0] * 1536,  # Dummy vector
                 top_k=10000,
                 filter={"job_id": {"$eq": job_id}, "is_skill_vector": {"$eq": True}},
-                include_metadata=False
+                include_metadata=False,
             )
 
             if results.matches:
@@ -338,11 +322,7 @@ class PineconeService:
         except Exception as e:
             raise ServiceError(f"Failed to delete job vectors: {str(e)}")
 
-    def calculate_semantic_similarity(
-        self,
-        text1: str,
-        text2: str
-    ) -> float:
+    def calculate_semantic_similarity(self, text1: str, text2: str) -> float:
         """Calculate semantic similarity between two texts"""
         try:
             vector1 = self.generate_embedding(text1)
@@ -350,6 +330,7 @@ class PineconeService:
 
             # Calculate cosine similarity
             import numpy as np
+
             similarity = np.dot(vector1, vector2) / (
                 np.linalg.norm(vector1) * np.linalg.norm(vector2)
             )
@@ -363,7 +344,8 @@ class PineconeService:
         """Remove expired cache entries"""
         now = datetime.utcnow()
         expired_keys = [
-            key for key, (_, cached_at) in self._embedding_cache.items()
+            key
+            for key, (_, cached_at) in self._embedding_cache.items()
             if now - cached_at > self._cache_ttl
         ]
         for key in expired_keys:
@@ -378,13 +360,13 @@ class PineconeService:
             return {
                 "jobs_index": {
                     "total_vectors": jobs_stats.total_vector_count,
-                    "dimension": jobs_stats.dimension
+                    "dimension": jobs_stats.dimension,
                 },
                 "users_index": {
                     "total_vectors": users_stats.total_vector_count,
-                    "dimension": users_stats.dimension
+                    "dimension": users_stats.dimension,
                 },
-                "cache_size": len(self._embedding_cache)
+                "cache_size": len(self._embedding_cache),
             }
         except Exception as e:
             raise ServiceError(f"Failed to get stats: {str(e)}")

@@ -14,12 +14,9 @@ from app.schemas.job_matching import (
     JobMatchRequest,
     JobMatchResponse,
     JobFilters,
-    JobSource
+    JobSource,
 )
-from app.schemas.job_feed import (
-    JobIngestionRequest,
-    JobIngestionResult
-)
+from app.schemas.job_feed import JobIngestionRequest, JobIngestionResult
 
 
 router = APIRouter()
@@ -29,7 +26,7 @@ router = APIRouter()
 def find_job_matches(
     request: JobMatchRequest,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Find job matches for user based on their resume and preferences.
@@ -37,21 +34,14 @@ def find_job_matches(
     """
     try:
         service = JobMatchingService(db)
-        matches = service.find_matches(
-            user_id=current_user.id,
-            request=request
-        )
+        matches = service.find_matches(user_id=current_user.id, request=request)
         return matches
 
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except ServiceError as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
@@ -60,7 +50,7 @@ def get_top_matches(
     resume_id: str = None,
     limit: int = 10,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Get top N job matches for user.
@@ -71,25 +61,18 @@ def get_top_matches(
             resume_id=resume_id,
             limit=limit,
             offset=0,
-            filters=JobFilters(min_fit_index=40)  # Only show decent matches
+            filters=JobFilters(min_fit_index=40),  # Only show decent matches
         )
 
         service = JobMatchingService(db)
-        matches = service.find_matches(
-            user_id=current_user.id,
-            request=request
-        )
+        matches = service.find_matches(user_id=current_user.id, request=request)
         return matches
 
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except ServiceError as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
@@ -98,7 +81,7 @@ def analyze_skill_gaps(
     job_id: str,
     resume_id: str = None,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Analyze skill gaps between user's resume and a specific job.
@@ -109,34 +92,40 @@ def analyze_skill_gaps(
         from app.db.models.resume import Resume
 
         # Get job
-        job = db.query(Job).filter(
-            Job.id == uuid.UUID(job_id),
-            Job.is_active == True
-        ).first()
+        job = (
+            db.query(Job)
+            .filter(Job.id == uuid.UUID(job_id), Job.is_active == True)
+            .first()
+        )
 
         if not job:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Job not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Job not found"
             )
 
         # Get resume
         if resume_id:
-            resume = db.query(Resume).filter(
-                Resume.id == uuid.UUID(resume_id),
-                Resume.user_id == current_user.id
-            ).first()
+            resume = (
+                db.query(Resume)
+                .filter(
+                    Resume.id == uuid.UUID(resume_id), Resume.user_id == current_user.id
+                )
+                .first()
+            )
         else:
-            resume = db.query(Resume).filter(
-                Resume.user_id == current_user.id,
-                Resume.is_default == True,
-                Resume.is_deleted == False
-            ).first()
+            resume = (
+                db.query(Resume)
+                .filter(
+                    Resume.user_id == current_user.id,
+                    Resume.is_default == True,
+                    Resume.is_deleted == False,
+                )
+                .first()
+            )
 
         if not resume:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Resume not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Resume not found"
             )
 
         # Analyze gaps
@@ -149,7 +138,7 @@ def analyze_skill_gaps(
             user_skills=user_skills,
             user_experience_years=user_experience_years,
             job=job,
-            semantic_score=0.8  # Default semantic score
+            semantic_score=0.8,  # Default semantic score
         )
 
         return {
@@ -163,25 +152,26 @@ def analyze_skill_gaps(
             "learning_path": [
                 {
                     "skill": sm.skill,
-                    "priority": "high" if not sm.user_has and not sm.is_transferable else "medium",
+                    "priority": "high"
+                    if not sm.user_has and not sm.is_transferable
+                    else "medium",
                     "current_level": "none" if not sm.user_has else "proficient",
                     "target_level": "proficient",
-                    "estimated_learning_time": "2-4 weeks" if not sm.is_transferable else "1-2 weeks"
+                    "estimated_learning_time": "2-4 weeks"
+                    if not sm.is_transferable
+                    else "1-2 weeks",
                 }
                 for sm in skill_matches
                 if not sm.user_has
-            ][:5]
+            ][:5],
         }
 
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error analyzing skill gaps: {str(e)}"
+            detail=f"Error analyzing skill gaps: {str(e)}",
         )
 
 
@@ -190,7 +180,7 @@ def analyze_skill_gaps(
 def ingest_jobs(
     request: JobIngestionRequest,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Admin endpoint to ingest jobs from external sources.
@@ -213,15 +203,13 @@ def ingest_jobs(
 
     except ServiceError as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
 @router.get("/admin/source-health")
 def get_source_health(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     """
     Admin endpoint to check health of job sources.
@@ -234,21 +222,20 @@ def get_source_health(
 
         health_status = {
             "greenhouse": service.get_source_health(JobSource.GREENHOUSE),
-            "lever": service.get_source_health(JobSource.LEVER)
+            "lever": service.get_source_health(JobSource.LEVER),
         }
 
         return {
             "sources": health_status,
             "overall_healthy": all(
-                source["is_healthy"]
-                for source in health_status.values()
-            )
+                source["is_healthy"] for source in health_status.values()
+            ),
         }
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error fetching source health: {str(e)}"
+            detail=f"Error fetching source health: {str(e)}",
         )
 
 
@@ -257,7 +244,7 @@ def deactivate_stale_jobs(
     source: JobSource,
     days_old: int = 30,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Admin endpoint to deactivate jobs that haven't been updated recently.
@@ -270,11 +257,11 @@ def deactivate_stale_jobs(
 
         return {
             "message": f"Deactivated {count} stale jobs from {source.value}",
-            "count": count
+            "count": count,
         }
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error deactivating jobs: {str(e)}"
+            detail=f"Error deactivating jobs: {str(e)}",
         )

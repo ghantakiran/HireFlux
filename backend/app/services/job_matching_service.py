@@ -18,7 +18,7 @@ from app.schemas.job_matching import (
     SkillMatch,
     SkillVector,
     ExperienceLevel,
-    LocationType
+    LocationType,
 )
 
 
@@ -27,10 +27,10 @@ class JobMatchingService:
 
     # Fit Index weights (total 100 points)
     WEIGHTS = {
-        "skill_match": 60,    # Max 60 points for skills
-        "experience": 20,     # Max 20 points for experience
-        "seniority": 10,      # Max 10 points for seniority level
-        "semantic": 10        # Max 10 points for semantic similarity
+        "skill_match": 60,  # Max 60 points for skills
+        "experience": 20,  # Max 20 points for experience
+        "seniority": 10,  # Max 10 points for seniority level
+        "semantic": 10,  # Max 10 points for semantic similarity
     }
 
     def __init__(self, db: Session):
@@ -38,9 +38,7 @@ class JobMatchingService:
         self.pinecone = PineconeService()
 
     def find_matches(
-        self,
-        user_id: uuid.UUID,
-        request: JobMatchRequest
+        self, user_id: uuid.UUID, request: JobMatchRequest
     ) -> List[JobMatchResponse]:
         """Find job matches for user with Fit Index scoring"""
 
@@ -53,33 +51,44 @@ class JobMatchingService:
         user_experience_years = self._calculate_experience_years(resume)
 
         # Build Pinecone filters from request filters
-        filters = self._build_pinecone_filters(request.filters) if request.filters else None
+        filters = (
+            self._build_pinecone_filters(request.filters) if request.filters else None
+        )
 
         # Search for similar jobs using vector similarity
         vector_results = self.pinecone.search_similar_jobs(
             user_skills=user_skills,
             top_k=request.limit + request.offset + 20,  # Extra buffer for filtering
-            filters=filters
+            filters=filters,
         )
 
         # Calculate Fit Index for each job
         matches = []
         for result in vector_results.matches:
             try:
-                job = self.db.query(Job).filter(
-                    Job.id == uuid.UUID(result.metadata["job_id"]),
-                    Job.is_active == True
-                ).first()
+                job = (
+                    self.db.query(Job)
+                    .filter(
+                        Job.id == uuid.UUID(result.metadata["job_id"]),
+                        Job.is_active == True,
+                    )
+                    .first()
+                )
 
                 if not job:
                     continue
 
                 # Calculate comprehensive Fit Index
-                fit_index, breakdown, rationale, skill_matches = self._calculate_fit_index(
+                (
+                    fit_index,
+                    breakdown,
+                    rationale,
+                    skill_matches,
+                ) = self._calculate_fit_index(
                     user_skills=user_skills,
                     user_experience_years=user_experience_years,
                     job=job,
-                    semantic_score=result.score
+                    semantic_score=result.score,
                 )
 
                 # Apply fit index filter if specified
@@ -94,7 +103,9 @@ class JobMatchingService:
                     company=job.company,
                     location=job.location,
                     location_type=LocationType(job.location_type or "onsite"),
-                    salary_range=f"${job.salary_min:,}-${job.salary_max:,}" if job.salary_min and job.salary_max else None,
+                    salary_range=f"${job.salary_min:,}-${job.salary_max:,}"
+                    if job.salary_min and job.salary_max
+                    else None,
                     fit_index=fit_index,
                     match_quality=self._get_match_quality(fit_index),
                     rationale=rationale,
@@ -104,7 +115,7 @@ class JobMatchingService:
                     source=job.source or "manual",
                     job_url=job.external_url,
                     requires_visa_sponsorship=job.requires_visa_sponsorship or False,
-                    is_active=job.is_active
+                    is_active=job.is_active,
                 )
                 matches.append(match)
 
@@ -115,14 +126,14 @@ class JobMatchingService:
 
         # Sort by Fit Index and apply pagination
         matches.sort(key=lambda x: x.fit_index, reverse=True)
-        return matches[request.offset:request.offset + request.limit]
+        return matches[request.offset : request.offset + request.limit]
 
     def _calculate_fit_index(
         self,
         user_skills: List[SkillVector],
         user_experience_years: int,
         job: Job,
-        semantic_score: float
+        semantic_score: float,
     ) -> Tuple[int, FitIndexBreakdown, JobMatchRationale, List[SkillMatch]]:
         """
         Calculate comprehensive Fit Index (0-100)
@@ -138,7 +149,7 @@ class JobMatchingService:
         skill_score, skill_matches = self._calculate_skill_match(
             user_skills=user_skills,
             required_skills=job.required_skills or [],
-            preferred_skills=job.preferred_skills or []
+            preferred_skills=job.preferred_skills or [],
         )
 
         # 2. EXPERIENCE MATCH (20 points)
@@ -146,20 +157,22 @@ class JobMatchingService:
             user_years=user_experience_years,
             job_min=job.experience_min_years,
             job_max=job.experience_max_years,
-            job_requirement=job.experience_requirement
+            job_requirement=job.experience_requirement,
         )
 
         # 3. SENIORITY MATCH (10 points)
         seniority_score = self._calculate_seniority_score(
-            user_years=user_experience_years,
-            job_level=job.experience_level
+            user_years=user_experience_years, job_level=job.experience_level
         )
 
         # 4. SEMANTIC SIMILARITY (10 points)
         semantic_points = int(semantic_score * self.WEIGHTS["semantic"])
 
         # TOTAL FIT INDEX
-        total = min(100, max(0, skill_score + experience_score + seniority_score + semantic_points))
+        total = min(
+            100,
+            max(0, skill_score + experience_score + seniority_score + semantic_points),
+        )
 
         # Build detailed breakdown
         breakdown = FitIndexBreakdown(
@@ -167,12 +180,16 @@ class JobMatchingService:
             experience_score=experience_score,
             seniority_score=seniority_score,
             semantic_similarity=semantic_points,
-            total=total
+            total=total,
         )
 
         # Generate rationale
         matching_skills = [sm.skill for sm in skill_matches if sm.user_has]
-        skill_gaps = [sm.skill for sm in skill_matches if not sm.user_has and not sm.is_transferable]
+        skill_gaps = [
+            sm.skill
+            for sm in skill_matches
+            if not sm.user_has and not sm.is_transferable
+        ]
         transferable = [sm.skill for sm in skill_matches if sm.is_transferable]
 
         rationale = self._generate_rationale(
@@ -182,7 +199,7 @@ class JobMatchingService:
             transferable_skills=transferable,
             experience_label=experience_label,
             user_years=user_experience_years,
-            job_requirement=job.experience_requirement
+            job_requirement=job.experience_requirement,
         )
 
         return total, breakdown, rationale, skill_matches
@@ -191,7 +208,7 @@ class JobMatchingService:
         self,
         user_skills: List[SkillVector],
         required_skills: List[str],
-        preferred_skills: List[str]
+        preferred_skills: List[str],
     ) -> Tuple[int, List[SkillMatch]]:
         """Calculate skill match score (max 60 points)"""
 
@@ -208,30 +225,46 @@ class JobMatchingService:
             similarity = 0.0
             if not has_skill:
                 for user_skill in user_skills:
-                    sim = self.pinecone.calculate_semantic_similarity(req_skill, user_skill.skill)
+                    sim = self.pinecone.calculate_semantic_similarity(
+                        req_skill, user_skill.skill
+                    )
                     if sim > similarity:
                         similarity = sim
 
             is_transferable = similarity > 0.7 and not has_skill
 
-            skill_matches.append(SkillMatch(
-                skill=req_skill,
-                user_has=has_skill,
-                user_years=user_skill_names[req_lower].years_experience if has_skill and req_lower in user_skill_names else None,
-                similarity_score=1.0 if has_skill else similarity,
-                is_transferable=is_transferable
-            ))
+            skill_matches.append(
+                SkillMatch(
+                    skill=req_skill,
+                    user_has=has_skill,
+                    user_years=user_skill_names[req_lower].years_experience
+                    if has_skill and req_lower in user_skill_names
+                    else None,
+                    similarity_score=1.0 if has_skill else similarity,
+                    is_transferable=is_transferable,
+                )
+            )
 
             if has_skill:
                 required_matches += 1
             elif is_transferable:
                 required_matches += 0.5  # Partial credit for transferable skills
 
-        required_score = int((required_matches / len(required_skills)) * 50) if required_skills else 50
+        required_score = (
+            int((required_matches / len(required_skills)) * 50)
+            if required_skills
+            else 50
+        )
 
         # PREFERRED SKILLS (10 points)
-        preferred_matches = sum(1 for pref in preferred_skills if pref.lower() in user_skill_names)
-        preferred_score = int((preferred_matches / len(preferred_skills)) * 10) if preferred_skills else 10
+        preferred_matches = sum(
+            1 for pref in preferred_skills if pref.lower() in user_skill_names
+        )
+        preferred_score = (
+            int((preferred_matches / len(preferred_skills)) * 10)
+            if preferred_skills
+            else 10
+        )
 
         total_skill_score = min(60, required_score + preferred_score)
         return total_skill_score, skill_matches
@@ -241,7 +274,7 @@ class JobMatchingService:
         user_years: int,
         job_min: Optional[int],
         job_max: Optional[int],
-        job_requirement: Optional[str]
+        job_requirement: Optional[str],
     ) -> Tuple[int, str]:
         """Calculate experience match score (max 20 points)"""
 
@@ -266,7 +299,9 @@ class JobMatchingService:
         # Under-qualified
         return 5, "under-qualified"
 
-    def _calculate_seniority_score(self, user_years: int, job_level: Optional[str]) -> int:
+    def _calculate_seniority_score(
+        self, user_years: int, job_level: Optional[str]
+    ) -> int:
         """Calculate seniority match score (max 10 points)"""
 
         user_level = self._years_to_level(user_years)
@@ -322,7 +357,7 @@ class JobMatchingService:
         transferable_skills: List[str],
         experience_label: str,
         user_years: int,
-        job_requirement: Optional[str]
+        job_requirement: Optional[str],
     ) -> JobMatchRationale:
         """Generate human-readable match rationale"""
 
@@ -330,7 +365,9 @@ class JobMatchingService:
         if total >= 90:
             summary = "Excellent match! You meet all key requirements and would be a strong candidate."
         elif total >= 70:
-            summary = "Good match. You have most required skills and appropriate experience."
+            summary = (
+                "Good match. You have most required skills and appropriate experience."
+            )
         elif total >= 40:
             summary = "Partial match. Consider applying if you're willing to learn missing skills."
         else:
@@ -340,7 +377,9 @@ class JobMatchingService:
         if experience_label == "perfect":
             exp_details = f"Your {user_years} years of experience perfectly matches the requirements."
         elif experience_label == "appropriate":
-            exp_details = f"Your {user_years} years of experience is appropriate for this role."
+            exp_details = (
+                f"Your {user_years} years of experience is appropriate for this role."
+            )
         elif experience_label == "stretch":
             exp_details = f"This is a stretch opportunity requiring {job_requirement or 'more experience'}."
         else:
@@ -352,9 +391,13 @@ class JobMatchingService:
             top_gaps = skill_gaps[:3]
             recommendations.append(f"Consider learning: {', '.join(top_gaps)}")
         if transferable_skills:
-            recommendations.append(f"Highlight your {', '.join(transferable_skills[:2])} experience")
+            recommendations.append(
+                f"Highlight your {', '.join(transferable_skills[:2])} experience"
+            )
         if experience_label == "stretch":
-            recommendations.append("Emphasize achievements and rapid learning ability in your application")
+            recommendations.append(
+                "Emphasize achievements and rapid learning ability in your application"
+            )
         if total >= 70:
             recommendations.append("This is a strong match - we recommend applying!")
 
@@ -365,23 +408,30 @@ class JobMatchingService:
             transferable_skills=transferable_skills,
             experience_match=experience_label,
             experience_details=exp_details,
-            recommendations=recommendations
+            recommendations=recommendations,
         )
 
-    def _get_user_resume(self, user_id: uuid.UUID, resume_id: Optional[str]) -> Optional[Resume]:
+    def _get_user_resume(
+        self, user_id: uuid.UUID, resume_id: Optional[str]
+    ) -> Optional[Resume]:
         """Get user's resume"""
         if resume_id:
-            return self.db.query(Resume).filter(
-                Resume.id == uuid.UUID(resume_id),
-                Resume.user_id == user_id
-            ).first()
+            return (
+                self.db.query(Resume)
+                .filter(Resume.id == uuid.UUID(resume_id), Resume.user_id == user_id)
+                .first()
+            )
 
         # Get default resume
-        return self.db.query(Resume).filter(
-            Resume.user_id == user_id,
-            Resume.is_default == True,
-            Resume.is_deleted == False
-        ).first()
+        return (
+            self.db.query(Resume)
+            .filter(
+                Resume.user_id == user_id,
+                Resume.is_default == True,
+                Resume.is_deleted == False,
+            )
+            .first()
+        )
 
     def _extract_skills_from_resume(self, resume: Resume) -> List[SkillVector]:
         """Extract skills from parsed resume data"""
@@ -393,11 +443,13 @@ class JobMatchingService:
             if isinstance(skill, str):
                 skills.append(SkillVector(skill=skill, years_experience=None))
             elif isinstance(skill, dict):
-                skills.append(SkillVector(
-                    skill=skill.get("name", ""),
-                    years_experience=skill.get("years"),
-                    proficiency=skill.get("level")
-                ))
+                skills.append(
+                    SkillVector(
+                        skill=skill.get("name", ""),
+                        years_experience=skill.get("years"),
+                        proficiency=skill.get("level"),
+                    )
+                )
 
         return skills
 
@@ -430,6 +482,8 @@ class JobMatchingService:
             pinecone_filter["salary_min"] = {"$gte": filters.min_salary}
 
         if filters.location_types:
-            pinecone_filter["location_type"] = {"$in": [lt.value for lt in filters.location_types]}
+            pinecone_filter["location_type"] = {
+                "$in": [lt.value for lt in filters.location_types]
+            }
 
         return pinecone_filter if pinecone_filter else None

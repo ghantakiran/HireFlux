@@ -1,5 +1,14 @@
 """Job, JobSource, and MatchScore models"""
-from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Text, Integer, Boolean, JSON
+from sqlalchemy import (
+    Column,
+    String,
+    TIMESTAMP,
+    ForeignKey,
+    Text,
+    Integer,
+    Boolean,
+    JSON,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -10,6 +19,7 @@ from app.db.types import GUID
 
 class JobSource(Base):
     """Job board/API sources"""
+
     __tablename__ = "job_sources"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
@@ -25,10 +35,13 @@ class JobSource(Base):
 
 class Job(Base):
     """Job postings from various sources"""
+
     __tablename__ = "jobs"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
-    source_id = Column(GUID(), ForeignKey("job_sources.id", ondelete="SET NULL"), nullable=True)
+    source_id = Column(
+        GUID(), ForeignKey("job_sources.id", ondelete="SET NULL"), nullable=True
+    )
     source = Column(String(50))  # 'greenhouse', 'lever', 'manual'
     external_id = Column(String(255))  # ID from job board
     title = Column(String(255), index=True)
@@ -66,18 +79,25 @@ class Job(Base):
 
     # Relationships
     job_source = relationship("JobSource", back_populates="jobs")
-    match_scores = relationship("MatchScore", back_populates="job", cascade="all, delete-orphan")
+    match_scores = relationship(
+        "MatchScore", back_populates="job", cascade="all, delete-orphan"
+    )
     cover_letters = relationship("CoverLetter", back_populates="job")
     applications = relationship("Application", back_populates="job")
 
 
 class MatchScore(Base):
     """Job matching scores for users"""
+
     __tablename__ = "match_scores"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
-    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    job_id = Column(GUID(), ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(
+        GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    job_id = Column(
+        GUID(), ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     fit_index = Column(Integer)  # 0-100
     rationale = Column(Text)  # Why this job matches
     created_at = Column(TIMESTAMP, server_default=func.now())

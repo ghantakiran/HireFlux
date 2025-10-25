@@ -4,7 +4,15 @@ API V1 Router - Combines all endpoint routers
 from fastapi import APIRouter
 
 # Import routers
-from app.api.v1.endpoints import auth, onboarding, resume, ai_generation, cover_letter, billing, jobs
+from app.api.v1.endpoints import (
+    auth,
+    onboarding,
+    resume,
+    ai_generation,
+    cover_letter,
+    billing,
+    jobs,
+)
 
 api_router = APIRouter()
 
@@ -13,7 +21,9 @@ api_router.include_router(auth.router)
 api_router.include_router(onboarding.router)
 api_router.include_router(resume.router)
 api_router.include_router(ai_generation.router, prefix="/ai", tags=["AI Generation"])
-api_router.include_router(cover_letter.router, prefix="/cover-letters", tags=["Cover Letters"])
+api_router.include_router(
+    cover_letter.router, prefix="/cover-letters", tags=["Cover Letters"]
+)
 api_router.include_router(billing.router, prefix="/billing", tags=["Billing"])
 api_router.include_router(jobs.router, prefix="/jobs", tags=["Jobs"])
 

@@ -7,12 +7,14 @@ from enum import Enum
 
 class FileType(str, Enum):
     """Supported resume file types"""
+
     PDF = "application/pdf"
     DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
 
 class ParseStatus(str, Enum):
     """Resume parsing status"""
+
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -21,6 +23,7 @@ class ParseStatus(str, Enum):
 
 class ContactInfo(BaseModel):
     """Contact information extracted from resume"""
+
     full_name: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
@@ -28,16 +31,17 @@ class ContactInfo(BaseModel):
     linkedin_url: Optional[str] = None
     website: Optional[str] = None
 
-    @field_validator('email')
+    @field_validator("email")
     @classmethod
     def validate_email(cls, v):
-        if v and '@' not in v:
-            raise ValueError('Invalid email format')
+        if v and "@" not in v:
+            raise ValueError("Invalid email format")
         return v
 
 
 class WorkExperience(BaseModel):
     """Work experience entry"""
+
     company: str = Field(..., min_length=1, max_length=255)
     title: str = Field(..., min_length=1, max_length=255)
     location: Optional[str] = Field(None, max_length=255)
@@ -47,16 +51,17 @@ class WorkExperience(BaseModel):
     responsibilities: List[str] = Field(default=[])
     is_current: bool = False
 
-    @field_validator('responsibilities')
+    @field_validator("responsibilities")
     @classmethod
     def validate_responsibilities(cls, v):
         if len(v) > 20:
-            raise ValueError('Maximum 20 responsibilities per role')
+            raise ValueError("Maximum 20 responsibilities per role")
         return v
 
 
 class Education(BaseModel):
     """Education entry"""
+
     institution: str = Field(..., min_length=1, max_length=255)
     degree: Optional[str] = Field(None, max_length=255)
     field_of_study: Optional[str] = Field(None, max_length=255)
@@ -69,6 +74,7 @@ class Education(BaseModel):
 
 class Certification(BaseModel):
     """Certification entry"""
+
     name: str = Field(..., min_length=1, max_length=255)
     issuing_organization: str = Field(..., min_length=1, max_length=255)
     issue_date: Optional[str] = None
@@ -79,6 +85,7 @@ class Certification(BaseModel):
 
 class ParsedResumeData(BaseModel):
     """Complete parsed resume data structure"""
+
     contact_info: ContactInfo = Field(default_factory=ContactInfo)
     summary: Optional[str] = None
     work_experience: List[WorkExperience] = Field(default=[])
@@ -94,6 +101,7 @@ class ParsedResumeData(BaseModel):
 
 class ResumeUploadResponse(BaseModel):
     """Response after resume upload"""
+
     id: str
     user_id: str
     file_name: str
@@ -106,6 +114,7 @@ class ResumeUploadResponse(BaseModel):
 
 class ResumeMetadata(BaseModel):
     """Resume metadata"""
+
     id: str
     user_id: str
     file_name: str
@@ -119,6 +128,7 @@ class ResumeMetadata(BaseModel):
 
 class ResumeDetail(BaseModel):
     """Complete resume details with parsed data"""
+
     id: str
     user_id: str
     file_name: str
@@ -134,6 +144,7 @@ class ResumeDetail(BaseModel):
 
 class ResumeListResponse(BaseModel):
     """Response for listing resumes"""
+
     resumes: List[ResumeMetadata]
     total: int
     default_resume_id: Optional[str] = None
@@ -141,24 +152,29 @@ class ResumeListResponse(BaseModel):
 
 class ResumeUpdateRequest(BaseModel):
     """Request to update resume parsed data"""
+
     parsed_data: ParsedResumeData
 
-    @field_validator('parsed_data')
+    @field_validator("parsed_data")
     @classmethod
     def validate_parsed_data(cls, v):
         # Ensure at least contact info or work experience exists
         if not v.contact_info.full_name and not v.work_experience:
-            raise ValueError('Resume must have at least contact info or work experience')
+            raise ValueError(
+                "Resume must have at least contact info or work experience"
+            )
         return v
 
 
 class SetDefaultResumeRequest(BaseModel):
     """Request to set a resume as default"""
+
     resume_id: str = Field(..., min_length=1)
 
 
 class ResumeParseStats(BaseModel):
     """Statistics about resume parsing"""
+
     total_resumes: int
     successfully_parsed: int
     failed_parses: int
@@ -168,6 +184,7 @@ class ResumeParseStats(BaseModel):
 
 class ResumeExportResponse(BaseModel):
     """Exported resume data"""
+
     resume_id: str
     exported_at: datetime
     data: ParsedResumeData
@@ -175,9 +192,10 @@ class ResumeExportResponse(BaseModel):
 
 class ResumeUploadValidation(BaseModel):
     """Validation schema for file upload"""
+
     MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
     ALLOWED_MIME_TYPES: List[str] = [FileType.PDF.value, FileType.DOCX.value]
-    ALLOWED_EXTENSIONS: List[str] = ['.pdf', '.docx']
+    ALLOWED_EXTENSIONS: List[str] = [".pdf", ".docx"]
 
     @staticmethod
     def validate_file_size(file_size: int) -> bool:
@@ -192,11 +210,15 @@ class ResumeUploadValidation(BaseModel):
     @staticmethod
     def validate_file_extension(filename: str) -> bool:
         """Validate file extension"""
-        return any(filename.lower().endswith(ext) for ext in ResumeUploadValidation.ALLOWED_EXTENSIONS)
+        return any(
+            filename.lower().endswith(ext)
+            for ext in ResumeUploadValidation.ALLOWED_EXTENSIONS
+        )
 
 
 class ResumeParseError(BaseModel):
     """Error information when parsing fails"""
+
     error_code: str
     error_message: str
     error_details: Optional[Dict[str, Any]] = None
@@ -205,11 +227,12 @@ class ResumeParseError(BaseModel):
 
 class BatchResumeUploadRequest(BaseModel):
     """Request for batch resume upload (future feature)"""
+
     resume_files: List[str] = Field(..., min_items=1, max_items=5)
 
-    @field_validator('resume_files')
+    @field_validator("resume_files")
     @classmethod
     def validate_batch_size(cls, v):
         if len(v) > 5:
-            raise ValueError('Maximum 5 resumes can be uploaded at once')
+            raise ValueError("Maximum 5 resumes can be uploaded at once")
         return v

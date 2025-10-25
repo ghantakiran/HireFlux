@@ -10,7 +10,7 @@ from app.schemas.cover_letter import (
     CoverLetterResponse,
     CoverLetterStatus,
     BulkCoverLetterGenerationRequest,
-    BulkCoverLetterResponse
+    BulkCoverLetterResponse,
 )
 from app.core.exceptions import NotFoundError, ServiceError
 from app.db.models.cover_letter import CoverLetter
@@ -24,7 +24,7 @@ class CoverLetterService:
     LENGTH_TARGETS = {
         "brief": (200, 250),
         "standard": (300, 400),
-        "detailed": (450, 600)
+        "detailed": (450, 600),
     }
 
     def __init__(self, db: Session):
@@ -33,9 +33,7 @@ class CoverLetterService:
         self.openai_service = OpenAIService()
 
     def generate_cover_letter(
-        self,
-        user_id: uuid.UUID,
-        request: CoverLetterGenerationRequest
+        self, user_id: uuid.UUID, request: CoverLetterGenerationRequest
     ) -> List[CoverLetterResponse]:
         """
         Generate AI-powered cover letter(s)
@@ -43,7 +41,9 @@ class CoverLetterService:
         Returns list of variations if variations_count > 1
         """
         # Get resume data
-        resume_data = self._get_resume_data(user_id, request.resume_version_id, request.resume_id)
+        resume_data = self._get_resume_data(
+            user_id, request.resume_version_id, request.resume_id
+        )
 
         # Generate variations
         results = []
@@ -52,7 +52,7 @@ class CoverLetterService:
                 user_id=user_id,
                 request=request,
                 resume_data=resume_data,
-                variation_number=i + 1 if request.variations_count > 1 else None
+                variation_number=i + 1 if request.variations_count > 1 else None,
             )
             results.append(result)
 
@@ -62,32 +62,36 @@ class CoverLetterService:
         self,
         user_id: uuid.UUID,
         resume_version_id: Optional[str],
-        resume_id: Optional[str]
+        resume_id: Optional[str],
     ) -> Dict[str, Any]:
         """Get resume data from version or default resume"""
         if resume_version_id:
-            version = self.db.query(ResumeVersion).filter(
-                ResumeVersion.id == uuid.UUID(resume_version_id)
-            ).first()
+            version = (
+                self.db.query(ResumeVersion)
+                .filter(ResumeVersion.id == uuid.UUID(resume_version_id))
+                .first()
+            )
             if not version:
                 raise NotFoundError("Resume version not found")
             return version.content
 
         elif resume_id:
-            resume = self.db.query(Resume).filter(
-                Resume.id == uuid.UUID(resume_id),
-                Resume.user_id == user_id
-            ).first()
+            resume = (
+                self.db.query(Resume)
+                .filter(Resume.id == uuid.UUID(resume_id), Resume.user_id == user_id)
+                .first()
+            )
             if not resume:
                 raise NotFoundError("Resume not found")
             return resume.parsed_data
 
         else:
             # Use default resume
-            resume = self.db.query(Resume).filter(
-                Resume.user_id == user_id,
-                Resume.is_default == True
-            ).first()
+            resume = (
+                self.db.query(Resume)
+                .filter(Resume.user_id == user_id, Resume.is_default == True)
+                .first()
+            )
             if not resume:
                 raise NotFoundError("No default resume found")
             return resume.parsed_data
@@ -97,7 +101,7 @@ class CoverLetterService:
         user_id: uuid.UUID,
         request: CoverLetterGenerationRequest,
         resume_data: Dict[str, Any],
-        variation_number: Optional[int] = None
+        variation_number: Optional[int] = None,
     ) -> CoverLetterResponse:
         """Generate a single cover letter"""
 
@@ -108,8 +112,11 @@ class CoverLetterService:
         try:
             result = self.openai_service.generate_completion(
                 messages=[
-                    {"role": "system", "content": "You are an expert cover letter writer."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "You are an expert cover letter writer.",
+                    },
+                    {"role": "user", "content": prompt},
                 ]
             )
         except Exception as e:
@@ -119,7 +126,7 @@ class CoverLetterService:
         usage = result["usage"]
         cost = self.openai_service.calculate_cost(
             prompt_tokens=usage["prompt_tokens"],
-            completion_tokens=usage["completion_tokens"]
+            completion_tokens=usage["completion_tokens"],
         )
 
         # Create cover letter record
@@ -143,7 +150,7 @@ class CoverLetterService:
             cost=str(cost),
             status="completed",
             variation_number=variation_number,
-            created_at=datetime.utcnow()
+            created_at=datetime.utcnow(),
         )
 
         self.db.add(cover_letter)
@@ -158,7 +165,7 @@ class CoverLetterService:
             prompt_tokens=usage["prompt_tokens"],
             completion_tokens=usage["completion_tokens"],
             total_tokens=usage["total_tokens"],
-            cost=cost
+            cost=cost,
         )
 
         return self._to_response(cover_letter)
@@ -167,7 +174,7 @@ class CoverLetterService:
         self,
         request: CoverLetterGenerationRequest,
         resume_data: Dict[str, Any],
-        variation_number: Optional[int] = None
+        variation_number: Optional[int] = None,
     ) -> str:
         """Build prompt for cover letter generation"""
 
@@ -182,7 +189,9 @@ class CoverLetterService:
         ]
 
         if request.job_description:
-            prompt_parts.append(f"\n\nJob Description:\n{request.job_description[:1000]}")
+            prompt_parts.append(
+                f"\n\nJob Description:\n{request.job_description[:1000]}"
+            )
 
         # Add resume context
         name = resume_data.get("contact_info", {}).get("full_name", "")
@@ -195,14 +204,20 @@ class CoverLetterService:
         if experience:
             prompt_parts.append("\nRecent Experience:")
             for exp in experience[:2]:
-                prompt_parts.append(f"- {exp.get('title', 'N/A')} at {exp.get('company', 'N/A')}")
+                prompt_parts.append(
+                    f"- {exp.get('title', 'N/A')} at {exp.get('company', 'N/A')}"
+                )
 
         # Add customizations
         if request.custom_intro:
-            prompt_parts.append(f"\n\nUse this as the introduction:\n{request.custom_intro}")
+            prompt_parts.append(
+                f"\n\nUse this as the introduction:\n{request.custom_intro}"
+            )
 
         if request.emphasize_skills:
-            prompt_parts.append(f"\nEmphasize these skills: {', '.join(request.emphasize_skills)}")
+            prompt_parts.append(
+                f"\nEmphasize these skills: {', '.join(request.emphasize_skills)}"
+            )
 
         if request.company_research:
             prompt_parts.append(f"\nCompany Insights:\n{request.company_research}")
@@ -214,7 +229,9 @@ class CoverLetterService:
             prompt_parts.append(f"\nAddress employment gap: {request.address_gap}")
 
         if request.career_change_context:
-            prompt_parts.append(f"\nCareer change context: {request.career_change_context}")
+            prompt_parts.append(
+                f"\nCareer change context: {request.career_change_context}"
+            )
 
         if request.strict_factual:
             prompt_parts.append(
@@ -222,9 +239,13 @@ class CoverLetterService:
             )
 
         if variation_number:
-            prompt_parts.append(f"\n\nThis is variation #{variation_number}. Emphasize different strengths.")
+            prompt_parts.append(
+                f"\n\nThis is variation #{variation_number}. Emphasize different strengths."
+            )
 
-        prompt_parts.append("\n\nProvide the complete cover letter text only, no additional commentary.")
+        prompt_parts.append(
+            "\n\nProvide the complete cover letter text only, no additional commentary."
+        )
 
         return " ".join(prompt_parts)
 
@@ -233,36 +254,40 @@ class CoverLetterService:
         return CoverLetterResponse(
             id=str(cover_letter.id),
             user_id=str(cover_letter.user_id),
-            resume_version_id=str(cover_letter.resume_version_id) if cover_letter.resume_version_id else None,
+            resume_version_id=str(cover_letter.resume_version_id)
+            if cover_letter.resume_version_id
+            else None,
             job_title=cover_letter.job_title,
             company_name=cover_letter.company_name,
             tone=cover_letter.tone,
             length=cover_letter.length,
             content=cover_letter.content,
             status=CoverLetterStatus(cover_letter.status),
-            token_usage=int(cover_letter.token_usage) if cover_letter.token_usage else 0,
+            token_usage=int(cover_letter.token_usage)
+            if cover_letter.token_usage
+            else 0,
             cost=float(cover_letter.cost) if cover_letter.cost else 0.0,
             quality_score=cover_letter.quality_score,
             created_at=cover_letter.created_at,
-            updated_at=cover_letter.updated_at
+            updated_at=cover_letter.updated_at,
         )
 
     def get_cover_letters(
-        self,
-        user_id: uuid.UUID,
-        limit: int = 50
+        self, user_id: uuid.UUID, limit: int = 50
     ) -> List[CoverLetterResponse]:
         """Get user's cover letters"""
-        letters = self.db.query(CoverLetter).filter(
-            CoverLetter.user_id == user_id
-        ).order_by(CoverLetter.created_at.desc()).limit(limit).all()
+        letters = (
+            self.db.query(CoverLetter)
+            .filter(CoverLetter.user_id == user_id)
+            .order_by(CoverLetter.created_at.desc())
+            .limit(limit)
+            .all()
+        )
 
         return [self._to_response(letter) for letter in letters]
 
     def generate_bulk(
-        self,
-        user_id: uuid.UUID,
-        request: BulkCoverLetterGenerationRequest
+        self, user_id: uuid.UUID, request: BulkCoverLetterGenerationRequest
     ) -> BulkCoverLetterResponse:
         """Generate multiple cover letters"""
         results = []
@@ -276,7 +301,7 @@ class CoverLetterService:
                     job_title=job["job_title"],
                     company_name=job["company_name"],
                     tone=request.tone,
-                    length=request.length
+                    length=request.length,
                 )
 
                 letter = self.generate_cover_letter(user_id, individual_request)[0]
@@ -293,5 +318,5 @@ class CoverLetterService:
             failed=len(request.jobs) - len(results),
             letters=results,
             total_cost=total_cost,
-            total_tokens=total_tokens
+            total_tokens=total_tokens,
         )

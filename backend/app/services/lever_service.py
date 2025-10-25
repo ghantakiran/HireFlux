@@ -13,7 +13,7 @@ from app.schemas.job_feed import (
     JobMetadata,
     LeverJob,
     LeverCategory,
-    LeverLocation
+    LeverLocation,
 )
 
 
@@ -44,9 +44,7 @@ class LeverService:
             time.sleep(1)
 
     def _make_request(
-        self,
-        company_site: str,
-        params: Optional[Dict] = None
+        self, company_site: str, params: Optional[Dict] = None
     ) -> List[Dict]:
         """Make HTTP request with rate limiting and error handling"""
         self._wait_for_rate_limit()
@@ -68,7 +66,7 @@ class LeverService:
         company_site: str,
         team: Optional[str] = None,
         location: Optional[str] = None,
-        commitment: Optional[str] = None
+        commitment: Optional[str] = None,
     ) -> JobFetchResult:
         """
         Fetch jobs from a Lever company site
@@ -111,14 +109,10 @@ class LeverService:
                 updated_jobs=0,
                 failed_jobs=len(errors),
                 fetch_duration_seconds=0.0,  # Calculated externally
-                errors=errors
+                errors=errors,
             )
 
-            return JobFetchResult(
-                jobs=jobs,
-                metadata=metadata,
-                source=JobSource.LEVER
-            )
+            return JobFetchResult(jobs=jobs, metadata=metadata, source=JobSource.LEVER)
 
         except Exception as e:
             raise ServiceError(f"Failed to fetch Lever jobs: {str(e)}")
@@ -135,7 +129,7 @@ class LeverService:
                     department=job_data["categories"].get("department"),
                     level=job_data["categories"].get("level"),
                     location=job_data["categories"].get("location"),
-                    team=job_data["categories"].get("team")
+                    team=job_data["categories"].get("team"),
                 )
             ]
 
@@ -146,7 +140,11 @@ class LeverService:
 
         # Determine location type
         location_type = "onsite"
-        location_name = job_data["categories"].get("location", "") if "categories" in job_data else ""
+        location_name = (
+            job_data["categories"].get("location", "")
+            if "categories" in job_data
+            else ""
+        )
 
         if location_name:
             location_lower = location_name.lower()
@@ -183,7 +181,7 @@ class LeverService:
             lists=job_data.get("lists", []),
             additional=job_data.get("additional", ""),
             additionalPlain=job_data.get("additionalPlain", ""),
-            workplaceType=job_data.get("workplaceType")
+            workplaceType=job_data.get("workplaceType"),
         )
 
     def fetch_job_details(self, company_site: str, job_id: str) -> Dict:
@@ -210,7 +208,9 @@ class LeverService:
         except requests.exceptions.RequestException as e:
             raise ServiceError(f"Failed to fetch Lever job details: {str(e)}")
 
-    def get_companies_with_lever(self, company_identifiers: List[str]) -> Dict[str, str]:
+    def get_companies_with_lever(
+        self, company_identifiers: List[str]
+    ) -> Dict[str, str]:
         """
         Check which companies have active Lever job boards
 
@@ -226,11 +226,7 @@ class LeverService:
             try:
                 # Test if company site exists
                 test_url = f"{self.BASE_URL}/{identifier}"
-                response = requests.get(
-                    test_url,
-                    params={"mode": "json"},
-                    timeout=10
-                )
+                response = requests.get(test_url, params={"mode": "json"}, timeout=10)
 
                 if response.status_code == 200:
                     data = response.json()

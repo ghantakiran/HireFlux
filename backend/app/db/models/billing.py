@@ -1,5 +1,14 @@
 """Billing models: CreditWallet, CreditLedger, Subscription"""
-from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Integer, Text, Boolean, Float
+from sqlalchemy import (
+    Column,
+    String,
+    TIMESTAMP,
+    ForeignKey,
+    Integer,
+    Text,
+    Boolean,
+    Float,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -10,10 +19,17 @@ from app.db.types import GUID
 
 class CreditWallet(Base):
     """User credit balance - multiple credit types"""
+
     __tablename__ = "credit_wallets"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
-    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    user_id = Column(
+        GUID(),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
 
     # Different credit types
     ai_credits = Column(Integer, default=0)  # For AI resume/cover letter generation
@@ -35,13 +51,18 @@ class CreditWallet(Base):
 
 class CreditLedger(Base):
     """Credit transaction history - immutable audit log"""
+
     __tablename__ = "credit_ledger"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
-    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(
+        GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
 
     # Transaction details
-    credit_type = Column(String(50))  # 'ai', 'cover_letter', 'auto_apply', 'job_suggestion'
+    credit_type = Column(
+        String(50)
+    )  # 'ai', 'cover_letter', 'auto_apply', 'job_suggestion'
     amount = Column(Integer)  # Positive for credit, negative for debit
     balance_after = Column(Integer)  # Balance after this transaction
     operation = Column(String(50))  # 'deduct', 'add', 'refund', 'reset'
@@ -59,10 +80,13 @@ class CreditLedger(Base):
 
 class Subscription(Base):
     """User subscription plans"""
+
     __tablename__ = "subscriptions"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
-    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(
+        GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
 
     # Stripe integration
     stripe_customer_id = Column(String(255))
@@ -70,9 +94,11 @@ class Subscription(Base):
     stripe_price_id = Column(String(255))
 
     # Subscription details
-    plan = Column(String(50), default='free')  # 'free', 'plus', 'pro'
-    status = Column(String(50), default='active')  # 'active', 'canceled', 'past_due', 'trialing'
-    billing_interval = Column(String(20), default='month')  # 'month', 'year'
+    plan = Column(String(50), default="free")  # 'free', 'plus', 'pro'
+    status = Column(
+        String(50), default="active"
+    )  # 'active', 'canceled', 'past_due', 'trialing'
+    billing_interval = Column(String(20), default="month")  # 'month', 'year'
 
     # Periods
     current_period_start = Column(TIMESTAMP)
@@ -95,6 +121,7 @@ class Subscription(Base):
 
 class StripeWebhookEvent(Base):
     """Stripe webhook events for idempotency"""
+
     __tablename__ = "stripe_webhook_events"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
@@ -108,10 +135,13 @@ class StripeWebhookEvent(Base):
 
 class PaymentMethod(Base):
     """User payment methods"""
+
     __tablename__ = "payment_methods"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
-    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(
+        GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     stripe_payment_method_id = Column(String(255), unique=True)
 
     # Card details (last 4 digits only)

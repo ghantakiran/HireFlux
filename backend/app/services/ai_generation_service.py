@@ -9,7 +9,7 @@ from app.schemas.ai_generation import (
     AIResumeGenerationRequest,
     AIGenerationResponse,
     GenerationStatus,
-    ComparisonResult
+    ComparisonResult,
 )
 from app.core.exceptions import NotFoundError, ServiceError, ValidationError
 from app.db.models.resume import Resume, ResumeVersion
@@ -29,9 +29,7 @@ class AIGenerationService:
         self.openai_service = OpenAIService()
 
     def generate_optimized_resume(
-        self,
-        user_id: uuid.UUID,
-        request: AIResumeGenerationRequest
+        self, user_id: uuid.UUID, request: AIResumeGenerationRequest
     ) -> AIGenerationResponse:
         """
         Generate AI-optimized resume
@@ -48,10 +46,13 @@ class AIGenerationService:
             ServiceError: If generation fails
         """
         # Fetch source resume
-        resume = self.db.query(Resume).filter(
-            Resume.id == uuid.UUID(request.resume_id),
-            Resume.user_id == user_id
-        ).first()
+        resume = (
+            self.db.query(Resume)
+            .filter(
+                Resume.id == uuid.UUID(request.resume_id), Resume.user_id == user_id
+            )
+            .first()
+        )
 
         if not resume:
             raise NotFoundError(f"Resume {request.resume_id} not found")
@@ -63,15 +64,18 @@ class AIGenerationService:
             tone=request.tone.value,
             keywords=request.include_keywords,
             company=request.target_company,
-            strict_factual=request.strict_factual
+            strict_factual=request.strict_factual,
         )
 
         # Generate completion
         try:
             result = self.openai_service.generate_completion(
                 messages=[
-                    {"role": "system", "content": "You are an expert resume writer and career coach."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "You are an expert resume writer and career coach.",
+                    },
+                    {"role": "user", "content": prompt},
                 ]
             )
         except Exception as e:
@@ -79,7 +83,9 @@ class AIGenerationService:
 
         # Parse JSON response
         try:
-            generated_content = self.openai_service.parse_json_response(result["content"])
+            generated_content = self.openai_service.parse_json_response(
+                result["content"]
+            )
         except ValueError as e:
             raise ValueError(f"Invalid response from AI: {str(e)}")
 
@@ -87,14 +93,15 @@ class AIGenerationService:
         usage = result["usage"]
         cost = self.openai_service.calculate_cost(
             prompt_tokens=usage["prompt_tokens"],
-            completion_tokens=usage["completion_tokens"]
+            completion_tokens=usage["completion_tokens"],
         )
 
         # Create version record
         version = ResumeVersion(
             id=uuid.uuid4(),
             resume_id=resume.id,
-            version_name=request.version_name or f"Generated {datetime.utcnow().strftime('%Y-%m-%d %H:%M')}",
+            version_name=request.version_name
+            or f"Generated {datetime.utcnow().strftime('%Y-%m-%d %H:%M')}",
             content=generated_content,
             target_title=request.target_title,
             target_company=request.target_company,
@@ -106,7 +113,7 @@ class AIGenerationService:
             token_usage=str(usage["total_tokens"]),
             cost=str(cost),
             status="completed",
-            created_at=datetime.utcnow()
+            created_at=datetime.utcnow(),
         )
 
         self.db.add(version)
@@ -121,7 +128,7 @@ class AIGenerationService:
             prompt_tokens=usage["prompt_tokens"],
             completion_tokens=usage["completion_tokens"],
             total_tokens=usage["total_tokens"],
-            cost=cost
+            cost=cost,
         )
 
         # Return response
@@ -135,7 +142,7 @@ class AIGenerationService:
             token_usage=usage["total_tokens"],  # Return as int for response
             cost=cost,  # Return as float for response
             created_at=version.created_at,
-            completed_at=datetime.utcnow()
+            completed_at=datetime.utcnow(),
         )
 
     def regenerate_section(
@@ -144,7 +151,7 @@ class AIGenerationService:
         version_id: uuid.UUID,
         section: str,
         tone: Optional[str] = None,
-        instructions: Optional[str] = None
+        instructions: Optional[str] = None,
     ) -> AIGenerationResponse:
         """
         Regenerate specific resume section
@@ -164,9 +171,9 @@ class AIGenerationService:
             ServiceError: If regeneration fails
         """
         # Fetch version
-        version = self.db.query(ResumeVersion).filter(
-            ResumeVersion.id == version_id
-        ).first()
+        version = (
+            self.db.query(ResumeVersion).filter(ResumeVersion.id == version_id).first()
+        )
 
         if not version:
             raise NotFoundError(f"Resume version {version_id} not found")
@@ -188,7 +195,7 @@ Provide ONLY the updated {section} section in JSON format.
             result = self.openai_service.generate_completion(
                 messages=[
                     {"role": "system", "content": "You are an expert resume writer."},
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": prompt},
                 ]
             )
         except Exception as e:
@@ -196,7 +203,9 @@ Provide ONLY the updated {section} section in JSON format.
 
         # Parse response
         try:
-            regenerated_section = self.openai_service.parse_json_response(result["content"])
+            regenerated_section = self.openai_service.parse_json_response(
+                result["content"]
+            )
         except ValueError as e:
             raise ValueError(f"Invalid response from AI: {str(e)}")
 
@@ -208,7 +217,7 @@ Provide ONLY the updated {section} section in JSON format.
         usage = result["usage"]
         additional_cost = self.openai_service.calculate_cost(
             prompt_tokens=usage["prompt_tokens"],
-            completion_tokens=usage["completion_tokens"]
+            completion_tokens=usage["completion_tokens"],
         )
         current_tokens = int(version.token_usage) if version.token_usage else 0
         current_cost = float(version.cost) if version.cost else 0.0
@@ -226,7 +235,7 @@ Provide ONLY the updated {section} section in JSON format.
             prompt_tokens=usage["prompt_tokens"],
             completion_tokens=usage["completion_tokens"],
             total_tokens=usage["total_tokens"],
-            cost=additional_cost
+            cost=additional_cost,
         )
 
         return AIGenerationResponse(
@@ -239,13 +248,11 @@ Provide ONLY the updated {section} section in JSON format.
             token_usage=int(version.token_usage) if version.token_usage else 0,
             cost=float(version.cost) if version.cost else 0.0,
             created_at=version.created_at,
-            completed_at=version.updated_at
+            completed_at=version.updated_at,
         )
 
     def get_version_history(
-        self,
-        user_id: uuid.UUID,
-        resume_id: uuid.UUID
+        self, user_id: uuid.UUID, resume_id: uuid.UUID
     ) -> List[AIGenerationResponse]:
         """
         Get all versions for a resume
@@ -257,10 +264,13 @@ Provide ONLY the updated {section} section in JSON format.
         Returns:
             List of AIGenerationResponse objects
         """
-        versions = self.db.query(ResumeVersion).join(Resume).filter(
-            Resume.id == resume_id,
-            Resume.user_id == user_id
-        ).order_by(ResumeVersion.created_at.desc()).all()
+        versions = (
+            self.db.query(ResumeVersion)
+            .join(Resume)
+            .filter(Resume.id == resume_id, Resume.user_id == user_id)
+            .order_by(ResumeVersion.created_at.desc())
+            .all()
+        )
 
         return [
             AIGenerationResponse(
@@ -273,16 +283,13 @@ Provide ONLY the updated {section} section in JSON format.
                 token_usage=int(v.token_usage) if v.token_usage else 0,
                 cost=float(v.cost) if v.cost else 0.0,
                 created_at=v.created_at,
-                completed_at=v.updated_at
+                completed_at=v.updated_at,
             )
             for v in versions
         ]
 
     def compare_versions(
-        self,
-        user_id: uuid.UUID,
-        version1_id: uuid.UUID,
-        version2_id: uuid.UUID
+        self, user_id: uuid.UUID, version1_id: uuid.UUID, version2_id: uuid.UUID
     ) -> ComparisonResult:
         """
         Compare two resume versions
@@ -299,13 +306,13 @@ Provide ONLY the updated {section} section in JSON format.
             NotFoundError: If versions not found
         """
         # Fetch both versions
-        version1 = self.db.query(ResumeVersion).filter(
-            ResumeVersion.id == version1_id
-        ).first()
+        version1 = (
+            self.db.query(ResumeVersion).filter(ResumeVersion.id == version1_id).first()
+        )
 
-        version2 = self.db.query(ResumeVersion).filter(
-            ResumeVersion.id == version2_id
-        ).first()
+        version2 = (
+            self.db.query(ResumeVersion).filter(ResumeVersion.id == version2_id).first()
+        )
 
         if not version1 or not version2:
             raise NotFoundError("One or both versions not found")
@@ -322,27 +329,33 @@ Provide ONLY the updated {section} section in JSON format.
             v2_content = version2.content.get(section)
 
             if v1_content != v2_content:
-                differences.append({
-                    "section": section,
-                    "version1": v1_content,
-                    "version2": v2_content
-                })
+                differences.append(
+                    {"section": section, "version1": v1_content, "version2": v2_content}
+                )
 
                 # Simple improvement heuristic: longer content with more keywords
                 if isinstance(v2_content, str) and isinstance(v1_content, str):
                     if len(v2_content) > len(v1_content):
-                        improvements.append(f"Enhanced {section} section with more detail")
+                        improvements.append(
+                            f"Enhanced {section} section with more detail"
+                        )
                 elif isinstance(v2_content, list) and isinstance(v1_content, list):
                     if len(v2_content) > len(v1_content):
-                        improvements.append(f"Added {len(v2_content) - len(v1_content)} items to {section}")
+                        improvements.append(
+                            f"Added {len(v2_content) - len(v1_content)} items to {section}"
+                        )
 
         # Calculate similarity (simple Jaccard similarity on section keys)
         v1_sections = set(version1.content.keys())
         v2_sections = set(version2.content.keys())
-        similarity = len(v1_sections & v2_sections) / len(v1_sections | v2_sections) * 100
+        similarity = (
+            len(v1_sections & v2_sections) / len(v1_sections | v2_sections) * 100
+        )
 
         # Recommendation based on recency and quality
-        recommendation = "version2" if version2.created_at > version1.created_at else "version1"
+        recommendation = (
+            "version2" if version2.created_at > version1.created_at else "version1"
+        )
 
         return ComparisonResult(
             original_version_id=str(version1_id),
@@ -350,13 +363,11 @@ Provide ONLY the updated {section} section in JSON format.
             differences=differences,
             improvements=improvements,
             similarity_score=round(similarity, 2),
-            recommendation=recommendation
+            recommendation=recommendation,
         )
 
     def get_improvement_suggestions(
-        self,
-        user_id: uuid.UUID,
-        resume_id: uuid.UUID
+        self, user_id: uuid.UUID, resume_id: uuid.UUID
     ) -> Dict[str, Any]:
         """
         Generate AI suggestions for resume improvement
@@ -373,10 +384,11 @@ Provide ONLY the updated {section} section in JSON format.
             ServiceError: If analysis fails
         """
         # Fetch resume
-        resume = self.db.query(Resume).filter(
-            Resume.id == resume_id,
-            Resume.user_id == user_id
-        ).first()
+        resume = (
+            self.db.query(Resume)
+            .filter(Resume.id == resume_id, Resume.user_id == user_id)
+            .first()
+        )
 
         if not resume:
             raise NotFoundError(f"Resume {resume_id} not found")
@@ -399,7 +411,7 @@ Provide your analysis in JSON format with:
             result = self.openai_service.generate_completion(
                 messages=[
                     {"role": "system", "content": "You are an expert resume reviewer."},
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": prompt},
                 ]
             )
         except Exception as e:

@@ -52,7 +52,7 @@ class OpenAIService:
         messages: List[Dict[str, str]],
         max_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
-        max_retries: int = 3
+        max_retries: int = 3,
     ) -> Dict[str, Any]:
         """
         Generate chat completion
@@ -90,7 +90,7 @@ class OpenAIService:
                     model=self.model,
                     messages=messages,
                     max_tokens=max_tokens,
-                    temperature=temperature
+                    temperature=temperature,
                 )
 
                 # Track request time for rate limiting
@@ -101,14 +101,10 @@ class OpenAIService:
                 usage = {
                     "prompt_tokens": response.usage.prompt_tokens,
                     "completion_tokens": response.usage.completion_tokens,
-                    "total_tokens": response.usage.total_tokens
+                    "total_tokens": response.usage.total_tokens,
                 }
 
-                return {
-                    "content": content,
-                    "usage": usage,
-                    "model": self.model
-                }
+                return {"content": content, "usage": usage, "model": self.model}
 
             except Exception as e:
                 last_error = e
@@ -116,7 +112,7 @@ class OpenAIService:
 
                 # Check if it's a rate limit error
                 if "rate limit" in error_str or "429" in error_str:
-                    wait_time = 2 ** retry_count  # Exponential backoff
+                    wait_time = 2**retry_count  # Exponential backoff
                     time.sleep(wait_time)
                     retry_count += 1
                     continue
@@ -130,7 +126,9 @@ class OpenAIService:
                 raise ServiceError(f"OpenAI API error: {str(e)}")
 
         # Max retries exceeded
-        raise ServiceError(f"OpenAI API failed after {max_retries} retries: {str(last_error)}")
+        raise ServiceError(
+            f"OpenAI API failed after {max_retries} retries: {str(last_error)}"
+        )
 
     def count_tokens(self, text: str) -> int:
         """
@@ -153,10 +151,7 @@ class OpenAIService:
             return len(text.split()) * 1.3
 
     def calculate_cost(
-        self,
-        prompt_tokens: int,
-        completion_tokens: int,
-        model: Optional[str] = None
+        self, prompt_tokens: int, completion_tokens: int, model: Optional[str] = None
     ) -> float:
         """
         Calculate cost of API call
@@ -201,7 +196,7 @@ class OpenAIService:
         tone: str = "formal",
         keywords: Optional[List[str]] = None,
         company: Optional[str] = None,
-        strict_factual: bool = True
+        strict_factual: bool = True,
     ) -> str:
         """
         Build prompt for resume optimization
@@ -246,7 +241,9 @@ class OpenAIService:
         if experience:
             prompt_parts.append("\n\nWork Experience:")
             for exp in experience[:3]:  # Limit to avoid token overflow
-                prompt_parts.append(f"- {exp.get('title', 'N/A')} at {exp.get('company', 'N/A')}")
+                prompt_parts.append(
+                    f"- {exp.get('title', 'N/A')} at {exp.get('company', 'N/A')}"
+                )
 
         prompt_parts.append(
             "\n\nProvide an optimized resume in JSON format with sections: "
@@ -291,17 +288,11 @@ class OpenAIService:
             cache_key: Unique key for the cached item
             response: Response data to cache
         """
-        self._cache[cache_key] = {
-            "response": response,
-            "timestamp": datetime.utcnow()
-        }
+        self._cache[cache_key] = {"response": response, "timestamp": datetime.utcnow()}
 
         # Simple cache cleanup: remove items older than 1 hour
         cutoff = datetime.utcnow() - timedelta(hours=1)
-        self._cache = {
-            k: v for k, v in self._cache.items()
-            if v["timestamp"] > cutoff
-        }
+        self._cache = {k: v for k, v in self._cache.items() if v["timestamp"] > cutoff}
 
     def get_cached_response(self, cache_key: str) -> Optional[Dict[str, Any]]:
         """
@@ -332,7 +323,7 @@ class OpenAIService:
         prompt_tokens: int,
         completion_tokens: int,
         total_tokens: int,
-        cost: float
+        cost: float,
     ) -> str:
         """
         Log API usage for cost tracking
@@ -350,7 +341,9 @@ class OpenAIService:
             Log ID
         """
         log_entry = {
-            "id": hashlib.md5(f"{user_id}{operation}{datetime.utcnow()}".encode()).hexdigest(),
+            "id": hashlib.md5(
+                f"{user_id}{operation}{datetime.utcnow()}".encode()
+            ).hexdigest(),
             "user_id": user_id,
             "operation": operation,
             "model": model,
@@ -358,7 +351,7 @@ class OpenAIService:
             "completion_tokens": completion_tokens,
             "total_tokens": total_tokens,
             "cost": cost,
-            "timestamp": datetime.utcnow()
+            "timestamp": datetime.utcnow(),
         }
 
         self._usage_logs.append(log_entry)
@@ -385,16 +378,12 @@ class OpenAIService:
             logs = [log for log in logs if log["user_id"] == user_id]
 
         if not logs:
-            return {
-                "total_requests": 0,
-                "total_tokens": 0,
-                "total_cost": 0.0
-            }
+            return {"total_requests": 0, "total_tokens": 0, "total_cost": 0.0}
 
         return {
             "total_requests": len(logs),
             "total_tokens": sum(log["total_tokens"] for log in logs),
-            "total_cost": sum(log["cost"] for log in logs)
+            "total_cost": sum(log["cost"] for log in logs),
         }
 
     def create_embedding(self, text: str) -> List[float]:
@@ -413,8 +402,7 @@ class OpenAIService:
                 time.sleep(1)
 
             response = self.client.embeddings.create(
-                model=settings.OPENAI_EMBEDDINGS_MODEL,
-                input=text
+                model=settings.OPENAI_EMBEDDINGS_MODEL, input=text
             )
 
             # Track request time for rate limiting
@@ -441,8 +429,7 @@ class OpenAIService:
                 time.sleep(1)
 
             response = self.client.embeddings.create(
-                model=settings.OPENAI_EMBEDDINGS_MODEL,
-                input=texts
+                model=settings.OPENAI_EMBEDDINGS_MODEL, input=texts
             )
 
             # Track request time for rate limiting

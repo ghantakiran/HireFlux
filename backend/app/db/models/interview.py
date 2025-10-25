@@ -10,10 +10,13 @@ from app.db.types import GUID
 
 class InterviewSession(Base):
     """Interview coaching sessions"""
+
     __tablename__ = "interview_sessions"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
-    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(
+        GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     role = Column(String(255))  # Target role for interview
     questions = Column(JSON, default=[])  # Array of questions asked
     answers = Column(JSON, default=[])  # Array of user answers

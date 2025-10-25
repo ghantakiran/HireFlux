@@ -7,6 +7,7 @@ from enum import Enum
 
 class MatchQuality(str, Enum):
     """Match quality labels"""
+
     EXCELLENT = "excellent"  # 90-100
     GOOD = "good"  # 70-89
     PARTIAL = "partial"  # 40-69
@@ -15,6 +16,7 @@ class MatchQuality(str, Enum):
 
 class LocationType(str, Enum):
     """Location types"""
+
     REMOTE = "remote"
     HYBRID = "hybrid"
     ONSITE = "onsite"
@@ -22,6 +24,7 @@ class LocationType(str, Enum):
 
 class ExperienceLevel(str, Enum):
     """Experience levels"""
+
     ENTRY = "entry"  # 0-2 years
     MID = "mid"  # 3-5 years
     SENIOR = "senior"  # 6-10 years
@@ -31,6 +34,7 @@ class ExperienceLevel(str, Enum):
 
 class SkillMatch(BaseModel):
     """Individual skill match details"""
+
     skill: str
     user_has: bool
     user_years: Optional[int] = None
@@ -41,15 +45,19 @@ class SkillMatch(BaseModel):
 
 class SkillVector(BaseModel):
     """Skill with embedding vector"""
+
     skill: str
     category: Optional[str] = None  # "language", "framework", "tool", "soft_skill"
     years_experience: Optional[int] = None
-    proficiency: Optional[str] = None  # "beginner", "intermediate", "advanced", "expert"
+    proficiency: Optional[
+        str
+    ] = None  # "beginner", "intermediate", "advanced", "expert"
     vector: Optional[List[float]] = None  # 1536 dimensions
 
 
 class JobSearchFilters(BaseModel):
     """Job search filters"""
+
     min_fit_index: Optional[int] = Field(None, ge=0, le=100)
     max_fit_index: Optional[int] = Field(None, ge=0, le=100)
     locations: Optional[List[str]] = None
@@ -67,6 +75,7 @@ class JobSearchFilters(BaseModel):
 
 class JobMatchRequest(BaseModel):
     """Request for job matching"""
+
     user_id: Optional[str] = None  # If not provided, use current user
     resume_id: Optional[str] = None  # Specific resume version
     filters: Optional[JobSearchFilters] = None
@@ -76,6 +85,7 @@ class JobMatchRequest(BaseModel):
 
 class JobMatchRationale(BaseModel):
     """Explanation for job match score"""
+
     summary: str
     matching_skills: List[str]
     skill_gaps: List[str]
@@ -87,6 +97,7 @@ class JobMatchRationale(BaseModel):
 
 class FitIndexBreakdown(BaseModel):
     """Detailed breakdown of Fit Index calculation"""
+
     skill_match_score: int = Field(..., ge=0, le=60, description="Max 60 points")
     experience_score: int = Field(..., ge=0, le=20, description="Max 20 points")
     seniority_score: int = Field(..., ge=0, le=10, description="Max 10 points")
@@ -96,6 +107,7 @@ class FitIndexBreakdown(BaseModel):
 
 class JobMatchResponse(BaseModel):
     """Job match result"""
+
     job_id: str
     job_title: str
     company: str
@@ -116,6 +128,7 @@ class JobMatchResponse(BaseModel):
 
 class TopMatchesResponse(BaseModel):
     """Top job matches response"""
+
     total_count: int
     matches: List[JobMatchResponse]
     filters_applied: Optional[JobSearchFilters] = None
@@ -124,6 +137,7 @@ class TopMatchesResponse(BaseModel):
 
 class SkillGapAnalysis(BaseModel):
     """Analysis of skill gaps across viewed jobs"""
+
     most_required_skills: List[Dict[str, Any]]  # skill name, frequency, avg_importance
     missing_skills: List[Dict[str, Any]]  # skill name, frequency, related_skills
     transferable_skills: List[Dict[str, Any]]  # user skill, transferable to
@@ -133,6 +147,7 @@ class SkillGapAnalysis(BaseModel):
 
 class EmbeddingRequest(BaseModel):
     """Request to generate embeddings"""
+
     text: str = Field(..., min_length=1, max_length=10000)
     type: str = Field(..., description="Type: 'skill', 'job', 'resume'")
     metadata: Optional[Dict[str, Any]] = None
@@ -140,6 +155,7 @@ class EmbeddingRequest(BaseModel):
 
 class EmbeddingResponse(BaseModel):
     """Embedding generation response"""
+
     vector: List[float] = Field(..., min_items=1536, max_items=1536)
     model: str
     token_count: int
@@ -148,6 +164,7 @@ class EmbeddingResponse(BaseModel):
 
 class VectorSearchRequest(BaseModel):
     """Request for vector similarity search"""
+
     query_vector: List[float] = Field(..., min_items=1536, max_items=1536)
     top_k: int = Field(default=10, ge=1, le=100)
     filter_metadata: Optional[Dict[str, Any]] = None
@@ -156,6 +173,7 @@ class VectorSearchRequest(BaseModel):
 
 class VectorSearchResult(BaseModel):
     """Single vector search result"""
+
     id: str
     score: float = Field(..., ge=0.0, le=1.0)
     metadata: Dict[str, Any]
@@ -163,12 +181,14 @@ class VectorSearchResult(BaseModel):
 
 class VectorSearchResponse(BaseModel):
     """Vector search results"""
+
     matches: List[VectorSearchResult]
     query_time_ms: int
 
 
 class UserSkillProfile(BaseModel):
     """User's skill profile for matching"""
+
     user_id: str
     resume_id: Optional[str] = None
     skills: List[SkillVector]
@@ -181,6 +201,7 @@ class UserSkillProfile(BaseModel):
 
 class JobProfile(BaseModel):
     """Job profile for matching"""
+
     job_id: str
     title: str
     company: str
@@ -194,6 +215,7 @@ class JobProfile(BaseModel):
 
 class MatchAnalytics(BaseModel):
     """Analytics for job matching"""
+
     user_id: str
     period_days: int
     total_matches_viewed: int
@@ -207,6 +229,7 @@ class MatchAnalytics(BaseModel):
 
 class SimilarJobsRequest(BaseModel):
     """Request for similar jobs"""
+
     job_id: str
     limit: int = Field(default=5, ge=1, le=20)
     exclude_same_company: bool = False
@@ -214,6 +237,7 @@ class SimilarJobsRequest(BaseModel):
 
 class CompanyPreferences(BaseModel):
     """User's company preferences"""
+
     preferred_sizes: List[str] = []  # "1-10", "11-50", etc.
     preferred_industries: List[str] = []
     excluded_companies: List[str] = []
@@ -222,6 +246,7 @@ class CompanyPreferences(BaseModel):
 
 class JobAlertSettings(BaseModel):
     """Job alert settings"""
+
     enabled: bool = True
     min_fit_index: int = Field(default=70, ge=0, le=100)
     frequency: str = Field(default="weekly")  # "daily", "weekly"
@@ -231,12 +256,14 @@ class JobAlertSettings(BaseModel):
 
 class BatchEmbeddingRequest(BaseModel):
     """Request to batch process embeddings"""
+
     items: List[Dict[str, Any]] = Field(..., max_items=100)
     type: str = Field(..., description="Type: 'skill', 'job', 'resume'")
 
 
 class BatchEmbeddingResponse(BaseModel):
     """Batch embedding response"""
+
     results: List[EmbeddingResponse]
     success_count: int
     failed_count: int

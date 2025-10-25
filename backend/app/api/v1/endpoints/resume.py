@@ -14,7 +14,7 @@ from app.schemas.resume import (
     ResumeListResponse,
     ResumeMetadata,
     ResumeUpdateRequest,
-    ParseStatus
+    ParseStatus,
 )
 from app.core.exceptions import NotFoundError, ValidationError
 
@@ -57,6 +57,7 @@ async def upload_resume(
 
         # Upload and parse
         import io
+
         file_io = io.BytesIO(content)
 
         resume = resume_service.upload_resume(
@@ -64,7 +65,7 @@ async def upload_resume(
             file=file_io,
             filename=file.filename,
             file_size=file_size,
-            mime_type=file.content_type
+            mime_type=file.content_type,
         )
 
         return {
@@ -219,7 +220,9 @@ def delete_resume(
         raise HTTPException(status_code=400, detail="Invalid resume ID format")
 
 
-@router.post("/{resume_id}/set-default", response_model=dict, status_code=status.HTTP_200_OK)
+@router.post(
+    "/{resume_id}/set-default", response_model=dict, status_code=status.HTTP_200_OK
+)
 def set_default_resume(
     resume_id: str,
     current_user: User = Depends(get_current_user),
@@ -240,7 +243,9 @@ def set_default_resume(
     """
     try:
         resume_service = ResumeService(db)
-        resume = resume_service.set_default_resume(uuid.UUID(resume_id), current_user.id)
+        resume = resume_service.set_default_resume(
+            uuid.UUID(resume_id), current_user.id
+        )
 
         return {
             "success": True,
@@ -256,7 +261,9 @@ def set_default_resume(
         raise HTTPException(status_code=400, detail="Invalid resume ID format")
 
 
-@router.put("/{resume_id}/parsed-data", response_model=dict, status_code=status.HTTP_200_OK)
+@router.put(
+    "/{resume_id}/parsed-data", response_model=dict, status_code=status.HTTP_200_OK
+)
 def update_parsed_data(
     resume_id: str,
     update_data: ResumeUpdateRequest,
@@ -285,9 +292,7 @@ def update_parsed_data(
     try:
         resume_service = ResumeService(db)
         resume = resume_service.update_parsed_data(
-            uuid.UUID(resume_id),
-            current_user.id,
-            update_data.parsed_data
+            uuid.UUID(resume_id), current_user.id, update_data.parsed_data
         )
 
         return {

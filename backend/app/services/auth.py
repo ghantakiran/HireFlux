@@ -7,7 +7,12 @@ import uuid
 from app.db.models.user import User, Profile
 from app.db.models.billing import CreditWallet, Subscription
 from app.schemas.auth import UserCreate, UserLogin, Token, OAuthUserInfo
-from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token
+from app.core.security import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    create_refresh_token,
+)
 from app.core.exceptions import BadRequestError, UnauthorizedError, NotFoundError
 
 
@@ -20,7 +25,9 @@ class AuthService:
     def register(self, user_data: UserCreate) -> Dict[str, Any]:
         """Register a new user"""
         # Check if user already exists
-        existing_user = self.db.query(User).filter(User.email == user_data.email).first()
+        existing_user = (
+            self.db.query(User).filter(User.email == user_data.email).first()
+        )
         if existing_user:
             raise BadRequestError("User with this email already exists")
 
@@ -91,7 +98,9 @@ class AuthService:
             raise UnauthorizedError("Invalid email or password")
 
         # Verify password
-        if not user.password_hash or not verify_password(credentials.password, user.password_hash):
+        if not user.password_hash or not verify_password(
+            credentials.password, user.password_hash
+        ):
             raise UnauthorizedError("Invalid email or password")
 
         # Generate tokens

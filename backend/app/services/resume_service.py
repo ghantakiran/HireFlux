@@ -7,11 +7,7 @@ from sqlalchemy.orm import Session
 import io
 
 from app.db.models.resume import Resume
-from app.schemas.resume import (
-    ParsedResumeData,
-    ResumeUploadValidation,
-    ParseStatus
-)
+from app.schemas.resume import ParsedResumeData, ResumeUploadValidation, ParseStatus
 from app.services.resume_parser import ResumeParser
 from app.core.exceptions import NotFoundError, ValidationError
 
@@ -30,7 +26,7 @@ class ResumeService:
         file: io.BytesIO,
         filename: str,
         file_size: int,
-        mime_type: str
+        mime_type: str,
     ) -> Resume:
         """
         Upload and parse a resume
@@ -64,7 +60,7 @@ class ResumeService:
             original_file_url=file_url,
             parse_status=ParseStatus.PROCESSING.value,
             is_default=False,
-            is_deleted=False
+            is_deleted=False,
         )
 
         self.db.add(resume)
@@ -82,7 +78,7 @@ class ResumeService:
             resume.parse_error = {
                 "error_code": "PARSE_ERROR",
                 "error_message": str(e),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.utcnow().isoformat(),
             }
 
         self.db.commit()
@@ -104,11 +100,15 @@ class ResumeService:
         Raises:
             NotFoundError: If resume not found or doesn't belong to user
         """
-        resume = self.db.query(Resume).filter(
-            Resume.id == resume_id,
-            Resume.user_id == user_id,
-            Resume.is_deleted == False
-        ).first()
+        resume = (
+            self.db.query(Resume)
+            .filter(
+                Resume.id == resume_id,
+                Resume.user_id == user_id,
+                Resume.is_deleted == False,
+            )
+            .first()
+        )
 
         if not resume:
             raise NotFoundError("Resume not found")
@@ -125,10 +125,12 @@ class ResumeService:
         Returns:
             List of Resume objects
         """
-        resumes = self.db.query(Resume).filter(
-            Resume.user_id == user_id,
-            Resume.is_deleted == False
-        ).order_by(Resume.created_at.desc()).all()
+        resumes = (
+            self.db.query(Resume)
+            .filter(Resume.user_id == user_id, Resume.is_deleted == False)
+            .order_by(Resume.created_at.desc())
+            .all()
+        )
 
         return resumes
 
@@ -162,11 +164,15 @@ class ResumeService:
             NotFoundError: If resume not found
         """
         # Unset current default
-        current_defaults = self.db.query(Resume).filter(
-            Resume.user_id == user_id,
-            Resume.is_default == True,
-            Resume.is_deleted == False
-        ).all()
+        current_defaults = (
+            self.db.query(Resume)
+            .filter(
+                Resume.user_id == user_id,
+                Resume.is_default == True,
+                Resume.is_deleted == False,
+            )
+            .all()
+        )
 
         for resume in current_defaults:
             resume.is_default = False
@@ -192,17 +198,18 @@ class ResumeService:
         Returns:
             Default Resume or None
         """
-        return self.db.query(Resume).filter(
-            Resume.user_id == user_id,
-            Resume.is_default == True,
-            Resume.is_deleted == False
-        ).first()
+        return (
+            self.db.query(Resume)
+            .filter(
+                Resume.user_id == user_id,
+                Resume.is_default == True,
+                Resume.is_deleted == False,
+            )
+            .first()
+        )
 
     def update_parsed_data(
-        self,
-        resume_id: uuid.UUID,
-        user_id: uuid.UUID,
-        parsed_data: ParsedResumeData
+        self, resume_id: uuid.UUID, user_id: uuid.UUID, parsed_data: ParsedResumeData
     ) -> Resume:
         """
         Update parsed resume data manually
@@ -305,13 +312,15 @@ class ResumeService:
 
         # Reset file pointer and save
         file.seek(0)
-        with open(file_path, 'wb') as f:
+        with open(file_path, "wb") as f:
             f.write(file.read())
 
         # Return relative path (in production, would return S3/Supabase URL)
         return f"/uploads/resumes/{user_id}/{unique_filename}"
 
-    def _generate_unique_filename(self, original_filename: str, user_id: uuid.UUID) -> str:
+    def _generate_unique_filename(
+        self, original_filename: str, user_id: uuid.UUID
+    ) -> str:
         """
         Generate unique filename
 
@@ -341,4 +350,7 @@ class ResumeService:
         Returns:
             True if valid, False otherwise
         """
-        return any(filename.lower().endswith(ext) for ext in ResumeUploadValidation.ALLOWED_EXTENSIONS)
+        return any(
+            filename.lower().endswith(ext)
+            for ext in ResumeUploadValidation.ALLOWED_EXTENSIONS
+        )

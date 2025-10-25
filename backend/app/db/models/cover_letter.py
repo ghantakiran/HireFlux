@@ -1,5 +1,15 @@
 """Cover Letter model"""
-from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Text, JSON, Boolean, Integer, Float
+from sqlalchemy import (
+    Column,
+    String,
+    TIMESTAMP,
+    ForeignKey,
+    Text,
+    JSON,
+    Boolean,
+    Integer,
+    Float,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -10,11 +20,16 @@ from app.db.types import GUID
 
 class CoverLetter(Base):
     """AI-generated cover letters"""
+
     __tablename__ = "cover_letters"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
-    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    resume_version_id = Column(GUID(), ForeignKey("resume_versions.id", ondelete="SET NULL"), nullable=True)
+    user_id = Column(
+        GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    resume_version_id = Column(
+        GUID(), ForeignKey("resume_versions.id", ondelete="SET NULL"), nullable=True
+    )
     job_id = Column(GUID(), ForeignKey("jobs.id", ondelete="SET NULL"), nullable=True)
 
     # Job details
@@ -29,7 +44,9 @@ class CoverLetter(Base):
     closing_paragraph = Column(Text)
 
     # Generation parameters
-    tone = Column(String(50))  # 'formal', 'conversational', 'enthusiastic', 'professional'
+    tone = Column(
+        String(50)
+    )  # 'formal', 'conversational', 'enthusiastic', 'professional'
     length = Column(String(50))  # 'brief', 'standard', 'detailed'
     emphasized_skills = Column(JSON, default=[])
     custom_intro = Column(Text)
@@ -43,11 +60,15 @@ class CoverLetter(Base):
     token_usage = Column(String(50))
     cost = Column(String(50))
     quality_score = Column(Float)
-    status = Column(String(50), default="pending")  # draft, pending, processing, completed, failed
+    status = Column(
+        String(50), default="pending"
+    )  # draft, pending, processing, completed, failed
 
     # Versioning
     version_number = Column(Integer, default=1)
-    parent_id = Column(GUID(), ForeignKey("cover_letters.id", ondelete="SET NULL"), nullable=True)
+    parent_id = Column(
+        GUID(), ForeignKey("cover_letters.id", ondelete="SET NULL"), nullable=True
+    )
     variation_number = Column(Integer)  # For multiple variations of same request
 
     # Feedback

@@ -12,12 +12,12 @@ from app.db.models.billing import (
     CreditWallet,
     CreditLedger,
     StripeWebhookEvent,
-    PaymentMethod
+    PaymentMethod,
 )
 from app.schemas.billing import (
     SubscriptionPlan,
     SubscriptionCreateRequest,
-    CheckoutSessionResponse
+    CheckoutSessionResponse,
 )
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -37,43 +37,41 @@ class StripeService:
             "ai_credits": 0,
             "cover_letter_credits": 3,
             "auto_apply_credits": 0,
-            "job_suggestion_credits": 10
+            "job_suggestion_credits": 10,
         },
         SubscriptionPlan.PLUS: {
             "ai_credits": -1,  # -1 = unlimited
             "cover_letter_credits": -1,
             "auto_apply_credits": 0,
-            "job_suggestion_credits": 100
+            "job_suggestion_credits": 100,
         },
         SubscriptionPlan.PRO: {
             "ai_credits": -1,
             "cover_letter_credits": -1,
             "auto_apply_credits": 50,
-            "job_suggestion_credits": 100
-        }
+            "job_suggestion_credits": 100,
+        },
     }
 
     def __init__(self, db: Session):
         self.db = db
 
     def create_checkout_session(
-        self,
-        user_id: uuid.UUID,
-        request: SubscriptionCreateRequest
+        self, user_id: uuid.UUID, request: SubscriptionCreateRequest
     ) -> CheckoutSessionResponse:
         """Create Stripe checkout session"""
         try:
             # Get or create Stripe customer
-            subscription = self.db.query(Subscription).filter(
-                Subscription.user_id == user_id
-            ).first()
+            subscription = (
+                self.db.query(Subscription)
+                .filter(Subscription.user_id == user_id)
+                .first()
+            )
 
             if subscription and subscription.stripe_customer_id:
                 customer_id = subscription.stripe_customer_id
             else:
-                customer = stripe.Customer.create(
-                    metadata={"user_id": str(user_id)}
-                )
+                customer = stripe.Customer.create(metadata={"user_id": str(user_id)})
                 customer_id = customer.id
 
             # Determine price ID
@@ -87,16 +85,10 @@ class StripeService:
             session_params = {
                 "customer": customer_id,
                 "mode": "subscription",
-                "line_items": [{
-                    "price": price_id,
-                    "quantity": 1
-                }],
+                "line_items": [{"price": price_id, "quantity": 1}],
                 "success_url": request.success_url,
                 "cancel_url": request.cancel_url,
-                "metadata": {
-                    "user_id": str(user_id),
-                    "plan": request.plan.value
-                }
+                "metadata": {"user_id": str(user_id), "plan": request.plan.value},
             }
 
             # Add promo code if provided
@@ -108,7 +100,7 @@ class StripeService:
             return CheckoutSessionResponse(
                 session_id=session.id,
                 session_url=session.url,
-                public_key=settings.STRIPE_PUBLISHABLE_KEY
+                public_key=settings.STRIPE_PUBLISHABLE_KEY,
             )
         except stripe.error.StripeError as e:
             raise ServiceError(f"Stripe error: {str(e)}")
@@ -127,9 +119,11 @@ class StripeService:
             raise ValueError("Invalid signature")
 
         # Check idempotency
-        existing = self.db.query(StripeWebhookEvent).filter(
-            StripeWebhookEvent.stripe_event_id == event.id
-        ).first()
+        existing = (
+            self.db.query(StripeWebhookEvent)
+            .filter(StripeWebhookEvent.stripe_event_id == event.id)
+            .first()
+        )
 
         if existing and existing.processed:
             return {"status": "already_processed"}
@@ -139,7 +133,7 @@ class StripeService:
             id=uuid.uuid4(),
             stripe_event_id=event.id,
             event_type=event.type,
-            processed=False
+            processed=False,
         )
         self.db.add(webhook_event)
         self.db.commit()
@@ -174,15 +168,12 @@ class StripeService:
         plan = session.metadata["plan"]
 
         # Create or update subscription
-        subscription = self.db.query(Subscription).filter(
-            Subscription.user_id == user_id
-        ).first()
+        subscription = (
+            self.db.query(Subscription).filter(Subscription.user_id == user_id).first()
+        )
 
         if not subscription:
-            subscription = Subscription(
-                id=uuid.uuid4(),
-                user_id=user_id
-            )
+            subscription = Subscription(id=uuid.uuid4(), user_id=user_id)
             self.db.add(subscription)
 
         subscription.stripe_customer_id = session.customer
@@ -202,9 +193,11 @@ class StripeService:
         if not subscription_id:
             return
 
-        subscription = self.db.query(Subscription).filter(
-            Subscription.stripe_subscription_id == subscription_id
-        ).first()
+        subscription = (
+            self.db.query(Subscription)
+            .filter(Subscription.stripe_subscription_id == subscription_id)
+            .first()
+        )
 
         if subscription:
             subscription.status = "active"
@@ -220,9 +213,11 @@ class StripeService:
         if not subscription_id:
             return
 
-        subscription = self.db.query(Subscription).filter(
-            Subscription.stripe_subscription_id == subscription_id
-        ).first()
+        subscription = (
+            self.db.query(Subscription)
+            .filter(Subscription.stripe_subscription_id == subscription_id)
+            .first()
+        )
 
         if subscription:
             subscription.status = "past_due"
@@ -230,9 +225,11 @@ class StripeService:
 
     def _handle_subscription_deleted(self, stripe_subscription):
         """Handle subscription cancellation"""
-        subscription = self.db.query(Subscription).filter(
-            Subscription.stripe_subscription_id == stripe_subscription.id
-        ).first()
+        subscription = (
+            self.db.query(Subscription)
+            .filter(Subscription.stripe_subscription_id == stripe_subscription.id)
+            .first()
+        )
 
         if subscription:
             subscription.status = "canceled"
@@ -245,22 +242,28 @@ class StripeService:
 
     def _handle_subscription_updated(self, stripe_subscription):
         """Handle subscription updates"""
-        subscription = self.db.query(Subscription).filter(
-            Subscription.stripe_subscription_id == stripe_subscription.id
-        ).first()
+        subscription = (
+            self.db.query(Subscription)
+            .filter(Subscription.stripe_subscription_id == stripe_subscription.id)
+            .first()
+        )
 
         if subscription:
             subscription.status = stripe_subscription.status
-            subscription.current_period_start = datetime.fromtimestamp(stripe_subscription.current_period_start)
-            subscription.current_period_end = datetime.fromtimestamp(stripe_subscription.current_period_end)
+            subscription.current_period_start = datetime.fromtimestamp(
+                stripe_subscription.current_period_start
+            )
+            subscription.current_period_end = datetime.fromtimestamp(
+                stripe_subscription.current_period_end
+            )
             subscription.cancel_at_period_end = stripe_subscription.cancel_at_period_end
             self.db.commit()
 
     def _allocate_plan_credits(self, user_id: uuid.UUID, plan: SubscriptionPlan):
         """Allocate credits based on plan"""
-        wallet = self.db.query(CreditWallet).filter(
-            CreditWallet.user_id == user_id
-        ).first()
+        wallet = (
+            self.db.query(CreditWallet).filter(CreditWallet.user_id == user_id).first()
+        )
 
         if not wallet:
             wallet = CreditWallet(id=uuid.uuid4(), user_id=user_id)
@@ -277,23 +280,21 @@ class StripeService:
 
     def _reset_monthly_credits(self, user_id: uuid.UUID):
         """Reset monthly credits on renewal"""
-        subscription = self.db.query(Subscription).filter(
-            Subscription.user_id == user_id
-        ).first()
+        subscription = (
+            self.db.query(Subscription).filter(Subscription.user_id == user_id).first()
+        )
 
         if subscription and subscription.plan != "free":
             plan = SubscriptionPlan(subscription.plan)
             self._allocate_plan_credits(user_id, plan)
 
     def cancel_subscription(
-        self,
-        user_id: uuid.UUID,
-        immediate: bool = False
+        self, user_id: uuid.UUID, immediate: bool = False
     ) -> Dict[str, Any]:
         """Cancel user subscription"""
-        subscription = self.db.query(Subscription).filter(
-            Subscription.user_id == user_id
-        ).first()
+        subscription = (
+            self.db.query(Subscription).filter(Subscription.user_id == user_id).first()
+        )
 
         if not subscription or not subscription.stripe_subscription_id:
             raise ValidationError("No active subscription found")
@@ -306,8 +307,7 @@ class StripeService:
                 subscription.plan = "free"
             else:
                 stripe.Subscription.modify(
-                    subscription.stripe_subscription_id,
-                    cancel_at_period_end=True
+                    subscription.stripe_subscription_id, cancel_at_period_end=True
                 )
                 subscription.cancel_at_period_end = True
 
@@ -318,6 +318,6 @@ class StripeService:
 
     def get_subscription(self, user_id: uuid.UUID) -> Optional[Subscription]:
         """Get user's subscription"""
-        return self.db.query(Subscription).filter(
-            Subscription.user_id == user_id
-        ).first()
+        return (
+            self.db.query(Subscription).filter(Subscription.user_id == user_id).first()
+        )

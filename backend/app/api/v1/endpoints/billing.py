@@ -15,7 +15,7 @@ from app.schemas.billing import (
     SubscriptionResponse,
     SubscriptionCancelRequest,
     SubscriptionStatus,
-    BillingInterval
+    BillingInterval,
 )
 from app.services.stripe_service import StripeService
 from app.services.credit_service import CreditService
@@ -27,7 +27,7 @@ router = APIRouter()
 def create_subscription(
     request: SubscriptionCreateRequest,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Create Stripe checkout session for subscription
@@ -40,8 +40,7 @@ def create_subscription(
     service = StripeService(db)
     try:
         return service.create_checkout_session(
-            user_id=uuid.UUID(current_user.id),
-            request=request
+            user_id=uuid.UUID(current_user.id), request=request
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -49,8 +48,7 @@ def create_subscription(
 
 @router.get("/subscriptions/current", response_model=SubscriptionResponse)
 def get_current_subscription(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     """Get current user's subscription"""
     service = StripeService(db)
@@ -72,7 +70,7 @@ def get_current_subscription(
         cancel_at_period_end=subscription.cancel_at_period_end,
         trial_end=subscription.trial_end,
         created_at=subscription.created_at,
-        updated_at=subscription.updated_at
+        updated_at=subscription.updated_at,
     )
 
 
@@ -80,7 +78,7 @@ def get_current_subscription(
 def cancel_subscription(
     request: SubscriptionCancelRequest,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Cancel subscription
@@ -91,8 +89,7 @@ def cancel_subscription(
     service = StripeService(db)
     try:
         result = service.cancel_subscription(
-            user_id=uuid.UUID(current_user.id),
-            immediate=request.immediate
+            user_id=uuid.UUID(current_user.id), immediate=request.immediate
         )
         return result
     except Exception as e:
@@ -100,10 +97,7 @@ def cancel_subscription(
 
 
 @router.post("/webhooks/stripe")
-async def stripe_webhook(
-    request: Request,
-    db: Session = Depends(get_db)
-):
+async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     """
     Stripe webhook endpoint
 
@@ -132,8 +126,7 @@ async def stripe_webhook(
 
 @router.get("/credits", response_model=CreditWalletResponse)
 def get_credits(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     """
     Get user's credit balance
@@ -153,9 +146,11 @@ def get_credits(
 @router.get("/credits/history", response_model=List[CreditTransaction])
 def get_credit_history(
     credit_type: Optional[str] = Query(None, description="Filter by credit type"),
-    limit: int = Query(50, ge=1, le=100, description="Number of transactions to return"),
+    limit: int = Query(
+        50, ge=1, le=100, description="Number of transactions to return"
+    ),
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Get credit transaction history
@@ -165,9 +160,7 @@ def get_credit_history(
     """
     service = CreditService(db)
     return service.get_transaction_history(
-        user_id=uuid.UUID(current_user.id),
-        credit_type=credit_type,
-        limit=limit
+        user_id=uuid.UUID(current_user.id), credit_type=credit_type, limit=limit
     )
 
 
@@ -176,7 +169,7 @@ def check_credits(
     credit_type: str,
     amount: int,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Check if user has sufficient credits
@@ -186,13 +179,7 @@ def check_credits(
     """
     service = CreditService(db)
     has_credits = service.check_sufficient_credits(
-        user_id=uuid.UUID(current_user.id),
-        credit_type=credit_type,
-        amount=amount
+        user_id=uuid.UUID(current_user.id), credit_type=credit_type, amount=amount
     )
 
-    return {
-        "sufficient": has_credits,
-        "credit_type": credit_type,
-        "required": amount
-    }
+    return {"sufficient": has_credits, "credit_type": credit_type, "required": amount}

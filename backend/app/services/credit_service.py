@@ -17,9 +17,9 @@ class CreditService:
 
     def get_wallet(self, user_id: uuid.UUID) -> CreditWalletResponse:
         """Get user's credit wallet"""
-        wallet = self.db.query(CreditWallet).filter(
-            CreditWallet.user_id == user_id
-        ).first()
+        wallet = (
+            self.db.query(CreditWallet).filter(CreditWallet.user_id == user_id).first()
+        )
 
         if not wallet:
             # Create wallet with free tier defaults
@@ -29,7 +29,7 @@ class CreditService:
                 ai_credits=0,
                 cover_letter_credits=3,
                 auto_apply_credits=0,
-                job_suggestion_credits=10
+                job_suggestion_credits=10,
             )
             self.db.add(wallet)
             self.db.commit()
@@ -43,7 +43,7 @@ class CreditService:
             job_suggestion_credits=wallet.job_suggestion_credits,
             total_earned=wallet.total_earned,
             total_spent=wallet.total_spent,
-            last_reset=wallet.last_reset
+            last_reset=wallet.last_reset,
         )
 
     def deduct_credits(
@@ -52,12 +52,12 @@ class CreditService:
         credit_type: str,
         amount: int,
         description: str,
-        reference_id: Optional[uuid.UUID] = None
+        reference_id: Optional[uuid.UUID] = None,
     ) -> bool:
         """Deduct credits from wallet"""
-        wallet = self.db.query(CreditWallet).filter(
-            CreditWallet.user_id == user_id
-        ).first()
+        wallet = (
+            self.db.query(CreditWallet).filter(CreditWallet.user_id == user_id).first()
+        )
 
         if not wallet:
             raise ValidationError("Credit wallet not found")
@@ -80,7 +80,7 @@ class CreditService:
                 balance_after=-1,
                 operation="deduct",
                 description=f"{description} (unlimited plan)",
-                reference_id=reference_id
+                reference_id=reference_id,
             )
             return True
 
@@ -104,7 +104,7 @@ class CreditService:
             balance_after=new_balance,
             operation="deduct",
             description=description,
-            reference_id=reference_id
+            reference_id=reference_id,
         )
 
         self.db.commit()
@@ -116,12 +116,12 @@ class CreditService:
         credit_type: str,
         amount: int,
         description: str,
-        reference_id: Optional[uuid.UUID] = None
+        reference_id: Optional[uuid.UUID] = None,
     ):
         """Add credits to wallet"""
-        wallet = self.db.query(CreditWallet).filter(
-            CreditWallet.user_id == user_id
-        ).first()
+        wallet = (
+            self.db.query(CreditWallet).filter(CreditWallet.user_id == user_id).first()
+        )
 
         if not wallet:
             raise ValidationError("Credit wallet not found")
@@ -143,7 +143,7 @@ class CreditService:
                 balance_after=-1,
                 operation="add",
                 description=f"{description} (unlimited plan - not applied)",
-                reference_id=reference_id
+                reference_id=reference_id,
             )
             return
 
@@ -161,7 +161,7 @@ class CreditService:
             balance_after=new_balance,
             operation="add",
             description=description,
-            reference_id=reference_id
+            reference_id=reference_id,
         )
 
         self.db.commit()
@@ -172,12 +172,12 @@ class CreditService:
         credit_type: str,
         amount: int,
         reason: str,
-        reference_id: Optional[uuid.UUID] = None
+        reference_id: Optional[uuid.UUID] = None,
     ):
         """Refund credits (add back with refund operation)"""
-        wallet = self.db.query(CreditWallet).filter(
-            CreditWallet.user_id == user_id
-        ).first()
+        wallet = (
+            self.db.query(CreditWallet).filter(CreditWallet.user_id == user_id).first()
+        )
 
         if not wallet:
             raise ValidationError("Credit wallet not found")
@@ -199,7 +199,7 @@ class CreditService:
                 balance_after=-1,
                 operation="refund",
                 description=f"Refund: {reason} (unlimited plan - not applied)",
-                reference_id=reference_id
+                reference_id=reference_id,
             )
             return
 
@@ -217,28 +217,21 @@ class CreditService:
             balance_after=new_balance,
             operation="refund",
             description=f"Refund: {reason}",
-            reference_id=reference_id
+            reference_id=reference_id,
         )
 
         self.db.commit()
 
     def get_transaction_history(
-        self,
-        user_id: uuid.UUID,
-        credit_type: Optional[str] = None,
-        limit: int = 50
+        self, user_id: uuid.UUID, credit_type: Optional[str] = None, limit: int = 50
     ) -> List[CreditTransaction]:
         """Get credit transaction history"""
-        query = self.db.query(CreditLedger).filter(
-            CreditLedger.user_id == user_id
-        )
+        query = self.db.query(CreditLedger).filter(CreditLedger.user_id == user_id)
 
         if credit_type:
             query = query.filter(CreditLedger.credit_type == credit_type)
 
-        transactions = query.order_by(
-            CreditLedger.created_at.desc()
-        ).limit(limit).all()
+        transactions = query.order_by(CreditLedger.created_at.desc()).limit(limit).all()
 
         return [
             CreditTransaction(
@@ -250,21 +243,18 @@ class CreditService:
                 balance_after=t.balance_after,
                 description=t.description,
                 reference_id=str(t.reference_id) if t.reference_id else None,
-                created_at=t.created_at
+                created_at=t.created_at,
             )
             for t in transactions
         ]
 
     def check_sufficient_credits(
-        self,
-        user_id: uuid.UUID,
-        credit_type: str,
-        amount: int
+        self, user_id: uuid.UUID, credit_type: str, amount: int
     ) -> bool:
         """Check if user has sufficient credits"""
-        wallet = self.db.query(CreditWallet).filter(
-            CreditWallet.user_id == user_id
-        ).first()
+        wallet = (
+            self.db.query(CreditWallet).filter(CreditWallet.user_id == user_id).first()
+        )
 
         if not wallet:
             return False
@@ -288,7 +278,7 @@ class CreditService:
         balance_after: int,
         operation: str,
         description: str,
-        reference_id: Optional[uuid.UUID] = None
+        reference_id: Optional[uuid.UUID] = None,
     ):
         """Log credit transaction to ledger"""
         ledger_entry = CreditLedger(
@@ -299,6 +289,6 @@ class CreditService:
             balance_after=balance_after,
             operation=operation,
             description=description,
-            reference_id=reference_id
+            reference_id=reference_id,
         )
         self.db.add(ledger_entry)

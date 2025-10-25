@@ -16,7 +16,7 @@ from app.schemas.job_feed import (
     JobIngestionRequest,
     JobIngestionResult,
     JobMetadata,
-    NormalizedJob
+    NormalizedJob,
 )
 
 
@@ -58,7 +58,9 @@ class JobIngestionService:
                         jobs = self._ingest_from_lever(source_config)
                         all_jobs.extend(jobs)
                 except Exception as e:
-                    errors.append(f"Error ingesting from {source_config.source.value}: {str(e)}")
+                    errors.append(
+                        f"Error ingesting from {source_config.source.value}: {str(e)}"
+                    )
 
         # Process and save jobs
         new_count = 0
@@ -75,7 +77,9 @@ class JobIngestionService:
                 else:
                     skipped_count += 1
             except Exception as e:
-                errors.append(f"Error saving job {normalized_job.external_id}: {str(e)}")
+                errors.append(
+                    f"Error saving job {normalized_job.external_id}: {str(e)}"
+                )
 
         duration = (datetime.utcnow() - start_time).total_seconds()
 
@@ -85,7 +89,7 @@ class JobIngestionService:
             updated_jobs=updated_count,
             failed_jobs=len(errors),
             fetch_duration_seconds=duration,
-            errors=errors
+            errors=errors,
         )
 
         return JobIngestionResult(
@@ -95,7 +99,7 @@ class JobIngestionService:
             jobs_skipped=skipped_count,
             errors=len(errors),
             processing_time_seconds=duration,
-            error_messages=errors
+            error_messages=errors,
         )
 
     def _ingest_from_greenhouse(self, source_config) -> List[NormalizedJob]:
@@ -111,14 +115,16 @@ class JobIngestionService:
         result = self.greenhouse.fetch_jobs(
             board_token=board_token,
             department_id=source_config.config.get("department_id"),
-            office_id=source_config.config.get("office_id")
+            office_id=source_config.config.get("office_id"),
         )
 
         # Normalize jobs
         normalized_jobs = []
         for gh_job in result.jobs:
             try:
-                normalized = self.normalizer.normalize_greenhouse_job(gh_job, company_name)
+                normalized = self.normalizer.normalize_greenhouse_job(
+                    gh_job, company_name
+                )
                 normalized_jobs.append(normalized)
             except Exception as e:
                 print(f"Error normalizing Greenhouse job {gh_job.id}: {e}")
@@ -139,14 +145,16 @@ class JobIngestionService:
             company_site=company_site,
             team=source_config.config.get("team"),
             location=source_config.config.get("location"),
-            commitment=source_config.config.get("commitment")
+            commitment=source_config.config.get("commitment"),
         )
 
         # Normalize jobs
         normalized_jobs = []
         for lever_job in result.jobs:
             try:
-                normalized = self.normalizer.normalize_lever_job(lever_job, company_name)
+                normalized = self.normalizer.normalize_lever_job(
+                    lever_job, company_name
+                )
                 normalized_jobs.append(normalized)
             except Exception as e:
                 print(f"Error normalizing Lever job {lever_job.id}: {e}")
@@ -162,12 +170,16 @@ class JobIngestionService:
         """
 
         # Check if job already exists
-        existing_job = self.db.query(Job).filter(
-            and_(
-                Job.external_id == normalized_job.external_id,
-                Job.source == normalized_job.source.value
+        existing_job = (
+            self.db.query(Job)
+            .filter(
+                and_(
+                    Job.external_id == normalized_job.external_id,
+                    Job.source == normalized_job.source.value,
+                )
             )
-        ).first()
+            .first()
+        )
 
         if existing_job:
             # Check if job needs updating (compare description hash or updated_at)
@@ -181,7 +193,9 @@ class JobIngestionService:
             self._create_job(normalized_job)
             return "new"
 
-    def _job_needs_update(self, existing_job: Job, normalized_job: NormalizedJob) -> bool:
+    def _job_needs_update(
+        self, existing_job: Job, normalized_job: NormalizedJob
+    ) -> bool:
         """Check if existing job needs updating"""
 
         # Compare key fields
@@ -217,8 +231,12 @@ class JobIngestionService:
             experience_min_years=normalized_job.experience_min_years,
             experience_max_years=normalized_job.experience_max_years,
             experience_level=normalized_job.experience_level,
-            salary_min=normalized_job.salary.min_salary if normalized_job.salary else None,
-            salary_max=normalized_job.salary.max_salary if normalized_job.salary else None,
+            salary_min=normalized_job.salary.min_salary
+            if normalized_job.salary
+            else None,
+            salary_max=normalized_job.salary.max_salary
+            if normalized_job.salary
+            else None,
             department=normalized_job.department,
             employment_type=normalized_job.employment_type,
             requires_visa_sponsorship=self.normalizer.detect_visa_sponsorship(
@@ -226,7 +244,7 @@ class JobIngestionService:
             ),
             external_url=normalized_job.application_url,
             posted_date=normalized_job.posted_date,
-            is_active=True
+            is_active=True,
         )
 
         self.db.add(job)
@@ -260,8 +278,8 @@ class JobIngestionService:
 
         existing_job.department = normalized_job.department
         existing_job.employment_type = normalized_job.employment_type
-        existing_job.requires_visa_sponsorship = self.normalizer.detect_visa_sponsorship(
-            normalized_job.description
+        existing_job.requires_visa_sponsorship = (
+            self.normalizer.detect_visa_sponsorship(normalized_job.description)
         )
         existing_job.external_url = normalized_job.application_url
         existing_job.updated_at = datetime.utcnow()
@@ -292,7 +310,7 @@ class JobIngestionService:
             location_type=job.location_type or "onsite",
             salary_min=job.salary_min,
             salary_max=job.salary_max,
-            visa_sponsorship=job.requires_visa_sponsorship or False
+            visa_sponsorship=job.requires_visa_sponsorship or False,
         )
 
     def deactivate_stale_jobs(self, source: JobSource, days_old: int = 30):
@@ -305,13 +323,17 @@ class JobIngestionService:
         """
         cutoff_date = datetime.utcnow() - timedelta(days=days_old)
 
-        stale_jobs = self.db.query(Job).filter(
-            and_(
-                Job.source == source.value,
-                Job.is_active == True,
-                Job.updated_at < cutoff_date
+        stale_jobs = (
+            self.db.query(Job)
+            .filter(
+                and_(
+                    Job.source == source.value,
+                    Job.is_active == True,
+                    Job.updated_at < cutoff_date,
+                )
             )
-        ).all()
+            .all()
+        )
 
         for job in stale_jobs:
             job.is_active = False
@@ -327,21 +349,20 @@ class JobIngestionService:
         Returns:
             Dict with active jobs count, last sync time, etc.
         """
-        active_count = self.db.query(Job).filter(
-            and_(
-                Job.source == source.value,
-                Job.is_active == True
-            )
-        ).count()
+        active_count = (
+            self.db.query(Job)
+            .filter(and_(Job.source == source.value, Job.is_active == True))
+            .count()
+        )
 
-        total_count = self.db.query(Job).filter(
-            Job.source == source.value
-        ).count()
+        total_count = self.db.query(Job).filter(Job.source == source.value).count()
 
         # Get last sync time from JobSource model
-        source_record = self.db.query(JobSourceModel).filter(
-            JobSourceModel.name == source.value
-        ).first()
+        source_record = (
+            self.db.query(JobSourceModel)
+            .filter(JobSourceModel.name == source.value)
+            .first()
+        )
 
         last_sync = source_record.last_sync_at if source_record else None
 
@@ -350,18 +371,18 @@ class JobIngestionService:
             "active_jobs": active_count,
             "total_jobs": total_count,
             "last_sync_at": last_sync,
-            "is_healthy": active_count > 0 and (
-                not last_sync or
-                (datetime.utcnow() - last_sync).days < 7
-            )
+            "is_healthy": active_count > 0
+            and (not last_sync or (datetime.utcnow() - last_sync).days < 7),
         }
 
     def update_source_sync_time(self, source: JobSource):
         """Update last sync timestamp for a source"""
 
-        source_record = self.db.query(JobSourceModel).filter(
-            JobSourceModel.name == source.value
-        ).first()
+        source_record = (
+            self.db.query(JobSourceModel)
+            .filter(JobSourceModel.name == source.value)
+            .first()
+        )
 
         if not source_record:
             # Create source record
@@ -369,7 +390,7 @@ class JobIngestionService:
                 id=uuid.uuid4(),
                 name=source.value,
                 is_active=True,
-                last_sync_at=datetime.utcnow()
+                last_sync_at=datetime.utcnow(),
             )
             self.db.add(source_record)
         else:

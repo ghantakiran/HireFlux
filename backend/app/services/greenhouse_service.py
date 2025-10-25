@@ -13,7 +13,7 @@ from app.schemas.job_feed import (
     JobMetadata,
     GreenhouseJob,
     GreenhouseDepartment,
-    GreenhouseOffice
+    GreenhouseOffice,
 )
 
 
@@ -63,7 +63,7 @@ class GreenhouseService:
         self,
         board_token: str,
         department_id: Optional[str] = None,
-        office_id: Optional[str] = None
+        office_id: Optional[str] = None,
     ) -> JobFetchResult:
         """
         Fetch jobs from a Greenhouse job board
@@ -83,10 +83,7 @@ class GreenhouseService:
             # Fetch departments
             departments_data = self._make_request(f"{board_token}/departments")
             departments = [
-                GreenhouseDepartment(
-                    id=str(dept["id"]),
-                    name=dept["name"]
-                )
+                GreenhouseDepartment(id=str(dept["id"]), name=dept["name"])
                 for dept in departments_data.get("departments", [])
             ]
 
@@ -96,7 +93,7 @@ class GreenhouseService:
                 GreenhouseOffice(
                     id=str(office["id"]),
                     name=office["name"],
-                    location=office.get("location", {}).get("name")
+                    location=office.get("location", {}).get("name"),
                 )
                 for office in offices_data.get("offices", [])
             ]
@@ -123,13 +120,11 @@ class GreenhouseService:
                 updated_jobs=0,
                 failed_jobs=len(errors),
                 fetch_duration_seconds=0.0,  # Calculated externally
-                errors=errors
+                errors=errors,
             )
 
             return JobFetchResult(
-                jobs=jobs,
-                metadata=metadata,
-                source=JobSource.GREENHOUSE
+                jobs=jobs, metadata=metadata, source=JobSource.GREENHOUSE
             )
 
         except Exception as e:
@@ -139,7 +134,7 @@ class GreenhouseService:
         self,
         job_data: Dict,
         departments: List[GreenhouseDepartment],
-        offices: List[GreenhouseOffice]
+        offices: List[GreenhouseOffice],
     ) -> GreenhouseJob:
         """Parse raw Greenhouse job data into structured format"""
 
@@ -160,7 +155,11 @@ class GreenhouseService:
 
         # Parse location type
         location_type = "onsite"
-        location_name = job_offices[0].location if job_offices else job_data.get("location", {}).get("name", "")
+        location_name = (
+            job_offices[0].location
+            if job_offices
+            else job_data.get("location", {}).get("name", "")
+        )
 
         if location_name:
             location_lower = location_name.lower()
@@ -181,7 +180,7 @@ class GreenhouseService:
             requisition_id=job_data.get("requisition_id"),
             departments=[department] if department else [],
             offices=job_offices,
-            content=job_data.get("content", "")
+            content=job_data.get("content", ""),
         )
 
     def fetch_job_details(self, board_token: str, job_id: str) -> Dict:

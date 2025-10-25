@@ -8,7 +8,7 @@ from app.schemas.job_feed import (
     NormalizedJob,
     SalaryRange,
     GreenhouseJob,
-    LeverJob
+    LeverJob,
 )
 
 
@@ -52,7 +52,7 @@ class JobNormalizationService:
         "rest api": r"\b(rest|restful) api\b",
         "microservices": r"\bmicroservices\b",
         "agile": r"\b(agile|scrum|kanban)\b",
-        "git": r"\b(git|github|gitlab|version control)\b"
+        "git": r"\b(git|github|gitlab|version control)\b",
     }
 
     # Experience level patterns (checked in order)
@@ -61,7 +61,7 @@ class JobNormalizationService:
         "staff": r"\b(staff|architect)\b",
         "senior": r"\b(senior|sr\.|lead)\b",
         "mid": r"\b(mid[\s\-]level|intermediate)\b",
-        "entry": r"\b(entry[\s\-]level|junior|new grad)\b"
+        "entry": r"\b(entry[\s\-]level|junior|new grad)\b",
     }
 
     # Salary patterns
@@ -69,10 +69,12 @@ class JobNormalizationService:
         r"\$\s?(\d{1,3}(?:,\d{3})+)\s?[-–to]+\s?\$?\s?(\d{1,3}(?:,\d{3})+)",  # $150,000 - $200,000
         r"\$\s?(\d+)k?\s?[-–to]+\s?\$?\s?(\d+)k?",  # $150k - $200k
         r"(\d{1,3})k\s?[-–to]+\s?(\d{1,3})k",  # 150k - 200k
-        r"salary:\s?\$?\s?(\d{1,3}(?:,\d{3})*)\s?[\-–to]+\s?\$?\s?(\d{1,3}(?:,\d{3})*)"
+        r"salary:\s?\$?\s?(\d{1,3}(?:,\d{3})*)\s?[\-–to]+\s?\$?\s?(\d{1,3}(?:,\d{3})*)",
     ]
 
-    def normalize_greenhouse_job(self, job: GreenhouseJob, company_name: str) -> NormalizedJob:
+    def normalize_greenhouse_job(
+        self, job: GreenhouseJob, company_name: str
+    ) -> NormalizedJob:
         """Normalize a Greenhouse job into common format"""
 
         description = job.content or ""
@@ -94,7 +96,9 @@ class JobNormalizationService:
             salary=self.extract_salary_range(description),
             department=job.departments[0].name if job.departments else None,
             application_url=job.absolute_url,
-            posted_date=datetime.fromisoformat(job.updated_at.replace("Z", "+00:00")) if job.updated_at else None
+            posted_date=datetime.fromisoformat(job.updated_at.replace("Z", "+00:00"))
+            if job.updated_at
+            else None,
         )
 
     def normalize_lever_job(self, job: LeverJob, company_name: str) -> NormalizedJob:
@@ -119,7 +123,9 @@ class JobNormalizationService:
             title=job.text,
             company=company_name,
             description=description,
-            location=job.categories[0].location if job.categories and job.categories[0].location else "Remote",
+            location=job.categories[0].location
+            if job.categories and job.categories[0].location
+            else "Remote",
             location_type=job.location_type or "onsite",
             required_skills=self.extract_skills(description, is_required=True),
             preferred_skills=self.extract_skills(description, is_required=False),
@@ -131,7 +137,9 @@ class JobNormalizationService:
             department=department,
             employment_type=job.employment_type,
             application_url=job.hostedUrl,
-            posted_date=datetime.fromtimestamp(job.createdAt / 1000) if job.createdAt else None
+            posted_date=datetime.fromtimestamp(job.createdAt / 1000)
+            if job.createdAt
+            else None,
         )
 
     def extract_skills(self, text: str, is_required: bool = True) -> List[str]:
@@ -154,7 +162,7 @@ class JobNormalizationService:
             required_match = re.search(
                 r"(required|must[\s\-]have|qualifications?|requirements?):?\s*(.*?)(?=\n\n|preferred|nice[\s\-]to[\s\-]have|$)",
                 text_lower,
-                re.DOTALL | re.IGNORECASE
+                re.DOTALL | re.IGNORECASE,
             )
             search_text = required_match.group(2) if required_match else text_lower
         else:
@@ -162,7 +170,7 @@ class JobNormalizationService:
             preferred_match = re.search(
                 r"(preferred|nice[\s\-]to[\s\-]have|bonus|plus):?\s*(.*?)(?=\n\n|$)",
                 text_lower,
-                re.DOTALL | re.IGNORECASE
+                re.DOTALL | re.IGNORECASE,
             )
             search_text = preferred_match.group(2) if preferred_match else ""
 
@@ -183,7 +191,7 @@ class JobNormalizationService:
             r"(\d+[\s\-]?\+?\s?years?)",
             r"(\d+[\s\-]to[\s\-]\d+\s?years?)",
             r"(minimum\s+of\s+\d+\s?years?)",
-            r"(at\s+least\s+\d+\s?years?)"
+            r"(at\s+least\s+\d+\s?years?)",
         ]
 
         for pattern in patterns:
@@ -193,7 +201,9 @@ class JobNormalizationService:
 
         return None
 
-    def extract_years_experience(self, text: str) -> Tuple[Optional[int], Optional[int]]:
+    def extract_years_experience(
+        self, text: str
+    ) -> Tuple[Optional[int], Optional[int]]:
         """
         Extract minimum and maximum years of experience
 
@@ -208,7 +218,10 @@ class JobNormalizationService:
             return int(range_match.group(1)), int(range_match.group(2))
 
         # Pattern for minimum: "3+ years", "at least 3 years"
-        min_match = re.search(r"(\d+)\+\s?years?|(?:minimum|at least)\s+(?:of\s+)?(\d+)\s?years?", text_lower)
+        min_match = re.search(
+            r"(\d+)\+\s?years?|(?:minimum|at least)\s+(?:of\s+)?(\d+)\s?years?",
+            text_lower,
+        )
         if min_match:
             min_years = int(min_match.group(1) or min_match.group(2))
             return min_years, None
@@ -269,9 +282,7 @@ class JobNormalizationService:
                         max_salary *= 1000
 
                     return SalaryRange(
-                        min_salary=min_salary,
-                        max_salary=max_salary,
-                        currency="USD"
+                        min_salary=min_salary, max_salary=max_salary, currency="USD"
                     )
                 except (ValueError, IndexError):
                     continue
@@ -289,7 +300,7 @@ class JobNormalizationService:
             r"must (?:have|possess) work authorization",
             r"no (?:visa )?sponsorship",
             r"not sponsor",
-            r"cannot sponsor"
+            r"cannot sponsor",
         ]
 
         for pattern in no_sponsorship:
@@ -302,7 +313,7 @@ class JobNormalizationService:
             r"h1b sponsor(?:ship)?",
             r"eligible for (?:visa |work authorization )?(?:sponsorship|support)",
             r"sponsor work visas",
-            r"work authorization support"
+            r"work authorization support",
         ]
 
         for keyword in sponsorship_keywords:

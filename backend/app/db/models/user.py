@@ -10,6 +10,7 @@ from app.db.types import GUID
 
 class User(Base):
     """User model for authentication"""
+
     __tablename__ = "users"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
@@ -22,25 +23,83 @@ class User(Base):
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
     # Relationships (using string references for lazy loading)
-    profile = relationship("Profile", back_populates="user", uselist=False, cascade="all, delete-orphan", lazy="select")
-    resumes = relationship("Resume", back_populates="user", cascade="all, delete-orphan", lazy="select")
-    resume_versions = relationship("ResumeVersion", back_populates="user", cascade="all, delete-orphan", lazy="select")
-    cover_letters = relationship("CoverLetter", back_populates="user", cascade="all, delete-orphan", lazy="select")
-    applications = relationship("Application", back_populates="user", cascade="all, delete-orphan", lazy="select")
-    match_scores = relationship("MatchScore", back_populates="user", cascade="all, delete-orphan", lazy="select")
-    credit_wallet = relationship("CreditWallet", back_populates="user", uselist=False, cascade="all, delete-orphan", lazy="select")
-    credit_ledger = relationship("CreditLedger", back_populates="user", cascade="all, delete-orphan", lazy="select")
-    subscriptions = relationship("Subscription", back_populates="user", cascade="all, delete-orphan", lazy="select")
-    payment_methods = relationship("PaymentMethod", back_populates="user", cascade="all, delete-orphan", lazy="select")
-    interview_sessions = relationship("InterviewSession", back_populates="user", cascade="all, delete-orphan", lazy="select")
+    profile = relationship(
+        "Profile",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
+    resumes = relationship(
+        "Resume", back_populates="user", cascade="all, delete-orphan", lazy="select"
+    )
+    resume_versions = relationship(
+        "ResumeVersion",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
+    cover_letters = relationship(
+        "CoverLetter",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
+    applications = relationship(
+        "Application",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
+    match_scores = relationship(
+        "MatchScore", back_populates="user", cascade="all, delete-orphan", lazy="select"
+    )
+    credit_wallet = relationship(
+        "CreditWallet",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
+    credit_ledger = relationship(
+        "CreditLedger",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
+    subscriptions = relationship(
+        "Subscription",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
+    payment_methods = relationship(
+        "PaymentMethod",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
+    interview_sessions = relationship(
+        "InterviewSession",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
 
 
 class Profile(Base):
     """User profile with job search preferences"""
+
     __tablename__ = "profiles"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
-    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    user_id = Column(
+        GUID(),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
     first_name = Column(String(100))
     last_name = Column(String(100))
     phone = Column(String(20))

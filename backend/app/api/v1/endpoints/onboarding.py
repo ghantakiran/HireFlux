@@ -9,7 +9,7 @@ from app.schemas.onboarding import (
     SkillsUpdate,
     WorkPreferencesUpdate,
     OnboardingProgress,
-    CompleteProfileResponse
+    CompleteProfileResponse,
 )
 from app.services.onboarding import OnboardingService
 from app.api.dependencies import get_current_user
@@ -75,7 +75,9 @@ def update_job_preferences(
     - Duplicate job titles are automatically removed
     """
     onboarding_service = OnboardingService(db)
-    profile = onboarding_service.update_job_preferences(current_user.id, preferences_data)
+    profile = onboarding_service.update_job_preferences(
+        current_user.id, preferences_data
+    )
 
     return {
         "success": True,
@@ -140,7 +142,9 @@ def update_work_preferences(
     Completing this step with all previous steps marks onboarding as complete.
     """
     onboarding_service = OnboardingService(db)
-    profile = onboarding_service.update_work_preferences(current_user.id, work_prefs_data)
+    profile = onboarding_service.update_work_preferences(
+        current_user.id, work_prefs_data
+    )
 
     return {
         "success": True,

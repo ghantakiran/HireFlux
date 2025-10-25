@@ -7,6 +7,7 @@ from enum import Enum
 
 class JobSource(str, Enum):
     """Job source types"""
+
     GREENHOUSE = "greenhouse"
     LEVER = "lever"
     MANUAL = "manual"
@@ -15,6 +16,7 @@ class JobSource(str, Enum):
 
 class JobSourceStatus(str, Enum):
     """Job source status"""
+
     ACTIVE = "active"
     INACTIVE = "inactive"
     ERROR = "error"
@@ -22,6 +24,7 @@ class JobSourceStatus(str, Enum):
 
 class LocationType(str, Enum):
     """Work location types"""
+
     REMOTE = "remote"
     HYBRID = "hybrid"
     ONSITE = "onsite"
@@ -29,6 +32,7 @@ class LocationType(str, Enum):
 
 class JobSourceConfig(BaseModel):
     """Job source configuration"""
+
     id: Optional[str] = None
     source_type: JobSource
     name: str = Field(..., max_length=100)
@@ -46,6 +50,7 @@ class JobSourceConfig(BaseModel):
 
 class RawJobData(BaseModel):
     """Raw job data from external API"""
+
     source: JobSource
     external_id: str
     raw_data: Dict[str, Any]
@@ -54,6 +59,7 @@ class RawJobData(BaseModel):
 
 class JobSkillExtraction(BaseModel):
     """Extracted skill from job description"""
+
     skill: str
     required: bool
     years_required: Optional[int] = None
@@ -63,6 +69,7 @@ class JobSkillExtraction(BaseModel):
 
 class SalaryRange(BaseModel):
     """Salary range"""
+
     min_salary: Optional[int] = Field(None, ge=0)
     max_salary: Optional[int] = Field(None, ge=0)
     currency: str = Field(default="USD")
@@ -71,6 +78,7 @@ class SalaryRange(BaseModel):
 
 class NormalizedJob(BaseModel):
     """Normalized job data"""
+
     external_id: str
     source: JobSource
     title: str = Field(..., min_length=1, max_length=255)
@@ -105,6 +113,7 @@ class NormalizedJob(BaseModel):
 
 class JobMetadata(BaseModel):
     """Metadata for job fetch results"""
+
     total_fetched: int
     new_jobs: int
     updated_jobs: int
@@ -115,6 +124,7 @@ class JobMetadata(BaseModel):
 
 class JobFetchResult(BaseModel):
     """Result of fetching jobs from a source"""
+
     jobs: List[Any]  # List of GreenhouseJob or LeverJob
     metadata: JobMetadata
     source: JobSource
@@ -122,6 +132,7 @@ class JobFetchResult(BaseModel):
 
 class JobIngestionRequest(BaseModel):
     """Request to ingest jobs from source"""
+
     sources: Optional[List[Any]] = None  # List of source configurations
     incremental: bool = Field(default=True, description="Only fetch updated jobs")
     max_jobs: Optional[int] = Field(None, ge=1, le=1000)
@@ -130,6 +141,7 @@ class JobIngestionRequest(BaseModel):
 
 class JobIngestionResult(BaseModel):
     """Result of job ingestion"""
+
     success: bool
     message: str
     metadata: JobMetadata
@@ -142,6 +154,7 @@ class JobIngestionResult(BaseModel):
 
 class DuplicateJobMatch(BaseModel):
     """Duplicate job detection result"""
+
     job_id: str
     similarity_score: float = Field(..., ge=0.0, le=1.0)
     matching_fields: List[str]
@@ -150,6 +163,7 @@ class DuplicateJobMatch(BaseModel):
 
 class JobEnrichment(BaseModel):
     """Job enrichment data"""
+
     company_size: Optional[str] = None  # "1-10", "11-50", etc.
     company_industry: Optional[str] = None
     company_founded_year: Optional[int] = None
@@ -160,6 +174,7 @@ class JobEnrichment(BaseModel):
 
 class JobSyncConfig(BaseModel):
     """Job sync configuration"""
+
     enabled: bool = True
     sync_frequency_hours: int = Field(default=24, ge=1, le=168)
     incremental_sync: bool = True
@@ -169,12 +184,14 @@ class JobSyncConfig(BaseModel):
 
 class GreenhouseDepartment(BaseModel):
     """Greenhouse department"""
+
     id: str
     name: str
 
 
 class GreenhouseOffice(BaseModel):
     """Greenhouse office/location"""
+
     id: str
     name: str
     location: Optional[str] = None
@@ -182,6 +199,7 @@ class GreenhouseOffice(BaseModel):
 
 class GreenhouseJob(BaseModel):
     """Greenhouse API job format"""
+
     id: str
     title: str
     location: str
@@ -197,6 +215,7 @@ class GreenhouseJob(BaseModel):
 
 class LeverCategory(BaseModel):
     """Lever job category"""
+
     commitment: Optional[str] = None
     department: Optional[str] = None
     level: Optional[str] = None
@@ -206,11 +225,13 @@ class LeverCategory(BaseModel):
 
 class LeverLocation(BaseModel):
     """Lever location"""
+
     name: str
 
 
 class LeverJob(BaseModel):
     """Lever API job format"""
+
     id: str
     text: str
     hostedUrl: str
@@ -229,6 +250,7 @@ class LeverJob(BaseModel):
 
 class JobSourceHealthCheck(BaseModel):
     """Health check result for job source"""
+
     source_id: str
     source_type: JobSource
     is_healthy: bool
@@ -241,6 +263,7 @@ class JobSourceHealthCheck(BaseModel):
 
 class JobFeedAnalytics(BaseModel):
     """Analytics for job feed sources"""
+
     source: JobSource
     time_period_days: int
     total_jobs_fetched: int
@@ -255,6 +278,7 @@ class JobFeedAnalytics(BaseModel):
 
 class ManualJobSubmission(BaseModel):
     """Manual job submission by admin or user"""
+
     job_url: HttpUrl
     notes: Optional[str] = Field(None, max_length=500)
     submitted_by: str  # user_id or "admin"
@@ -263,6 +287,7 @@ class ManualJobSubmission(BaseModel):
 
 class JobParsingResult(BaseModel):
     """Result of parsing job from URL"""
+
     success: bool
     job_data: Optional[NormalizedJob] = None
     error: Optional[str] = None
@@ -271,6 +296,7 @@ class JobParsingResult(BaseModel):
 
 class JobQualityCheck(BaseModel):
     """Job data quality validation"""
+
     job_id: str
     is_valid: bool
     quality_score: float = Field(..., ge=0.0, le=1.0)
@@ -282,6 +308,7 @@ class JobQualityCheck(BaseModel):
 
 class BatchJobIngestion(BaseModel):
     """Batch job ingestion status"""
+
     batch_id: str
     source: JobSource
     total_jobs: int
