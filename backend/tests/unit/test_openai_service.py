@@ -310,7 +310,8 @@ class TestErrorRecovery:
     def test_gives_up_after_max_retries(self, openai_service):
         """Test giving up after max retries"""
         with patch.object(openai_service, 'client') as mock_client:
-            mock_client.chat.completions.create.side_effect = Exception("Persistent error")
+            # Use timeout error which triggers retries
+            mock_client.chat.completions.create.side_effect = Exception("Timeout")
 
             with pytest.raises(ServiceError):
                 openai_service.generate_completion(
