@@ -78,8 +78,17 @@ class OnboardingService:
         """
         profile = self._get_profile(user_id)
 
-        # Update job preferences
-        profile.target_titles = preferences_data.target_titles
+        # Update job preferences with duplicate removal
+        # Remove case-insensitive duplicates from target_titles
+        seen_lower = set()
+        unique_titles = []
+        for title in (preferences_data.target_titles or []):
+            title_lower = title.lower()
+            if title_lower not in seen_lower:
+                seen_lower.add(title_lower)
+                unique_titles.append(title)
+
+        profile.target_titles = unique_titles
         profile.salary_min = preferences_data.salary_min
         profile.salary_max = preferences_data.salary_max
         profile.industries = preferences_data.industries
