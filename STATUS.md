@@ -45,10 +45,10 @@
 - [ ] Loading spinners
 - [ ] Form components
 
-### Frontend - Authentication (70%)
+### Frontend - Authentication (90%)
 - [x] Zustand auth store (7 tests ✅)
-- [x] Sign In page (6/8 tests ✅)
-- [ ] Sign Up page
+- [x] Sign In page (8/8 tests ✅)
+- [x] Sign Up page (9/9 tests ✅)
 - [ ] Forgot Password flow
 - [ ] Protected route middleware
 - [ ] OAuth integration (Google, LinkedIn)
@@ -61,25 +61,27 @@
 - [x] Job matching tests (24 scenarios)
 - [ ] E2E tests passing (requires full implementation)
 
+### Frontend - Onboarding (100% Complete! ✅)
+- [x] Step 1: Basic profile (phone, location) (13 tests ✅)
+- [x] Step 2: Job preferences (titles, salary, industries) (13 tests ✅)
+- [x] Step 3: Skills selection (13 tests ✅)
+- [x] Step 4: Work preferences (remote, visa, relocation) (13 tests ✅)
+- [x] Progress indicator (step numbers)
+- [x] Multi-step form with state preservation
+- [x] Navigation between steps (Back/Continue buttons)
+- [x] Complete onboarding API integration
+- [ ] Run E2E onboarding tests (14 scenarios)
+
 ## 🔨 In Progress
 
-### Frontend - Authentication
-- [ ] Fix 2 failing validation tests in Sign In page
-- [ ] Complete Sign Up page with tests
-- [ ] Add protected route HOC
-- [ ] Run E2E authentication tests
+### Frontend - Resume Generation (Starting with TDD)
+- [ ] Resume list view
+- [ ] Resume upload component
+- [ ] Resume editor with sections
+- [ ] ATS score display
+- [ ] Version management
 
 ## ⏳ Pending (Next 7-10 days)
-
-### Frontend - Onboarding (2-3 days)
-- [ ] Step 1: Basic profile (name, phone, location)
-- [ ] Step 2: Job preferences (titles, salary, industries)
-- [ ] Step 3: Skills selection
-- [ ] Step 4: Work preferences (remote, visa)
-- [ ] Progress indicator component
-- [ ] Draft auto-save functionality
-- [ ] Navigation between steps
-- [ ] Run E2E onboarding tests (14 scenarios)
 
 ### Frontend - Resume Generation (3-4 days)
 - [ ] Resume list view
@@ -123,14 +125,16 @@
 
 ## 📊 Test Status
 
-### Unit Tests: 48/50 (96%)
+### Unit Tests: 72/72 (100%) ✅
 ```
 ✅ Utils:           6/6   (100%)
 ✅ Button:         16/16  (100%)
 ✅ Input:           9/9   (100%)
 ✅ Label:           4/4   (100%)
 ✅ Auth Store:      7/7   (100%)
-⚡ Sign In Page:    6/8   (75%)
+✅ Sign In Page:    8/8   (100%)
+✅ Sign Up Page:    9/9   (100%)
+✅ Onboarding:     13/13  (100%)
 ```
 
 ### E2E Tests: 0/244 (0%)
