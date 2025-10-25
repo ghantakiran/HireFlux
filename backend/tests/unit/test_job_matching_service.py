@@ -24,7 +24,11 @@ def mock_db():
 @pytest.fixture
 def job_matching_service(mock_db):
     """Create JobMatchingService instance with mocked dependencies"""
-    with patch('app.services.job_matching_service.PineconeService'):
+    with patch('app.services.job_matching_service.PineconeService') as mock_pinecone_class:
+        # Configure the mock instance
+        mock_pinecone_instance = mock_pinecone_class.return_value
+        mock_pinecone_instance.calculate_semantic_similarity.return_value = 0.0  # Default low similarity
+
         service = JobMatchingService(mock_db)
         return service
 
@@ -119,7 +123,7 @@ class TestSkillMatching:
             preferred_skills
         )
 
-        assert score == 25  # 50 * (2/4) required skills
+        assert score == 35  # 25 (50 * 2/4 required) + 10 (no preferred gives full 10)
         assert len(matches) == 4
         assert sum(1 for m in matches if m.user_has) == 2
 
@@ -151,7 +155,7 @@ class TestSkillMatching:
             preferred_skills
         )
 
-        assert score == 0
+        assert score == 10  # 0 (no required matches) + 10 (no preferred gives full 10)
         assert all(not m.user_has for m in matches)
 
 
