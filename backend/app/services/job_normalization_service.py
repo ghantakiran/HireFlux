@@ -55,19 +55,20 @@ class JobNormalizationService:
         "git": r"\b(git|github|gitlab|version control)\b"
     }
 
-    # Experience level patterns
+    # Experience level patterns (checked in order)
     EXPERIENCE_PATTERNS = {
-        "entry": r"\b(entry[\s\-]level|junior|0[\s\-]2 years?|new grad)\b",
-        "mid": r"\b(mid[\s\-]level|intermediate|2[\s\-]5 years?|3[\s\-]5 years?)\b",
-        "senior": r"\b(senior|sr\.|5[\s\-]10 years?|6[\s\-]10 years?|lead)\b",
-        "staff": r"\b(staff|principal|architect|10\+ years?)\b",
-        "principal": r"\b(principal|distinguished|fellow|15\+ years?)\b"
+        "principal": r"\b(principal|distinguished|fellow)\b",
+        "staff": r"\b(staff|architect)\b",
+        "senior": r"\b(senior|sr\.|lead)\b",
+        "mid": r"\b(mid[\s\-]level|intermediate)\b",
+        "entry": r"\b(entry[\s\-]level|junior|new grad)\b"
     }
 
     # Salary patterns
     SALARY_PATTERNS = [
-        r"\$\s?(\d{1,3}(?:,\d{3})*(?:k|\d{3}))\s?[\-–to]+\s?\$?\s?(\d{1,3}(?:,\d{3})*(?:k|\d{3}))",
-        r"(\d{1,3})k?\s?[\-–to]+\s?(\d{1,3})k",
+        r"\$\s?(\d{1,3}(?:,\d{3})+)\s?[-–to]+\s?\$?\s?(\d{1,3}(?:,\d{3})+)",  # $150,000 - $200,000
+        r"\$\s?(\d+)k?\s?[-–to]+\s?\$?\s?(\d+)k?",  # $150k - $200k
+        r"(\d{1,3})k\s?[-–to]+\s?(\d{1,3})k",  # 150k - 200k
         r"salary:\s?\$?\s?(\d{1,3}(?:,\d{3})*)\s?[\-–to]+\s?\$?\s?(\d{1,3}(?:,\d{3})*)"
     ]
 
@@ -202,7 +203,7 @@ class JobNormalizationService:
         text_lower = text.lower()
 
         # Pattern for range: "3-5 years", "3 to 5 years"
-        range_match = re.search(r"(\d+)[\s\-](?:to|–)[\s\-]?(\d+)\s?years?", text_lower)
+        range_match = re.search(r"(\d+)\s*(?:[-–]|to)\s*(\d+)\s?years?", text_lower)
         if range_match:
             return int(range_match.group(1)), int(range_match.group(2))
 
