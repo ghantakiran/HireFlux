@@ -283,12 +283,26 @@ class JobNormalizationService:
 
         text_lower = text.lower()
 
+        # Negative patterns (no sponsorship)
+        no_sponsorship = [
+            r"(?:us|united states) work authorization required",
+            r"must (?:have|possess) work authorization",
+            r"no (?:visa )?sponsorship",
+            r"not sponsor",
+            r"cannot sponsor"
+        ]
+
+        for pattern in no_sponsorship:
+            if re.search(pattern, text_lower):
+                return False
+
+        # Positive patterns (offers sponsorship)
         sponsorship_keywords = [
-            r"visa sponsorship",
-            r"h1b sponsor",
-            r"work authorization",
-            r"eligible for sponsorship",
-            r"sponsor work visas"
+            r"(?:will|can|provide|offer).*visa sponsorship",
+            r"h1b sponsor(?:ship)?",
+            r"eligible for (?:visa |work authorization )?(?:sponsorship|support)",
+            r"sponsor work visas",
+            r"work authorization support"
         ]
 
         for keyword in sponsorship_keywords:
