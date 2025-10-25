@@ -22,7 +22,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { authApi } from '@/lib/api';
 
 const signInSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -40,6 +40,8 @@ export default function SignInPage() {
     formState: { errors },
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
   });
 
   const onSubmit = async (data: SignInFormData) => {
