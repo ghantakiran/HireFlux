@@ -20,7 +20,7 @@ class JobSource(Base):
     created_at = Column(TIMESTAMP, server_default=func.now())
 
     # Relationships
-    jobs = relationship("Job", back_populates="source")
+    jobs = relationship("Job", back_populates="job_source")
 
 
 class Job(Base):

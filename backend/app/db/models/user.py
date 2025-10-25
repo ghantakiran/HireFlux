@@ -31,6 +31,7 @@ class User(Base):
     credit_wallet = relationship("CreditWallet", back_populates="user", uselist=False, cascade="all, delete-orphan", lazy="select")
     credit_ledger = relationship("CreditLedger", back_populates="user", cascade="all, delete-orphan", lazy="select")
     subscriptions = relationship("Subscription", back_populates="user", cascade="all, delete-orphan", lazy="select")
+    payment_methods = relationship("PaymentMethod", back_populates="user", cascade="all, delete-orphan", lazy="select")
     interview_sessions = relationship("InterviewSession", back_populates="user", cascade="all, delete-orphan", lazy="select")
 
 
