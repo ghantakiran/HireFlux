@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -49,7 +49,6 @@ type Step4Data = z.infer<typeof step4Schema>;
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { user } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
