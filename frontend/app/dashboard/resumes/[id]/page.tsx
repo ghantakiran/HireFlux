@@ -72,6 +72,11 @@ export default function ResumeDetailPage() {
   const [showVersionsList, setShowVersionsList] = useState(false);
   const [versions, setVersions] = useState<any[]>([]);
   const [versionSaveSuccess, setVersionSaveSuccess] = useState(false);
+  const [showTailorDialog, setShowTailorDialog] = useState(false);
+  const [jobDescription, setJobDescription] = useState('');
+  const [isTailoring, setIsTailoring] = useState(false);
+  const [tailorSuccess, setTailorSuccess] = useState(false);
+  const [matchedSkills, setMatchedSkills] = useState<string[]>([]);
 
   useEffect(() => {
     if (resumeId) {
@@ -208,6 +213,32 @@ export default function ResumeDetailPage() {
     }
   };
 
+  const handleTailorToJob = () => {
+    setShowTailorDialog(true);
+    setJobDescription('');
+    setTailorSuccess(false);
+    setMatchedSkills([]);
+  };
+
+  const handleGenerateTailoredResume = async () => {
+    if (!jobDescription.trim()) return;
+
+    try {
+      setIsTailoring(true);
+      setTailorSuccess(false);
+      const response = await resumeApi.tailorToJob(resumeId, { job_description: jobDescription });
+      setMatchedSkills(response.data.data.matched_skills || []);
+      setTailorSuccess(true);
+      setTimeout(() => {
+        setShowTailorDialog(false);
+        setIsTailoring(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to tailor resume', err);
+      setIsTailoring(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
@@ -270,6 +301,9 @@ export default function ResumeDetailPage() {
             </Button>
             <Button variant="outline" onClick={handleShowVersions}>
               Versions
+            </Button>
+            <Button variant="outline" onClick={handleTailorToJob}>
+              Tailor to Job
             </Button>
             <DropdownMenu
               trigger={
@@ -594,6 +628,55 @@ export default function ResumeDetailPage() {
           </div>
           <DialogFooter>
             <Button onClick={() => setShowVersionsList(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Tailor to Job Dialog */}
+      <Dialog open={showTailorDialog} onOpenChange={setShowTailorDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tailor Resume to Job</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="job-description">Job Description</Label>
+            <Textarea
+              id="job-description"
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              placeholder="Paste the job description here..."
+              rows={8}
+              className="mt-2"
+            />
+          </div>
+          {isTailoring && (
+            <div className="text-sm text-blue-600">Tailoring resume...</div>
+          )}
+          {tailorSuccess && (
+            <div className="space-y-2">
+              <div className="text-sm text-green-600">Resume tailored successfully!</div>
+              {matchedSkills.length > 0 && (
+                <div className="rounded-md bg-green-50 p-3">
+                  <p className="text-sm font-medium text-green-900 mb-2">Matched Skills:</p>
+                  {matchedSkills.map((skill, index) => (
+                    <div key={index} className="text-sm text-green-700">
+                      {skill} matched
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowTailorDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleGenerateTailoredResume}
+              disabled={!jobDescription.trim() || isTailoring}
+            >
+              {isTailoring ? 'Generating...' : 'Generate Tailored Resume'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

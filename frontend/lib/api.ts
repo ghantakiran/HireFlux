@@ -174,6 +174,9 @@ export const resumeApi = {
     apiClient.post<ApiResponse>(`/resumes/${id}/versions`, data),
 
   getVersions: () => apiClient.get<ApiResponse>('/resumes/versions'),
+
+  tailorToJob: (id: string, data: { job_description: string }) =>
+    apiClient.post<ApiResponse>(`/resumes/${id}/tailor`, data),
 };
 
 // Cover Letter API

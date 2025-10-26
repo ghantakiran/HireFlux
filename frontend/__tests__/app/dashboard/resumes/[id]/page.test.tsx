@@ -13,6 +13,7 @@ jest.mock('@/lib/api', () => ({
     getRecommendations: jest.fn(),
     createVersion: jest.fn(),
     getVersions: jest.fn(),
+    tailorToJob: jest.fn(),
   },
 }));
 
@@ -707,6 +708,163 @@ describe('Resume Detail Page', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/No versions saved yet/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Job Tailoring', () => {
+    it('should have Tailor to Job button', async () => {
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Tailor to Job/i })).toBeInTheDocument();
+      });
+    });
+
+    it('should open job tailoring dialog when Tailor to Job is clicked', async () => {
+      const user = userEvent.setup();
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Tailor to Job/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /Tailor to Job/i }));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/Job Description/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should generate tailored resume with job description', async () => {
+      const user = userEvent.setup();
+      const mockTailoredResume = {
+        ...mockResume,
+        matched_skills: ['React', 'Node.js', 'TypeScript'],
+      };
+      (resumeApi.tailorToJob as jest.Mock).mockResolvedValue({
+        data: { data: mockTailoredResume },
+      });
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Tailor to Job/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /Tailor to Job/i }));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/Job Description/i)).toBeInTheDocument();
+      });
+
+      const jobDescInput = screen.getByLabelText(/Job Description/i);
+      await user.type(
+        jobDescInput,
+        "We're looking for a Senior Software Engineer with expertise in React, Node.js, and AWS."
+      );
+
+      await user.click(screen.getByRole('button', { name: /Generate Tailored Resume/i }));
+
+      await waitFor(() => {
+        expect(resumeApi.tailorToJob).toHaveBeenCalledWith('resume-123', {
+          job_description:
+            "We're looking for a Senior Software Engineer with expertise in React, Node.js, and AWS.",
+        });
+      });
+    });
+
+    it('should show tailoring loading state', async () => {
+      const user = userEvent.setup();
+      (resumeApi.tailorToJob as jest.Mock).mockImplementation(
+        () => new Promise((resolve) => setTimeout(resolve, 1000))
+      );
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Tailor to Job/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /Tailor to Job/i }));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/Job Description/i)).toBeInTheDocument();
+      });
+
+      const jobDescInput = screen.getByLabelText(/Job Description/i);
+      await user.type(jobDescInput, 'Test job description');
+
+      await user.click(screen.getByRole('button', { name: /Generate Tailored Resume/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Tailoring resume/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should show success message after tailoring', async () => {
+      const user = userEvent.setup();
+      const mockTailoredResume = {
+        ...mockResume,
+        matched_skills: ['React', 'Node.js'],
+      };
+      (resumeApi.tailorToJob as jest.Mock).mockResolvedValue({
+        data: { data: mockTailoredResume },
+      });
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Tailor to Job/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /Tailor to Job/i }));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/Job Description/i)).toBeInTheDocument();
+      });
+
+      const jobDescInput = screen.getByLabelText(/Job Description/i);
+      await user.type(jobDescInput, 'Test job description');
+
+      await user.click(screen.getByRole('button', { name: /Generate Tailored Resume/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Resume tailored successfully/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should display matched skills', async () => {
+      const user = userEvent.setup();
+      const mockTailoredResume = {
+        ...mockResume,
+        matched_skills: ['React', 'Node.js', 'TypeScript'],
+      };
+      (resumeApi.tailorToJob as jest.Mock).mockResolvedValue({
+        data: { data: mockTailoredResume },
+      });
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Tailor to Job/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /Tailor to Job/i }));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/Job Description/i)).toBeInTheDocument();
+      });
+
+      const jobDescInput = screen.getByLabelText(/Job Description/i);
+      await user.type(jobDescInput, 'Test job description');
+
+      await user.click(screen.getByRole('button', { name: /Generate Tailored Resume/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/React.*matched/i)).toBeInTheDocument();
+        expect(screen.getByText(/Node\.js.*matched/i)).toBeInTheDocument();
+        expect(screen.getByText(/TypeScript.*matched/i)).toBeInTheDocument();
       });
     });
   });
