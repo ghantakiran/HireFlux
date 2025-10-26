@@ -10,6 +10,7 @@ jest.mock('@/lib/api', () => ({
     getResume: jest.fn(),
     updateResume: jest.fn(),
     exportVersion: jest.fn(),
+    getRecommendations: jest.fn(),
   },
 }));
 
@@ -441,6 +442,120 @@ describe('Resume Detail Page', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Failed to update resume/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('ATS Recommendations', () => {
+    const mockRecommendations = [
+      {
+        id: '1',
+        type: 'keyword',
+        priority: 'high',
+        title: 'Add missing keywords',
+        description: 'Your resume is missing important keywords like "React", "TypeScript"',
+        action: 'Add these keywords to your skills and experience sections',
+      },
+      {
+        id: '2',
+        type: 'formatting',
+        priority: 'medium',
+        title: 'Improve formatting',
+        description: 'Use bullet points for better readability',
+        action: 'Convert paragraphs to bullet points in work experience',
+      },
+      {
+        id: '3',
+        type: 'length',
+        priority: 'low',
+        title: 'Optimize length',
+        description: 'Your resume is longer than recommended',
+        action: 'Reduce content to 1-2 pages',
+      },
+    ];
+
+    beforeEach(async () => {
+      (resumeApi.getResume as jest.Mock).mockResolvedValue({
+        data: { data: mockResume },
+      });
+      (resumeApi.getRecommendations as jest.Mock).mockResolvedValue({
+        data: { data: { recommendations: mockRecommendations } },
+      });
+    });
+
+    it('should display Recommendations section', async () => {
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Recommendations/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should fetch and display recommendations', async () => {
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(resumeApi.getRecommendations).toHaveBeenCalledWith('resume-123');
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText(/Add missing keywords/i)).toBeInTheDocument();
+        expect(screen.getByText(/Improve formatting/i)).toBeInTheDocument();
+        expect(screen.getByText(/Optimize length/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should display priority badges for recommendations', async () => {
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/high/i)).toBeInTheDocument();
+        expect(screen.getByText(/medium/i)).toBeInTheDocument();
+        expect(screen.getByText(/low/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should show recommendation descriptions', async () => {
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Your resume is missing important keywords/i)
+        ).toBeInTheDocument();
+        expect(screen.getByText(/Use bullet points for better readability/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should handle empty recommendations', async () => {
+      (resumeApi.getRecommendations as jest.Mock).mockResolvedValue({
+        data: { data: { recommendations: [] } },
+      });
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/No recommendations at this time|All set/i)
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('should handle recommendations fetch error gracefully', async () => {
+      (resumeApi.getRecommendations as jest.Mock).mockRejectedValue({
+        response: {
+          data: {
+            error: {
+              message: 'Failed to fetch recommendations',
+            },
+          },
+        },
+      });
+
+      render(<ResumeDetailPage />);
+
+      // Should still render the page without crashing
+      await waitFor(() => {
+        expect(screen.getByText(mockResume.title)).toBeInTheDocument();
       });
     });
   });

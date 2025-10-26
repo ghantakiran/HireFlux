@@ -59,10 +59,12 @@ export default function ResumeDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedResume, setEditedResume] = useState<Resume | null>(null);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
 
   useEffect(() => {
     if (resumeId) {
       fetchResume();
+      fetchRecommendations();
     }
   }, [resumeId]);
 
@@ -78,6 +80,16 @@ export default function ResumeDetailPage() {
       setError(errorMessage);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchRecommendations = async () => {
+    try {
+      const response = await resumeApi.getRecommendations(resumeId);
+      setRecommendations(response.data.data.recommendations || []);
+    } catch (err) {
+      // Silently fail - recommendations are optional
+      console.error('Failed to fetch recommendations', err);
     }
   };
 
@@ -425,6 +437,50 @@ export default function ResumeDetailPage() {
                 </Badge>
               ))}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* ATS Recommendations */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recommendations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {recommendations.length === 0 ? (
+              <p className="text-muted-foreground">All set! No recommendations at this time.</p>
+            ) : (
+              <div className="space-y-4">
+                {recommendations.map((rec) => (
+                  <div
+                    key={rec.id}
+                    className="rounded-md border p-4 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold">{rec.title}</h3>
+                          <Badge
+                            variant={
+                              rec.priority === 'high'
+                                ? 'destructive'
+                                : rec.priority === 'medium'
+                                  ? 'default'
+                                  : 'secondary'
+                            }
+                          >
+                            {rec.priority}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{rec.description}</p>
+                        {rec.action && (
+                          <p className="text-sm font-medium text-primary">{rec.action}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
