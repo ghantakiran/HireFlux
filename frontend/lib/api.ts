@@ -128,6 +128,22 @@ export const userApi = {
 
 // Resume API
 export const resumeApi = {
+  getResumes: () => apiClient.get<ApiResponse>('/resumes'),
+
+  getResume: (id: string) => apiClient.get<ApiResponse>(`/resumes/${id}`),
+
+  createResume: (data: {
+    title: string;
+    target_role: string;
+    tone?: string;
+    content?: any;
+  }) => apiClient.post<ApiResponse>('/resumes', data),
+
+  updateResume: (id: string, data: Partial<any>) =>
+    apiClient.patch<ApiResponse>(`/resumes/${id}`, data),
+
+  deleteResume: (id: string) => apiClient.delete<ApiResponse>(`/resumes/${id}`),
+
   upload: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
