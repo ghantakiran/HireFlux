@@ -11,6 +11,8 @@ jest.mock('@/lib/api', () => ({
     updateResume: jest.fn(),
     exportVersion: jest.fn(),
     getRecommendations: jest.fn(),
+    createVersion: jest.fn(),
+    getVersions: jest.fn(),
   },
 }));
 
@@ -556,6 +558,155 @@ describe('Resume Detail Page', () => {
       // Should still render the page without crashing
       await waitFor(() => {
         expect(screen.getByText(mockResume.title)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Resume Versioning', () => {
+    beforeEach(async () => {
+      (resumeApi.getResume as jest.Mock).mockResolvedValue({
+        data: { data: mockResume },
+      });
+      (resumeApi.getRecommendations as jest.Mock).mockResolvedValue({
+        data: { data: { recommendations: [] } },
+      });
+    });
+
+    it('should have Save as Version button', async () => {
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Save as Version/i })).toBeInTheDocument();
+      });
+    });
+
+    it('should open version save dialog when Save as Version is clicked', async () => {
+      const user = userEvent.setup();
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Save as Version/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /Save as Version/i }));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/Version Name/i)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /^Save$/i })).toBeInTheDocument();
+      });
+    });
+
+    it('should save version with provided name', async () => {
+      const user = userEvent.setup();
+      (resumeApi.createVersion as jest.Mock).mockResolvedValue({
+        data: { data: { id: 'version-1', name: 'Tech Company Version' } },
+      });
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Save as Version/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /Save as Version/i }));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/Version Name/i)).toBeInTheDocument();
+      });
+
+      const versionNameInput = screen.getByLabelText(/Version Name/i);
+      await user.type(versionNameInput, 'Tech Company Version');
+
+      await user.click(screen.getByRole('button', { name: /^Save$/i }));
+
+      await waitFor(() => {
+        expect(resumeApi.createVersion).toHaveBeenCalledWith('resume-123', {
+          name: 'Tech Company Version',
+        });
+      });
+    });
+
+    it('should show success message after saving version', async () => {
+      const user = userEvent.setup();
+      (resumeApi.createVersion as jest.Mock).mockResolvedValue({
+        data: { data: { id: 'version-1', name: 'Tech Company Version' } },
+      });
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Save as Version/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /Save as Version/i }));
+
+      const versionNameInput = screen.getByLabelText(/Version Name/i);
+      await user.type(versionNameInput, 'Tech Company Version');
+      await user.click(screen.getByRole('button', { name: /^Save$/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Version saved/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should have Versions button', async () => {
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Versions/i })).toBeInTheDocument();
+      });
+    });
+
+    it('should fetch and display versions list when Versions button is clicked', async () => {
+      const user = userEvent.setup();
+      const mockVersions = [
+        {
+          id: 'version-1',
+          name: 'Tech Company Version',
+          created_at: '2025-10-25T10:00:00Z',
+        },
+        {
+          id: 'version-2',
+          name: 'Startup Version',
+          created_at: '2025-10-24T10:00:00Z',
+        },
+      ];
+
+      (resumeApi.getVersions as jest.Mock).mockResolvedValue({
+        data: { data: { versions: mockVersions } },
+      });
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Versions/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /Versions/i }));
+
+      await waitFor(() => {
+        expect(resumeApi.getVersions).toHaveBeenCalled();
+        expect(screen.getByText(/Tech Company Version/i)).toBeInTheDocument();
+        expect(screen.getByText(/Startup Version/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should handle empty versions list', async () => {
+      const user = userEvent.setup();
+      (resumeApi.getVersions as jest.Mock).mockResolvedValue({
+        data: { data: { versions: [] } },
+      });
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Versions/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /Versions/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/No versions saved yet/i)).toBeInTheDocument();
       });
     });
   });

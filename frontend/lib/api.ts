@@ -169,6 +169,11 @@ export const resumeApi = {
   deleteVersion: (id: string) => apiClient.delete<ApiResponse>(`/resumes/versions/${id}`),
 
   getRecommendations: (id: string) => apiClient.get<ApiResponse>(`/resumes/${id}/recommendations`),
+
+  createVersion: (id: string, data: { name: string }) =>
+    apiClient.post<ApiResponse>(`/resumes/${id}/versions`, data),
+
+  getVersions: () => apiClient.get<ApiResponse>('/resumes/versions'),
 };
 
 // Cover Letter API

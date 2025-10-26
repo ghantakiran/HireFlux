@@ -9,6 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DropdownMenu, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { resumeApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/stores/auth-store';
 
@@ -60,6 +67,11 @@ export default function ResumeDetailPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedResume, setEditedResume] = useState<Resume | null>(null);
   const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [showVersionDialog, setShowVersionDialog] = useState(false);
+  const [versionName, setVersionName] = useState('');
+  const [showVersionsList, setShowVersionsList] = useState(false);
+  const [versions, setVersions] = useState<any[]>([]);
+  const [versionSaveSuccess, setVersionSaveSuccess] = useState(false);
 
   useEffect(() => {
     if (resumeId) {
@@ -164,6 +176,38 @@ export default function ResumeDetailPage() {
     }
   };
 
+  const handleSaveAsVersion = () => {
+    setShowVersionDialog(true);
+    setVersionName('');
+    setVersionSaveSuccess(false);
+  };
+
+  const handleSaveVersion = async () => {
+    if (!versionName.trim()) return;
+
+    try {
+      await resumeApi.createVersion(resumeId, { name: versionName });
+      setVersionSaveSuccess(true);
+      setVersionName('');
+      setTimeout(() => {
+        setShowVersionDialog(false);
+        setVersionSaveSuccess(false);
+      }, 1500);
+    } catch (err) {
+      console.error('Failed to save version', err);
+    }
+  };
+
+  const handleShowVersions = async () => {
+    try {
+      const response = await resumeApi.getVersions();
+      setVersions(response.data.data.versions || []);
+      setShowVersionsList(true);
+    } catch (err) {
+      console.error('Failed to fetch versions', err);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
@@ -221,6 +265,12 @@ export default function ResumeDetailPage() {
               Back
             </Button>
             <Button onClick={handleEdit}>Edit</Button>
+            <Button variant="outline" onClick={handleSaveAsVersion}>
+              Save as Version
+            </Button>
+            <Button variant="outline" onClick={handleShowVersions}>
+              Versions
+            </Button>
             <DropdownMenu
               trigger={
                 <Button variant="outline">
@@ -484,6 +534,69 @@ export default function ResumeDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Version Save Dialog */}
+      <Dialog open={showVersionDialog} onOpenChange={setShowVersionDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save Resume Version</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="version-name">Version Name</Label>
+            <Input
+              id="version-name"
+              value={versionName}
+              onChange={(e) => setVersionName(e.target.value)}
+              placeholder="e.g., Tech Company Version"
+              className="mt-2"
+            />
+          </div>
+          {versionSaveSuccess && (
+            <div className="text-sm text-green-600">Version saved successfully!</div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowVersionDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveVersion} disabled={!versionName.trim()}>
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Versions List Dialog */}
+      <Dialog open={showVersionsList} onOpenChange={setShowVersionsList}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Resume Versions</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            {versions.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No versions saved yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {versions.map((version) => (
+                  <div
+                    key={version.id}
+                    className="flex items-center justify-between rounded-md border p-3"
+                  >
+                    <div>
+                      <p className="font-medium">{version.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Created: {formatDate(version.created_at)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowVersionsList(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
