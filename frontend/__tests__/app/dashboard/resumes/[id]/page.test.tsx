@@ -261,4 +261,187 @@ describe('Resume Detail Page', () => {
       });
     });
   });
+
+  describe('Edit Mode', () => {
+    beforeEach(async () => {
+      (resumeApi.getResume as jest.Mock).mockResolvedValue({
+        data: { data: mockResume },
+      });
+    });
+
+    it('should toggle into edit mode when Edit button is clicked', async () => {
+      const user = userEvent.setup();
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /^Edit$/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /^Edit$/i }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Save Changes/i })).toBeInTheDocument();
+      });
+    });
+
+    it('should show editable fields in edit mode', async () => {
+      const user = userEvent.setup();
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /^Edit$/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /^Edit$/i }));
+
+      await waitFor(() => {
+        // Personal info fields
+        expect(screen.getByLabelText(/^Name$/i)).toBeInTheDocument();
+        expect(screen.getByLabelText(/^Email$/i)).toBeInTheDocument();
+        expect(screen.getByLabelText(/^Phone$/i)).toBeInTheDocument();
+        expect(screen.getAllByLabelText(/^Location$/i).length).toBeGreaterThan(0);
+
+        // Summary field
+        expect(screen.getByLabelText(/^Summary$/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should populate form fields with existing data', async () => {
+      const user = userEvent.setup();
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /^Edit$/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /^Edit$/i }));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/^Name$/i)).toHaveValue('John Doe');
+        expect(screen.getByLabelText(/^Email$/i)).toHaveValue('john@example.com');
+        expect(screen.getByLabelText(/^Phone$/i)).toHaveValue('+1 (555) 123-4567');
+        // Use getAllByLabelText for Location since there are multiple (personal info + work experience)
+        const locationInputs = screen.getAllByLabelText(/^Location$/i);
+        expect(locationInputs[0]).toHaveValue('San Francisco, CA');
+      });
+    });
+
+    it('should allow editing work experience', async () => {
+      const user = userEvent.setup();
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /^Edit$/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /^Edit$/i }));
+
+      await waitFor(() => {
+        const jobTitleInput = screen.getByLabelText(/^Job Title$/i);
+        expect(jobTitleInput).toHaveValue('Software Engineer');
+      });
+
+      const jobTitleInput = screen.getByLabelText(/^Job Title$/i);
+      await user.clear(jobTitleInput);
+      await user.type(jobTitleInput, 'Senior Software Engineer');
+
+      expect(jobTitleInput).toHaveValue('Senior Software Engineer');
+    });
+
+    it('should save changes when Save Changes button is clicked', async () => {
+      const user = userEvent.setup();
+      (resumeApi.updateResume as jest.Mock).mockResolvedValue({
+        data: { data: { ...mockResume, content: { ...mockResume.content, personal_info: { ...mockResume.content.personal_info, name: 'Jane Doe' } } } },
+      });
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /^Edit$/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /^Edit$/i }));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/^Name$/i)).toBeInTheDocument();
+      });
+
+      const nameInput = screen.getByLabelText(/^Name$/i);
+      await user.clear(nameInput);
+      await user.type(nameInput, 'Jane Doe');
+
+      await user.click(screen.getByRole('button', { name: /Save Changes/i }));
+
+      await waitFor(() => {
+        expect(resumeApi.updateResume).toHaveBeenCalledWith(
+          'resume-123',
+          expect.objectContaining({
+            content: expect.objectContaining({
+              personal_info: expect.objectContaining({
+                name: 'Jane Doe',
+              }),
+            }),
+          })
+        );
+      });
+    });
+
+    it('should cancel edit mode when Cancel button is clicked', async () => {
+      const user = userEvent.setup();
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /^Edit$/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /^Edit$/i }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /Cancel/i }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /^Edit$/i })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /Cancel/i })).not.toBeInTheDocument();
+      });
+    });
+
+    it('should show error message when save fails', async () => {
+      const user = userEvent.setup();
+      (resumeApi.updateResume as jest.Mock).mockRejectedValue({
+        response: {
+          data: {
+            error: {
+              message: 'Failed to update resume',
+            },
+          },
+        },
+      });
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /^Edit$/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /^Edit$/i }));
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/^Name$/i)).toBeInTheDocument();
+      });
+
+      const nameInput = screen.getByLabelText(/^Name$/i);
+      await user.clear(nameInput);
+      await user.type(nameInput, 'Jane Doe');
+
+      await user.click(screen.getByRole('button', { name: /Save Changes/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Failed to update resume/i)).toBeInTheDocument();
+      });
+    });
+  });
 });
