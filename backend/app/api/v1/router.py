@@ -12,6 +12,7 @@ from app.api.v1.endpoints import (
     cover_letter,
     billing,
     jobs,
+    interview,
 )
 
 api_router = APIRouter()
@@ -26,6 +27,7 @@ api_router.include_router(
 )
 api_router.include_router(billing.router, prefix="/billing", tags=["Billing"])
 api_router.include_router(jobs.router, prefix="/jobs", tags=["Jobs"])
+api_router.include_router(interview.router)
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users, applications

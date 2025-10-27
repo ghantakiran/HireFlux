@@ -20,7 +20,7 @@ from app.db.models.job import Job, JobSource, MatchScore
 from app.db.models.application import Application
 from app.db.models.billing import CreditWallet, CreditLedger, Subscription
 from app.db.models.audit import EventAudit
-from app.db.models.interview import InterviewSession
+from app.db.models.interview import InterviewSession, InterviewQuestion
 
 # this is the Alembic Config object
 config = context.config
