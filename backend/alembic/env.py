@@ -21,6 +21,7 @@ from app.db.models.application import Application
 from app.db.models.billing import CreditWallet, CreditLedger, Subscription
 from app.db.models.audit import EventAudit
 from app.db.models.interview import InterviewSession, InterviewQuestion
+from app.db.models.notification import Notification, NotificationPreference, EmailTemplate
 
 # this is the Alembic Config object
 config = context.config

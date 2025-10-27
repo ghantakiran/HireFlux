@@ -13,6 +13,7 @@ from app.api.v1.endpoints import (
     billing,
     jobs,
     interview,
+    notification,
 )
 
 api_router = APIRouter()
@@ -28,6 +29,7 @@ api_router.include_router(
 api_router.include_router(billing.router, prefix="/billing", tags=["Billing"])
 api_router.include_router(jobs.router, prefix="/jobs", tags=["Jobs"])
 api_router.include_router(interview.router)
+api_router.include_router(notification.router)
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users, applications

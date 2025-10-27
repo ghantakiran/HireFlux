@@ -85,6 +85,20 @@ class User(Base):
         cascade="all, delete-orphan",
         lazy="select",
     )
+    notifications = relationship(
+        "Notification",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        order_by="desc(Notification.created_at)",
+        lazy="select",
+    )
+    notification_preferences = relationship(
+        "NotificationPreference",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
 
 
 class Profile(Base):
