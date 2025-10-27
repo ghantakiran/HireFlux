@@ -36,6 +36,14 @@ class Application(Base):
         String(50), nullable=True
     )  # 'manual', 'apply_assist', 'auto_apply'
 
+    # Webhook integration fields
+    external_id = Column(
+        String(255), nullable=True, index=True
+    )  # External application ID from job board
+    external_source = Column(
+        String(50), nullable=True, index=True
+    )  # 'greenhouse', 'lever', etc.
+
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
@@ -46,4 +54,15 @@ class Application(Base):
     cover_letter = relationship("CoverLetter", back_populates="applications")
     auto_apply_job = relationship(
         "AutoApplyJob", back_populates="application", uselist=False
+    )
+    webhook_events = relationship("WebhookEvent", back_populates="application")
+    status_history = relationship(
+        "ApplicationStatusHistory",
+        back_populates="application",
+        cascade="all, delete-orphan",
+    )
+    interview_schedules = relationship(
+        "InterviewSchedule",
+        back_populates="application",
+        cascade="all, delete-orphan",
     )

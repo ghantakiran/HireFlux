@@ -15,6 +15,7 @@ from app.api.v1.endpoints import (
     interview,
     notification,
     auto_apply,
+    webhooks,
 )
 
 api_router = APIRouter()
@@ -32,6 +33,7 @@ api_router.include_router(jobs.router, prefix="/jobs", tags=["Jobs"])
 api_router.include_router(interview.router)
 api_router.include_router(notification.router)
 api_router.include_router(auto_apply.router)
+api_router.include_router(webhooks.router, prefix="/webhooks", tags=["Webhooks"])
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users, applications

@@ -112,6 +112,18 @@ class User(Base):
         cascade="all, delete-orphan",
         lazy="select",
     )
+    webhook_events = relationship(
+        "WebhookEvent",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
+    interview_schedules = relationship(
+        "InterviewSchedule",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
 
 
 class Profile(Base):
