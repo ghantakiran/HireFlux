@@ -290,4 +290,60 @@ export const notificationApi = {
   markAllAsRead: () => apiClient.post<ApiResponse>('/notifications/mark-all-read'),
 };
 
+// Analytics API
+export const analyticsApi = {
+  getDashboardOverview: () => apiClient.get<ApiResponse>('/analytics/dashboard'),
+
+  getDetailedAnalytics: (timeRange?: string) =>
+    apiClient.get<ApiResponse>('/analytics/dashboard/detailed', {
+      params: { time_range: timeRange },
+    }),
+
+  getPipelineStats: (timeRange?: string) =>
+    apiClient.get<ApiResponse>('/analytics/pipeline/stats', {
+      params: { time_range: timeRange },
+    }),
+
+  getPipelineDistribution: (timeRange?: string) =>
+    apiClient.get<ApiResponse>('/analytics/pipeline/distribution', {
+      params: { time_range: timeRange },
+    }),
+
+  getConversionFunnel: (timeRange?: string) =>
+    apiClient.get<ApiResponse>('/analytics/pipeline/funnel', {
+      params: { time_range: timeRange },
+    }),
+
+  getSuccessMetrics: (timeRange?: string) =>
+    apiClient.get<ApiResponse>('/analytics/metrics/success', {
+      params: { time_range: timeRange },
+    }),
+
+  getHealthScore: () => apiClient.get<ApiResponse>('/analytics/health-score'),
+
+  getActivityTimeline: (params?: { skip?: number; limit?: number; activity_types?: string[] }) =>
+    apiClient.get<ApiResponse>('/analytics/activity', { params }),
+
+  getApplicationTrends: (timeRange?: string) =>
+    apiClient.get<ApiResponse>('/analytics/trends/applications', {
+      params: { time_range: timeRange },
+    }),
+
+  getTimeSeriesChart: (metric: string, timeRange?: string) =>
+    apiClient.get<ApiResponse>(`/analytics/trends/timeseries/${metric}`, {
+      params: { time_range: timeRange },
+    }),
+
+  getAnomalies: () => apiClient.get<ApiResponse>('/analytics/anomalies'),
+
+  getPeerComparison: () => apiClient.get<ApiResponse>('/analytics/benchmarks/peer-comparison'),
+
+  getQuickStats: () => apiClient.get<ApiResponse>('/analytics/quick-stats'),
+
+  exportDashboardData: (timeRange?: string) =>
+    apiClient.get<ApiResponse>('/analytics/export', {
+      params: { time_range: timeRange },
+    }),
+};
+
 export default apiClient;
