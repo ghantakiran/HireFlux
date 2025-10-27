@@ -38,7 +38,8 @@ class Settings(BaseSettings):
     # OpenAI
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4-turbo-preview"
-    OPENAI_EMBEDDINGS_MODEL: str = "text-embedding-ada-002"
+    OPENAI_EMBEDDINGS_MODEL: str = "text-embedding-3-small"
+    OPENAI_EMBEDDING_DIMENSIONS: int = 1536
     OPENAI_MAX_TOKENS: int = 4000
     OPENAI_TEMPERATURE: float = 0.7
 
@@ -95,6 +96,10 @@ class Settings(BaseSettings):
 
     # Workers
     RQ_REDIS_URL: str = "redis://localhost:6379/1"
+
+    # Celery
+    CELERY_BROKER_URL: str = "redis://localhost:6379/2"
+    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/3"
 
     class Config:
         env_file = ".env"

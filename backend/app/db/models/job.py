@@ -84,6 +84,9 @@ class Job(Base):
     )
     cover_letters = relationship("CoverLetter", back_populates="job")
     applications = relationship("Application", back_populates="job")
+    auto_apply_jobs = relationship(
+        "AutoApplyJob", back_populates="job", cascade="all, delete-orphan"
+    )
 
 
 class MatchScore(Base):

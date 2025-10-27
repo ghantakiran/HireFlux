@@ -99,6 +99,19 @@ class User(Base):
         cascade="all, delete-orphan",
         lazy="select",
     )
+    auto_apply_config = relationship(
+        "AutoApplyConfig",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
+    auto_apply_jobs = relationship(
+        "AutoApplyJob",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
 
 
 class Profile(Base):

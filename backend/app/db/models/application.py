@@ -1,5 +1,5 @@
 """Application tracking model"""
-from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Text
+from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -29,6 +29,13 @@ class Application(Base):
     )  # 'saved', 'applied', 'interview', 'offer', 'rejected'
     applied_at = Column(TIMESTAMP)
     notes = Column(Text)
+
+    # Auto-apply specific fields
+    is_auto_applied = Column(Boolean, default=False)
+    application_mode = Column(
+        String(50), nullable=True
+    )  # 'manual', 'apply_assist', 'auto_apply'
+
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
@@ -37,3 +44,6 @@ class Application(Base):
     job = relationship("Job", back_populates="applications")
     resume_version = relationship("ResumeVersion", back_populates="applications")
     cover_letter = relationship("CoverLetter", back_populates="applications")
+    auto_apply_job = relationship(
+        "AutoApplyJob", back_populates="application", uselist=False
+    )
