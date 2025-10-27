@@ -12,7 +12,7 @@ from app.schemas.job_feed import (
     SalaryRange,
     JobFetchResult,
     JobMetadata,
-    LocationType
+    LocationType,
 )
 from app.db.models.job import Job, JobSource as JobSourceModel
 
@@ -31,10 +31,11 @@ def mock_db():
 @pytest.fixture
 def ingestion_service(mock_db):
     """Create JobIngestionService with mocked dependencies"""
-    with patch('app.services.job_ingestion_service.GreenhouseService'), \
-         patch('app.services.job_ingestion_service.LeverService'), \
-         patch('app.services.job_ingestion_service.JobNormalizationService'), \
-         patch('app.services.job_ingestion_service.PineconeService'):
+    with patch("app.services.job_ingestion_service.GreenhouseService"), patch(
+        "app.services.job_ingestion_service.LeverService"
+    ), patch("app.services.job_ingestion_service.JobNormalizationService"), patch(
+        "app.services.job_ingestion_service.PineconeService"
+    ):
         service = JobIngestionService(mock_db)
         return service
 
@@ -50,9 +51,9 @@ def sample_normalized_job():
         location="San Francisco, CA",
         location_type=LocationType.HYBRID,
         description="We are looking for a senior backend engineer with 5+ years of experience in Python and FastAPI. "
-                    "You will be responsible for building scalable microservices, designing APIs, and working with "
-                    "cross-functional teams to deliver high-quality software solutions. Strong understanding of "
-                    "distributed systems and cloud infrastructure is required.",
+        "You will be responsible for building scalable microservices, designing APIs, and working with "
+        "cross-functional teams to deliver high-quality software solutions. Strong understanding of "
+        "distributed systems and cloud infrastructure is required.",
         required_skills=["Python", "FastAPI", "PostgreSQL"],
         preferred_skills=["AWS", "Docker"],
         experience_requirement="5+ years",
@@ -64,7 +65,7 @@ def sample_normalized_job():
         employment_type="full-time",
         requires_visa_sponsorship=False,
         application_url="https://example.com/jobs/123456/apply",
-        posted_date=datetime.utcnow()
+        posted_date=datetime.utcnow(),
     )
 
 
@@ -77,7 +78,7 @@ def sample_source_config():
         "board_token": "techcorp",
         "company_name": "Tech Corp",
         "department_id": "1",
-        "office_id": "1"
+        "office_id": "1",
     }
     return config
 
@@ -85,7 +86,9 @@ def sample_source_config():
 class TestJobIngestion:
     """Test complete job ingestion flow"""
 
-    def test_ingest_jobs_success(self, ingestion_service, mock_db, sample_source_config, sample_normalized_job):
+    def test_ingest_jobs_success(
+        self, ingestion_service, mock_db, sample_source_config, sample_normalized_job
+    ):
         """Test successful job ingestion"""
         # Mock greenhouse service
         mock_fetch_result = JobFetchResult(
@@ -96,12 +99,14 @@ class TestJobIngestion:
                 updated_jobs=0,
                 failed_jobs=0,
                 fetch_duration_seconds=1.0,
-                errors=[]
+                errors=[],
             ),
-            source=JobSource.GREENHOUSE
+            source=JobSource.GREENHOUSE,
         )
         ingestion_service.greenhouse.fetch_jobs = Mock(return_value=mock_fetch_result)
-        ingestion_service.normalizer.normalize_greenhouse_job = Mock(return_value=sample_normalized_job)
+        ingestion_service.normalizer.normalize_greenhouse_job = Mock(
+            return_value=sample_normalized_job
+        )
 
         # Mock database query (no existing job)
         mock_query = Mock()
@@ -112,10 +117,7 @@ class TestJobIngestion:
         ingestion_service.pinecone.index_job = Mock()
 
         # Create request
-        request = JobIngestionRequest(
-            sources=[sample_source_config],
-            incremental=True
-        )
+        request = JobIngestionRequest(sources=[sample_source_config], incremental=True)
 
         # Execute
         result = ingestion_service.ingest_jobs(request)
@@ -131,12 +133,11 @@ class TestJobIngestion:
     def test_ingest_jobs_with_errors(self, ingestion_service, sample_source_config):
         """Test ingestion with errors"""
         # Mock greenhouse service to raise error
-        ingestion_service.greenhouse.fetch_jobs = Mock(side_effect=Exception("API Error"))
-
-        request = JobIngestionRequest(
-            sources=[sample_source_config],
-            incremental=True
+        ingestion_service.greenhouse.fetch_jobs = Mock(
+            side_effect=Exception("API Error")
         )
+
+        request = JobIngestionRequest(sources=[sample_source_config], incremental=True)
 
         result = ingestion_service.ingest_jobs(request)
 
@@ -157,20 +158,37 @@ class TestJobIngestion:
         lever_config.config = {"company_site": "company2", "company_name": "Company 2"}
 
         # Mock both services
-        ingestion_service.greenhouse.fetch_jobs = Mock(return_value=JobFetchResult(
-            jobs=[],
-            metadata=JobMetadata(total_fetched=0, new_jobs=0, updated_jobs=0, failed_jobs=0, fetch_duration_seconds=0.0, errors=[]),
-            source=JobSource.GREENHOUSE
-        ))
-        ingestion_service.lever.fetch_jobs = Mock(return_value=JobFetchResult(
-            jobs=[],
-            metadata=JobMetadata(total_fetched=0, new_jobs=0, updated_jobs=0, failed_jobs=0, fetch_duration_seconds=0.0, errors=[]),
-            source=JobSource.LEVER
-        ))
+        ingestion_service.greenhouse.fetch_jobs = Mock(
+            return_value=JobFetchResult(
+                jobs=[],
+                metadata=JobMetadata(
+                    total_fetched=0,
+                    new_jobs=0,
+                    updated_jobs=0,
+                    failed_jobs=0,
+                    fetch_duration_seconds=0.0,
+                    errors=[],
+                ),
+                source=JobSource.GREENHOUSE,
+            )
+        )
+        ingestion_service.lever.fetch_jobs = Mock(
+            return_value=JobFetchResult(
+                jobs=[],
+                metadata=JobMetadata(
+                    total_fetched=0,
+                    new_jobs=0,
+                    updated_jobs=0,
+                    failed_jobs=0,
+                    fetch_duration_seconds=0.0,
+                    errors=[],
+                ),
+                source=JobSource.LEVER,
+            )
+        )
 
         request = JobIngestionRequest(
-            sources=[gh_config, lever_config],
-            incremental=True
+            sources=[gh_config, lever_config], incremental=True
         )
 
         result = ingestion_service.ingest_jobs(request)
@@ -183,14 +201,16 @@ class TestJobIngestion:
 class TestGreenhouseIngestion:
     """Test Greenhouse-specific ingestion"""
 
-    def test_ingest_from_greenhouse_success(self, ingestion_service, sample_normalized_job):
+    def test_ingest_from_greenhouse_success(
+        self, ingestion_service, sample_normalized_job
+    ):
         """Test successful Greenhouse job fetching and normalization"""
         source_config = Mock()
         source_config.config = {
             "board_token": "techcorp",
             "company_name": "Tech Corp",
             "department_id": "1",
-            "office_id": "1"
+            "office_id": "1",
         }
 
         # Mock fetch result
@@ -204,13 +224,15 @@ class TestGreenhouseIngestion:
                 updated_jobs=0,
                 failed_jobs=0,
                 fetch_duration_seconds=0.0,
-                errors=[]
+                errors=[],
             ),
-            source=JobSource.GREENHOUSE
+            source=JobSource.GREENHOUSE,
         )
 
         ingestion_service.greenhouse.fetch_jobs = Mock(return_value=fetch_result)
-        ingestion_service.normalizer.normalize_greenhouse_job = Mock(return_value=sample_normalized_job)
+        ingestion_service.normalizer.normalize_greenhouse_job = Mock(
+            return_value=sample_normalized_job
+        )
 
         # Execute
         result = ingestion_service._ingest_from_greenhouse(source_config)
@@ -219,9 +241,7 @@ class TestGreenhouseIngestion:
         assert len(result) == 1
         assert result[0] == sample_normalized_job
         ingestion_service.greenhouse.fetch_jobs.assert_called_once_with(
-            board_token="techcorp",
-            department_id="1",
-            office_id="1"
+            board_token="techcorp", department_id="1", office_id="1"
         )
 
     def test_ingest_from_greenhouse_missing_board_token(self, ingestion_service):
@@ -230,6 +250,7 @@ class TestGreenhouseIngestion:
         source_config.config = {"company_name": "Tech Corp"}
 
         from app.core.exceptions import ServiceError
+
         with pytest.raises(ServiceError) as exc:
             ingestion_service._ingest_from_greenhouse(source_config)
 
@@ -238,10 +259,7 @@ class TestGreenhouseIngestion:
     def test_ingest_from_greenhouse_normalization_errors(self, ingestion_service):
         """Test handling of normalization errors"""
         source_config = Mock()
-        source_config.config = {
-            "board_token": "techcorp",
-            "company_name": "Tech Corp"
-        }
+        source_config.config = {"board_token": "techcorp", "company_name": "Tech Corp"}
 
         # Mock fetch with multiple jobs
         mock_jobs = [Mock(id="1"), Mock(id="2"), Mock(id="3")]
@@ -253,9 +271,9 @@ class TestGreenhouseIngestion:
                 updated_jobs=0,
                 failed_jobs=0,
                 fetch_duration_seconds=0.0,
-                errors=[]
+                errors=[],
             ),
-            source=JobSource.GREENHOUSE
+            source=JobSource.GREENHOUSE,
         )
 
         ingestion_service.greenhouse.fetch_jobs = Mock(return_value=fetch_result)
@@ -266,7 +284,9 @@ class TestGreenhouseIngestion:
                 raise Exception("Normalization failed")
             return Mock(spec=NormalizedJob)
 
-        ingestion_service.normalizer.normalize_greenhouse_job = Mock(side_effect=normalize_side_effect)
+        ingestion_service.normalizer.normalize_greenhouse_job = Mock(
+            side_effect=normalize_side_effect
+        )
 
         # Execute
         result = ingestion_service._ingest_from_greenhouse(source_config)
@@ -284,7 +304,7 @@ class TestLeverIngestion:
         source_config.config = {
             "company_site": "netflix",
             "company_name": "Netflix",
-            "team": "Engineering"
+            "team": "Engineering",
         }
 
         # Mock fetch result
@@ -298,13 +318,15 @@ class TestLeverIngestion:
                 updated_jobs=0,
                 failed_jobs=0,
                 fetch_duration_seconds=0.0,
-                errors=[]
+                errors=[],
             ),
-            source=JobSource.LEVER
+            source=JobSource.LEVER,
         )
 
         ingestion_service.lever.fetch_jobs = Mock(return_value=fetch_result)
-        ingestion_service.normalizer.normalize_lever_job = Mock(return_value=sample_normalized_job)
+        ingestion_service.normalizer.normalize_lever_job = Mock(
+            return_value=sample_normalized_job
+        )
 
         # Execute
         result = ingestion_service._ingest_from_lever(source_config)
@@ -312,10 +334,7 @@ class TestLeverIngestion:
         # Verify
         assert len(result) == 1
         ingestion_service.lever.fetch_jobs.assert_called_once_with(
-            company_site="netflix",
-            team="Engineering",
-            location=None,
-            commitment=None
+            company_site="netflix", team="Engineering", location=None, commitment=None
         )
 
     def test_ingest_from_lever_missing_company_site(self, ingestion_service):
@@ -324,6 +343,7 @@ class TestLeverIngestion:
         source_config.config = {"company_name": "Netflix"}
 
         from app.core.exceptions import ServiceError
+
         with pytest.raises(ServiceError) as exc:
             ingestion_service._ingest_from_lever(source_config)
 
@@ -353,7 +373,9 @@ class TestJobSaveOrUpdate:
         mock_db.commit.assert_called()
         ingestion_service.pinecone.index_job.assert_called_once()
 
-    def test_update_existing_job(self, ingestion_service, mock_db, sample_normalized_job):
+    def test_update_existing_job(
+        self, ingestion_service, mock_db, sample_normalized_job
+    ):
         """Test updating an existing job"""
         # Mock existing job with different title
         existing_job = Mock(spec=Job)
@@ -380,7 +402,9 @@ class TestJobSaveOrUpdate:
         mock_db.commit.assert_called()
         ingestion_service.pinecone.index_job.assert_called_once()
 
-    def test_skip_unchanged_job(self, ingestion_service, mock_db, sample_normalized_job):
+    def test_skip_unchanged_job(
+        self, ingestion_service, mock_db, sample_normalized_job
+    ):
         """Test skipping job that hasn't changed"""
         # Mock existing job with same data
         existing_job = Mock(spec=Job)
@@ -405,7 +429,9 @@ class TestJobSaveOrUpdate:
 class TestJobNeedsUpdate:
     """Test job update detection logic"""
 
-    def test_update_needed_title_changed(self, ingestion_service, sample_normalized_job):
+    def test_update_needed_title_changed(
+        self, ingestion_service, sample_normalized_job
+    ):
         """Test update detection when title changes"""
         existing_job = Mock()
         existing_job.title = "Old Title"
@@ -413,9 +439,14 @@ class TestJobNeedsUpdate:
         existing_job.location = sample_normalized_job.location
         existing_job.posted_date = sample_normalized_job.posted_date
 
-        assert ingestion_service._job_needs_update(existing_job, sample_normalized_job) is True
+        assert (
+            ingestion_service._job_needs_update(existing_job, sample_normalized_job)
+            is True
+        )
 
-    def test_update_needed_description_changed(self, ingestion_service, sample_normalized_job):
+    def test_update_needed_description_changed(
+        self, ingestion_service, sample_normalized_job
+    ):
         """Test update detection when description changes"""
         existing_job = Mock()
         existing_job.title = sample_normalized_job.title
@@ -423,9 +454,14 @@ class TestJobNeedsUpdate:
         existing_job.location = sample_normalized_job.location
         existing_job.posted_date = sample_normalized_job.posted_date
 
-        assert ingestion_service._job_needs_update(existing_job, sample_normalized_job) is True
+        assert (
+            ingestion_service._job_needs_update(existing_job, sample_normalized_job)
+            is True
+        )
 
-    def test_update_needed_posted_date_newer(self, ingestion_service, sample_normalized_job):
+    def test_update_needed_posted_date_newer(
+        self, ingestion_service, sample_normalized_job
+    ):
         """Test update detection when posted date is newer"""
         existing_job = Mock()
         existing_job.title = sample_normalized_job.title
@@ -433,7 +469,10 @@ class TestJobNeedsUpdate:
         existing_job.location = sample_normalized_job.location
         existing_job.posted_date = datetime.utcnow() - timedelta(days=10)
 
-        assert ingestion_service._job_needs_update(existing_job, sample_normalized_job) is True
+        assert (
+            ingestion_service._job_needs_update(existing_job, sample_normalized_job)
+            is True
+        )
 
     def test_no_update_needed(self, ingestion_service, sample_normalized_job):
         """Test when no update is needed"""
@@ -443,7 +482,10 @@ class TestJobNeedsUpdate:
         existing_job.location = sample_normalized_job.location
         existing_job.posted_date = sample_normalized_job.posted_date
 
-        assert ingestion_service._job_needs_update(existing_job, sample_normalized_job) is False
+        assert (
+            ingestion_service._job_needs_update(existing_job, sample_normalized_job)
+            is False
+        )
 
 
 class TestStaleJobDeactivation:
@@ -462,8 +504,7 @@ class TestStaleJobDeactivation:
 
         # Execute
         count = ingestion_service.deactivate_stale_jobs(
-            source=JobSource.GREENHOUSE,
-            days_old=30
+            source=JobSource.GREENHOUSE, days_old=30
         )
 
         # Verify
@@ -479,8 +520,7 @@ class TestStaleJobDeactivation:
         mock_db.query.return_value = mock_query
 
         count = ingestion_service.deactivate_stale_jobs(
-            source=JobSource.GREENHOUSE,
-            days_old=30
+            source=JobSource.GREENHOUSE, days_old=30
         )
 
         assert count == 0
@@ -491,6 +531,7 @@ class TestSourceHealth:
 
     def test_get_source_health_healthy(self, ingestion_service, mock_db):
         """Test health check for healthy source"""
+
         # Mock database queries
         def query_side_effect(model):
             mock_query = Mock()
@@ -516,6 +557,7 @@ class TestSourceHealth:
 
     def test_get_source_health_unhealthy(self, ingestion_service, mock_db):
         """Test health check for unhealthy source"""
+
         def query_side_effect(model):
             mock_query = Mock()
             if model == Job:

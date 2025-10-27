@@ -27,7 +27,7 @@ def mock_greenhouse_departments():
         "departments": [
             {"id": 1, "name": "Engineering"},
             {"id": 2, "name": "Product"},
-            {"id": 3, "name": "Sales"}
+            {"id": 3, "name": "Sales"},
         ]
     }
 
@@ -37,9 +37,13 @@ def mock_greenhouse_offices():
     """Mock Greenhouse offices response"""
     return {
         "offices": [
-            {"id": 1, "name": "San Francisco", "location": {"name": "San Francisco, CA"}},
+            {
+                "id": 1,
+                "name": "San Francisco",
+                "location": {"name": "San Francisco, CA"},
+            },
             {"id": 2, "name": "Remote", "location": {"name": "Remote"}},
-            {"id": 3, "name": "New York", "location": {"name": "New York, NY"}}
+            {"id": 3, "name": "New York", "location": {"name": "New York, NY"}},
         ]
     }
 
@@ -59,7 +63,7 @@ def mock_greenhouse_jobs():
                 "updated_at": "2025-10-24T00:00:00Z",
                 "requisition_id": "REQ-001",
                 "metadata": [],
-                "content": "Great opportunity for a backend engineer..."
+                "content": "Great opportunity for a backend engineer...",
             },
             {
                 "id": 12346,
@@ -71,8 +75,8 @@ def mock_greenhouse_jobs():
                 "updated_at": "2025-10-24T00:00:00Z",
                 "requisition_id": "REQ-002",
                 "metadata": [],
-                "content": "Remote frontend position..."
-            }
+                "content": "Remote frontend position...",
+            },
         ]
     }
 
@@ -112,21 +116,21 @@ class TestRateLimiting:
 class TestJobFetching:
     """Test job fetching functionality"""
 
-    @patch('app.services.greenhouse_service.requests.get')
+    @patch("app.services.greenhouse_service.requests.get")
     def test_fetch_jobs_success(
         self,
         mock_get,
         greenhouse_service,
         mock_greenhouse_departments,
         mock_greenhouse_offices,
-        mock_greenhouse_jobs
+        mock_greenhouse_jobs,
     ):
         """Test successful job fetching"""
         # Mock API responses
         mock_get.side_effect = [
             Mock(status_code=200, json=lambda: mock_greenhouse_departments),
             Mock(status_code=200, json=lambda: mock_greenhouse_offices),
-            Mock(status_code=200, json=lambda: mock_greenhouse_jobs)
+            Mock(status_code=200, json=lambda: mock_greenhouse_jobs),
         ]
 
         result = greenhouse_service.fetch_jobs(board_token="testcompany")
@@ -136,26 +140,24 @@ class TestJobFetching:
         assert result.metadata.total_fetched == 2
         assert result.metadata.failed_jobs == 0
 
-    @patch('app.services.greenhouse_service.requests.get')
+    @patch("app.services.greenhouse_service.requests.get")
     def test_fetch_jobs_with_filters(
         self,
         mock_get,
         greenhouse_service,
         mock_greenhouse_departments,
         mock_greenhouse_offices,
-        mock_greenhouse_jobs
+        mock_greenhouse_jobs,
     ):
         """Test job fetching with department and office filters"""
         mock_get.side_effect = [
             Mock(status_code=200, json=lambda: mock_greenhouse_departments),
             Mock(status_code=200, json=lambda: mock_greenhouse_offices),
-            Mock(status_code=200, json=lambda: mock_greenhouse_jobs)
+            Mock(status_code=200, json=lambda: mock_greenhouse_jobs),
         ]
 
         result = greenhouse_service.fetch_jobs(
-            board_token="testcompany",
-            department_id="1",
-            office_id="1"
+            board_token="testcompany", department_id="1", office_id="1"
         )
 
         # Verify filters were passed
@@ -164,23 +166,27 @@ class TestJobFetching:
         assert jobs_call[1]["params"]["department_id"] == "1"
         assert jobs_call[1]["params"]["office_id"] == "1"
 
-    @patch('app.services.greenhouse_service.requests.get')
+    @patch("app.services.greenhouse_service.requests.get")
     def test_fetch_jobs_api_error(self, mock_get, greenhouse_service):
         """Test handling of API errors"""
         mock_get.side_effect = requests.exceptions.RequestException("API Error")
 
         from app.core.exceptions import ServiceError
+
         with pytest.raises(ServiceError):
             greenhouse_service.fetch_jobs(board_token="testcompany")
 
-    @patch('app.services.greenhouse_service.requests.get')
+    @patch("app.services.greenhouse_service.requests.get")
     def test_fetch_jobs_http_error(self, mock_get, greenhouse_service):
         """Test handling of HTTP errors"""
         mock_response = Mock()
-        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("404")
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError(
+            "404"
+        )
         mock_get.return_value = mock_response
 
         from app.core.exceptions import ServiceError
+
         with pytest.raises(ServiceError):
             greenhouse_service.fetch_jobs(board_token="testcompany")
 
@@ -202,13 +208,15 @@ class TestJobParsing:
             "updated_at": "2025-10-24T00:00:00Z",
             "requisition_id": "REQ-001",
             "metadata": [],
-            "content": "Remote position..."
+            "content": "Remote position...",
         }
 
         departments = [GreenhouseDepartment(id="1", name="Engineering")]
         offices = [GreenhouseOffice(id="1", name="Remote", location="Remote")]
 
-        result = greenhouse_service._parse_greenhouse_job(job_data, departments, offices)
+        result = greenhouse_service._parse_greenhouse_job(
+            job_data, departments, offices
+        )
 
         assert result.id == "123"
         assert result.title == "Software Engineer"
@@ -230,13 +238,15 @@ class TestJobParsing:
             "updated_at": "2025-10-24T00:00:00Z",
             "requisition_id": "REQ-002",
             "metadata": [],
-            "content": "Hybrid role..."
+            "content": "Hybrid role...",
         }
 
         departments = []
         offices = [GreenhouseOffice(id="1", name="SF Office", location="Hybrid - SF")]
 
-        result = greenhouse_service._parse_greenhouse_job(job_data, departments, offices)
+        result = greenhouse_service._parse_greenhouse_job(
+            job_data, departments, offices
+        )
 
         assert result.location_type == "hybrid"
 
@@ -254,13 +264,15 @@ class TestJobParsing:
             "updated_at": "2025-10-24T00:00:00Z",
             "requisition_id": None,
             "metadata": [],
-            "content": "Onsite position..."
+            "content": "Onsite position...",
         }
 
         departments = [GreenhouseDepartment(id="2", name="Data")]
         offices = [GreenhouseOffice(id="1", name="NY Office", location="New York, NY")]
 
-        result = greenhouse_service._parse_greenhouse_job(job_data, departments, offices)
+        result = greenhouse_service._parse_greenhouse_job(
+            job_data, departments, offices
+        )
 
         assert result.location_type == "onsite"
         assert result.location == "New York, NY"
@@ -269,7 +281,7 @@ class TestJobParsing:
 class TestJobDetails:
     """Test fetching job details"""
 
-    @patch('app.services.greenhouse_service.requests.get')
+    @patch("app.services.greenhouse_service.requests.get")
     def test_fetch_job_details_success(self, mock_get, greenhouse_service):
         """Test successful job details fetch"""
         mock_response = Mock()
@@ -277,13 +289,12 @@ class TestJobDetails:
         mock_response.json.return_value = {
             "id": 123,
             "title": "Engineer",
-            "content": "Full job description..."
+            "content": "Full job description...",
         }
         mock_get.return_value = mock_response
 
         result = greenhouse_service.fetch_job_details(
-            board_token="testcompany",
-            job_id="123"
+            board_token="testcompany", job_id="123"
         )
 
         assert result["id"] == 123
@@ -293,7 +304,7 @@ class TestJobDetails:
 class TestBoardValidation:
     """Test board token validation"""
 
-    @patch('app.services.greenhouse_service.requests.get')
+    @patch("app.services.greenhouse_service.requests.get")
     def test_validate_board_token_valid(self, mock_get, greenhouse_service):
         """Test validation of valid board token"""
         mock_response = Mock()
@@ -303,7 +314,7 @@ class TestBoardValidation:
 
         assert greenhouse_service.validate_board_token("validcompany") is True
 
-    @patch('app.services.greenhouse_service.requests.get')
+    @patch("app.services.greenhouse_service.requests.get")
     def test_validate_board_token_invalid(self, mock_get, greenhouse_service):
         """Test validation of invalid board token"""
         mock_get.side_effect = requests.exceptions.RequestException("Not found")
@@ -314,9 +325,10 @@ class TestBoardValidation:
 class TestBoardDiscovery:
     """Test company board discovery"""
 
-    @patch('app.services.greenhouse_service.requests.get')
+    @patch("app.services.greenhouse_service.requests.get")
     def test_get_boards_for_companies(self, mock_get, greenhouse_service):
         """Test discovering Greenhouse boards for companies"""
+
         def side_effect(url, *args, **kwargs):
             if "company1" in url:
                 return Mock(status_code=200)
@@ -327,11 +339,9 @@ class TestBoardDiscovery:
 
         mock_get.side_effect = side_effect
 
-        result = greenhouse_service.get_boards_for_companies([
-            "company1.com",
-            "company2.com",
-            "company3.com"
-        ])
+        result = greenhouse_service.get_boards_for_companies(
+            ["company1.com", "company2.com", "company3.com"]
+        )
 
         assert "company1.com" in result
         assert "company2.com" not in result

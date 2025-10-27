@@ -9,7 +9,7 @@ from app.schemas.job_matching import (
     JobMatchRequest,
     # JobFilters,  # TODO: Add to schema if needed
     SkillVector,
-    MatchQuality
+    MatchQuality,
 )
 from app.db.models.job import Job
 from app.db.models.resume import Resume
@@ -24,10 +24,14 @@ def mock_db():
 @pytest.fixture
 def job_matching_service(mock_db):
     """Create JobMatchingService instance with mocked dependencies"""
-    with patch('app.services.job_matching_service.PineconeService') as mock_pinecone_class:
+    with patch(
+        "app.services.job_matching_service.PineconeService"
+    ) as mock_pinecone_class:
         # Configure the mock instance
         mock_pinecone_instance = mock_pinecone_class.return_value
-        mock_pinecone_instance.calculate_semantic_similarity.return_value = 0.0  # Default low similarity
+        mock_pinecone_instance.calculate_semantic_similarity.return_value = (
+            0.0  # Default low similarity
+        )
 
         service = JobMatchingService(mock_db)
         return service
@@ -41,7 +45,7 @@ def sample_user_skills():
         SkillVector(skill="FastAPI", years_experience=2, proficiency="advanced"),
         SkillVector(skill="SQL", years_experience=4, proficiency="advanced"),
         SkillVector(skill="Docker", years_experience=3, proficiency="intermediate"),
-        SkillVector(skill="AWS", years_experience=2, proficiency="intermediate")
+        SkillVector(skill="AWS", years_experience=2, proficiency="intermediate"),
     ]
 
 
@@ -84,12 +88,12 @@ def sample_resume(sample_user_skills):
             {"name": "FastAPI", "years": 2},
             {"name": "SQL", "years": 4},
             {"name": "Docker", "years": 3},
-            {"name": "AWS", "years": 2}
+            {"name": "AWS", "years": 2},
         ],
         "work_experience": [
             {"start_year": 2018, "end_year": 2021},
-            {"start_year": 2021, "end_year": None}  # Current job
-        ]
+            {"start_year": 2021, "end_year": None},  # Current job
+        ],
     }
     return resume
 
@@ -103,9 +107,7 @@ class TestSkillMatching:
         preferred_skills = []
 
         score, matches = job_matching_service._calculate_skill_match(
-            sample_user_skills,
-            required_skills,
-            preferred_skills
+            sample_user_skills, required_skills, preferred_skills
         )
 
         assert score == 60  # 50 (all required) + 10 (no preferred)
@@ -118,9 +120,7 @@ class TestSkillMatching:
         preferred_skills = []
 
         score, matches = job_matching_service._calculate_skill_match(
-            sample_user_skills,
-            required_skills,
-            preferred_skills
+            sample_user_skills, required_skills, preferred_skills
         )
 
         assert score == 35  # 25 (50 * 2/4 required) + 10 (no preferred gives full 10)
@@ -133,9 +133,7 @@ class TestSkillMatching:
         preferred_skills = ["AWS", "Docker"]  # User has both
 
         score, matches = job_matching_service._calculate_skill_match(
-            sample_user_skills,
-            required_skills,
-            preferred_skills
+            sample_user_skills, required_skills, preferred_skills
         )
 
         assert score == 60  # 50 (all required) + 10 (all preferred)
@@ -144,15 +142,13 @@ class TestSkillMatching:
         """Test when user has none of the required skills"""
         user_skills = [
             SkillVector(skill="Java", years_experience=5),
-            SkillVector(skill="Spring", years_experience=3)
+            SkillVector(skill="Spring", years_experience=3),
         ]
         required_skills = ["Python", "FastAPI", "Django"]
         preferred_skills = []
 
         score, matches = job_matching_service._calculate_skill_match(
-            user_skills,
-            required_skills,
-            preferred_skills
+            user_skills, required_skills, preferred_skills
         )
 
         assert score == 10  # 0 (no required matches) + 10 (no preferred gives full 10)
@@ -165,10 +161,7 @@ class TestExperienceMatching:
     def test_perfect_experience_match(self, job_matching_service):
         """Test when user experience is within range"""
         score, label = job_matching_service._calculate_experience_score(
-            user_years=5,
-            job_min=3,
-            job_max=7,
-            job_requirement="3-7 years"
+            user_years=5, job_min=3, job_max=7, job_requirement="3-7 years"
         )
 
         assert score == 20
@@ -177,10 +170,7 @@ class TestExperienceMatching:
     def test_appropriate_experience(self, job_matching_service):
         """Test when user is within 1 year of minimum"""
         score, label = job_matching_service._calculate_experience_score(
-            user_years=2,
-            job_min=3,
-            job_max=7,
-            job_requirement="3-7 years"
+            user_years=2, job_min=3, job_max=7, job_requirement="3-7 years"
         )
 
         assert score == 15
@@ -189,10 +179,7 @@ class TestExperienceMatching:
     def test_stretch_opportunity(self, job_matching_service):
         """Test when user is within 2 years of minimum"""
         score, label = job_matching_service._calculate_experience_score(
-            user_years=1,
-            job_min=3,
-            job_max=7,
-            job_requirement="3-7 years"
+            user_years=1, job_min=3, job_max=7, job_requirement="3-7 years"
         )
 
         assert score == 10
@@ -201,10 +188,7 @@ class TestExperienceMatching:
     def test_underqualified(self, job_matching_service):
         """Test when user has significantly less experience"""
         score, label = job_matching_service._calculate_experience_score(
-            user_years=0,
-            job_min=5,
-            job_max=10,
-            job_requirement="5-10 years"
+            user_years=0, job_min=5, job_max=10, job_requirement="5-10 years"
         )
 
         assert score == 5
@@ -213,10 +197,7 @@ class TestExperienceMatching:
     def test_no_experience_requirement(self, job_matching_service):
         """Test when job has no experience requirement"""
         score, label = job_matching_service._calculate_experience_score(
-            user_years=3,
-            job_min=None,
-            job_max=None,
-            job_requirement=None
+            user_years=3, job_min=None, job_max=None, job_requirement=None
         )
 
         assert score == 20
@@ -229,8 +210,7 @@ class TestSeniorityMatching:
     def test_exact_seniority_match(self, job_matching_service):
         """Test when user and job seniority levels match exactly"""
         score = job_matching_service._calculate_seniority_score(
-            user_years=6,  # Maps to "senior"
-            job_level="senior"
+            user_years=6, job_level="senior"  # Maps to "senior"
         )
 
         assert score == 10
@@ -238,8 +218,7 @@ class TestSeniorityMatching:
     def test_adjacent_seniority_level(self, job_matching_service):
         """Test when user is one level adjacent"""
         score = job_matching_service._calculate_seniority_score(
-            user_years=4,  # Maps to "mid"
-            job_level="senior"
+            user_years=4, job_level="senior"  # Maps to "mid"
         )
 
         assert score == 7
@@ -247,8 +226,7 @@ class TestSeniorityMatching:
     def test_two_levels_apart(self, job_matching_service):
         """Test when user is two levels apart"""
         score = job_matching_service._calculate_seniority_score(
-            user_years=1,  # Maps to "entry"
-            job_level="senior"
+            user_years=1, job_level="senior"  # Maps to "entry"
         )
 
         assert score == 3
@@ -256,8 +234,7 @@ class TestSeniorityMatching:
     def test_no_job_level(self, job_matching_service):
         """Test when job has no specified level"""
         score = job_matching_service._calculate_seniority_score(
-            user_years=5,
-            job_level=None
+            user_years=5, job_level=None
         )
 
         assert score == 10  # Full points when not specified
@@ -323,11 +300,16 @@ class TestFitIndexCalculation:
         """Test calculation for a high-fit match"""
         user_experience_years = 5
 
-        fit_index, breakdown, rationale, skill_matches = job_matching_service._calculate_fit_index(
+        (
+            fit_index,
+            breakdown,
+            rationale,
+            skill_matches,
+        ) = job_matching_service._calculate_fit_index(
             user_skills=sample_user_skills,
             user_experience_years=user_experience_years,
             job=sample_job,
-            semantic_score=0.85
+            semantic_score=0.85,
         )
 
         # Should be high fit (all required skills, good experience, right level)
@@ -342,35 +324,47 @@ class TestFitIndexCalculation:
         # User with no relevant skills or experience
         user_skills = [
             SkillVector(skill="Java", years_experience=1),
-            SkillVector(skill="Spring", years_experience=1)
+            SkillVector(skill="Spring", years_experience=1),
         ]
         user_experience_years = 1
 
-        fit_index, breakdown, rationale, skill_matches = job_matching_service._calculate_fit_index(
+        (
+            fit_index,
+            breakdown,
+            rationale,
+            skill_matches,
+        ) = job_matching_service._calculate_fit_index(
             user_skills=user_skills,
             user_experience_years=user_experience_years,
             job=sample_job,
-            semantic_score=0.3
+            semantic_score=0.3,
         )
 
         # Should be low fit
         assert fit_index < 40
         assert rationale.summary.lower().find("low match") >= 0
 
-    def test_fit_index_components_sum(self, job_matching_service, sample_user_skills, sample_job):
+    def test_fit_index_components_sum(
+        self, job_matching_service, sample_user_skills, sample_job
+    ):
         """Test that breakdown components sum to total"""
-        fit_index, breakdown, rationale, skill_matches = job_matching_service._calculate_fit_index(
+        (
+            fit_index,
+            breakdown,
+            rationale,
+            skill_matches,
+        ) = job_matching_service._calculate_fit_index(
             user_skills=sample_user_skills,
             user_experience_years=5,
             job=sample_job,
-            semantic_score=0.8
+            semantic_score=0.8,
         )
 
         component_sum = (
-            breakdown.skill_match_score +
-            breakdown.experience_score +
-            breakdown.seniority_score +
-            breakdown.semantic_similarity
+            breakdown.skill_match_score
+            + breakdown.experience_score
+            + breakdown.seniority_score
+            + breakdown.semantic_similarity
         )
 
         assert breakdown.total == min(100, component_sum)
@@ -390,9 +384,7 @@ class TestResumeDataExtraction:
     def test_extract_skills_simple_format(self, job_matching_service):
         """Test skill extraction with simple string format"""
         resume = Mock(spec=Resume)
-        resume.parsed_data = {
-            "skills": ["Python", "JavaScript", "SQL"]
-        }
+        resume.parsed_data = {"skills": ["Python", "JavaScript", "SQL"]}
 
         skills = job_matching_service._extract_skills_from_resume(resume)
 
@@ -459,7 +451,7 @@ class TestRationaleGeneration:
             transferable_skills=["AWS"],
             experience_label="perfect",
             user_years=5,
-            job_requirement="3-7 years"
+            job_requirement="3-7 years",
         )
 
         assert "Excellent match" in rationale.summary
@@ -476,7 +468,7 @@ class TestRationaleGeneration:
             transferable_skills=[],
             experience_label="under-qualified",
             user_years=1,
-            job_requirement="5+ years"
+            job_requirement="5+ years",
         )
 
         assert "Low match" in rationale.summary
@@ -493,13 +485,15 @@ class TestRationaleGeneration:
             transferable_skills=["FastAPI"],
             experience_label="appropriate",
             user_years=3,
-            job_requirement="3-5 years"
+            job_requirement="3-5 years",
         )
 
         assert len(rationale.recommendations) >= 1
         # Should recommend learning missing skills
-        assert any("learning" in rec.lower() or "consider" in rec.lower()
-                   for rec in rationale.recommendations)
+        assert any(
+            "learning" in rec.lower() or "consider" in rec.lower()
+            for rec in rationale.recommendations
+        )
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ResumeDetailPage from '@/app/dashboard/resumes/[id]/page';
 import { useAuthStore } from '@/lib/stores/auth-store';
@@ -14,6 +14,7 @@ jest.mock('@/lib/api', () => ({
     createVersion: jest.fn(),
     getVersions: jest.fn(),
     tailorToJob: jest.fn(),
+    regenerateSection: jest.fn(),
   },
 }));
 
@@ -865,6 +866,138 @@ describe('Resume Detail Page', () => {
         expect(screen.getByText(/React.*matched/i)).toBeInTheDocument();
         expect(screen.getByText(/Node\.js.*matched/i)).toBeInTheDocument();
         expect(screen.getByText(/TypeScript.*matched/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Section Regeneration', () => {
+    beforeEach(async () => {
+      (resumeApi.getResume as jest.Mock).mockResolvedValue({
+        data: { data: mockResume },
+      });
+      (resumeApi.getRecommendations as jest.Mock).mockResolvedValue({
+        data: { data: { recommendations: [] } },
+      });
+    });
+
+    it('should have Regenerate button in work experience section', async () => {
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        const workExpSection = screen.getByTestId('section-work-experience');
+        expect(workExpSection).toBeInTheDocument();
+      });
+
+      const workExpSection = screen.getByTestId('section-work-experience');
+      const regenerateButton = within(workExpSection).getByRole('button', { name: /Regenerate/i });
+      expect(regenerateButton).toBeInTheDocument();
+    });
+
+    it('should open confirmation dialog when Regenerate is clicked', async () => {
+      const user = userEvent.setup();
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        const workExpSection = screen.getByTestId('section-work-experience');
+        expect(workExpSection).toBeInTheDocument();
+      });
+
+      const workExpSection = screen.getByTestId('section-work-experience');
+      const regenerateButton = within(workExpSection).getByRole('button', { name: /Regenerate/i });
+      await user.click(regenerateButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Are you sure.*regenerate/i)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /^Confirm$/i })).toBeInTheDocument();
+      });
+    });
+
+    it('should regenerate work experience section', async () => {
+      const user = userEvent.setup();
+      (resumeApi.regenerateSection as jest.Mock).mockResolvedValue({
+        data: { data: mockResume },
+      });
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        const workExpSection = screen.getByTestId('section-work-experience');
+        expect(workExpSection).toBeInTheDocument();
+      });
+
+      const workExpSection = screen.getByTestId('section-work-experience');
+      const regenerateButton = within(workExpSection).getByRole('button', { name: /Regenerate/i });
+      await user.click(regenerateButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /^Confirm$/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /^Confirm$/i }));
+
+      await waitFor(() => {
+        expect(resumeApi.regenerateSection).toHaveBeenCalledWith('resume-123', {
+          section: 'work_experience',
+        });
+      });
+    });
+
+    it('should show regenerating state', async () => {
+      const user = userEvent.setup();
+      (resumeApi.regenerateSection as jest.Mock).mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ data: { data: mockResume } }), 1000)
+          )
+      );
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        const workExpSection = screen.getByTestId('section-work-experience');
+        expect(workExpSection).toBeInTheDocument();
+      });
+
+      const workExpSection = screen.getByTestId('section-work-experience');
+      const regenerateButton = within(workExpSection).getByRole('button', { name: /Regenerate/i });
+      await user.click(regenerateButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /^Confirm$/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /^Confirm$/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Regenerating/i)).toBeInTheDocument();
+      });
+    });
+
+    it('should show success message after regeneration', async () => {
+      const user = userEvent.setup();
+      (resumeApi.regenerateSection as jest.Mock).mockResolvedValue({
+        data: { data: mockResume },
+      });
+
+      render(<ResumeDetailPage />);
+
+      await waitFor(() => {
+        const workExpSection = screen.getByTestId('section-work-experience');
+        expect(workExpSection).toBeInTheDocument();
+      });
+
+      const workExpSection = screen.getByTestId('section-work-experience');
+      const regenerateButton = within(workExpSection).getByRole('button', { name: /Regenerate/i });
+      await user.click(regenerateButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /^Confirm$/i })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: /^Confirm$/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Section updated/i)).toBeInTheDocument();
       });
     });
   });

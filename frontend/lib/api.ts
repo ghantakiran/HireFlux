@@ -177,6 +177,9 @@ export const resumeApi = {
 
   tailorToJob: (id: string, data: { job_description: string }) =>
     apiClient.post<ApiResponse>(`/resumes/${id}/tailor`, data),
+
+  regenerateSection: (id: string, data: { section: string }) =>
+    apiClient.post<ApiResponse>(`/resumes/${id}/regenerate-section`, data),
 };
 
 // Cover Letter API

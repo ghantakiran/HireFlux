@@ -9,7 +9,7 @@ from app.schemas.ai_generation import (
     ResumeTone,
     ResumeLength,
     OptimizationStyle,
-    AIResumeGenerationRequest
+    AIResumeGenerationRequest,
 )
 from app.schemas.resume import ParsedResumeData, ContactInfo
 from app.core.exceptions import NotFoundError, ServiceError, ValidationError
@@ -27,7 +27,7 @@ def mock_openai_service():
     mock = Mock()
     mock.generate_completion.return_value = {
         "content": '{"summary": "Test", "work_experience": [], "skills": []}',
-        "usage": {"total_tokens": 500, "prompt_tokens": 300, "completion_tokens": 200}
+        "usage": {"total_tokens": 500, "prompt_tokens": 300, "completion_tokens": 200},
     }
     mock.calculate_cost.return_value = 0.015
     return mock
@@ -46,13 +46,11 @@ def sample_resume_data():
     """Sample parsed resume data"""
     return ParsedResumeData(
         contact_info=ContactInfo(
-            full_name="John Doe",
-            email="john@example.com",
-            phone="+1234567890"
+            full_name="John Doe", email="john@example.com", phone="+1234567890"
         ),
         skills=["Python", "JavaScript", "React"],
         work_experience=[],
-        education=[]
+        education=[],
     )
 
 
@@ -64,7 +62,7 @@ class TestGenerateOptimizedResume:
         request = AIResumeGenerationRequest(
             resume_id=str(uuid.uuid4()),
             target_title="Software Engineer",
-            tone=ResumeTone.FORMAL
+            tone=ResumeTone.FORMAL,
         )
 
         # Mock resume retrieval
@@ -80,19 +78,20 @@ class TestGenerateOptimizedResume:
         mock_db.query.return_value = mock_query
 
         result = ai_service.generate_optimized_resume(
-            user_id=uuid.uuid4(),
-            request=request
+            user_id=uuid.uuid4(), request=request
         )
 
         assert result is not None
         assert result.status == "completed"
 
-    def test_generate_resume_with_keywords(self, ai_service, mock_db, sample_resume_data):
+    def test_generate_resume_with_keywords(
+        self, ai_service, mock_db, sample_resume_data
+    ):
         """Test generation with specific keywords"""
         request = AIResumeGenerationRequest(
             resume_id=str(uuid.uuid4()),
             target_title="Full Stack Developer",
-            include_keywords=["React", "Node.js", "AWS"]
+            include_keywords=["React", "Node.js", "AWS"],
         )
 
         mock_resume = Mock()
@@ -100,8 +99,7 @@ class TestGenerateOptimizedResume:
         mock_db.query().filter().first.return_value = mock_resume
 
         result = ai_service.generate_optimized_resume(
-            user_id=uuid.uuid4(),
-            request=request
+            user_id=uuid.uuid4(), request=request
         )
 
         # Verify keywords were included in prompt
@@ -109,17 +107,12 @@ class TestGenerateOptimizedResume:
 
     def test_generate_resume_resume_not_found(self, ai_service, mock_db):
         """Test generation when resume doesn't exist"""
-        request = AIResumeGenerationRequest(
-            resume_id=str(uuid.uuid4())
-        )
+        request = AIResumeGenerationRequest(resume_id=str(uuid.uuid4()))
 
         mock_db.query().filter().first.return_value = None
 
         with pytest.raises(NotFoundError):
-            ai_service.generate_optimized_resume(
-                user_id=uuid.uuid4(),
-                request=request
-            )
+            ai_service.generate_optimized_resume(user_id=uuid.uuid4(), request=request)
 
 
 class TestToneCustomization:
@@ -128,8 +121,7 @@ class TestToneCustomization:
     def test_formal_tone(self, ai_service, mock_db, sample_resume_data):
         """Test formal tone generation"""
         request = AIResumeGenerationRequest(
-            resume_id=str(uuid.uuid4()),
-            tone=ResumeTone.FORMAL
+            resume_id=str(uuid.uuid4()), tone=ResumeTone.FORMAL
         )
 
         mock_resume = Mock()
@@ -145,8 +137,7 @@ class TestToneCustomization:
     def test_conversational_tone(self, ai_service, mock_db, sample_resume_data):
         """Test conversational tone generation"""
         request = AIResumeGenerationRequest(
-            resume_id=str(uuid.uuid4()),
-            tone=ResumeTone.CONVERSATIONAL
+            resume_id=str(uuid.uuid4()), tone=ResumeTone.CONVERSATIONAL
         )
 
         mock_resume = Mock()
@@ -164,9 +155,7 @@ class TestCostTracking:
 
     def test_tracks_token_usage(self, ai_service, mock_db, sample_resume_data):
         """Test that token usage is tracked"""
-        request = AIResumeGenerationRequest(
-            resume_id=str(uuid.uuid4())
-        )
+        request = AIResumeGenerationRequest(resume_id=str(uuid.uuid4()))
 
         mock_resume = Mock()
         mock_resume.parsed_data = sample_resume_data.model_dump()
@@ -179,9 +168,7 @@ class TestCostTracking:
 
     def test_calculates_cost_correctly(self, ai_service, mock_db, sample_resume_data):
         """Test cost calculation"""
-        request = AIResumeGenerationRequest(
-            resume_id=str(uuid.uuid4())
-        )
+        request = AIResumeGenerationRequest(resume_id=str(uuid.uuid4()))
 
         mock_resume = Mock()
         mock_resume.parsed_data = sample_resume_data.model_dump()
@@ -200,8 +187,7 @@ class TestVersionManagement:
     def test_creates_version_record(self, ai_service, mock_db, sample_resume_data):
         """Test that version is saved to database"""
         request = AIResumeGenerationRequest(
-            resume_id=str(uuid.uuid4()),
-            version_name="Software Engineer Resume"
+            resume_id=str(uuid.uuid4()), version_name="Software Engineer Resume"
         )
 
         mock_resume = Mock()
@@ -215,12 +201,14 @@ class TestVersionManagement:
         assert mock_db.add.called
         assert mock_db.commit.called
 
-    def test_version_has_correct_metadata(self, ai_service, mock_db, sample_resume_data):
+    def test_version_has_correct_metadata(
+        self, ai_service, mock_db, sample_resume_data
+    ):
         """Test version metadata"""
         request = AIResumeGenerationRequest(
             resume_id=str(uuid.uuid4()),
             target_title="Tech Lead",
-            tone=ResumeTone.FORMAL
+            tone=ResumeTone.FORMAL,
         )
 
         mock_resume = Mock()
@@ -240,24 +228,24 @@ class TestErrorHandling:
 
     def test_handles_openai_error(self, ai_service, mock_db, sample_resume_data):
         """Test handling OpenAI API errors"""
-        request = AIResumeGenerationRequest(
-            resume_id=str(uuid.uuid4())
-        )
+        request = AIResumeGenerationRequest(resume_id=str(uuid.uuid4()))
 
         mock_resume = Mock()
         mock_resume.parsed_data = sample_resume_data.model_dump()
         mock_db.query().filter().first.return_value = mock_resume
 
-        ai_service.openai_service.generate_completion.side_effect = ServiceError("API Error")
+        ai_service.openai_service.generate_completion.side_effect = ServiceError(
+            "API Error"
+        )
 
         with pytest.raises(ServiceError):
             ai_service.generate_optimized_resume(uuid.uuid4(), request)
 
-    def test_handles_invalid_json_response(self, ai_service, mock_db, sample_resume_data):
+    def test_handles_invalid_json_response(
+        self, ai_service, mock_db, sample_resume_data
+    ):
         """Test handling invalid JSON from OpenAI"""
-        request = AIResumeGenerationRequest(
-            resume_id=str(uuid.uuid4())
-        )
+        request = AIResumeGenerationRequest(resume_id=str(uuid.uuid4()))
 
         mock_resume = Mock()
         mock_resume.parsed_data = sample_resume_data.model_dump()
@@ -265,7 +253,11 @@ class TestErrorHandling:
 
         ai_service.openai_service.generate_completion.return_value = {
             "content": "Not valid JSON",
-            "usage": {"total_tokens": 100, "prompt_tokens": 50, "completion_tokens": 50}
+            "usage": {
+                "total_tokens": 100,
+                "prompt_tokens": 50,
+                "completion_tokens": 50,
+            },
         }
 
         with pytest.raises(ValueError):
@@ -278,8 +270,7 @@ class TestStrictFactualMode:
     def test_strict_mode_in_prompt(self, ai_service, mock_db, sample_resume_data):
         """Test that strict mode is reflected in prompt"""
         request = AIResumeGenerationRequest(
-            resume_id=str(uuid.uuid4()),
-            strict_factual=True
+            resume_id=str(uuid.uuid4()), strict_factual=True
         )
 
         mock_resume = Mock()
@@ -290,9 +281,12 @@ class TestStrictFactualMode:
 
         # Verify strict mode instruction in prompt
         call_args = ai_service.openai_service.generate_completion.call_args
-        messages = call_args.kwargs.get('messages', call_args[0][0])
+        messages = call_args.kwargs.get("messages", call_args[0][0])
         prompt_content = str(messages)
-        assert "not fabricate" in prompt_content.lower() or "only use" in prompt_content.lower()
+        assert (
+            "not fabricate" in prompt_content.lower()
+            or "only use" in prompt_content.lower()
+        )
 
 
 class TestRegenerateSection:
@@ -310,13 +304,15 @@ class TestRegenerateSection:
 
         ai_service.openai_service.generate_completion.return_value = {
             "content": '{"work_experience": [{"title": "Engineer"}]}',
-            "usage": {"total_tokens": 200, "prompt_tokens": 100, "completion_tokens": 100}
+            "usage": {
+                "total_tokens": 200,
+                "prompt_tokens": 100,
+                "completion_tokens": 100,
+            },
         }
 
         result = ai_service.regenerate_section(
-            user_id=user_id,
-            version_id=version_id,
-            section="work_experience"
+            user_id=user_id, version_id=version_id, section="work_experience"
         )
 
         assert "work_experience" in result.content
@@ -333,7 +329,7 @@ class TestGetVersionHistory:
 
         mock_versions = [
             Mock(id=uuid.uuid4(), version_name="V1"),
-            Mock(id=uuid.uuid4(), version_name="V2")
+            Mock(id=uuid.uuid4(), version_name="V2"),
         ]
         mock_db.query().filter().all.return_value = mock_versions
 

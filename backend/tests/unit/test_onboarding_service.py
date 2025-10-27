@@ -12,7 +12,7 @@ from app.schemas.onboarding import (
     SkillsUpdate,
     WorkPreferencesUpdate,
     SkillInput,
-    ProficiencyLevel
+    ProficiencyLevel,
 )
 from app.core.exceptions import NotFoundError, BadRequestError
 
@@ -61,14 +61,16 @@ def onboarding_service(mock_db):
 class TestUpdateBasicProfile:
     """Test basic profile update (Step 1)"""
 
-    def test_update_basic_profile_success(self, onboarding_service, mock_db, mock_user, mock_profile):
+    def test_update_basic_profile_success(
+        self, onboarding_service, mock_db, mock_user, mock_profile
+    ):
         """Test successful basic profile update"""
         # Arrange
         profile_data = BasicProfileUpdate(
             first_name="John",
             last_name="Doe",
             phone="+1234567890",
-            location="New York, NY"
+            location="New York, NY",
         )
         mock_db.query().filter().first.return_value = mock_profile
 
@@ -82,13 +84,12 @@ class TestUpdateBasicProfile:
         assert result.location == "New York, NY"
         mock_db.commit.assert_called_once()
 
-    def test_update_basic_profile_not_found(self, onboarding_service, mock_db, mock_user):
+    def test_update_basic_profile_not_found(
+        self, onboarding_service, mock_db, mock_user
+    ):
         """Test update when profile doesn't exist"""
         # Arrange
-        profile_data = BasicProfileUpdate(
-            first_name="John",
-            last_name="Doe"
-        )
+        profile_data = BasicProfileUpdate(first_name="John", last_name="Doe")
         mock_db.query().filter().first.return_value = None
 
         # Act & Assert
@@ -99,19 +100,23 @@ class TestUpdateBasicProfile:
 class TestUpdateJobPreferences:
     """Test job preferences update (Step 2)"""
 
-    def test_update_job_preferences_success(self, onboarding_service, mock_db, mock_user, mock_profile):
+    def test_update_job_preferences_success(
+        self, onboarding_service, mock_db, mock_user, mock_profile
+    ):
         """Test successful job preferences update"""
         # Arrange
         preferences_data = JobPreferencesUpdate(
             target_titles=["Software Engineer", "Developer"],
             salary_min=80000,
             salary_max=150000,
-            industries=["Technology", "Finance"]
+            industries=["Technology", "Finance"],
         )
         mock_db.query().filter().first.return_value = mock_profile
 
         # Act
-        result = onboarding_service.update_job_preferences(mock_user.id, preferences_data)
+        result = onboarding_service.update_job_preferences(
+            mock_user.id, preferences_data
+        )
 
         # Assert
         assert len(result.target_titles) == 2
@@ -120,18 +125,22 @@ class TestUpdateJobPreferences:
         assert len(result.industries) == 2
         mock_db.commit.assert_called_once()
 
-    def test_update_job_preferences_removes_duplicates(self, onboarding_service, mock_db, mock_user, mock_profile):
+    def test_update_job_preferences_removes_duplicates(
+        self, onboarding_service, mock_db, mock_user, mock_profile
+    ):
         """Test that duplicate target titles are removed"""
         # Arrange
         preferences_data = JobPreferencesUpdate(
             target_titles=["Software Engineer", "software engineer", "Developer"],
             salary_min=80000,
-            salary_max=150000
+            salary_max=150000,
         )
         mock_db.query().filter().first.return_value = mock_profile
 
         # Act
-        result = onboarding_service.update_job_preferences(mock_user.id, preferences_data)
+        result = onboarding_service.update_job_preferences(
+            mock_user.id, preferences_data
+        )
 
         # Assert
         # Should have 2 unique titles (case-insensitive duplicates removed)
@@ -141,14 +150,16 @@ class TestUpdateJobPreferences:
 class TestUpdateSkills:
     """Test skills update (Step 3)"""
 
-    def test_update_skills_success(self, onboarding_service, mock_db, mock_user, mock_profile):
+    def test_update_skills_success(
+        self, onboarding_service, mock_db, mock_user, mock_profile
+    ):
         """Test successful skills update"""
         # Arrange
         skills_data = SkillsUpdate(
             skills=[
                 SkillInput(name="Python", proficiency=ProficiencyLevel.EXPERT),
                 SkillInput(name="JavaScript", proficiency=ProficiencyLevel.ADVANCED),
-                SkillInput(name="React", proficiency=ProficiencyLevel.INTERMEDIATE)
+                SkillInput(name="React", proficiency=ProficiencyLevel.INTERMEDIATE),
             ]
         )
         mock_db.query().filter().first.return_value = mock_profile
@@ -158,17 +169,19 @@ class TestUpdateSkills:
 
         # Assert
         assert len(result.skills) == 3
-        assert any(s['name'] == 'Python' for s in result.skills)
+        assert any(s["name"] == "Python" for s in result.skills)
         mock_db.commit.assert_called_once()
 
-    def test_update_skills_validates_duplicates(self, onboarding_service, mock_db, mock_user, mock_profile):
+    def test_update_skills_validates_duplicates(
+        self, onboarding_service, mock_db, mock_user, mock_profile
+    ):
         """Test that duplicate skills are rejected"""
         # Arrange - This should be validated at schema level
         with pytest.raises(ValueError):
             SkillsUpdate(
                 skills=[
                     SkillInput(name="Python", proficiency=ProficiencyLevel.EXPERT),
-                    SkillInput(name="python", proficiency=ProficiencyLevel.ADVANCED)
+                    SkillInput(name="python", proficiency=ProficiencyLevel.ADVANCED),
                 ]
             )
 
@@ -176,27 +189,30 @@ class TestUpdateSkills:
 class TestUpdateWorkPreferences:
     """Test work preferences update (Step 4)"""
 
-    def test_update_work_preferences_success(self, onboarding_service, mock_db, mock_user, mock_profile):
+    def test_update_work_preferences_success(
+        self, onboarding_service, mock_db, mock_user, mock_profile
+    ):
         """Test successful work preferences update"""
         # Arrange
         work_prefs_data = WorkPreferencesUpdate(
-            remote=True,
-            visa_friendly=True,
-            relocation=False,
-            contract=False
+            remote=True, visa_friendly=True, relocation=False, contract=False
         )
         mock_db.query().filter().first.return_value = mock_profile
 
         # Act
-        result = onboarding_service.update_work_preferences(mock_user.id, work_prefs_data)
+        result = onboarding_service.update_work_preferences(
+            mock_user.id, work_prefs_data
+        )
 
         # Assert
-        assert result.preferences['remote'] is True
-        assert result.preferences['visa_friendly'] is True
-        assert result.preferences['relocation'] is False
+        assert result.preferences["remote"] is True
+        assert result.preferences["visa_friendly"] is True
+        assert result.preferences["relocation"] is False
         mock_db.commit.assert_called_once()
 
-    def test_update_work_preferences_marks_onboarding_complete(self, onboarding_service, mock_db, mock_user, mock_profile):
+    def test_update_work_preferences_marks_onboarding_complete(
+        self, onboarding_service, mock_db, mock_user, mock_profile
+    ):
         """Test that completing work preferences marks onboarding as complete"""
         # Arrange
         mock_profile.first_name = "John"
@@ -207,7 +223,9 @@ class TestUpdateWorkPreferences:
         mock_db.query().filter().first.return_value = mock_profile
 
         # Act
-        result = onboarding_service.update_work_preferences(mock_user.id, work_prefs_data)
+        result = onboarding_service.update_work_preferences(
+            mock_user.id, work_prefs_data
+        )
 
         # Assert
         assert result.onboarding_complete is True
@@ -216,7 +234,9 @@ class TestUpdateWorkPreferences:
 class TestGetOnboardingProgress:
     """Test getting onboarding progress"""
 
-    def test_get_progress_initial_state(self, onboarding_service, mock_db, mock_user, mock_profile):
+    def test_get_progress_initial_state(
+        self, onboarding_service, mock_db, mock_user, mock_profile
+    ):
         """Test progress when nothing is completed"""
         # Arrange
         mock_db.query().filter().first.return_value = mock_profile
@@ -225,13 +245,15 @@ class TestGetOnboardingProgress:
         result = onboarding_service.get_onboarding_progress(mock_user.id)
 
         # Assert
-        assert result['current_step'] == 1
-        assert result['onboarding_complete'] is False
-        assert result['profile_completed'] is False
-        assert result['preferences_completed'] is False
-        assert result['skills_completed'] is False
+        assert result["current_step"] == 1
+        assert result["onboarding_complete"] is False
+        assert result["profile_completed"] is False
+        assert result["preferences_completed"] is False
+        assert result["skills_completed"] is False
 
-    def test_get_progress_partial_completion(self, onboarding_service, mock_db, mock_user, mock_profile):
+    def test_get_progress_partial_completion(
+        self, onboarding_service, mock_db, mock_user, mock_profile
+    ):
         """Test progress when some steps are completed"""
         # Arrange
         mock_profile.first_name = "John"
@@ -243,12 +265,14 @@ class TestGetOnboardingProgress:
         result = onboarding_service.get_onboarding_progress(mock_user.id)
 
         # Assert
-        assert result['current_step'] == 3
-        assert result['profile_completed'] is True
-        assert result['preferences_completed'] is True
-        assert result['skills_completed'] is False
+        assert result["current_step"] == 3
+        assert result["profile_completed"] is True
+        assert result["preferences_completed"] is True
+        assert result["skills_completed"] is False
 
-    def test_get_progress_fully_completed(self, onboarding_service, mock_db, mock_user, mock_profile):
+    def test_get_progress_fully_completed(
+        self, onboarding_service, mock_db, mock_user, mock_profile
+    ):
         """Test progress when all steps are completed"""
         # Arrange
         mock_profile.first_name = "John"
@@ -263,18 +287,20 @@ class TestGetOnboardingProgress:
         result = onboarding_service.get_onboarding_progress(mock_user.id)
 
         # Assert
-        assert result['current_step'] == 4
-        assert result['onboarding_complete'] is True
-        assert result['profile_completed'] is True
-        assert result['preferences_completed'] is True
-        assert result['skills_completed'] is True
-        assert result['work_preferences_completed'] is True
+        assert result["current_step"] == 4
+        assert result["onboarding_complete"] is True
+        assert result["profile_completed"] is True
+        assert result["preferences_completed"] is True
+        assert result["skills_completed"] is True
+        assert result["work_preferences_completed"] is True
 
 
 class TestGetCompleteProfile:
     """Test getting complete profile"""
 
-    def test_get_complete_profile_success(self, onboarding_service, mock_db, mock_user, mock_profile):
+    def test_get_complete_profile_success(
+        self, onboarding_service, mock_db, mock_user, mock_profile
+    ):
         """Test successful retrieval of complete profile"""
         # Arrange
         mock_profile.first_name = "John"
@@ -293,7 +319,9 @@ class TestGetCompleteProfile:
         assert len(result.target_titles) == 1
         assert len(result.skills) == 1
 
-    def test_get_complete_profile_not_found(self, onboarding_service, mock_db, mock_user):
+    def test_get_complete_profile_not_found(
+        self, onboarding_service, mock_db, mock_user
+    ):
         """Test retrieval when profile doesn't exist"""
         # Arrange
         mock_db.query().filter().first.return_value = None

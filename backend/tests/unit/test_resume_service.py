@@ -12,7 +12,7 @@ from app.schemas.resume import (
     ContactInfo,
     ResumeUploadResponse,
     ResumeMetadata,
-    ParseStatus
+    ParseStatus,
 )
 from app.core.exceptions import NotFoundError, ValidationError
 
@@ -48,20 +48,20 @@ def sample_parsed_data():
     """Create sample parsed resume data"""
     return ParsedResumeData(
         contact_info=ContactInfo(
-            full_name="John Doe",
-            email="john@example.com",
-            phone="+1234567890"
+            full_name="John Doe", email="john@example.com", phone="+1234567890"
         ),
         skills=["Python", "JavaScript", "React"],
         work_experience=[],
-        education=[]
+        education=[],
     )
 
 
 class TestUploadResume:
     """Test resume upload functionality"""
 
-    def test_upload_resume_success(self, resume_service, mock_db, mock_user_id, sample_parsed_data):
+    def test_upload_resume_success(
+        self, resume_service, mock_db, mock_user_id, sample_parsed_data
+    ):
         """Test successful resume upload"""
         file = io.BytesIO(b"mock pdf content")
         filename = "resume.pdf"
@@ -69,7 +69,9 @@ class TestUploadResume:
         mime_type = "application/pdf"
 
         # Mock parser
-        resume_service.parser.extract_text_from_pdf.return_value = "John Doe\njohn@example.com"
+        resume_service.parser.extract_text_from_pdf.return_value = (
+            "John Doe\njohn@example.com"
+        )
         resume_service.parser.parse_resume_text.return_value = sample_parsed_data
 
         # Mock database
@@ -82,13 +84,17 @@ class TestUploadResume:
         mock_db.commit = Mock()
         mock_db.refresh = Mock(side_effect=lambda x: None)
 
-        with patch.object(resume_service, '_save_file', return_value="http://storage.example.com/resume.pdf"):
+        with patch.object(
+            resume_service,
+            "_save_file",
+            return_value="http://storage.example.com/resume.pdf",
+        ):
             result = resume_service.upload_resume(
                 user_id=mock_user_id,
                 file=file,
                 filename=filename,
                 file_size=file_size,
-                mime_type=mime_type
+                mime_type=mime_type,
             )
 
             assert isinstance(result, Resume)
@@ -105,7 +111,7 @@ class TestUploadResume:
                 file=file,
                 filename="resume.txt",
                 file_size=100,
-                mime_type="text/plain"
+                mime_type="text/plain",
             )
 
         assert "not supported" in str(exc_info.value).lower()
@@ -121,7 +127,7 @@ class TestUploadResume:
                 file=file,
                 filename="resume.pdf",
                 file_size=large_size,
-                mime_type="application/pdf"
+                mime_type="application/pdf",
             )
 
         assert "size" in str(exc_info.value).lower()
@@ -131,19 +137,25 @@ class TestUploadResume:
         file = io.BytesIO(b"mock pdf content")
 
         # Mock parser to raise exception
-        resume_service.parser.extract_text_from_pdf.side_effect = Exception("Parse error")
+        resume_service.parser.extract_text_from_pdf.side_effect = Exception(
+            "Parse error"
+        )
 
         mock_db.add = Mock()
         mock_db.commit = Mock()
         mock_db.refresh = Mock()
 
-        with patch.object(resume_service, '_save_file', return_value="http://storage.example.com/resume.pdf"):
+        with patch.object(
+            resume_service,
+            "_save_file",
+            return_value="http://storage.example.com/resume.pdf",
+        ):
             result = resume_service.upload_resume(
                 user_id=mock_user_id,
                 file=file,
                 filename="resume.pdf",
                 file_size=1024,
-                mime_type="application/pdf"
+                mime_type="application/pdf",
             )
 
             # Should still save resume but with failed status
@@ -211,7 +223,7 @@ class TestListResumes:
         """Test listing user's resumes"""
         mock_resumes = [
             Mock(spec=Resume, id=uuid.uuid4(), is_deleted=False),
-            Mock(spec=Resume, id=uuid.uuid4(), is_deleted=False)
+            Mock(spec=Resume, id=uuid.uuid4(), is_deleted=False),
         ]
 
         mock_db.query().filter().all.return_value = mock_resumes
@@ -313,7 +325,9 @@ class TestSetDefaultResume:
 class TestUpdateParsedData:
     """Test updating parsed resume data"""
 
-    def test_update_parsed_data_success(self, resume_service, mock_db, mock_user_id, sample_parsed_data):
+    def test_update_parsed_data_success(
+        self, resume_service, mock_db, mock_user_id, sample_parsed_data
+    ):
         """Test updating parsed data"""
         resume_id = uuid.uuid4()
         mock_resume = Mock(spec=Resume)
@@ -325,18 +339,24 @@ class TestUpdateParsedData:
         mock_db.commit = Mock()
         mock_db.refresh = Mock()
 
-        result = resume_service.update_parsed_data(resume_id, mock_user_id, sample_parsed_data)
+        result = resume_service.update_parsed_data(
+            resume_id, mock_user_id, sample_parsed_data
+        )
 
         assert result == mock_resume
         mock_db.commit.assert_called_once()
 
-    def test_update_parsed_data_not_found(self, resume_service, mock_db, mock_user_id, sample_parsed_data):
+    def test_update_parsed_data_not_found(
+        self, resume_service, mock_db, mock_user_id, sample_parsed_data
+    ):
         """Test updating non-existent resume"""
         resume_id = uuid.uuid4()
         mock_db.query().filter().first.return_value = None
 
         with pytest.raises(NotFoundError):
-            resume_service.update_parsed_data(resume_id, mock_user_id, sample_parsed_data)
+            resume_service.update_parsed_data(
+                resume_id, mock_user_id, sample_parsed_data
+            )
 
 
 class TestGetDefaultResume:
@@ -372,8 +392,8 @@ class TestFileStorage:
         filename = "resume.pdf"
         user_id = uuid.uuid4()
 
-        with patch('builtins.open', create=True) as mock_open:
-            with patch('os.makedirs') as mock_makedirs:
+        with patch("builtins.open", create=True) as mock_open:
+            with patch("os.makedirs") as mock_makedirs:
                 result = resume_service._save_file(file, filename, user_id)
 
                 assert filename in result

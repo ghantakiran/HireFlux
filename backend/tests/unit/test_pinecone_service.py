@@ -12,7 +12,7 @@ from app.schemas.job_matching import SkillVector
 @pytest.fixture
 def mock_pinecone_module():
     """Mock pinecone module"""
-    with patch('app.services.pinecone_service.pinecone') as mock_pc:
+    with patch("app.services.pinecone_service.pinecone") as mock_pc:
         mock_pc.list_indexes.return_value = []
         mock_pc.Index.return_value = Mock()
         yield mock_pc
@@ -22,7 +22,9 @@ def mock_pinecone_module():
 def mock_openai_service():
     """Mock OpenAI service"""
     mock_service = Mock()
-    mock_service.create_embedding.return_value = [0.1] * 1536  # Standard embedding dimension
+    mock_service.create_embedding.return_value = [
+        0.1
+    ] * 1536  # Standard embedding dimension
     mock_service.create_embeddings_batch.return_value = [[0.1] * 1536] * 5
     return mock_service
 
@@ -30,7 +32,9 @@ def mock_openai_service():
 @pytest.fixture
 def pinecone_service(mock_pinecone_module, mock_openai_service):
     """Create Pinecone service instance with mocked dependencies"""
-    with patch('app.services.pinecone_service.OpenAIService', return_value=mock_openai_service):
+    with patch(
+        "app.services.pinecone_service.OpenAIService", return_value=mock_openai_service
+    ):
         service = PineconeService()
         return service
 
@@ -41,25 +45,32 @@ def sample_skill_vectors():
     return [
         SkillVector(skill="Python", years_experience=5, proficiency="expert"),
         SkillVector(skill="FastAPI", years_experience=2, proficiency="advanced"),
-        SkillVector(skill="SQL", years_experience=4, proficiency="advanced")
+        SkillVector(skill="SQL", years_experience=4, proficiency="advanced"),
     ]
 
 
 class TestInitialization:
     """Test Pinecone service initialization"""
 
-    def test_service_initializes_successfully(self, pinecone_service, mock_pinecone_module):
+    def test_service_initializes_successfully(
+        self, pinecone_service, mock_pinecone_module
+    ):
         """Test service initialization"""
         assert pinecone_service is not None
         assert pinecone_service.jobs_index is not None
         assert pinecone_service.users_index is not None
         mock_pinecone_module.init.assert_called_once()
 
-    def test_initialization_creates_indexes_if_not_exist(self, mock_pinecone_module, mock_openai_service):
+    def test_initialization_creates_indexes_if_not_exist(
+        self, mock_pinecone_module, mock_openai_service
+    ):
         """Test index creation on initialization"""
         mock_pinecone_module.list_indexes.return_value = []
 
-        with patch('app.services.pinecone_service.OpenAIService', return_value=mock_openai_service):
+        with patch(
+            "app.services.pinecone_service.OpenAIService",
+            return_value=mock_openai_service,
+        ):
             service = PineconeService()
 
             # Should create both indexes
@@ -67,14 +78,22 @@ class TestInitialization:
 
     def test_initialization_reuses_existing_indexes(self, mock_openai_service):
         """Test reusing existing indexes"""
-        with patch('app.services.pinecone_service.pinecone') as mock_pc:
+        with patch("app.services.pinecone_service.pinecone") as mock_pc:
             # Mock to show indexes already exist
             mock_pc.list_indexes.return_value = ["jobs-index", "users-index"]
             mock_pc.Index.return_value = Mock()
 
-            with patch('app.services.pinecone_service.OpenAIService', return_value=mock_openai_service):
-                with patch('app.core.config.settings.PINECONE_INDEX_NAME_JOBS', 'jobs-index'):
-                    with patch('app.core.config.settings.PINECONE_INDEX_NAME_USERS', 'users-index'):
+            with patch(
+                "app.services.pinecone_service.OpenAIService",
+                return_value=mock_openai_service,
+            ):
+                with patch(
+                    "app.core.config.settings.PINECONE_INDEX_NAME_JOBS", "jobs-index"
+                ):
+                    with patch(
+                        "app.core.config.settings.PINECONE_INDEX_NAME_USERS",
+                        "users-index",
+                    ):
                         service = PineconeService()
 
                         # Should not create indexes since they exist
@@ -102,7 +121,9 @@ class TestEmbeddingGeneration:
         assert len(result) == 1536
         mock_openai_service.create_embedding.assert_called_once_with(text)
 
-    def test_generate_embedding_caches_result(self, pinecone_service, mock_openai_service):
+    def test_generate_embedding_caches_result(
+        self, pinecone_service, mock_openai_service
+    ):
         """Test that embeddings are cached"""
         text = "Python developer"
 
@@ -115,7 +136,9 @@ class TestEmbeddingGeneration:
         assert mock_openai_service.create_embedding.call_count == 1
         assert result1 == result2
 
-    def test_generate_embedding_cache_can_be_bypassed(self, pinecone_service, mock_openai_service):
+    def test_generate_embedding_cache_can_be_bypassed(
+        self, pinecone_service, mock_openai_service
+    ):
         """Test bypassing cache"""
         text = "Python developer"
 
@@ -127,7 +150,9 @@ class TestEmbeddingGeneration:
         # Should call OpenAI twice
         assert mock_openai_service.create_embedding.call_count == 2
 
-    def test_generate_embedding_handles_errors(self, pinecone_service, mock_openai_service):
+    def test_generate_embedding_handles_errors(
+        self, pinecone_service, mock_openai_service
+    ):
         """Test error handling in embedding generation"""
         mock_openai_service.create_embedding.side_effect = Exception("API Error")
 
@@ -145,7 +170,9 @@ class TestEmbeddingGeneration:
         assert len(result) == 5
         mock_openai_service.create_embeddings_batch.assert_called()
 
-    def test_batch_generate_embeddings_handles_large_batches(self, pinecone_service, mock_openai_service):
+    def test_batch_generate_embeddings_handles_large_batches(
+        self, pinecone_service, mock_openai_service
+    ):
         """Test batching with large text lists"""
         texts = [f"text{i}" for i in range(50)]
 
@@ -154,9 +181,13 @@ class TestEmbeddingGeneration:
         # Should call create_embeddings_batch 3 times (50 / 20 = 3 batches)
         assert mock_openai_service.create_embeddings_batch.call_count == 3
 
-    def test_batch_generate_embeddings_handles_errors(self, pinecone_service, mock_openai_service):
+    def test_batch_generate_embeddings_handles_errors(
+        self, pinecone_service, mock_openai_service
+    ):
         """Test error handling in batch generation"""
-        mock_openai_service.create_embeddings_batch.side_effect = Exception("Batch API Error")
+        mock_openai_service.create_embeddings_batch.side_effect = Exception(
+            "Batch API Error"
+        )
 
         with pytest.raises(ServiceError) as exc_info:
             pinecone_service.batch_generate_embeddings(["text1", "text2"])
@@ -212,14 +243,16 @@ class TestUserSkillsIndexing:
 
         # Check upserted data
         call_args = pinecone_service.users_index.upsert.call_args
-        vectors = call_args[1]['vectors']
+        vectors = call_args[1]["vectors"]
         assert len(vectors) == 3  # 3 skills
 
-    def test_index_user_skills_generates_embeddings(self, pinecone_service, mock_openai_service):
+    def test_index_user_skills_generates_embeddings(
+        self, pinecone_service, mock_openai_service
+    ):
         """Test that embeddings are generated for skills without vectors"""
         skills = [
             SkillVector(skill="Python", years_experience=5),
-            SkillVector(skill="JavaScript", years_experience=3)
+            SkillVector(skill="JavaScript", years_experience=3),
         ]
 
         pinecone_service.index_user_skills("user123", skills)
@@ -227,18 +260,20 @@ class TestUserSkillsIndexing:
         # Should generate embeddings for each skill
         assert mock_openai_service.create_embedding.call_count >= 2
 
-    def test_index_user_skills_with_existing_vectors(self, pinecone_service, mock_openai_service):
+    def test_index_user_skills_with_existing_vectors(
+        self, pinecone_service, mock_openai_service
+    ):
         """Test indexing skills that already have vectors"""
-        skills = [
-            SkillVector(skill="Python", years_experience=5, vector=[0.5] * 1536)
-        ]
+        skills = [SkillVector(skill="Python", years_experience=5, vector=[0.5] * 1536)]
 
         pinecone_service.index_user_skills("user123", skills)
 
         # Should not generate new embeddings
         assert mock_openai_service.create_embedding.call_count == 0
 
-    def test_index_user_skills_creates_correct_metadata(self, pinecone_service, sample_skill_vectors):
+    def test_index_user_skills_creates_correct_metadata(
+        self, pinecone_service, sample_skill_vectors
+    ):
         """Test metadata structure in indexed vectors"""
         user_id = "user123"
         resume_id = "resume456"
@@ -246,7 +281,7 @@ class TestUserSkillsIndexing:
         pinecone_service.index_user_skills(user_id, sample_skill_vectors, resume_id)
 
         call_args = pinecone_service.users_index.upsert.call_args
-        vectors = call_args[1]['vectors']
+        vectors = call_args[1]["vectors"]
 
         # Check first vector metadata
         vector_id, vector_data, metadata = vectors[0]
@@ -256,7 +291,9 @@ class TestUserSkillsIndexing:
         assert "years" in metadata
         assert "proficiency" in metadata
 
-    def test_index_user_skills_handles_errors(self, pinecone_service, sample_skill_vectors):
+    def test_index_user_skills_handles_errors(
+        self, pinecone_service, sample_skill_vectors
+    ):
         """Test error handling in skill indexing"""
         pinecone_service.users_index.upsert.side_effect = Exception("Upsert failed")
 
@@ -280,10 +317,12 @@ class TestJobIndexing:
             "location": "San Francisco",
             "location_type": "hybrid",
             "salary_min": 150000,
-            "salary_max": 200000
+            "salary_max": 200000,
         }
 
-        pinecone_service.index_job(job_id, title, description, required_skills, metadata)
+        pinecone_service.index_job(
+            job_id, title, description, required_skills, metadata
+        )
 
         # Should upsert to jobs index at least twice (job + skills)
         assert pinecone_service.jobs_index.upsert.call_count >= 2
@@ -298,16 +337,16 @@ class TestJobIndexing:
             job_title="Developer",
             job_description="Test",
             required_skills=required_skills,
-            metadata={}
+            metadata={},
         )
 
         # First call for main job vector
         first_call = pinecone_service.jobs_index.upsert.call_args_list[0]
-        assert len(first_call[1]['vectors']) == 1
+        assert len(first_call[1]["vectors"]) == 1
 
         # Second call for skill vectors
         second_call = pinecone_service.jobs_index.upsert.call_args_list[1]
-        assert len(second_call[1]['vectors']) == 3  # 3 skills
+        assert len(second_call[1]["vectors"]) == 3  # 3 skills
 
     def test_index_job_includes_metadata(self, pinecone_service):
         """Test job metadata is properly included"""
@@ -316,7 +355,7 @@ class TestJobIndexing:
             "company": "Tech Corp",
             "location": "Remote",
             "visa_sponsorship": True,
-            "experience_level": "senior"
+            "experience_level": "senior",
         }
 
         pinecone_service.index_job(
@@ -324,12 +363,12 @@ class TestJobIndexing:
             job_title="Developer",
             job_description="Test",
             required_skills=["Python"],
-            metadata=metadata
+            metadata=metadata,
         )
 
         # Check main job vector metadata
         call_args = pinecone_service.jobs_index.upsert.call_args_list[0]
-        vector_id, vector_data, job_metadata = call_args[1]['vectors'][0]
+        vector_id, vector_data, job_metadata = call_args[1]["vectors"][0]
 
         assert job_metadata["company"] == "Tech Corp"
         assert job_metadata["location"] == "Remote"
@@ -358,7 +397,7 @@ class TestJobSearch:
         mock_match.metadata = {
             "title": "Python Developer",
             "company": "Tech Corp",
-            "is_skill_vector": False
+            "is_skill_vector": False,
         }
         pinecone_service.jobs_index.query.return_value = Mock(matches=[mock_match])
 
@@ -372,9 +411,13 @@ class TestJobSearch:
         """Test that skill vectors are filtered out from results"""
         # Mock results with both job and skill vectors
         job_match = Mock(id="job123", score=0.95, metadata={"is_skill_vector": False})
-        skill_match = Mock(id="job123_skill", score=0.90, metadata={"is_skill_vector": True})
+        skill_match = Mock(
+            id="job123_skill", score=0.90, metadata={"is_skill_vector": True}
+        )
 
-        pinecone_service.jobs_index.query.return_value = Mock(matches=[job_match, skill_match])
+        pinecone_service.jobs_index.query.return_value = Mock(
+            matches=[job_match, skill_match]
+        )
 
         result = pinecone_service.search_similar_jobs(sample_skill_vectors, top_k=10)
 
@@ -389,21 +432,25 @@ class TestJobSearch:
         filters = {
             "visa_sponsorship": True,
             "min_salary": 100000,
-            "experience_level": ["senior", "mid"]
+            "experience_level": ["senior", "mid"],
         }
 
-        pinecone_service.search_similar_jobs(sample_skill_vectors, top_k=10, filters=filters)
+        pinecone_service.search_similar_jobs(
+            sample_skill_vectors, top_k=10, filters=filters
+        )
 
         # Check that filters were passed to query
         call_args = pinecone_service.jobs_index.query.call_args
-        filter_arg = call_args[1].get('filter')
+        filter_arg = call_args[1].get("filter")
 
         assert filter_arg is not None
         assert "visa_sponsorship" in filter_arg
         assert "salary_min" in filter_arg
         assert "experience_level" in filter_arg
 
-    def test_search_combines_user_skills(self, pinecone_service, mock_openai_service, sample_skill_vectors):
+    def test_search_combines_user_skills(
+        self, pinecone_service, mock_openai_service, sample_skill_vectors
+    ):
         """Test that user skills are combined into query vector"""
         pinecone_service.jobs_index.query.return_value = Mock(matches=[])
 
@@ -429,7 +476,7 @@ class TestJobSearch:
             "company": "Tech Corp",
             "location": "Remote",
             "salary_min": 150000,
-            "salary_max": 200000
+            "salary_max": 200000,
         }
 
         pinecone_service.jobs_index.query.return_value = Mock(matches=[mock_match])
@@ -450,14 +497,14 @@ class TestVectorOperations:
         # This would be implemented in the service
         # pinecone_service.delete_user_vectors(user_id)
         # For now, just test that the index has delete capability
-        assert hasattr(pinecone_service.users_index, 'delete')
+        assert hasattr(pinecone_service.users_index, "delete")
 
     def test_delete_job_vector(self, pinecone_service):
         """Test deleting job vectors"""
         job_id = "job123"
 
         # Test that the index has delete capability
-        assert hasattr(pinecone_service.jobs_index, 'delete')
+        assert hasattr(pinecone_service.jobs_index, "delete")
 
     def test_update_job_vector(self, pinecone_service):
         """Test that re-indexing updates existing vectors"""
@@ -469,7 +516,7 @@ class TestVectorOperations:
             job_title="Developer",
             job_description="Test 1",
             required_skills=["Python"],
-            metadata={"company": "Company A"}
+            metadata={"company": "Company A"},
         )
 
         # Re-index with updated data
@@ -478,7 +525,7 @@ class TestVectorOperations:
             job_title="Senior Developer",
             job_description="Test 2",
             required_skills=["Python", "FastAPI"],
-            metadata={"company": "Company B"}
+            metadata={"company": "Company B"},
         )
 
         # Should have called upsert multiple times (overwrites existing)

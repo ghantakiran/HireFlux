@@ -10,7 +10,7 @@ from app.schemas.interview import (
     RoleLevel,
     CompanyType,
     AnswerSubmit,
-    QuestionFeedback
+    QuestionFeedback,
 )
 from app.core.exceptions import ServiceError, NotFoundError, ValidationError
 
@@ -64,7 +64,9 @@ def mock_question():
     question.id = 1
     question.session_id = 1
     question.question_number = 1
-    question.question_text = "Explain the difference between a list and a tuple in Python."
+    question.question_text = (
+        "Explain the difference between a list and a tuple in Python."
+    )
     question.question_category = "data structures"
     question.difficulty_level = "easy"
     question.user_answer = None
@@ -82,7 +84,7 @@ def session_create_request():
         focus_area="python",
         target_company="Google",
         target_role="Senior Software Engineer",
-        total_questions=5
+        total_questions=5,
     )
 
 
@@ -91,7 +93,7 @@ def answer_submit_request():
     """Create answer submission request"""
     return AnswerSubmit(
         user_answer="Lists are mutable while tuples are immutable. Lists use square brackets [] and tuples use parentheses (). Lists have more methods like append() and remove(), while tuples have fewer methods due to immutability.",
-        time_taken_seconds=120
+        time_taken_seconds=120,
     )
 
 
@@ -105,54 +107,60 @@ class TestInterviewServiceInitialization:
 
     def test_service_has_openai_service(self, interview_service):
         """Test service has OpenAI service dependency"""
-        assert hasattr(interview_service, 'openai_service')
+        assert hasattr(interview_service, "openai_service")
 
 
 class TestCreateSession:
     """Test creating interview sessions"""
 
-    def test_create_session_success(self, interview_service, mock_db_session, mock_user, session_create_request):
+    def test_create_session_success(
+        self, interview_service, mock_db_session, mock_user, session_create_request
+    ):
         """Test successful session creation"""
-        with patch.object(interview_service, '_create_session_in_db') as mock_create:
+        with patch.object(interview_service, "_create_session_in_db") as mock_create:
             mock_session = Mock()
             mock_session.id = 1
             mock_create.return_value = mock_session
 
-            with patch.object(interview_service, '_generate_questions') as mock_gen:
+            with patch.object(interview_service, "_generate_questions") as mock_gen:
                 result = interview_service.create_session(
-                    db=mock_db_session,
-                    user=mock_user,
-                    request=session_create_request
+                    db=mock_db_session, user=mock_user, request=session_create_request
                 )
 
                 assert result is not None
                 assert result.id == 1
                 mock_create.assert_called_once()
-                mock_gen.assert_called_once_with(mock_db_session, mock_session, session_create_request)
+                mock_gen.assert_called_once_with(
+                    mock_db_session, mock_session, session_create_request
+                )
 
-    def test_create_session_validates_total_questions(self, interview_service, mock_db_session, mock_user):
+    def test_create_session_validates_total_questions(
+        self, interview_service, mock_db_session, mock_user
+    ):
         """Test session creation validates total questions"""
         request = InterviewSessionCreate(
             interview_type=InterviewType.TECHNICAL,
             role_level=RoleLevel.SENIOR,
             company_type=CompanyType.TECH,
-            total_questions=0  # Invalid
+            total_questions=0,  # Invalid
         )
 
         with pytest.raises((ValidationError, ValueError)):
             interview_service.create_session(
-                db=mock_db_session,
-                user=mock_user,
-                request=request
+                db=mock_db_session, user=mock_user, request=request
             )
 
 
 class TestGenerateQuestions:
     """Test question generation"""
 
-    def test_generate_questions_creates_correct_count(self, interview_service, mock_db_session, mock_session, session_create_request):
+    def test_generate_questions_creates_correct_count(
+        self, interview_service, mock_db_session, mock_session, session_create_request
+    ):
         """Test generates correct number of questions"""
-        with patch.object(interview_service.openai_service, 'generate_completion') as mock_openai:
+        with patch.object(
+            interview_service.openai_service, "generate_completion"
+        ) as mock_openai:
             mock_openai.return_value = {
                 "content": """1. Explain the GIL in Python and its implications for multi-threading.
 2. What are Python decorators and how do they work?
@@ -161,25 +169,45 @@ class TestGenerateQuestions:
 5. What are generators and when would you use them?"""
             }
 
-            with patch.object(interview_service, '_parse_questions_from_response') as mock_parse:
+            with patch.object(
+                interview_service, "_parse_questions_from_response"
+            ) as mock_parse:
                 mock_parse.return_value = [
-                    {"text": "Question 1", "category": "python", "difficulty": "medium"},
-                    {"text": "Question 2", "category": "python", "difficulty": "medium"},
-                    {"text": "Question 3", "category": "python", "difficulty": "medium"},
+                    {
+                        "text": "Question 1",
+                        "category": "python",
+                        "difficulty": "medium",
+                    },
+                    {
+                        "text": "Question 2",
+                        "category": "python",
+                        "difficulty": "medium",
+                    },
+                    {
+                        "text": "Question 3",
+                        "category": "python",
+                        "difficulty": "medium",
+                    },
                     {"text": "Question 4", "category": "python", "difficulty": "hard"},
-                    {"text": "Question 5", "category": "python", "difficulty": "medium"},
+                    {
+                        "text": "Question 5",
+                        "category": "python",
+                        "difficulty": "medium",
+                    },
                 ]
 
                 questions = interview_service._generate_questions(
                     db=mock_db_session,
                     session=mock_session,
-                    request=session_create_request
+                    request=session_create_request,
                 )
 
                 assert len(questions) == 5
                 mock_openai.assert_called_once()
 
-    def test_generate_questions_adapts_to_interview_type(self, interview_service, mock_db_session):
+    def test_generate_questions_adapts_to_interview_type(
+        self, interview_service, mock_db_session
+    ):
         """Test generates appropriate questions for behavioral interviews"""
         behavioral_session = Mock()
         behavioral_session.interview_type = "behavioral"
@@ -191,10 +219,12 @@ class TestGenerateQuestions:
             interview_type=InterviewType.BEHAVIORAL,
             role_level=RoleLevel.SENIOR,
             company_type=CompanyType.FAANG,
-            total_questions=5
+            total_questions=5,
         )
 
-        with patch.object(interview_service.openai_service, 'generate_completion') as mock_openai:
+        with patch.object(
+            interview_service.openai_service, "generate_completion"
+        ) as mock_openai:
             mock_openai.return_value = {
                 "content": """1. Tell me about a time you had to handle a difficult stakeholder.
 2. Describe a situation where you had to make a difficult technical decision.
@@ -203,30 +233,37 @@ class TestGenerateQuestions:
 5. Describe how you handled a conflict within your team."""
             }
 
-            with patch.object(interview_service, '_parse_questions_from_response') as mock_parse:
-                mock_parse.return_value = [{"text": f"Q{i}", "category": "behavioral", "difficulty": "medium"} for i in range(1, 6)]
+            with patch.object(
+                interview_service, "_parse_questions_from_response"
+            ) as mock_parse:
+                mock_parse.return_value = [
+                    {"text": f"Q{i}", "category": "behavioral", "difficulty": "medium"}
+                    for i in range(1, 6)
+                ]
 
                 interview_service._generate_questions(
-                    db=mock_db_session,
-                    session=behavioral_session,
-                    request=request
+                    db=mock_db_session, session=behavioral_session, request=request
                 )
 
                 call_args = mock_openai.call_args
-                messages = call_args.kwargs['messages']
-                prompt_text = ' '.join([m['content'] for m in messages])
-                assert 'behavioral' in prompt_text.lower() or 'star' in prompt_text.lower()
+                messages = call_args.kwargs["messages"]
+                prompt_text = " ".join([m["content"] for m in messages])
+                assert (
+                    "behavioral" in prompt_text.lower() or "star" in prompt_text.lower()
+                )
 
 
 class TestSubmitAnswer:
     """Test answer submission and feedback"""
 
-    def test_submit_answer_success(self, interview_service, mock_db_session, mock_question, answer_submit_request):
+    def test_submit_answer_success(
+        self, interview_service, mock_db_session, mock_question, answer_submit_request
+    ):
         """Test successful answer submission"""
-        with patch.object(interview_service, '_get_question') as mock_get:
+        with patch.object(interview_service, "_get_question") as mock_get:
             mock_get.return_value = mock_question
 
-            with patch.object(interview_service, '_generate_feedback') as mock_feedback:
+            with patch.object(interview_service, "_generate_feedback") as mock_feedback:
                 mock_feedback.return_value = QuestionFeedback(
                     score=8.5,
                     ai_feedback="Great answer! You covered the key differences clearly.",
@@ -236,13 +273,11 @@ class TestSubmitAnswer:
                     has_situation=False,
                     has_task=False,
                     has_action=False,
-                    has_result=False
+                    has_result=False,
                 )
 
                 result = interview_service.submit_answer(
-                    db=mock_db_session,
-                    question_id=1,
-                    request=answer_submit_request
+                    db=mock_db_session, question_id=1, request=answer_submit_request
                 )
 
                 assert result is not None
@@ -250,40 +285,43 @@ class TestSubmitAnswer:
                 mock_get.assert_called_once_with(mock_db_session, 1)
                 mock_feedback.assert_called_once()
 
-    def test_submit_answer_updates_question(self, interview_service, mock_db_session, mock_question, answer_submit_request):
+    def test_submit_answer_updates_question(
+        self, interview_service, mock_db_session, mock_question, answer_submit_request
+    ):
         """Test answer submission updates question record"""
-        with patch.object(interview_service, '_get_question') as mock_get:
+        with patch.object(interview_service, "_get_question") as mock_get:
             mock_get.return_value = mock_question
 
-            with patch.object(interview_service, '_generate_feedback') as mock_feedback:
+            with patch.object(interview_service, "_generate_feedback") as mock_feedback:
                 mock_feedback.return_value = QuestionFeedback(
                     score=7.0,
                     ai_feedback="Good answer",
                     sample_answer="Sample",
                     strengths=["Clear"],
-                    improvements=["More detail"]
+                    improvements=["More detail"],
                 )
 
                 interview_service.submit_answer(
-                    db=mock_db_session,
-                    question_id=1,
-                    request=answer_submit_request
+                    db=mock_db_session, question_id=1, request=answer_submit_request
                 )
 
                 # Verify question was updated
                 assert mock_question.user_answer == answer_submit_request.user_answer
-                assert mock_question.time_taken_seconds == answer_submit_request.time_taken_seconds
+                assert (
+                    mock_question.time_taken_seconds
+                    == answer_submit_request.time_taken_seconds
+                )
 
-    def test_submit_answer_question_not_found(self, interview_service, mock_db_session, answer_submit_request):
+    def test_submit_answer_question_not_found(
+        self, interview_service, mock_db_session, answer_submit_request
+    ):
         """Test error when question not found"""
-        with patch.object(interview_service, '_get_question') as mock_get:
+        with patch.object(interview_service, "_get_question") as mock_get:
             mock_get.return_value = None
 
             with pytest.raises(NotFoundError):
                 interview_service.submit_answer(
-                    db=mock_db_session,
-                    question_id=999,
-                    request=answer_submit_request
+                    db=mock_db_session, question_id=999, request=answer_submit_request
                 )
 
 
@@ -299,7 +337,9 @@ class TestGenerateFeedback:
 
         user_answer = "The Global Interpreter Lock (GIL) is a mutex that protects access to Python objects."
 
-        with patch.object(interview_service.openai_service, 'generate_completion') as mock_openai:
+        with patch.object(
+            interview_service.openai_service, "generate_completion"
+        ) as mock_openai:
             mock_openai.return_value = {
                 "content": """SCORE: 7.5
 FEEDBACK: Good start, but could expand on implications for multi-threaded applications and when it matters.
@@ -309,13 +349,15 @@ IMPROVEMENTS: Discuss implications for multi-threading; Mention alternatives lik
 STAR: N/A"""
             }
 
-            with patch.object(interview_service, '_parse_feedback_response') as mock_parse:
+            with patch.object(
+                interview_service, "_parse_feedback_response"
+            ) as mock_parse:
                 mock_parse.return_value = QuestionFeedback(
                     score=7.5,
                     ai_feedback="Good start, but could expand...",
                     sample_answer="The GIL is a mutex...",
                     strengths=["Accurate definition", "Concise explanation"],
-                    improvements=["Discuss implications", "Mention alternatives"]
+                    improvements=["Discuss implications", "Mention alternatives"],
                 )
 
                 feedback = interview_service._generate_feedback(question, user_answer)
@@ -324,7 +366,9 @@ STAR: N/A"""
                 assert len(feedback.strengths) > 0
                 assert len(feedback.improvements) > 0
 
-    def test_generate_feedback_for_behavioral_question_with_star(self, interview_service):
+    def test_generate_feedback_for_behavioral_question_with_star(
+        self, interview_service
+    ):
         """Test generates STAR framework analysis for behavioral questions"""
         question = Mock()
         question.question_text = "Tell me about a time you resolved a conflict"
@@ -336,7 +380,9 @@ STAR: N/A"""
         I organized a technical review session where each could present their approach, and we evaluated based on our requirements (Action).
         We reached consensus on a hybrid approach and delivered on time (Result)."""
 
-        with patch.object(interview_service.openai_service, 'generate_completion') as mock_openai:
+        with patch.object(
+            interview_service.openai_service, "generate_completion"
+        ) as mock_openai:
             mock_openai.return_value = {
                 "content": """SCORE: 9.0
 FEEDBACK: Excellent answer with complete STAR framework. Clear situation, well-defined task, specific actions, and measurable results.
@@ -347,18 +393,27 @@ STAR: S=Yes T=Yes A=Yes R=Yes
 STAR_SCORE: 9.5"""
             }
 
-            with patch.object(interview_service, '_parse_feedback_response') as mock_parse:
+            with patch.object(
+                interview_service, "_parse_feedback_response"
+            ) as mock_parse:
                 mock_parse.return_value = QuestionFeedback(
                     score=9.0,
                     ai_feedback="Excellent answer with complete STAR framework.",
                     sample_answer="Similar structure would work well.",
-                    strengths=["Complete STAR", "Specific actions", "Measurable outcome"],
-                    improvements=["Add more technical detail", "Mention long-term impact"],
+                    strengths=[
+                        "Complete STAR",
+                        "Specific actions",
+                        "Measurable outcome",
+                    ],
+                    improvements=[
+                        "Add more technical detail",
+                        "Mention long-term impact",
+                    ],
                     has_situation=True,
                     has_task=True,
                     has_action=True,
                     has_result=True,
-                    star_completeness_score=9.5
+                    star_completeness_score=9.5,
                 )
 
                 feedback = interview_service._generate_feedback(question, user_answer)
@@ -373,27 +428,31 @@ STAR_SCORE: 9.5"""
 class TestGetNextQuestion:
     """Test getting next question"""
 
-    def test_get_next_question_returns_first_unanswered(self, interview_service, mock_db_session, mock_session):
+    def test_get_next_question_returns_first_unanswered(
+        self, interview_service, mock_db_session, mock_session
+    ):
         """Test returns first unanswered question"""
         q1 = Mock(question_number=1, is_answered=True)
         q2 = Mock(question_number=2, is_answered=False)
         q3 = Mock(question_number=3, is_answered=False)
         mock_session.questions = [q1, q2, q3]
 
-        with patch.object(interview_service, '_get_session') as mock_get:
+        with patch.object(interview_service, "_get_session") as mock_get:
             mock_get.return_value = mock_session
 
             next_q = interview_service.get_next_question(mock_db_session, session_id=1)
 
             assert next_q.question_number == 2
 
-    def test_get_next_question_returns_none_when_all_answered(self, interview_service, mock_db_session, mock_session):
+    def test_get_next_question_returns_none_when_all_answered(
+        self, interview_service, mock_db_session, mock_session
+    ):
         """Test returns None when all questions answered"""
         q1 = Mock(question_number=1, is_answered=True)
         q2 = Mock(question_number=2, is_answered=True)
         mock_session.questions = [q1, q2]
 
-        with patch.object(interview_service, '_get_session') as mock_get:
+        with patch.object(interview_service, "_get_session") as mock_get:
             mock_get.return_value = mock_session
 
             next_q = interview_service.get_next_question(mock_db_session, session_id=1)
@@ -404,7 +463,9 @@ class TestGetNextQuestion:
 class TestCompleteSession:
     """Test session completion"""
 
-    def test_complete_session_calculates_scores(self, interview_service, mock_db_session, mock_session):
+    def test_complete_session_calculates_scores(
+        self, interview_service, mock_db_session, mock_session
+    ):
         """Test session completion calculates overall scores"""
         q1 = Mock(score=8.0, star_completeness_score=None)
         q2 = Mock(score=7.5, star_completeness_score=None)
@@ -412,36 +473,50 @@ class TestCompleteSession:
         mock_session.questions = [q1, q2, q3]
         mock_session.interview_type = "technical"
 
-        with patch.object(interview_service, '_get_session') as mock_get:
+        with patch.object(interview_service, "_get_session") as mock_get:
             mock_get.return_value = mock_session
 
-            with patch.object(interview_service, '_calculate_session_scores') as mock_calc:
+            with patch.object(
+                interview_service, "_calculate_session_scores"
+            ) as mock_calc:
                 mock_calc.return_value = {
                     "overall_score": 8.17,
                     "technical_accuracy_score": 8.5,
-                    "communication_score": 8.0
+                    "communication_score": 8.0,
                 }
 
-                result = interview_service.complete_session(mock_db_session, session_id=1)
+                result = interview_service.complete_session(
+                    mock_db_session, session_id=1
+                )
 
                 assert result.status == "completed"
                 assert result.completed_at is not None
                 mock_calc.assert_called_once()
 
-    def test_complete_session_generates_summary(self, interview_service, mock_db_session, mock_session):
+    def test_complete_session_generates_summary(
+        self, interview_service, mock_db_session, mock_session
+    ):
         """Test session completion generates feedback summary"""
         mock_session.questions = [Mock(score=8.0)]
 
-        with patch.object(interview_service, '_get_session') as mock_get:
+        with patch.object(interview_service, "_get_session") as mock_get:
             mock_get.return_value = mock_session
 
-            with patch.object(interview_service, '_calculate_session_scores') as mock_calc:
+            with patch.object(
+                interview_service, "_calculate_session_scores"
+            ) as mock_calc:
                 mock_calc.return_value = {"overall_score": 8.0}
 
-            with patch.object(interview_service, '_generate_session_summary') as mock_summary:
-                mock_summary.return_value = "Great session! You demonstrated strong technical knowledge."
+            with patch.object(
+                interview_service, "_generate_session_summary"
+            ) as mock_summary:
+                mock_summary.return_value = (
+                    "Great session! You demonstrated strong technical knowledge."
+                )
 
-                result = interview_service.complete_session(mock_db_session, session_id=1)
+                result = interview_service.complete_session(
+                    mock_db_session, session_id=1
+                )
 
                 assert result.feedback_summary is not None
                 mock_summary.assert_called_once()
@@ -450,15 +525,32 @@ class TestCompleteSession:
 class TestGetUserStats:
     """Test getting user statistics"""
 
-    def test_get_user_stats_calculates_correctly(self, interview_service, mock_db_session, mock_user):
+    def test_get_user_stats_calculates_correctly(
+        self, interview_service, mock_db_session, mock_user
+    ):
         """Test user stats calculation"""
         sessions = [
-            Mock(status="completed", overall_score=8.0, interview_type="technical", questions_answered=5),
-            Mock(status="completed", overall_score=7.5, interview_type="behavioral", questions_answered=5),
-            Mock(status="in_progress", overall_score=None, interview_type="technical", questions_answered=2),
+            Mock(
+                status="completed",
+                overall_score=8.0,
+                interview_type="technical",
+                questions_answered=5,
+            ),
+            Mock(
+                status="completed",
+                overall_score=7.5,
+                interview_type="behavioral",
+                questions_answered=5,
+            ),
+            Mock(
+                status="in_progress",
+                overall_score=None,
+                interview_type="technical",
+                questions_answered=2,
+            ),
         ]
 
-        with patch.object(interview_service, '_get_user_sessions') as mock_get:
+        with patch.object(interview_service, "_get_user_sessions") as mock_get:
             mock_get.return_value = sessions
 
             stats = interview_service.get_user_stats(mock_db_session, user_id=1)
@@ -468,7 +560,9 @@ class TestGetUserStats:
             assert stats.total_questions_answered == 12  # 5 + 5 + 2
             assert stats.average_score == 7.75  # (8.0 + 7.5) / 2
 
-    def test_get_user_stats_groups_by_type(self, interview_service, mock_db_session, mock_user):
+    def test_get_user_stats_groups_by_type(
+        self, interview_service, mock_db_session, mock_user
+    ):
         """Test stats grouped by interview type"""
         sessions = [
             Mock(interview_type="technical"),
@@ -476,7 +570,7 @@ class TestGetUserStats:
             Mock(interview_type="behavioral"),
         ]
 
-        with patch.object(interview_service, '_get_user_sessions') as mock_get:
+        with patch.object(interview_service, "_get_user_sessions") as mock_get:
             mock_get.return_value = sessions
 
             stats = interview_service.get_user_stats(mock_db_session, user_id=1)
@@ -488,25 +582,29 @@ class TestGetUserStats:
 class TestErrorHandling:
     """Test error handling"""
 
-    def test_handles_openai_api_errors(self, interview_service, mock_db_session, mock_session, session_create_request):
+    def test_handles_openai_api_errors(
+        self, interview_service, mock_db_session, mock_session, session_create_request
+    ):
         """Test handles OpenAI API errors gracefully"""
-        with patch.object(interview_service.openai_service, 'generate_completion') as mock_openai:
+        with patch.object(
+            interview_service.openai_service, "generate_completion"
+        ) as mock_openai:
             mock_openai.side_effect = Exception("OpenAI API error")
 
             with pytest.raises(ServiceError):
                 interview_service._generate_questions(
                     db=mock_db_session,
                     session=mock_session,
-                    request=session_create_request
+                    request=session_create_request,
                 )
 
-    def test_handles_database_errors(self, interview_service, mock_db_session, mock_user, session_create_request):
+    def test_handles_database_errors(
+        self, interview_service, mock_db_session, mock_user, session_create_request
+    ):
         """Test handles database errors"""
         mock_db_session.add.side_effect = Exception("Database error")
 
         with pytest.raises(ServiceError):
             interview_service.create_session(
-                db=mock_db_session,
-                user=mock_user,
-                request=session_create_request
+                db=mock_db_session, user=mock_user, request=session_create_request
             )

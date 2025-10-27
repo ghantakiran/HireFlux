@@ -77,6 +77,10 @@ export default function ResumeDetailPage() {
   const [isTailoring, setIsTailoring] = useState(false);
   const [tailorSuccess, setTailorSuccess] = useState(false);
   const [matchedSkills, setMatchedSkills] = useState<string[]>([]);
+  const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
+  const [regeneratingSection, setRegeneratingSection] = useState<string | null>(null);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [regenerateSuccess, setRegenerateSuccess] = useState(false);
 
   useEffect(() => {
     if (resumeId) {
@@ -236,6 +240,34 @@ export default function ResumeDetailPage() {
     } catch (err) {
       console.error('Failed to tailor resume', err);
       setIsTailoring(false);
+    }
+  };
+
+  const handleRegenerateSection = (section: string) => {
+    setRegeneratingSection(section);
+    setShowRegenerateDialog(true);
+    setRegenerateSuccess(false);
+  };
+
+  const handleConfirmRegenerate = async () => {
+    if (!regeneratingSection) return;
+
+    try {
+      setIsRegenerating(true);
+      setRegenerateSuccess(false);
+      const response = await resumeApi.regenerateSection(resumeId, {
+        section: regeneratingSection,
+      });
+      setResume(response.data.data);
+      setRegenerateSuccess(true);
+      setTimeout(() => {
+        setShowRegenerateDialog(false);
+        setIsRegenerating(false);
+        setRegeneratingSection(null);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to regenerate section', err);
+      setIsRegenerating(false);
     }
   };
 
@@ -429,7 +461,18 @@ export default function ResumeDetailPage() {
         {/* Work Experience */}
         <Card data-testid="section-work-experience" data-section="work-experience">
           <CardHeader>
-            <CardTitle>Work Experience</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Work Experience</CardTitle>
+              {!isEditMode && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleRegenerateSection('work_experience')}
+                >
+                  Regenerate
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {!isEditMode
@@ -676,6 +719,30 @@ export default function ResumeDetailPage() {
               disabled={!jobDescription.trim() || isTailoring}
             >
               {isTailoring ? 'Generating...' : 'Generate Tailored Resume'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Regenerate Confirmation Dialog */}
+      <Dialog open={showRegenerateDialog} onOpenChange={setShowRegenerateDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Regenerate Section</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>Are you sure you want to regenerate this section? This action cannot be undone.</p>
+          </div>
+          {isRegenerating && <div className="text-sm text-blue-600">Regenerating...</div>}
+          {regenerateSuccess && (
+            <div className="text-sm text-green-600">Section updated successfully!</div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRegenerateDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmRegenerate} disabled={isRegenerating}>
+              {isRegenerating ? 'Regenerating...' : 'Confirm'}
             </Button>
           </DialogFooter>
         </DialogContent>

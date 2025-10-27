@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Zap, Target, FileText, Users, TrendingUp, CheckCircle } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -19,26 +22,215 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section - AIApply Style */}
       <main className="flex-1">
         <section className="container mx-auto px-4 py-24 md:py-32">
           <div className="mx-auto max-w-4xl text-center">
+            <Badge variant="secondary" className="mb-4">
+              <Zap className="h-3 w-3 mr-1" />
+              AI-Powered
+            </Badge>
             <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              AI-Powered Job Application Copilot
+              Stop Applying for Weeks<br />
+              <span className="text-primary">Start Interviewing in Days</span>
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              HireFlux streamlines your job search with tailored resumes, personalized cover
-              letters, intelligent job matching, and automated applications—all powered by AI.
+              HireFlux finds high-match roles, tailors your resume & cover letter, auto-applies, 
+              and coaches you live - so you move from submit to scheduled fast.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link href="/signup">
-                <Button size="lg">Get Started Free</Button>
+                <Button size="lg" className="h-12 px-8">
+                  Start now for free
+                </Button>
               </Link>
               <Link href="/pricing">
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" className="h-12 px-8">
                   View Pricing
                 </Button>
               </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Social Proof - Company Logos */}
+        <section className="bg-muted/50 py-12">
+          <div className="container mx-auto px-4">
+            <p className="text-center text-sm text-muted-foreground mb-8">
+              Get hired by top companies worldwide
+            </p>
+            <div className="flex items-center justify-center gap-8 opacity-60">
+              <div className="text-2xl font-bold">Coinbase</div>
+              <div className="text-2xl font-bold">Spotify</div>
+              <div className="text-2xl font-bold">Microsoft</div>
+              <div className="text-2xl font-bold">Meta</div>
+              <div className="text-2xl font-bold">SpaceX</div>
+            </div>
+          </div>
+        </section>
+
+        {/* AI Resume Builder Demo */}
+        <section className="container mx-auto px-4 py-24">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <Badge variant="outline" className="mb-4">
+                <Target className="h-3 w-3 mr-1" />
+                99.8% Match
+              </Badge>
+              <h2 className="text-3xl font-bold mb-6">Optimized Resume</h2>
+              <div className="space-y-4 text-muted-foreground">
+                <p>AI generates resumes for each job application, based on your skills and experience.</p>
+                <p>Our AI models are trained on successful resumes that have landed $100k+ jobs at top companies.</p>
+              </div>
+              <div className="mt-6">
+                <Button size="lg">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Try Resume Builder
+                </Button>
+              </div>
+            </div>
+            <div className="bg-muted p-6 rounded-lg">
+              <div className="bg-background p-4 rounded border">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold">Steve Jobs</h3>
+                  <Badge variant="secondary">99.8% match</Badge>
+                </div>
+                <div className="text-sm text-muted-foreground mb-2">
+                  Los Altos, CA • steve@example.com • linkedin.com/stevejobs
+                </div>
+                <div className="text-sm">
+                  <p className="font-medium mb-2">Summary</p>
+                  <p className="text-muted-foreground mb-4">
+                    Visionary entrepreneur and technology innovator with a history of disrupting industries 
+                    through pioneering design, user experience, and business strategy.
+                  </p>
+                  <p className="font-medium mb-2">Experience</p>
+                  <div className="text-muted-foreground">
+                    <p><strong>Co-Founder, Chairman & CEO</strong> | Apple Inc. (1997–2011)</p>
+                    <p>• Launched Apple I and Apple II, the first mass-market personal computers</p>
+                    <p>• Led development of the Macintosh, the first commercially successful GUI computer</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Auto Apply Dashboard Preview */}
+        <section className="bg-primary py-24 text-primary-foreground">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Auto Apply To Jobs</h2>
+              <p className="text-lg opacity-90">
+                Let AI apply to thousands of jobs for you automatically. Save time and get hired faster
+              </p>
+            </div>
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-background/10 backdrop-blur rounded-lg p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold">587 Jobs Applied</h3>
+                  <Badge variant="secondary" className="bg-green-500 text-white">
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    Live Updates
+                  </Badge>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-background/20 rounded">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">A</div>
+                      <div>
+                        <p className="font-medium">Principal Engineer</p>
+                        <p className="text-sm opacity-75">Amazon • Cloud Services</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-yellow-500 text-black">AWS</Badge>
+                      <Badge variant="outline" className="bg-blue-500 text-white">DevOps</Badge>
+                      <Badge variant="secondary" className="bg-green-500 text-white">Applying...</Badge>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-background/20 rounded">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">S</div>
+                      <div>
+                        <p className="font-medium">Data Analyst</p>
+                        <p className="text-sm opacity-75">Stripe • Finance</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-500 text-white">Analytics</Badge>
+                      <Badge variant="outline" className="bg-blue-500 text-white">Python</Badge>
+                      <Badge variant="secondary" className="bg-green-500 text-white">Applied</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Interview Buddy Preview */}
+        <section className="container mx-auto px-4 py-24">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="bg-muted p-6 rounded-lg">
+              <div className="bg-background p-4 rounded border">
+                <div className="flex items-center gap-2 mb-4">
+                  <Users className="h-5 w-5 text-blue-500" />
+                  <span className="font-semibold">Interview Buddy</span>
+                  <Badge variant="secondary">4.7 • 387 Ratings</Badge>
+                </div>
+                <div className="space-y-3">
+                  <div className="p-3 bg-muted rounded">
+                    <p className="text-sm font-medium mb-2">Our enterprise sales cycle is 120 days; how would you shorten it?</p>
+                    <p className="text-sm text-muted-foreground">
+                      Map each account to a buying-committee heat-map, surface user-specific ROI dashboards 
+                      in week 1, and secure a technical pilot inside 30 days.
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline">Answer ⌘A</Button>
+                    <Button size="sm" variant="outline">Reset ⌘R</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold mb-6">Interview Buddy</h2>
+              <p className="text-lg text-muted-foreground mb-6">
+                Get real-time interview help and answers to interview questions.
+              </p>
+              <div className="bg-muted p-4 rounded-lg mb-6">
+                <p className="text-sm italic">
+                  "Interview Buddy is the future of job prep. It gave me perfectly tailored answers, 
+                  anticipated follow-up questions, and helped me calm my nerves. Worth every penny!"
+                </p>
+                <p className="text-sm font-medium mt-2">- Jason T., Sales Executive</p>
+              </div>
+              <Button size="lg">
+                <Users className="h-4 w-4 mr-2" />
+                Try Interview Buddy
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Success Stats */}
+        <section className="bg-muted/50 py-24">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold mb-4">You are 80% more likely to get hired faster if you use HireFlux</h2>
+            <div className="grid md:grid-cols-3 gap-8 mt-12">
+              <div>
+                <div className="text-4xl font-bold text-primary mb-2">372,241+</div>
+                <p className="text-muted-foreground">roles applied to</p>
+              </div>
+              <div>
+                <div className="text-4xl font-bold text-primary mb-2">1,005,991</div>
+                <p className="text-muted-foreground">users love us</p>
+              </div>
+              <div>
+                <div className="text-4xl font-bold text-primary mb-2">80%</div>
+                <p className="text-muted-foreground">land interviews in first month</p>
+              </div>
             </div>
           </div>
         </section>

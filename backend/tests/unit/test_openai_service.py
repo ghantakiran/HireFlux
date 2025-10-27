@@ -30,7 +30,7 @@ class TestOpenAIServiceInitialization:
 
     def test_service_uses_configured_model(self):
         """Test service uses model from config"""
-        with patch('app.core.config.settings.OPENAI_MODEL', 'gpt-4'):
+        with patch("app.core.config.settings.OPENAI_MODEL", "gpt-4"):
             service = OpenAIService()
             assert service.model == "gpt-4"
 
@@ -40,13 +40,11 @@ class TestChatCompletion:
 
     def test_generate_completion_success(self, openai_service):
         """Test successful completion generation"""
-        with patch.object(openai_service, 'client') as mock_client:
+        with patch.object(openai_service, "client") as mock_client:
             mock_response = Mock()
             mock_response.choices = [Mock(message=Mock(content="Generated text"))]
             mock_response.usage = Mock(
-                prompt_tokens=100,
-                completion_tokens=200,
-                total_tokens=300
+                prompt_tokens=100, completion_tokens=200, total_tokens=300
             )
             mock_client.chat.completions.create.return_value = mock_response
 
@@ -60,25 +58,27 @@ class TestChatCompletion:
 
     def test_generate_completion_with_system_message(self, openai_service):
         """Test completion with system message"""
-        with patch.object(openai_service, 'client') as mock_client:
+        with patch.object(openai_service, "client") as mock_client:
             mock_response = Mock()
             mock_response.choices = [Mock(message=Mock(content="Response"))]
-            mock_response.usage = Mock(total_tokens=100, prompt_tokens=50, completion_tokens=50)
+            mock_response.usage = Mock(
+                total_tokens=100, prompt_tokens=50, completion_tokens=50
+            )
             mock_client.chat.completions.create.return_value = mock_response
 
             openai_service.generate_completion(
                 messages=[
                     {"role": "system", "content": "You are helpful"},
-                    {"role": "user", "content": "Hello"}
+                    {"role": "user", "content": "Hello"},
                 ]
             )
 
             call_args = mock_client.chat.completions.create.call_args
-            assert len(call_args.kwargs['messages']) == 2
+            assert len(call_args.kwargs["messages"]) == 2
 
     def test_generate_completion_handles_error(self, openai_service):
         """Test error handling in completion"""
-        with patch.object(openai_service, 'client') as mock_client:
+        with patch.object(openai_service, "client") as mock_client:
             mock_client.chat.completions.create.side_effect = Exception("API Error")
 
             with pytest.raises(ServiceError) as exc_info:
@@ -119,9 +119,7 @@ class TestCostCalculation:
     def test_calculate_cost_gpt4(self, openai_service):
         """Test cost calculation for GPT-4"""
         cost = openai_service.calculate_cost(
-            prompt_tokens=1000,
-            completion_tokens=500,
-            model="gpt-4-turbo-preview"
+            prompt_tokens=1000, completion_tokens=500, model="gpt-4-turbo-preview"
         )
 
         assert cost > 0
@@ -143,24 +141,25 @@ class TestRateLimiting:
         result = openai_service.check_rate_limit()
         assert result is True
 
-    @patch('time.sleep')
+    @patch("time.sleep")
     def test_handles_rate_limit_error(self, mock_sleep, openai_service):
         """Test handling rate limit error"""
-        with patch.object(openai_service, 'client') as mock_client:
+        with patch.object(openai_service, "client") as mock_client:
             # First call fails with rate limit, second succeeds
             mock_response = Mock()
             mock_response.choices = [Mock(message=Mock(content="Success"))]
-            mock_response.usage = Mock(total_tokens=100, prompt_tokens=50, completion_tokens=50)
+            mock_response.usage = Mock(
+                total_tokens=100, prompt_tokens=50, completion_tokens=50
+            )
 
             mock_client.chat.completions.create.side_effect = [
                 Exception("Rate limit exceeded"),
-                mock_response
+                mock_response,
             ]
 
             with pytest.raises(ServiceError):
                 openai_service.generate_completion(
-                    messages=[{"role": "user", "content": "Test"}],
-                    max_retries=0
+                    messages=[{"role": "user", "content": "Test"}], max_retries=0
                 )
 
 
@@ -172,13 +171,11 @@ class TestPromptBuilding:
         resume_data = {
             "contact_info": {"full_name": "John Doe"},
             "work_experience": [],
-            "skills": ["Python", "JavaScript"]
+            "skills": ["Python", "JavaScript"],
         }
 
         prompt = openai_service.build_resume_optimization_prompt(
-            resume_data=resume_data,
-            target_title="Software Engineer",
-            tone="formal"
+            resume_data=resume_data, target_title="Software Engineer", tone="formal"
         )
 
         assert "John Doe" in prompt
@@ -195,7 +192,7 @@ class TestPromptBuilding:
         prompt = openai_service.build_resume_optimization_prompt(
             resume_data=resume_data,
             target_title="Full Stack Developer",
-            keywords=keywords
+            keywords=keywords,
         )
 
         assert "React" in prompt
@@ -269,13 +266,11 @@ class TestUsageLogging:
             "prompt_tokens": 100,
             "completion_tokens": 50,
             "total_tokens": 150,
-            "cost": 0.003
+            "cost": 0.003,
         }
 
         log_id = openai_service.log_usage(
-            user_id="test-user",
-            operation="resume_generation",
-            **usage_data
+            user_id="test-user", operation="resume_generation", **usage_data
         )
 
         assert log_id is not None
@@ -287,21 +282,22 @@ class TestErrorRecovery:
 
     def test_retry_on_timeout(self, openai_service):
         """Test retry logic on timeout"""
-        with patch.object(openai_service, 'client') as mock_client:
+        with patch.object(openai_service, "client") as mock_client:
             mock_response = Mock()
             mock_response.choices = [Mock(message=Mock(content="Success"))]
-            mock_response.usage = Mock(total_tokens=100, prompt_tokens=50, completion_tokens=50)
+            mock_response.usage = Mock(
+                total_tokens=100, prompt_tokens=50, completion_tokens=50
+            )
 
             # Fail twice, succeed on third try
             mock_client.chat.completions.create.side_effect = [
                 Exception("Timeout"),
                 Exception("Timeout"),
-                mock_response
+                mock_response,
             ]
 
             result = openai_service.generate_completion(
-                messages=[{"role": "user", "content": "Test"}],
-                max_retries=3
+                messages=[{"role": "user", "content": "Test"}], max_retries=3
             )
 
             assert result["content"] == "Success"
@@ -309,14 +305,15 @@ class TestErrorRecovery:
 
     def test_gives_up_after_max_retries(self, openai_service):
         """Test giving up after max retries"""
-        with patch.object(openai_service, 'client') as mock_client:
+        with patch.object(openai_service, "client") as mock_client:
             # Use timeout error which triggers retries
             mock_client.chat.completions.create.side_effect = Exception("Timeout")
 
             with pytest.raises(ServiceError):
                 openai_service.generate_completion(
-                    messages=[{"role": "user", "content": "Test"}],
-                    max_retries=2
+                    messages=[{"role": "user", "content": "Test"}], max_retries=2
                 )
 
-            assert mock_client.chat.completions.create.call_count == 3  # Initial + 2 retries
+            assert (
+                mock_client.chat.completions.create.call_count == 3
+            )  # Initial + 2 retries

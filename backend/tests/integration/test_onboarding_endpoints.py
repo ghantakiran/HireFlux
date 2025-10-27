@@ -112,9 +112,9 @@ class TestUpdateBasicProfile:
                 "first_name": "John",
                 "last_name": "Doe",
                 "phone": "+1234567890",
-                "location": "New York, NY"
+                "location": "New York, NY",
             },
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -127,10 +127,7 @@ class TestUpdateBasicProfile:
         """Test update without authentication"""
         response = client.put(
             "/api/v1/onboarding/profile",
-            json={
-                "first_name": "John",
-                "last_name": "Doe"
-            }
+            json={"first_name": "John", "last_name": "Doe"},
         )
 
         assert response.status_code in [401, 403]
@@ -139,11 +136,8 @@ class TestUpdateBasicProfile:
         """Test update with invalid data"""
         response = client.put(
             "/api/v1/onboarding/profile",
-            json={
-                "first_name": "",  # Empty first name
-                "last_name": "Doe"
-            },
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            json={"first_name": "", "last_name": "Doe"},  # Empty first name
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 422  # Validation error
@@ -160,9 +154,9 @@ class TestUpdateJobPreferences:
                 "target_titles": ["Software Engineer", "Developer"],
                 "salary_min": 80000,
                 "salary_max": 150000,
-                "industries": ["Technology", "Finance"]
+                "industries": ["Technology", "Finance"],
             },
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -171,16 +165,18 @@ class TestUpdateJobPreferences:
         assert len(data["data"]["target_titles"]) == 2
         assert data["data"]["salary_min"] == 80000
 
-    def test_update_job_preferences_invalid_salary_range(self, client, test_user_with_token):
+    def test_update_job_preferences_invalid_salary_range(
+        self, client, test_user_with_token
+    ):
         """Test update with invalid salary range"""
         response = client.put(
             "/api/v1/onboarding/preferences",
             json={
                 "target_titles": ["Software Engineer"],
                 "salary_min": 150000,
-                "salary_max": 80000  # Max less than min
+                "salary_max": 80000,  # Max less than min
             },
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 422
@@ -197,10 +193,10 @@ class TestUpdateSkills:
                 "skills": [
                     {"name": "Python", "proficiency": "expert"},
                     {"name": "JavaScript", "proficiency": "advanced"},
-                    {"name": "React", "proficiency": "intermediate"}
+                    {"name": "React", "proficiency": "intermediate"},
                 ]
             },
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -213,7 +209,7 @@ class TestUpdateSkills:
         response = client.put(
             "/api/v1/onboarding/skills",
             json={"skills": []},
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 422
@@ -231,9 +227,9 @@ class TestUpdateWorkPreferences:
                 "visa_friendly": True,
                 "relocation": False,
                 "contract": False,
-                "part_time": False
+                "part_time": False,
             },
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -249,7 +245,7 @@ class TestGetOnboardingProgress:
         """Test progress for new user"""
         response = client.get(
             "/api/v1/onboarding/progress",
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -264,13 +260,13 @@ class TestGetOnboardingProgress:
         client.put(
             "/api/v1/onboarding/profile",
             json={"first_name": "John", "last_name": "Doe"},
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         # Check progress
         response = client.get(
             "/api/v1/onboarding/progress",
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -288,13 +284,13 @@ class TestGetCompleteProfile:
         client.put(
             "/api/v1/onboarding/profile",
             json={"first_name": "John", "last_name": "Doe"},
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         # Get profile
         response = client.get(
             "/api/v1/onboarding/profile",
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -309,14 +305,14 @@ class TestCompleteOnboardingFlow:
 
     def test_complete_onboarding_flow(self, client, test_user_with_token):
         """Test completing all onboarding steps"""
-        token = test_user_with_token['token']
+        token = test_user_with_token["token"]
         headers = {"Authorization": f"Bearer {token}"}
 
         # Step 1: Basic profile
         response1 = client.put(
             "/api/v1/onboarding/profile",
             json={"first_name": "John", "last_name": "Doe", "location": "NYC"},
-            headers=headers
+            headers=headers,
         )
         assert response1.status_code == 200
 
@@ -326,19 +322,17 @@ class TestCompleteOnboardingFlow:
             json={
                 "target_titles": ["Software Engineer"],
                 "salary_min": 100000,
-                "salary_max": 150000
+                "salary_max": 150000,
             },
-            headers=headers
+            headers=headers,
         )
         assert response2.status_code == 200
 
         # Step 3: Skills
         response3 = client.put(
             "/api/v1/onboarding/skills",
-            json={
-                "skills": [{"name": "Python", "proficiency": "expert"}]
-            },
-            headers=headers
+            json={"skills": [{"name": "Python", "proficiency": "expert"}]},
+            headers=headers,
         )
         assert response3.status_code == 200
 
@@ -346,7 +340,7 @@ class TestCompleteOnboardingFlow:
         response4 = client.put(
             "/api/v1/onboarding/work-preferences",
             json={"remote": True, "visa_friendly": False},
-            headers=headers
+            headers=headers,
         )
         assert response4.status_code == 200
 

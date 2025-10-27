@@ -153,7 +153,7 @@ class TestUploadResume:
         response = client.post(
             "/api/v1/resumes/upload",
             files={"file": (filename, file_content, mime_type)},
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 201
@@ -168,7 +168,7 @@ class TestUploadResume:
 
         response = client.post(
             "/api/v1/resumes/upload",
-            files={"file": (filename, file_content, mime_type)}
+            files={"file": (filename, file_content, mime_type)},
         )
 
         assert response.status_code in [401, 403]
@@ -180,7 +180,7 @@ class TestUploadResume:
         response = client.post(
             "/api/v1/resumes/upload",
             files={"file": text_file},
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 422
@@ -196,14 +196,14 @@ class TestGetResume:
         upload_response = client.post(
             "/api/v1/resumes/upload",
             files={"file": (filename, file_content, mime_type)},
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
         resume_id = upload_response.json()["data"]["id"]
 
         # Get resume details
         response = client.get(
             f"/api/v1/resumes/{resume_id}",
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -217,7 +217,7 @@ class TestGetResume:
 
         response = client.get(
             f"/api/v1/resumes/{fake_id}",
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 404
@@ -230,7 +230,7 @@ class TestListResumes:
         """Test listing resumes when user has none"""
         response = client.get(
             "/api/v1/resumes",
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -239,7 +239,9 @@ class TestListResumes:
         assert data["data"]["total"] == 0
         assert len(data["data"]["resumes"]) == 0
 
-    def test_list_resumes_with_data(self, client, test_user_with_token, sample_pdf_file):
+    def test_list_resumes_with_data(
+        self, client, test_user_with_token, sample_pdf_file
+    ):
         """Test listing resumes after uploading"""
         # Upload 2 resumes
         filename, file_content, mime_type = sample_pdf_file
@@ -249,13 +251,13 @@ class TestListResumes:
             client.post(
                 "/api/v1/resumes/upload",
                 files={"file": (f"resume{i}.pdf", file_content, mime_type)},
-                headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+                headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
             )
 
         # List resumes
         response = client.get(
             "/api/v1/resumes",
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -274,14 +276,14 @@ class TestDeleteResume:
         upload_response = client.post(
             "/api/v1/resumes/upload",
             files={"file": (filename, file_content, mime_type)},
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
         resume_id = upload_response.json()["data"]["id"]
 
         # Delete resume
         response = client.delete(
             f"/api/v1/resumes/{resume_id}",
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -291,7 +293,7 @@ class TestDeleteResume:
         # Verify resume is deleted
         get_response = client.get(
             f"/api/v1/resumes/{resume_id}",
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
         assert get_response.status_code == 404
 
@@ -301,7 +303,7 @@ class TestDeleteResume:
 
         response = client.delete(
             f"/api/v1/resumes/{fake_id}",
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 404
@@ -310,21 +312,23 @@ class TestDeleteResume:
 class TestSetDefaultResume:
     """Test set default resume endpoint"""
 
-    def test_set_default_resume_success(self, client, test_user_with_token, sample_pdf_file):
+    def test_set_default_resume_success(
+        self, client, test_user_with_token, sample_pdf_file
+    ):
         """Test setting resume as default"""
         # Upload resume
         filename, file_content, mime_type = sample_pdf_file
         upload_response = client.post(
             "/api/v1/resumes/upload",
             files={"file": (filename, file_content, mime_type)},
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
         resume_id = upload_response.json()["data"]["id"]
 
         # Set as default
         response = client.post(
             f"/api/v1/resumes/{resume_id}/set-default",
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -336,14 +340,16 @@ class TestSetDefaultResume:
 class TestUpdateParsedData:
     """Test update parsed data endpoint"""
 
-    def test_update_parsed_data_success(self, client, test_user_with_token, sample_pdf_file):
+    def test_update_parsed_data_success(
+        self, client, test_user_with_token, sample_pdf_file
+    ):
         """Test updating parsed resume data"""
         # Upload resume
         filename, file_content, mime_type = sample_pdf_file
         upload_response = client.post(
             "/api/v1/resumes/upload",
             files={"file": (filename, file_content, mime_type)},
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
         resume_id = upload_response.json()["data"]["id"]
 
@@ -352,7 +358,7 @@ class TestUpdateParsedData:
             "parsed_data": {
                 "contact_info": {
                     "full_name": "Jane Smith",
-                    "email": "jane@example.com"
+                    "email": "jane@example.com",
                 },
                 "skills": ["Python", "Java"],
                 "work_experience": [],
@@ -361,14 +367,14 @@ class TestUpdateParsedData:
                 "languages": [],
                 "projects": [],
                 "awards": [],
-                "publications": []
+                "publications": [],
             }
         }
 
         response = client.put(
             f"/api/v1/resumes/{resume_id}/parsed-data",
             json=updated_data,
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         assert response.status_code == 200
@@ -379,21 +385,23 @@ class TestUpdateParsedData:
 class TestDownloadResume:
     """Test download resume endpoint"""
 
-    def test_download_resume_success(self, client, test_user_with_token, sample_pdf_file):
+    def test_download_resume_success(
+        self, client, test_user_with_token, sample_pdf_file
+    ):
         """Test downloading original resume file"""
         # Upload resume
         filename, file_content, mime_type = sample_pdf_file
         upload_response = client.post(
             "/api/v1/resumes/upload",
             files={"file": (filename, file_content, mime_type)},
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
         resume_id = upload_response.json()["data"]["id"]
 
         # Download resume
         response = client.get(
             f"/api/v1/resumes/{resume_id}/download",
-            headers={"Authorization": f"Bearer {test_user_with_token['token']}"}
+            headers={"Authorization": f"Bearer {test_user_with_token['token']}"},
         )
 
         # Note: This will fail until we implement file serving
@@ -406,7 +414,7 @@ class TestCompleteResumeFlow:
 
     def test_complete_flow(self, client, test_user_with_token, sample_pdf_file):
         """Test complete resume upload, list, update, delete flow"""
-        token = test_user_with_token['token']
+        token = test_user_with_token["token"]
         headers = {"Authorization": f"Bearer {token}"}
 
         # Step 1: Upload resume
@@ -414,7 +422,7 @@ class TestCompleteResumeFlow:
         upload_response = client.post(
             "/api/v1/resumes/upload",
             files={"file": (filename, file_content, mime_type)},
-            headers=headers
+            headers=headers,
         )
         assert upload_response.status_code == 201
         resume_id = upload_response.json()["data"]["id"]
@@ -429,7 +437,9 @@ class TestCompleteResumeFlow:
         assert get_response.status_code == 200
 
         # Step 4: Set as default
-        default_response = client.post(f"/api/v1/resumes/{resume_id}/set-default", headers=headers)
+        default_response = client.post(
+            f"/api/v1/resumes/{resume_id}/set-default", headers=headers
+        )
         assert default_response.status_code == 200
 
         # Step 5: Delete resume

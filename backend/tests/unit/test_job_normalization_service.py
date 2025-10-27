@@ -9,7 +9,7 @@ from app.schemas.job_feed import (
     GreenhouseDepartment,
     GreenhouseOffice,
     LeverJob,
-    LeverCategory
+    LeverCategory,
 )
 
 
@@ -349,12 +349,14 @@ class TestGreenhouseJobNormalization:
             metadata=[],
             updated_at="2025-10-24T00:00:00Z",
             departments=[GreenhouseDepartment(id="1", name="Engineering")],
-            offices=[GreenhouseOffice(id="1", name="SF Office", location="San Francisco")],
+            offices=[
+                GreenhouseOffice(id="1", name="SF Office", location="San Francisco")
+            ],
             content="""
             Required: Python, FastAPI, SQL, 5-7 years experience
             Preferred: AWS, Docker
             Salary: $150,000-$200,000
-            """
+            """,
         )
 
         normalized = normalization_service.normalize_greenhouse_job(gh_job, "Tech Corp")
@@ -366,7 +368,10 @@ class TestGreenhouseJobNormalization:
         assert normalized.location == "San Francisco, CA"
         assert normalized.location_type == "hybrid"
         assert "python" in normalized.required_skills
-        assert "aws" in normalized.preferred_skills or "docker" in normalized.preferred_skills
+        assert (
+            "aws" in normalized.preferred_skills
+            or "docker" in normalized.preferred_skills
+        )
         assert normalized.department == "Engineering"
 
     def test_normalize_greenhouse_job_remote(self, normalization_service):
@@ -380,7 +385,7 @@ class TestGreenhouseJobNormalization:
             metadata=[],
             departments=[],
             offices=[],
-            content="Python developer needed. We are looking for a talented software engineer with strong Python skills and experience in backend development. This is a remote-first position."
+            content="Python developer needed. We are looking for a talented software engineer with strong Python skills and experience in backend development. This is a remote-first position.",
         )
 
         normalized = normalization_service.normalize_greenhouse_job(gh_job, "Company")
@@ -407,7 +412,7 @@ class TestLeverJobNormalization:
                     department="Engineering",
                     level="Senior",
                     location="San Francisco",
-                    team="Backend"
+                    team="Backend",
                 )
             ],
             description="<p>Backend engineer role</p>",
@@ -419,10 +424,12 @@ class TestLeverJobNormalization:
             """,
             lists=[],
             additional="",
-            additionalPlain=""
+            additionalPlain="",
         )
 
-        normalized = normalization_service.normalize_lever_job(lever_job, "Tech Startup")
+        normalized = normalization_service.normalize_lever_job(
+            lever_job, "Tech Startup"
+        )
 
         assert normalized.external_id == "abc-123"
         assert normalized.source == JobSource.LEVER
@@ -443,7 +450,7 @@ class TestLeverJobNormalization:
             createdAt=1698105600000,
             categories=[],
             description="Simple job",
-            descriptionPlain="We are looking for a talented software engineer to join our growing team. This role requires strong programming skills and the ability to work independently on complex projects."
+            descriptionPlain="We are looking for a talented software engineer to join our growing team. This role requires strong programming skills and the ability to work independently on complex projects.",
         )
 
         normalized = normalization_service.normalize_lever_job(lever_job, "Company")
@@ -487,15 +494,12 @@ class TestComprehensiveNormalization:
     """Test comprehensive job normalization"""
 
     def test_full_normalization_pipeline(
-        self,
-        normalization_service,
-        sample_job_description
+        self, normalization_service, sample_job_description
     ):
         """Test complete normalization with all fields"""
         # Extract all components
         required_skills = normalization_service.extract_skills(
-            sample_job_description,
-            is_required=True
+            sample_job_description, is_required=True
         )
         min_years, max_years = normalization_service.extract_years_experience(
             sample_job_description
@@ -504,8 +508,7 @@ class TestComprehensiveNormalization:
         salary = normalization_service.extract_salary_range(sample_job_description)
         has_visa = normalization_service.detect_visa_sponsorship(sample_job_description)
         location_type = normalization_service.detect_remote_type(
-            "San Francisco",
-            sample_job_description
+            "San Francisco", sample_job_description
         )
 
         # Verify all extractions

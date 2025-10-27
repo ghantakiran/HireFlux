@@ -21,7 +21,7 @@ class TestResumeParserPDF:
 
     def test_extract_text_from_pdf(self, parser, mock_pdf_file):
         """Test extracting text from PDF"""
-        with patch('pdfplumber.open') as mock_pdfplumber:
+        with patch("pdfplumber.open") as mock_pdfplumber:
             mock_page = Mock()
             mock_page.extract_text.return_value = "John Doe\njohn@example.com"
             mock_pdf = Mock()
@@ -53,7 +53,7 @@ class TestResumeParserDOCX:
         """Test extracting text from DOCX"""
         mock_file = io.BytesIO()
 
-        with patch('docx.Document') as mock_doc:
+        with patch("docx.Document") as mock_doc:
             mock_paragraph1 = Mock()
             mock_paragraph1.text = "Jane Smith"
             mock_paragraph2 = Mock()
@@ -182,7 +182,9 @@ class TestWorkExperienceExtraction:
         work_experience = parser.extract_work_experience(text)
 
         assert len(work_experience) > 0
-        assert work_experience[0].is_current or "Present" in str(work_experience[0].end_date)
+        assert work_experience[0].is_current or "Present" in str(
+            work_experience[0].end_date
+        )
 
 
 class TestEducationExtraction:
