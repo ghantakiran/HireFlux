@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: hireflux-postgres
+    environment:
+      POSTGRES_USER: hireflux
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: hireflux_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hireflux"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hireflux-network
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: hireflux-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass devpassword
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hireflux-network
+
+  # PostgreSQL Admin (pgAdmin)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: hireflux-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@hireflux.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - hireflux-network
+
+  # Redis Commander (Redis UI)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: hireflux-redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0:devpassword
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - hireflux-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  hireflux-network:
+    driver: bridge

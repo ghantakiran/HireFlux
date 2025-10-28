@@ -56,11 +56,7 @@ export default function SignUpPage() {
       setError(null);
 
       const { confirmPassword, ...registerData } = data;
-      const response = await authApi.register(registerData);
-      const { access_token, refresh_token, user } = response.data.data;
-
-      setTokens(access_token, refresh_token);
-      setUser(user);
+      await useAuthStore.getState().register(registerData);
 
       router.push('/onboarding');
     } catch (err: any) {
