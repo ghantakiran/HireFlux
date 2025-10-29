@@ -13,8 +13,8 @@ from typing import Optional
 import secrets
 
 from app.core.config import settings
-from app.core.database import get_db
-from app.models.user import User
+from app.db.session import get_db
+from app.db.models.user import User
 from app.schemas.auth import Token, UserCreate, UserResponse
 
 router = APIRouter(prefix="/auth", tags=["authentication"])

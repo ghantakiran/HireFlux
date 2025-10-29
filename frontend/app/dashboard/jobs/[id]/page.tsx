@@ -1,17 +1,168 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Building, MapPin, Clock, DollarSign, Users, Briefcase, ExternalLink } from "lucide-react"
+'use client';
 
-export default function JobDetailsPage({ params }: { params: { id: string } }) {
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Building,
+  MapPin,
+  Clock,
+  DollarSign,
+  Users,
+  Briefcase,
+  ExternalLink,
+  ArrowLeft,
+  Bookmark,
+  BookmarkCheck,
+  Loader2,
+  AlertCircle,
+  TrendingUp,
+  CheckCircle,
+  XCircle,
+  Target,
+} from 'lucide-react';
+import { useJobStore } from '@/lib/stores/job-store';
+
+export default function JobDetailsPage() {
+  const router = useRouter();
+  const params = useParams();
+  const jobId = params?.id as string;
+
+  const {
+    currentJob,
+    isLoading,
+    error,
+    fetchJob,
+    saveJob,
+    unsaveJob,
+    isSaved,
+    clearCurrentJob,
+    clearError,
+  } = useJobStore();
+
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (jobId) {
+      fetchJob(jobId);
+    }
+
+    return () => {
+      clearCurrentJob();
+    };
+  }, [jobId]);
+
+  const handleBack = () => {
+    router.push('/dashboard/jobs');
+  };
+
+  const handleSaveJob = async () => {
+    try {
+      setIsSaving(true);
+      if (isSaved(jobId)) {
+        await unsaveJob(jobId);
+      } else {
+        await saveJob(jobId);
+      }
+    } catch (err) {
+      // Error handled by store
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleApply = () => {
+    router.push(`/dashboard/applications/new?job=${jobId}`);
+  };
+
+  const formatSalary = (min?: number, max?: number, currency: string = 'USD') => {
+    if (!min && !max) return 'Salary not disclosed';
+    const formatNumber = (num: number) => {
+      if (num >= 1000) return `$${(num / 1000).toFixed(0)}k`;
+      return `$${num}`;
+    };
+    if (min && max) return `${formatNumber(min)} - ${formatNumber(max)}`;
+    if (min) return `${formatNumber(min)}+`;
+    if (max) return `Up to ${formatNumber(max)}`;
+    return 'Salary not disclosed';
+  };
+
+  const formatPostedDate = (dateString: string) => {
+    const posted = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - posted.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return `${Math.floor(diffDays / 30)} months ago`;
+  };
+
+  const getFitIndexColor = (fitIndex: number) => {
+    if (fitIndex >= 80) return 'bg-green-500';
+    if (fitIndex >= 60) return 'bg-blue-500';
+    if (fitIndex >= 40) return 'bg-yellow-500';
+    return 'bg-gray-500';
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return { bg: 'bg-green-600', text: 'text-green-600' };
+    if (score >= 60) return { bg: 'bg-blue-600', text: 'text-blue-600' };
+    if (score >= 40) return { bg: 'bg-yellow-600', text: 'text-yellow-600' };
+    return { bg: 'bg-gray-600', text: 'text-gray-600' };
+  };
+
+  if (isLoading || !currentJob) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p className="text-muted-foreground">Loading job details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const job = currentJob;
+  const matchScore = job.match_score;
+  const fitIndex = matchScore?.fit_index || 0;
+  const saved = isSaved(jobId);
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Back Button */}
       <div className="mb-6">
-        <Button variant="outline" onClick={() => window.history.back()}>
-          ← Back to Jobs
+        <Button variant="outline" onClick={handleBack}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Jobs
         </Button>
       </div>
+
+      {/* Error Banner */}
+      {error && (
+        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4" role="alert">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-medium text-red-800">Error</h3>
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={clearError}>
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Main Content */}
@@ -20,45 +171,76 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
           <Card>
             <CardHeader>
               <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-2xl">Senior Software Engineer</CardTitle>
+                <div className="flex-1">
+                  <CardTitle className="text-2xl">{job.title}</CardTitle>
                   <CardDescription className="text-lg flex items-center gap-2 mt-2">
                     <Building className="h-5 w-5" />
-                    TechCorp Inc.
+                    {job.company}
                   </CardDescription>
                 </div>
-                <Badge variant="secondary" className="text-lg px-3 py-1">
-                  Fit Index: 85
-                </Badge>
+                {fitIndex > 0 && (
+                  <Badge className={`${getFitIndexColor(fitIndex)} text-lg px-3 py-1`}>
+                    <TrendingUp className="mr-1 h-4 w-4" />
+                    Fit: {fitIndex}
+                  </Badge>
+                )}
               </div>
             </CardHeader>
             <CardContent>
+              {/* Job Metadata */}
               <div className="grid md:grid-cols-2 gap-4 mb-6">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <MapPin className="h-4 w-4" />
-                  <span>San Francisco, CA</span>
+                  <span>{job.location}</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Clock className="h-4 w-4" />
-                  <span>Posted 2 days ago</span>
+                  <span>{formatPostedDate(job.posted_at)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <DollarSign className="h-4 w-4" />
-                  <span>$150k - $200k</span>
+                  <span>{formatSalary(job.salary_min, job.salary_max)}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline">Hybrid</Badge>
-                  <Badge variant="outline">Full-time</Badge>
+                  <Badge variant="outline">{job.remote_policy}</Badge>
+                  <Badge variant="outline">{job.employment_type}</Badge>
+                  {job.is_visa_friendly && <Badge variant="outline">Visa Friendly</Badge>}
                 </div>
               </div>
 
+              {/* Action Buttons */}
               <div className="flex gap-3">
-                <Button size="lg">Apply Now</Button>
-                <Button variant="outline" size="lg">Save Job</Button>
-                <Button variant="outline" size="lg">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  View Original
+                <Button size="lg" onClick={handleApply}>
+                  Apply Now
                 </Button>
+                <Button
+                  variant={saved ? 'default' : 'outline'}
+                  size="lg"
+                  onClick={handleSaveJob}
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : saved ? (
+                    <>
+                      <BookmarkCheck className="h-4 w-4 mr-2" />
+                      Saved
+                    </>
+                  ) : (
+                    <>
+                      <Bookmark className="h-4 w-4 mr-2" />
+                      Save Job
+                    </>
+                  )}
+                </Button>
+                {job.source_url && (
+                  <Button variant="outline" size="lg" asChild>
+                    <a href={job.source_url} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      View Original
+                    </a>
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -70,242 +252,321 @@ export default function JobDetailsPage({ params }: { params: { id: string } }) {
             </CardHeader>
             <CardContent>
               <div className="prose max-w-none">
-                <h3>About the Role</h3>
-                <p>
-                  We are looking for a Senior Software Engineer to join our backend team. 
-                  You'll work with Python, FastAPI, and PostgreSQL to build scalable systems 
-                  that serve millions of users worldwide.
-                </p>
+                <p className="whitespace-pre-line">{job.description}</p>
 
-                <h3>What You'll Do</h3>
-                <ul>
-                  <li>Design and implement high-performance backend services</li>
-                  <li>Collaborate with cross-functional teams to deliver features</li>
-                  <li>Mentor junior developers and conduct code reviews</li>
-                  <li>Optimize database queries and system performance</li>
-                  <li>Participate in architecture decisions and technical planning</li>
-                </ul>
+                {job.responsibilities && job.responsibilities.length > 0 && (
+                  <>
+                    <h3>Responsibilities</h3>
+                    <ul>
+                      {job.responsibilities.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
 
-                <h3>Requirements</h3>
-                <ul>
-                  <li>5+ years of software engineering experience</li>
-                  <li>Strong proficiency in Python and FastAPI</li>
-                  <li>Experience with PostgreSQL and database optimization</li>
-                  <li>Knowledge of microservices architecture</li>
-                  <li>Experience with cloud platforms (AWS, GCP, or Azure)</li>
-                  <li>Strong problem-solving and communication skills</li>
-                </ul>
+                {job.requirements && job.requirements.length > 0 && (
+                  <>
+                    <h3>Requirements</h3>
+                    <ul>
+                      {job.requirements.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
 
-                <h3>Nice to Have</h3>
-                <ul>
-                  <li>Experience with Kubernetes and Docker</li>
-                  <li>Knowledge of Redis and caching strategies</li>
-                  <li>Experience with CI/CD pipelines</li>
-                  <li>Previous startup experience</li>
-                </ul>
+                {job.preferred_qualifications && job.preferred_qualifications.length > 0 && (
+                  <>
+                    <h3>Preferred Qualifications</h3>
+                    <ul>
+                      {job.preferred_qualifications.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
 
-                <h3>Benefits</h3>
-                <ul>
-                  <li>Competitive salary and equity</li>
-                  <li>Comprehensive health, dental, and vision insurance</li>
-                  <li>401(k) with company matching</li>
-                  <li>Flexible work arrangements</li>
-                  <li>Professional development budget</li>
-                  <li>Unlimited PTO</li>
-                </ul>
+                {job.benefits && job.benefits.length > 0 && (
+                  <>
+                    <h3>Benefits</h3>
+                    <ul>
+                      {job.benefits.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
 
           {/* Company Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>About TechCorp Inc.</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-semibold mb-2">Company Overview</h4>
-                  <p className="text-muted-foreground">
-                    TechCorp is a leading technology company focused on building innovative 
-                    solutions for the modern workplace. Founded in 2015, we've grown to serve 
-                    over 10 million users across 50+ countries.
-                  </p>
+          {job.company_description && (
+            <Card>
+              <CardHeader>
+                <CardTitle>About {job.company}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">{job.company_description}</p>
+
+                  {(job.company_size || job.industry) && (
+                    <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
+                      {job.company_size && (
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{job.company_size}</span>
+                        </div>
+                      )}
+                      {job.industry && (
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{job.industry}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <h4 className="font-semibold mb-2">Company Stats</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      <span>500+ employees</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4" />
-                      <span>Series C startup</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      <span>San Francisco, CA</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Match Analysis */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Why This Matches</CardTitle>
-              <CardDescription>AI analysis of your fit</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Overall Fit</span>
-                    <span className="text-sm font-bold">85/100</span>
+          {matchScore && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  Why This Matches
+                </CardTitle>
+                <CardDescription>AI analysis of your fit</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Overall Fit */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">Overall Fit</span>
+                      <span className="text-sm font-bold">{matchScore.fit_index}/100</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`${
+                          getScoreColor(matchScore.fit_index).bg
+                        } h-2 rounded-full`}
+                        style={{ width: `${matchScore.fit_index}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '85%' }}></div>
+
+                  {/* Skills Match */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">Skills Match</span>
+                      <span className="text-sm font-bold">
+                        {Math.round(matchScore.skills_match_score)}/100
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`${
+                          getScoreColor(matchScore.skills_match_score).bg
+                        } h-2 rounded-full`}
+                        style={{ width: `${matchScore.skills_match_score}%` }}
+                      ></div>
+                    </div>
                   </div>
+
+                  {/* Experience Match */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">Experience Level</span>
+                      <span className="text-sm font-bold">
+                        {Math.round(matchScore.experience_match_score)}/100
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`${
+                          getScoreColor(matchScore.experience_match_score).bg
+                        } h-2 rounded-full`}
+                        style={{ width: `${matchScore.experience_match_score}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Location Match */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">Location Match</span>
+                      <span className="text-sm font-bold">
+                        {Math.round(matchScore.location_match_score)}/100
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`${
+                          getScoreColor(matchScore.location_match_score).bg
+                        } h-2 rounded-full`}
+                        style={{ width: `${matchScore.location_match_score}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Salary Match */}
+                  {matchScore.salary_match_score > 0 && (
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">Salary Match</span>
+                        <span className="text-sm font-bold">
+                          {Math.round(matchScore.salary_match_score)}/100
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`${
+                            getScoreColor(matchScore.salary_match_score).bg
+                          } h-2 rounded-full`}
+                          style={{ width: `${matchScore.salary_match_score}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Skills Match</span>
-                    <span className="text-sm font-bold">90/100</span>
+                {/* Match Rationale */}
+                {matchScore.match_rationale && (
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-700">{matchScore.match_rationale}</p>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-600 h-2 rounded-full" style={{ width: '90%' }}></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Experience Level</span>
-                    <span className="text-sm font-bold">85/100</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-purple-600 h-2 rounded-full" style={{ width: '85%' }}></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Location Match</span>
-                    <span className="text-sm font-bold">80/100</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-orange-600 h-2 rounded-full" style={{ width: '80%' }}></div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                <p className="text-sm">
-                  <strong>Strong match</strong> based on Python, FastAPI skills and 5+ years experience. 
-                  Target seniority aligns with Senior level. Hybrid work policy matches preferences.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Skills Analysis */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Skills Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div>
-                  <h4 className="font-semibold text-sm mb-2">Matched Skills</h4>
-                  <div className="flex flex-wrap gap-1">
-                    <Badge variant="secondary">Python</Badge>
-                    <Badge variant="secondary">FastAPI</Badge>
-                    <Badge variant="secondary">PostgreSQL</Badge>
-                    <Badge variant="secondary">Microservices</Badge>
-                    <Badge variant="secondary">AWS</Badge>
-                  </div>
-                </div>
+          {matchScore && (matchScore.matched_skills?.length > 0 || matchScore.missing_skills?.length > 0) && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Skills Analysis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Matched Skills */}
+                  {matchScore.matched_skills && matchScore.matched_skills.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <h4 className="font-semibold text-sm">Matched Skills</h4>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {matchScore.matched_skills.map((skill, index) => (
+                          <Badge key={index} variant="secondary" className="bg-green-100">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-                <div>
-                  <h4 className="font-semibold text-sm mb-2">Missing Skills</h4>
-                  <div className="flex flex-wrap gap-1">
-                    <Badge variant="outline">Kubernetes</Badge>
-                    <Badge variant="outline">Redis</Badge>
-                    <Badge variant="outline">CI/CD</Badge>
-                  </div>
+                  {/* Missing Skills */}
+                  {matchScore.missing_skills && matchScore.missing_skills.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <XCircle className="h-4 w-4 text-orange-600" />
+                        <h4 className="font-semibold text-sm">Skills to Develop</h4>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {matchScore.missing_skills.map((skill, index) => (
+                          <Badge key={index} variant="outline">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Consider highlighting transferable skills or willingness to learn.
+                      </p>
+                    </div>
+                  )}
                 </div>
-
-                <div>
-                  <h4 className="font-semibold text-sm mb-2">Learning Opportunities</h4>
-                  <p className="text-xs text-muted-foreground">
-                    Consider learning Kubernetes and Redis to improve your fit for similar roles.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Application Tips */}
+          {matchScore && fitIndex >= 60 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Application Tips</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 text-sm">
+                  {matchScore.matched_skills && matchScore.matched_skills.length > 0 && (
+                    <div className="p-3 bg-green-50 rounded-lg">
+                      <h4 className="font-semibold text-green-800 mb-1 flex items-center gap-1">
+                        <CheckCircle className="h-4 w-4" />
+                        Highlight These Skills
+                      </h4>
+                      <p className="text-green-700">
+                        Emphasize your experience with{' '}
+                        {matchScore.matched_skills.slice(0, 3).join(', ')}.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <h4 className="font-semibold text-blue-800 mb-1">💡 Personalize</h4>
+                    <p className="text-blue-700">
+                      Use HireFlux's AI cover letter generator to create a personalized
+                      application that highlights your fit.
+                    </p>
+                  </div>
+
+                  {matchScore.missing_skills && matchScore.missing_skills.length > 0 && (
+                    <div className="p-3 bg-yellow-50 rounded-lg">
+                      <h4 className="font-semibold text-yellow-800 mb-1">⚠️ Address Gaps</h4>
+                      <p className="text-yellow-700">
+                        Mention your willingness to learn{' '}
+                        {matchScore.missing_skills.slice(0, 2).join(' and ')}.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Quick Actions */}
           <Card>
             <CardHeader>
-              <CardTitle>Application Tips</CardTitle>
+              <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-sm">
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <h4 className="font-semibold text-green-800 mb-1">✓ Highlight These</h4>
-                  <p className="text-green-700">
-                    Emphasize your Python and FastAPI experience, especially any performance optimization work.
-                  </p>
-                </div>
-
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <h4 className="font-semibold text-blue-800 mb-1">💡 Mention</h4>
-                  <p className="text-blue-700">
-                    Any experience with microservices architecture or mentoring junior developers.
-                  </p>
-                </div>
-
-                <div className="p-3 bg-yellow-50 rounded-lg">
-                  <h4 className="font-semibold text-yellow-800 mb-1">⚠️ Address</h4>
-                  <p className="text-yellow-700">
-                    If you don't have Kubernetes experience, mention your willingness to learn.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Similar Jobs */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Similar Jobs</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="p-3 border rounded-lg">
-                  <h4 className="font-semibold text-sm">Backend Engineer</h4>
-                  <p className="text-xs text-muted-foreground">StartupCo • Fit: 78</p>
-                </div>
-                <div className="p-3 border rounded-lg">
-                  <h4 className="font-semibold text-sm">Python Developer</h4>
-                  <p className="text-xs text-muted-foreground">ScaleUp • Fit: 72</p>
-                </div>
-                <div className="p-3 border rounded-lg">
-                  <h4 className="font-semibold text-sm">Senior Backend Engineer</h4>
-                  <p className="text-xs text-muted-foreground">BigTech • Fit: 70</p>
-                </div>
-              </div>
+            <CardContent className="space-y-2">
+              <Button className="w-full" onClick={handleApply}>
+                Apply to This Job
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => router.push(`/dashboard/cover-letters/new?job=${jobId}`)}
+              >
+                Generate Cover Letter
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => router.push('/dashboard/resumes')}
+              >
+                Tailor Resume
+              </Button>
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
-  )
+  );
 }

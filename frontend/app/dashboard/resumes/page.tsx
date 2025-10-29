@@ -18,48 +18,44 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { resumeApi } from '@/lib/api';
-import { useAuthStore } from '@/lib/stores/auth-store';
-
-interface Resume {
-  id: string;
-  title: string;
-  target_role: string;
-  created_at: string;
-  updated_at: string;
-  ats_score: number;
-}
+import { Badge } from '@/components/ui/badge';
+import { useResumeStore, ParseStatus } from '@/lib/stores/resume-store';
+import {
+  FileText,
+  Upload,
+  Trash2,
+  Star,
+  Download,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  Loader2,
+} from 'lucide-react';
 
 export default function ResumesPage() {
   const router = useRouter();
-  const { user } = useAuthStore();
-  const [resumes, setResumes] = useState<Resume[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    resumes,
+    defaultResumeId,
+    isLoading,
+    error,
+    fetchResumes,
+    deleteResume,
+    setDefaultResume,
+    downloadResume,
+    clearError,
+  } = useResumeStore();
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [resumeToDelete, setResumeToDelete] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchResumes();
-  }, []);
+  }, [fetchResumes]);
 
-  const fetchResumes = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await resumeApi.getResumes();
-      setResumes(response.data.data || []);
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.error?.message || 'Failed to load resumes. Please try again.';
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleCreateClick = () => {
-    router.push('/dashboard/resumes/new');
+  const handleUploadClick = () => {
+    router.push('/dashboard/resumes/upload');
   };
 
   const handleResumeClick = (id: string) => {
@@ -76,15 +72,14 @@ export default function ResumesPage() {
     if (!resumeToDelete) return;
 
     try {
-      await resumeApi.deleteResume(resumeToDelete);
+      setDeletingId(resumeToDelete);
+      await deleteResume(resumeToDelete);
       setDeleteDialogOpen(false);
       setResumeToDelete(null);
-      await fetchResumes();
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.error?.message || 'Failed to delete resume. Please try again.';
-      setError(errorMessage);
-      setDeleteDialogOpen(false);
+    } catch (err) {
+      // Error is handled by the store
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -93,24 +88,82 @@ export default function ResumesPage() {
     setResumeToDelete(null);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  const handleSetDefault = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await setDefaultResume(id);
+    } catch (err) {
+      // Error is handled by the store
+    }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>Loading resumes...</p>
-      </div>
-    );
-  }
+  const handleDownload = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await downloadResume(id);
+    } catch (err) {
+      // Error is handled by the store
+    }
+  };
 
-  if (error) {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
+  const getStatusBadge = (status: ParseStatus) => {
+    switch (status) {
+      case ParseStatus.COMPLETED:
+        return (
+          <Badge variant="default" className="bg-green-500">
+            <CheckCircle2 className="mr-1 h-3 w-3" />
+            Parsed
+          </Badge>
+        );
+      case ParseStatus.PROCESSING:
+        return (
+          <Badge variant="default" className="bg-blue-500">
+            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+            Processing
+          </Badge>
+        );
+      case ParseStatus.PENDING:
+        return (
+          <Badge variant="secondary">
+            <Clock className="mr-1 h-3 w-3" />
+            Pending
+          </Badge>
+        );
+      case ParseStatus.FAILED:
+        return (
+          <Badge variant="destructive">
+            <AlertCircle className="mr-1 h-3 w-3" />
+            Failed
+          </Badge>
+        );
+      default:
+        return null;
+    }
+  };
+
+  if (isLoading && resumes.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="rounded-md bg-red-50 p-4 text-red-800" role="alert">
-          {error}
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p className="text-muted-foreground">Loading resumes...</p>
         </div>
       </div>
     );
@@ -118,60 +171,127 @@ export default function ResumesPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Error Banner */}
+      {error && (
+        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4" role="alert">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-medium text-red-800">Error</h3>
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={clearError}>
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">My Resumes</h1>
           <p className="mt-2 text-muted-foreground">
-            Manage your resumes and track their ATS scores
+            Upload and manage your resumes for job applications
           </p>
         </div>
-        <Button size="lg" onClick={handleCreateClick}>
-          Create New Resume
+        <Button size="lg" onClick={handleUploadClick}>
+          <Upload className="mr-2 h-4 w-4" />
+          Upload Resume
         </Button>
       </div>
 
-      {resumes.length === 0 ? (
+      {/* Empty State */}
+      {resumes.length === 0 && !isLoading ? (
         <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-lg text-muted-foreground">No resumes yet</p>
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+            <p className="text-lg font-medium text-muted-foreground">No resumes yet</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Get started by creating your first resume
+              Upload your resume to get started with AI-powered job matching
             </p>
-            <Button className="mt-4" onClick={handleCreateClick}>
-              Create New Resume
+            <Button className="mt-6" onClick={handleUploadClick}>
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Your First Resume
             </Button>
           </CardContent>
         </Card>
       ) : (
+        /* Resume Grid */
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {resumes.map((resume) => (
             <Card
               key={resume.id}
-              className="cursor-pointer transition-shadow hover:shadow-lg"
+              className="cursor-pointer transition-all hover:shadow-lg hover:border-blue-300"
               data-testid="resume-card"
               onClick={() => handleResumeClick(resume.id)}
             >
               <CardHeader>
-                <CardTitle>{resume.title}</CardTitle>
-                <CardDescription>{resume.target_role}</CardDescription>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg line-clamp-1">
+                      {resume.file_name}
+                    </CardTitle>
+                    <CardDescription className="mt-1">
+                      {formatFileSize(resume.file_size)} • {formatDate(resume.created_at)}
+                    </CardDescription>
+                  </div>
+                  {resume.is_default && (
+                    <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
+                  {/* Status Badge */}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">ATS Score</span>
-                    <span className="text-2xl font-bold text-primary">{resume.ats_score}</span>
+                    <span className="text-sm text-muted-foreground">Status</span>
+                    {getStatusBadge(resume.parse_status)}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    Updated: {formatDate(resume.updated_at)}
+
+                  {/* File Type */}
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Type</span>
+                    <span className="font-medium">
+                      {resume.file_type.includes('pdf') ? 'PDF' : 'DOCX'}
+                    </span>
                   </div>
-                  <div className="flex gap-2 pt-2">
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 pt-2 border-t">
+                    {!resume.is_default && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => handleSetDefault(resume.id, e)}
+                        className="flex-1"
+                        disabled={isLoading}
+                      >
+                        <Star className="mr-1 h-3 w-3" />
+                        Set Default
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={(e) => handleDeleteClick(resume.id, e)}
-                      className="w-full"
+                      onClick={(e) => handleDownload(resume.id, e)}
+                      className="flex-1"
+                      disabled={isLoading}
                     >
-                      Delete
+                      <Download className="mr-1 h-3 w-3" />
+                      Download
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => handleDeleteClick(resume.id, e)}
+                      disabled={deletingId === resume.id}
+                    >
+                      {deletingId === resume.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4 text-red-600" />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -181,6 +301,7 @@ export default function ResumesPage() {
         </div>
       )}
 
+      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -193,8 +314,19 @@ export default function ResumesPage() {
             <Button variant="outline" onClick={handleDeleteCancel}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>
-              Delete
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={!!deletingId}
+            >
+              {deletingId ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import uuid
 
-from app.core.database import get_db
-from app.core.auth import get_current_user
+from app.db.session import get_db
+from app.api.dependencies import get_current_user
 from app.db.models.user import User
 from app.services.job_matching_service import JobMatchingService
 from app.services.job_ingestion_service import JobIngestionService
@@ -13,10 +13,9 @@ from app.core.exceptions import ValidationError, ServiceError
 from app.schemas.job_matching import (
     JobMatchRequest,
     JobMatchResponse,
-    JobFilters,
-    JobSource,
+    JobSearchFilters,
 )
-from app.schemas.job_feed import JobIngestionRequest, JobIngestionResult
+from app.schemas.job_feed import JobIngestionRequest, JobIngestionResult, JobSource
 
 
 router = APIRouter()
@@ -61,7 +60,7 @@ def get_top_matches(
             resume_id=resume_id,
             limit=limit,
             offset=0,
-            filters=JobFilters(min_fit_index=40),  # Only show decent matches
+            filters=JobSearchFilters(min_fit_index=40),  # Only show decent matches
         )
 
         service = JobMatchingService(db)

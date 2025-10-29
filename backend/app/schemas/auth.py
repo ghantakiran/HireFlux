@@ -130,6 +130,40 @@ class LoginRequest(BaseModel):
     password: str
 
 
+# Alias for backwards compatibility
+UserLogin = LoginRequest
+
+
+class OAuthProvider(BaseModel):
+    """OAuth provider data for social login"""
+
+    provider: str  # 'google', 'linkedin', 'facebook', 'apple'
+    access_token: str
+    id_token: Optional[str] = None  # Required for Apple Sign In
+
+    @validator("provider")
+    def validate_provider(cls, v):
+        allowed_providers = ["google", "linkedin", "facebook", "apple"]
+        if v.lower() not in allowed_providers:
+            raise ValueError(
+                f"Invalid provider. Must be one of: {', '.join(allowed_providers)}"
+            )
+        return v.lower()
+
+
+class OAuthUserInfo(BaseModel):
+    """User information from OAuth provider"""
+
+    provider: str
+    provider_user_id: str
+    email: EmailStr
+    name: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    picture: Optional[str] = None
+    email_verified: bool = False
+
+
 class LoginResponse(BaseModel):
     user: UserResponse
     token: Token

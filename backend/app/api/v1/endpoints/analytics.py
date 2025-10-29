@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user, get_db
+from app.api.dependencies import get_current_user, get_db
 from app.db.models.user import User
 from app.schemas.analytics import (
     ActivityTimeline,

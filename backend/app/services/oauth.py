@@ -119,6 +119,64 @@ class OAuthService:
             raise UnauthorizedError(f"Failed to verify Facebook token: {str(e)}")
 
     @staticmethod
+    async def verify_linkedin_token(access_token: str) -> OAuthUserInfo:
+        """
+        Verify LinkedIn OAuth token and extract user information
+
+        Args:
+            access_token: Access token from LinkedIn OAuth
+
+        Returns:
+            OAuthUserInfo with user details
+
+        Raises:
+            UnauthorizedError: If token is invalid
+        """
+        try:
+            async with httpx.AsyncClient() as client:
+                # Get user profile using LinkedIn v2 API
+                response = await client.get(
+                    "https://api.linkedin.com/v2/userinfo",
+                    headers={
+                        "Authorization": f"Bearer {access_token}",
+                        "Content-Type": "application/json",
+                    },
+                    timeout=10.0,
+                )
+
+                if response.status_code != 200:
+                    raise UnauthorizedError("Invalid LinkedIn access token")
+
+                user_data = response.json()
+
+                # LinkedIn v2 userinfo endpoint returns:
+                # {
+                #   "sub": "unique_id",
+                #   "name": "Full Name",
+                #   "given_name": "First",
+                #   "family_name": "Last",
+                #   "email": "email@example.com",
+                #   "email_verified": true,
+                #   "picture": "url"
+                # }
+
+                email = user_data.get("email")
+                if not email:
+                    raise BadRequestError("Email permission not granted by LinkedIn user")
+
+                return OAuthUserInfo(
+                    email=email,
+                    email_verified=user_data.get("email_verified", False),
+                    first_name=user_data.get("given_name"),
+                    last_name=user_data.get("family_name"),
+                    provider="linkedin",
+                    provider_user_id=user_data.get("sub"),
+                )
+
+        except httpx.RequestError as e:
+            raise UnauthorizedError(f"Failed to verify LinkedIn token: {str(e)}")
+
+    @staticmethod
     async def verify_apple_token(id_token: str) -> OAuthUserInfo:
         """
         Verify Apple Sign In token and extract user information
@@ -197,7 +255,7 @@ class OAuthService:
         Verify OAuth token based on provider
 
         Args:
-            provider: OAuth provider name (google, facebook, apple)
+            provider: OAuth provider name (google, linkedin, facebook, apple)
             access_token: Access token from OAuth provider
             id_token: ID token (required for Apple)
 
@@ -212,6 +270,8 @@ class OAuthService:
 
         if provider == "google":
             return await OAuthService.verify_google_token(access_token)
+        elif provider == "linkedin":
+            return await OAuthService.verify_linkedin_token(access_token)
         elif provider == "facebook":
             return await OAuthService.verify_facebook_token(access_token)
         elif provider == "apple":

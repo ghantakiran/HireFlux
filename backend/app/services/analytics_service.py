@@ -981,7 +981,7 @@ class AnalyticsService:
                 and_(
                     MatchScore.user_id == user_id,
                     MatchScore.created_at >= datetime.utcnow() - timedelta(days=7),
-                    MatchScore.score >= 70,
+                    MatchScore.fit_index >= 70,
                 )
             )
             .count()

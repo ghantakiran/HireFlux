@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 import uuid
 
-from app.api.deps import get_db, get_current_user
+from app.api.dependencies import get_db, get_current_user
 from app.db.models.user import User
 from app.services.auto_apply_service import AutoApplyService
 from app.schemas.auto_apply import (

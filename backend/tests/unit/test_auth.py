@@ -11,8 +11,8 @@ from datetime import datetime, timedelta
 import jwt
 
 from app.main import app
-from app.core.database import get_db, Base
-from app.models.user import User
+from app.db.session import get_db, Base
+from app.db.models.user import User
 from app.core.config import settings
 
 # Test database setup

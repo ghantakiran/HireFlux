@@ -3,750 +3,603 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { DropdownMenu, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { useResumeStore, ParseStatus, type Resume } from '@/lib/stores/resume-store';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { resumeApi } from '@/lib/api';
-import { useAuthStore } from '@/lib/stores/auth-store';
-
-interface Resume {
-  id: string;
-  title: string;
-  target_role: string;
-  tone: string;
-  created_at: string;
-  updated_at: string;
-  ats_score: number;
-  content: {
-    personal_info: {
-      name: string;
-      email: string;
-      phone: string;
-      location: string;
-    };
-    summary: string;
-    work_experience: Array<{
-      id: string;
-      job_title: string;
-      company: string;
-      location: string;
-      start_date: string;
-      end_date: string;
-      description: string;
-    }>;
-    education: Array<{
-      id: string;
-      degree: string;
-      school: string;
-      location: string;
-      graduation_date: string;
-    }>;
-    skills: string[];
-  };
-}
+  ArrowLeft,
+  Download,
+  Edit,
+  Trash2,
+  Star,
+  FileText,
+  Briefcase,
+  GraduationCap,
+  Code,
+  Award,
+  Languages,
+  AlertCircle,
+  Loader2,
+  CheckCircle2,
+  Mail,
+  Phone,
+  MapPin,
+  Linkedin,
+  Globe,
+} from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function ResumeDetailPage() {
   const router = useRouter();
   const params = useParams();
   const resumeId = params?.id as string;
-  const { user } = useAuthStore();
 
-  const [resume, setResume] = useState<Resume | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editedResume, setEditedResume] = useState<Resume | null>(null);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
-  const [showVersionDialog, setShowVersionDialog] = useState(false);
-  const [versionName, setVersionName] = useState('');
-  const [showVersionsList, setShowVersionsList] = useState(false);
-  const [versions, setVersions] = useState<any[]>([]);
-  const [versionSaveSuccess, setVersionSaveSuccess] = useState(false);
-  const [showTailorDialog, setShowTailorDialog] = useState(false);
-  const [jobDescription, setJobDescription] = useState('');
-  const [isTailoring, setIsTailoring] = useState(false);
-  const [tailorSuccess, setTailorSuccess] = useState(false);
-  const [matchedSkills, setMatchedSkills] = useState<string[]>([]);
-  const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
-  const [regeneratingSection, setRegeneratingSection] = useState<string | null>(null);
-  const [isRegenerating, setIsRegenerating] = useState(false);
-  const [regenerateSuccess, setRegenerateSuccess] = useState(false);
+  const {
+    currentResume,
+    defaultResumeId,
+    isLoading,
+    error,
+    fetchResume,
+    deleteResume,
+    setDefaultResume,
+    downloadResume,
+    clearCurrentResume,
+  } = useResumeStore();
+
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (resumeId) {
-      fetchResume();
-      fetchRecommendations();
+      fetchResume(resumeId);
     }
-  }, [resumeId]);
 
-  const fetchResume = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await resumeApi.getResume(resumeId);
-      setResume(response.data.data);
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.error?.message || 'Failed to load resume. Please try again.';
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchRecommendations = async () => {
-    try {
-      const response = await resumeApi.getRecommendations(resumeId);
-      setRecommendations(response.data.data.recommendations || []);
-    } catch (err) {
-      // Silently fail - recommendations are optional
-      console.error('Failed to fetch recommendations', err);
-    }
-  };
+    return () => {
+      clearCurrentResume();
+    };
+  }, [resumeId, fetchResume, clearCurrentResume]);
 
   const handleBack = () => {
     router.push('/dashboard/resumes');
   };
 
   const handleEdit = () => {
-    setIsEditMode(true);
-    setEditedResume(resume);
-    setError(null);
+    router.push(`/dashboard/resumes/${resumeId}/edit`);
   };
 
-  const handleCancelEdit = () => {
-    setIsEditMode(false);
-    setEditedResume(null);
-    setError(null);
-  };
-
-  const handleSaveChanges = async () => {
-    if (!editedResume) return;
-
+  const handleDownload = async () => {
     try {
-      setIsLoading(true);
-      setError(null);
-      const response = await resumeApi.updateResume(resumeId, { content: editedResume.content });
-      setResume(response.data.data);
-      setIsEditMode(false);
-      setEditedResume(null);
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.error?.message || 'Failed to update resume. Please try again.';
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleFieldChange = (field: string, value: string) => {
-    if (!editedResume) return;
-
-    const keys = field.split('.');
-    const updatedResume = { ...editedResume };
-    let current: any = updatedResume.content;
-
-    for (let i = 0; i < keys.length - 1; i++) {
-      current = current[keys[i]];
-    }
-
-    current[keys[keys.length - 1]] = value;
-    setEditedResume(updatedResume);
-  };
-
-  const handleWorkExperienceChange = (index: number, field: string, value: string) => {
-    if (!editedResume) return;
-
-    const updatedResume = { ...editedResume };
-    updatedResume.content.work_experience[index] = {
-      ...updatedResume.content.work_experience[index],
-      [field]: value,
-    };
-    setEditedResume(updatedResume);
-  };
-
-  const handleDownload = async (format: 'pdf' | 'docx' | 'txt') => {
-    try {
-      const response = await resumeApi.exportVersion(resumeId, format, 'modern');
-      // Handle download
-      console.log('Downloaded', format);
+      await downloadResume(resumeId);
     } catch (err) {
-      console.error('Download failed', err);
+      // Error handled by store
     }
   };
 
-  const handleSaveAsVersion = () => {
-    setShowVersionDialog(true);
-    setVersionName('');
-    setVersionSaveSuccess(false);
-  };
-
-  const handleSaveVersion = async () => {
-    if (!versionName.trim()) return;
-
+  const handleSetDefault = async () => {
     try {
-      await resumeApi.createVersion(resumeId, { name: versionName });
-      setVersionSaveSuccess(true);
-      setVersionName('');
-      setTimeout(() => {
-        setShowVersionDialog(false);
-        setVersionSaveSuccess(false);
-      }, 1500);
+      await setDefaultResume(resumeId);
     } catch (err) {
-      console.error('Failed to save version', err);
+      // Error handled by store
     }
   };
 
-  const handleShowVersions = async () => {
+  const handleDelete = async () => {
     try {
-      const response = await resumeApi.getVersions();
-      setVersions(response.data.data.versions || []);
-      setShowVersionsList(true);
+      setDeleting(true);
+      await deleteResume(resumeId);
+      router.push('/dashboard/resumes');
     } catch (err) {
-      console.error('Failed to fetch versions', err);
+      setDeleting(false);
     }
   };
 
-  const handleTailorToJob = () => {
-    setShowTailorDialog(true);
-    setJobDescription('');
-    setTailorSuccess(false);
-    setMatchedSkills([]);
-  };
-
-  const handleGenerateTailoredResume = async () => {
-    if (!jobDescription.trim()) return;
-
-    try {
-      setIsTailoring(true);
-      setTailorSuccess(false);
-      const response = await resumeApi.tailorToJob(resumeId, { job_description: jobDescription });
-      setMatchedSkills(response.data.data.matched_skills || []);
-      setTailorSuccess(true);
-      setTimeout(() => {
-        setShowTailorDialog(false);
-        setIsTailoring(false);
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to tailor resume', err);
-      setIsTailoring(false);
-    }
-  };
-
-  const handleRegenerateSection = (section: string) => {
-    setRegeneratingSection(section);
-    setShowRegenerateDialog(true);
-    setRegenerateSuccess(false);
-  };
-
-  const handleConfirmRegenerate = async () => {
-    if (!regeneratingSection) return;
-
-    try {
-      setIsRegenerating(true);
-      setRegenerateSuccess(false);
-      const response = await resumeApi.regenerateSection(resumeId, {
-        section: regeneratingSection,
-      });
-      setResume(response.data.data);
-      setRegenerateSuccess(true);
-      setTimeout(() => {
-        setShowRegenerateDialog(false);
-        setIsRegenerating(false);
-        setRegeneratingSection(null);
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to regenerate section', err);
-      setIsRegenerating(false);
+  const getStatusBadge = (status: ParseStatus) => {
+    switch (status) {
+      case ParseStatus.COMPLETED:
+        return (
+          <Badge variant="default" className="bg-green-500">
+            <CheckCircle2 className="mr-1 h-3 w-3" />
+            Parsed Successfully
+          </Badge>
+        );
+      case ParseStatus.PROCESSING:
+        return (
+          <Badge variant="default" className="bg-blue-500">
+            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+            Processing
+          </Badge>
+        );
+      case ParseStatus.PENDING:
+        return (
+          <Badge variant="secondary">
+            <Loader2 className="mr-1 h-3 w-3" />
+            Pending
+          </Badge>
+        );
+      case ParseStatus.FAILED:
+        return (
+          <Badge variant="destructive">
+            <AlertCircle className="mr-1 h-3 w-3" />
+            Parsing Failed
+          </Badge>
+        );
     }
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   };
 
-  if (isLoading) {
+  if (isLoading || !currentResume) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p>Loading resume...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="rounded-md bg-red-50 p-4 text-red-800" role="alert">
-          {error}
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p className="text-muted-foreground">Loading resume...</p>
         </div>
       </div>
     );
   }
 
-  if (!resume) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>Resume not found</p>
-      </div>
-    );
-  }
+  const resume = currentResume;
+  const parsedData = resume.parsed_data;
+  const isDefault = resume.id === defaultResumeId;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{resume.title}</h1>
-          <p className="mt-2 text-muted-foreground">{resume.target_role}</p>
-        </div>
-        <div className="flex gap-4">
-          <div className="text-center">
-            <div className="text-sm text-muted-foreground">ATS Score</div>
-            <div className="text-3xl font-bold text-primary" data-testid="ats-score">
-              {resume.ats_score}
+      <div className="mb-6">
+        <Button variant="ghost" onClick={handleBack} className="mb-4">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Resumes
+        </Button>
+
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-bold">{resume.file_name}</h1>
+              {isDefault && <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />}
             </div>
+            <p className="text-muted-foreground">
+              Uploaded on {formatDate(resume.created_at)}
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            {!isDefault && (
+              <Button variant="outline" onClick={handleSetDefault}>
+                <Star className="mr-2 h-4 w-4" />
+                Set as Default
+              </Button>
+            )}
+            <Button variant="outline" onClick={handleDownload}>
+              <Download className="mr-2 h-4 w-4" />
+              Download
+            </Button>
+            <Button variant="outline" onClick={handleEdit}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(true)}
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="mb-8 flex gap-4">
-        {!isEditMode ? (
-          <>
-            <Button variant="outline" onClick={handleBack}>
-              Back
-            </Button>
-            <Button onClick={handleEdit}>Edit</Button>
-            <Button variant="outline" onClick={handleSaveAsVersion}>
-              Save as Version
-            </Button>
-            <Button variant="outline" onClick={handleShowVersions}>
-              Versions
-            </Button>
-            <Button variant="outline" onClick={handleTailorToJob}>
-              Tailor to Job
-            </Button>
-            <DropdownMenu
-              trigger={
-                <Button variant="outline">
-                  Download
-                  <svg
-                    className="ml-2 h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </Button>
-              }
-            >
-              <DropdownMenuItem onClick={() => handleDownload('pdf')}>PDF</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleDownload('docx')}>DOCX</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleDownload('txt')}>Plain Text</DropdownMenuItem>
-            </DropdownMenu>
-          </>
-        ) : (
-          <>
-            <Button variant="outline" onClick={handleCancelEdit}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveChanges} disabled={isLoading}>
-              {isLoading ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </>
-        )}
-      </div>
-
-      {/* Error Display */}
+      {/* Error Banner */}
       {error && (
-        <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800" role="alert">
-          {error}
+        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4" role="alert">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-medium text-red-800">Error</h3>
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Resume Content */}
-      <div className="space-y-6">
-        {/* Personal Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {!isEditMode ? (
-              <div className="space-y-2">
-                <p className="text-xl font-semibold">{resume.content.personal_info.name}</p>
-                <p className="text-muted-foreground">{resume.content.personal_info.email}</p>
-                <p className="text-muted-foreground">{resume.content.personal_info.phone}</p>
-                <p className="text-muted-foreground">{resume.content.personal_info.location}</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    value={editedResume?.content.personal_info.name || ''}
-                    onChange={(e) => handleFieldChange('personal_info.name', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={editedResume?.content.personal_info.email || ''}
-                    onChange={(e) => handleFieldChange('personal_info.email', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    value={editedResume?.content.personal_info.phone || ''}
-                    onChange={(e) => handleFieldChange('personal_info.phone', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    value={editedResume?.content.personal_info.location || ''}
-                    onChange={(e) => handleFieldChange('personal_info.location', e.target.value)}
-                  />
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Professional Summary */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Professional Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {!isEditMode ? (
-              <p>{resume.content.summary}</p>
-            ) : (
-              <div>
-                <Label htmlFor="summary">Summary</Label>
-                <Textarea
-                  id="summary"
-                  value={editedResume?.content.summary || ''}
-                  onChange={(e) => handleFieldChange('summary', e.target.value)}
-                  rows={4}
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Work Experience */}
-        <Card data-testid="section-work-experience" data-section="work-experience">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Work Experience</CardTitle>
-              {!isEditMode && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleRegenerateSection('work_experience')}
-                >
-                  Regenerate
-                </Button>
-              )}
+      {/* Status Card */}
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Status</p>
+              {getStatusBadge(resume.parse_status)}
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {!isEditMode
-              ? resume.content.work_experience.map((job) => (
-                  <div key={job.id} className="border-b pb-4 last:border-0">
-                    <h3 className="text-lg font-semibold">{job.job_title}</h3>
-                    <p className="text-muted-foreground">
-                      {job.company} • {job.location}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {formatDate(job.start_date)} -{' '}
-                      {job.end_date ? formatDate(job.end_date) : 'Present'}
-                    </p>
-                    <p className="mt-2">{job.description}</p>
-                  </div>
-                ))
-              : editedResume?.content.work_experience.map((job, index) => (
-                  <div key={job.id} className="space-y-4 border-b pb-4 last:border-0">
-                    <div>
-                      <Label htmlFor={`job-title-${index}`}>Job Title</Label>
-                      <Input
-                        id={`job-title-${index}`}
-                        value={job.job_title}
-                        onChange={(e) =>
-                          handleWorkExperienceChange(index, 'job_title', e.target.value)
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor={`company-${index}`}>Company</Label>
-                      <Input
-                        id={`company-${index}`}
-                        value={job.company}
-                        onChange={(e) => handleWorkExperienceChange(index, 'company', e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor={`job-location-${index}`}>Location</Label>
-                      <Input
-                        id={`job-location-${index}`}
-                        value={job.location}
-                        onChange={(e) => handleWorkExperienceChange(index, 'location', e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor={`description-${index}`}>Description</Label>
-                      <Textarea
-                        id={`description-${index}`}
-                        value={job.description}
-                        onChange={(e) =>
-                          handleWorkExperienceChange(index, 'description', e.target.value)
-                        }
-                        rows={3}
-                      />
-                    </div>
-                  </div>
-                ))}
-          </CardContent>
-        </Card>
-
-        {/* Education */}
-        <Card data-testid="section-education">
-          <CardHeader>
-            <CardTitle>Education</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {resume.content.education.map((edu) => (
-              <div key={edu.id} className="border-b pb-4 last:border-0">
-                <h3 className="text-lg font-semibold">{edu.degree}</h3>
-                <p className="text-muted-foreground">
-                  {edu.school} • {edu.location}
-                </p>
-                <p className="text-sm text-muted-foreground">Graduated: {edu.graduation_date}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Skills */}
-        <Card data-testid="section-skills">
-          <CardHeader>
-            <CardTitle>Skills</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {resume.content.skills.map((skill, index) => (
-                <Badge key={index} variant="secondary">
-                  {skill}
-                </Badge>
-              ))}
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">File Type</p>
+              <p className="font-medium">
+                {resume.file_type.includes('pdf') ? 'PDF' : 'DOCX'}
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">File Size</p>
+              <p className="font-medium">
+                {(resume.file_size / 1024).toFixed(1)} KB
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* ATS Recommendations */}
-        <Card>
+      {/* Parse Error */}
+      {resume.parse_status === ParseStatus.FAILED && resume.parse_error && (
+        <Card className="mb-6 border-red-200 bg-red-50">
           <CardHeader>
-            <CardTitle>Recommendations</CardTitle>
+            <CardTitle className="text-red-800 flex items-center gap-2">
+              <AlertCircle className="h-5 w-5" />
+              Parsing Failed
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            {recommendations.length === 0 ? (
-              <p className="text-muted-foreground">All set! No recommendations at this time.</p>
-            ) : (
-              <div className="space-y-4">
-                {recommendations.map((rec) => (
-                  <div
-                    key={rec.id}
-                    className="rounded-md border p-4 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold">{rec.title}</h3>
-                          <Badge
-                            variant={
-                              rec.priority === 'high'
-                                ? 'destructive'
-                                : rec.priority === 'medium'
-                                  ? 'default'
-                                  : 'secondary'
-                            }
-                          >
-                            {rec.priority}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">{rec.description}</p>
-                        {rec.action && (
-                          <p className="text-sm font-medium text-primary">{rec.action}</p>
+            <p className="text-sm text-red-700">{resume.parse_error}</p>
+            <p className="text-sm text-red-600 mt-2">
+              You can still download the original file or try uploading again.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Parsed Data Tabs */}
+      {parsedData && resume.parse_status === ParseStatus.COMPLETED && (
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="experience">Experience</TabsTrigger>
+            <TabsTrigger value="education">Education</TabsTrigger>
+            <TabsTrigger value="skills">Skills & More</TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-4">
+            {/* Contact Info */}
+            {parsedData.contact_info && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Contact Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {parsedData.contact_info.full_name && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Name</p>
+                      <p className="font-medium">{parsedData.contact_info.full_name}</p>
+                    </div>
+                  )}
+                  {parsedData.contact_info.email && (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <a
+                        href={`mailto:${parsedData.contact_info.email}`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {parsedData.contact_info.email}
+                      </a>
+                    </div>
+                  )}
+                  {parsedData.contact_info.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <p>{parsedData.contact_info.phone}</p>
+                    </div>
+                  )}
+                  {parsedData.contact_info.location && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <p>{parsedData.contact_info.location}</p>
+                    </div>
+                  )}
+                  {parsedData.contact_info.linkedin_url && (
+                    <div className="flex items-center gap-2">
+                      <Linkedin className="h-4 w-4 text-muted-foreground" />
+                      <a
+                        href={parsedData.contact_info.linkedin_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        LinkedIn Profile
+                      </a>
+                    </div>
+                  )}
+                  {parsedData.contact_info.website && (
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-muted-foreground" />
+                      <a
+                        href={parsedData.contact_info.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        {parsedData.contact_info.website}
+                      </a>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Summary */}
+            {parsedData.summary && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Professional Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700 whitespace-pre-line">{parsedData.summary}</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Experience Tab */}
+          <TabsContent value="experience" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Briefcase className="h-5 w-5" />
+                  Work Experience
+                </CardTitle>
+                <CardDescription>
+                  {parsedData.work_experience?.length || 0} position(s)
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {parsedData.work_experience && parsedData.work_experience.length > 0 ? (
+                  parsedData.work_experience.map((exp, index) => (
+                    <div key={index}>
+                      {index > 0 && <Separator className="my-4" />}
+                      <div>
+                        <h3 className="font-semibold text-lg">{exp.title}</h3>
+                        <p className="text-muted-foreground">
+                          {exp.company}
+                          {exp.location && ` • ${exp.location}`}
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {exp.start_date} - {exp.is_current ? 'Present' : exp.end_date}
+                        </p>
+                        {exp.description && (
+                          <p className="mt-3 text-gray-700 whitespace-pre-line">
+                            {exp.description}
+                          </p>
+                        )}
+                        {exp.responsibilities && exp.responsibilities.length > 0 && (
+                          <ul className="mt-3 space-y-1 list-disc list-inside text-gray-700">
+                            {exp.responsibilities.map((resp, idx) => (
+                              <li key={idx}>{resp}</li>
+                            ))}
+                          </ul>
                         )}
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-center py-8">
+                    No work experience found
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-      {/* Version Save Dialog */}
-      <Dialog open={showVersionDialog} onOpenChange={setShowVersionDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Save Resume Version</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <Label htmlFor="version-name">Version Name</Label>
-            <Input
-              id="version-name"
-              value={versionName}
-              onChange={(e) => setVersionName(e.target.value)}
-              placeholder="e.g., Tech Company Version"
-              className="mt-2"
-            />
-          </div>
-          {versionSaveSuccess && (
-            <div className="text-sm text-green-600">Version saved successfully!</div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowVersionDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveVersion} disabled={!versionName.trim()}>
-              Save
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Versions List Dialog */}
-      <Dialog open={showVersionsList} onOpenChange={setShowVersionsList}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Resume Versions</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            {versions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No versions saved yet.</p>
-            ) : (
-              <div className="space-y-2">
-                {versions.map((version) => (
-                  <div
-                    key={version.id}
-                    className="flex items-center justify-between rounded-md border p-3"
-                  >
-                    <div>
-                      <p className="font-medium">{version.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Created: {formatDate(version.created_at)}
-                      </p>
+          {/* Education Tab */}
+          <TabsContent value="education" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5" />
+                  Education
+                </CardTitle>
+                <CardDescription>
+                  {parsedData.education?.length || 0} degree(s)
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {parsedData.education && parsedData.education.length > 0 ? (
+                  parsedData.education.map((edu, index) => (
+                    <div key={index}>
+                      {index > 0 && <Separator className="my-4" />}
+                      <div>
+                        <h3 className="font-semibold text-lg">
+                          {edu.degree}
+                          {edu.field_of_study && ` in ${edu.field_of_study}`}
+                        </h3>
+                        <p className="text-muted-foreground">
+                          {edu.institution}
+                          {edu.location && ` • ${edu.location}`}
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {edu.start_date && edu.end_date
+                            ? `${edu.start_date} - ${edu.end_date}`
+                            : edu.end_date || edu.start_date}
+                        </p>
+                        {edu.gpa && (
+                          <p className="text-sm text-gray-700 mt-2">GPA: {edu.gpa}</p>
+                        )}
+                        {edu.honors && edu.honors.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-sm font-medium">Honors & Awards:</p>
+                            <ul className="list-disc list-inside text-sm text-gray-700">
+                              {edu.honors.map((honor, idx) => (
+                                <li key={idx}>{honor}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setShowVersionsList(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-center py-8">
+                    No education information found
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-      {/* Tailor to Job Dialog */}
-      <Dialog open={showTailorDialog} onOpenChange={setShowTailorDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Tailor Resume to Job</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <Label htmlFor="job-description">Job Description</Label>
-            <Textarea
-              id="job-description"
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-              placeholder="Paste the job description here..."
-              rows={8}
-              className="mt-2"
-            />
-          </div>
-          {isTailoring && (
-            <div className="text-sm text-blue-600">Tailoring resume...</div>
-          )}
-          {tailorSuccess && (
-            <div className="space-y-2">
-              <div className="text-sm text-green-600">Resume tailored successfully!</div>
-              {matchedSkills.length > 0 && (
-                <div className="rounded-md bg-green-50 p-3">
-                  <p className="text-sm font-medium text-green-900 mb-2">Matched Skills:</p>
-                  {matchedSkills.map((skill, index) => (
-                    <div key={index} className="text-sm text-green-700">
-                      {skill} matched
+          {/* Skills & More Tab */}
+          <TabsContent value="skills" className="space-y-4">
+            {/* Skills */}
+            {parsedData.skills && parsedData.skills.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Code className="h-5 w-5" />
+                    Skills
+                  </CardTitle>
+                  <CardDescription>{parsedData.skills.length} skill(s)</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {parsedData.skills.map((skill, index) => (
+                      <Badge key={index} variant="secondary">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Certifications */}
+            {parsedData.certifications && parsedData.certifications.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="h-5 w-5" />
+                    Certifications
+                  </CardTitle>
+                  <CardDescription>
+                    {parsedData.certifications.length} certification(s)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {parsedData.certifications.map((cert, index) => (
+                    <div key={index}>
+                      {index > 0 && <Separator className="my-4" />}
+                      <div>
+                        <h3 className="font-semibold">{cert.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {cert.issuing_organization}
+                        </p>
+                        {cert.issue_date && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Issued: {cert.issue_date}
+                            {cert.expiry_date && ` • Expires: ${cert.expiry_date}`}
+                          </p>
+                        )}
+                        {cert.credential_url && (
+                          <a
+                            href={cert.credential_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:underline mt-1 inline-block"
+                          >
+                            View Credential
+                          </a>
+                        )}
+                      </div>
                     </div>
                   ))}
-                </div>
-              )}
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowTailorDialog(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleGenerateTailoredResume}
-              disabled={!jobDescription.trim() || isTailoring}
-            >
-              {isTailoring ? 'Generating...' : 'Generate Tailored Resume'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                </CardContent>
+              </Card>
+            )}
 
-      {/* Regenerate Confirmation Dialog */}
-      <Dialog open={showRegenerateDialog} onOpenChange={setShowRegenerateDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Regenerate Section</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p>Are you sure you want to regenerate this section? This action cannot be undone.</p>
-          </div>
-          {isRegenerating && <div className="text-sm text-blue-600">Regenerating...</div>}
-          {regenerateSuccess && (
-            <div className="text-sm text-green-600">Section updated successfully!</div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowRegenerateDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleConfirmRegenerate} disabled={isRegenerating}>
-              {isRegenerating ? 'Regenerating...' : 'Confirm'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            {/* Languages */}
+            {parsedData.languages && parsedData.languages.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Languages className="h-5 w-5" />
+                    Languages
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {parsedData.languages.map((lang, index) => (
+                      <Badge key={index} variant="outline">
+                        {lang}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Awards */}
+            {parsedData.awards && parsedData.awards.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Awards & Achievements</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-1 list-disc list-inside text-gray-700">
+                    {parsedData.awards.map((award, index) => (
+                      <li key={index}>{award}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Resume</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{resume.file_name}"? This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
