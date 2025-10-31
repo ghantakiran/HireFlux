@@ -1,0 +1,245 @@
+name: Vercel Preview E2E Tests
+
+on:
+  deployment_status:
+    # Trigger when Vercel deployment succeeds
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop]
+    paths:
+      - 'frontend/**'
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: 'Vercel preview URL to test'
+        required: true
+        type: string
+
+# Prevent multiple runs on same ref
+concurrency:
+  group: vercel-preview-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Wait for Vercel deployment to complete
+  wait-for-vercel:
+    name: Wait for Vercel Deployment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success' && github.event.deployment_status.environment == 'Preview'
+    outputs:
+      preview_url: ${{ steps.get-url.outputs.preview_url }}
+
+    steps:
+      - name: Extract Vercel Preview URL
+        id: get-url
+        run: |
+          echo "preview_url=${{ github.event.deployment_status.target_url }}" >> $GITHUB_OUTPUT
+          echo "✅ Vercel deployment ready: ${{ github.event.deployment_status.target_url }}"
+
+  # Get preview URL for manual/PR triggers
+  get-vercel-preview:
+    name: Get Vercel Preview URL
+    runs-on: ubuntu-latest
+    if: github.event_name != 'deployment_status'
+    outputs:
+      preview_url: ${{ steps.find-deployment.outputs.preview_url }}
+
+    steps:
+      - name: Wait for Vercel Deployment
+        id: find-deployment
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          max_timeout: 300
+          check_interval: 10
+
+      - name: Output Preview URL
+        run: |
+          echo "Preview URL: ${{ steps.find-deployment.outputs.url }}"
+          echo "preview_url=${{ steps.find-deployment.outputs.url }}" >> $GITHUB_OUTPUT
+
+  # Mobile E2E tests against Vercel preview
+  mobile-e2e-preview:
+    name: Mobile E2E on Vercel Preview - ${{ matrix.device-type }}
+    runs-on: ubuntu-latest
+    needs: [get-vercel-preview]
+    if: |
+      always() &&
+      (needs.get-vercel-preview.result == 'success' || needs.wait-for-vercel.result == 'success')
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        device-type: ['mobile', 'tablet']
+        include:
+          - device-type: 'mobile'
+            browser: 'chromium'
+          - device-type: 'tablet'
+            browser: 'webkit'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium ${{ matrix.browser }}
+
+      - name: Run Mobile E2E tests against Vercel Preview
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ needs.get-vercel-preview.outputs.preview_url || needs.wait-for-vercel.outputs.preview_url || inputs.preview_url }}
+        run: |
+          echo "Testing against: $PLAYWRIGHT_BASE_URL"
+          npm run test:e2e:mobile -- \
+            --project=${{ matrix.browser }} \
+            --reporter=html,json,github \
+            --max-failures=5
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-mobile-e2e-${{ matrix.device-type }}-${{ matrix.browser }}
+          path: frontend/playwright-report/
+          retention-days: 14
+
+      - name: Upload test videos (failures only)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-mobile-videos-${{ matrix.device-type }}
+          path: frontend/test-results/
+          retention-days: 7
+
+  # Desktop E2E tests against Vercel preview
+  desktop-e2e-preview:
+    name: Desktop E2E on Vercel Preview - ${{ matrix.viewport.name }}
+    runs-on: ubuntu-latest
+    needs: [get-vercel-preview]
+    if: |
+      always() &&
+      (needs.get-vercel-preview.result == 'success' || needs.wait-for-vercel.result == 'success')
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        viewport:
+          - { name: 'laptop', width: 1024, height: 768, browser: 'chromium' }
+          - { name: 'fullhd', width: 1920, height: 1080, browser: 'webkit' }
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium ${{ matrix.viewport.browser }}
+
+      - name: Run Desktop E2E tests against Vercel Preview
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ needs.get-vercel-preview.outputs.preview_url || needs.wait-for-vercel.outputs.preview_url || inputs.preview_url }}
+        run: |
+          echo "Testing against: $PLAYWRIGHT_BASE_URL"
+          npm run test:e2e:desktop -- \
+            --project=${{ matrix.viewport.browser }} \
+            --reporter=html,json,github \
+            --max-failures=5
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-desktop-e2e-${{ matrix.viewport.name }}-${{ matrix.viewport.browser }}
+          path: frontend/playwright-report/
+          retention-days: 14
+
+      - name: Upload test videos (failures only)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-desktop-videos-${{ matrix.viewport.name }}
+          path: frontend/test-results/
+          retention-days: 7
+
+  # Summary and PR comment
+  test-summary:
+    name: Vercel Preview E2E Summary
+    runs-on: ubuntu-latest
+    needs: [get-vercel-preview, mobile-e2e-preview, desktop-e2e-preview]
+    if: always()
+
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## 🚀 Vercel Preview E2E Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Preview URL**: ${{ needs.get-vercel-preview.outputs.preview_url || needs.wait-for-vercel.outputs.preview_url || inputs.preview_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Mobile E2E Tests" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ${{ needs.mobile-e2e-preview.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Desktop E2E Tests" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ${{ needs.desktop-e2e-preview.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Test Environment**: Vercel Preview Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "**Backend**: Production-like (preview)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment PR - Success
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const previewUrl = '${{ needs.get-vercel-preview.outputs.preview_url || needs.wait-for-vercel.outputs.preview_url || inputs.preview_url }}';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ✅ Vercel Preview E2E Tests Passed\n\n**Preview URL**: ${previewUrl}\n\n### Test Coverage\n- ✅ Mobile responsiveness (16 tests)\n- ✅ Desktop responsiveness (23 tests)\n- ✅ Touch interactions\n- ✅ Viewport adaptations\n\n**Environment**: Vercel Preview Deployment\n**Testing**: Against production-like preview build`
+            })
+
+      - name: Comment PR - Failure
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const previewUrl = '${{ needs.get-vercel-preview.outputs.preview_url || needs.wait-for-vercel.outputs.preview_url || inputs.preview_url }}';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ❌ Vercel Preview E2E Tests Failed\n\n**Preview URL**: ${previewUrl}\n\n### Results\n- Mobile E2E: ${{ needs.mobile-e2e-preview.result }}\n- Desktop E2E: ${{ needs.desktop-e2e-preview.result }}\n\nPlease check the test artifacts for details.`
+            })
+
+      - name: Fail if tests failed
+        if: |
+          needs.mobile-e2e-preview.result == 'failure' ||
+          needs.desktop-e2e-preview.result == 'failure'
+        run: |
+          echo "Vercel Preview E2E tests failed"
+          exit 1
