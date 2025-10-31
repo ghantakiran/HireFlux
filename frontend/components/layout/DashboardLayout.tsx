@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { ProtectedRoute } from '../auth/ProtectedRoute';
+import { Toaster } from 'sonner';
 import {
   LayoutDashboard,
   FileText,
@@ -59,6 +60,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <ProtectedRoute>
+      <Toaster position="top-right" richColors />
       <div className="min-h-screen bg-gray-50">
         {/* Mobile sidebar */}
         <div
@@ -70,7 +72,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             className="fixed inset-0 bg-black bg-opacity-50"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl">
+          <div data-testid="mobile-menu" className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl">
             <div className="flex h-full flex-col">
               {/* Logo */}
               <div className="flex h-16 items-center justify-between px-6 border-b">
@@ -138,8 +140,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </div>
 
-        {/* Desktop sidebar */}
-        <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
+        {/* Desktop sidebar - visible on screens >=1024px (lg) */}
+        <div data-testid="sidebar" className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
           <div className="flex flex-col bg-white border-r border-gray-200 h-full">
             {/* Logo */}
             <div className="flex h-16 items-center px-6 border-b">
@@ -205,8 +207,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="sticky top-0 z-40 flex h-16 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
             <button
               type="button"
+              data-testid="mobile-menu-button"
               className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
               onClick={() => setSidebarOpen(true)}
+              aria-label="Open navigation menu"
             >
               <Menu className="h-6 w-6" />
             </button>

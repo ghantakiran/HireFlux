@@ -1,30 +1,72 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Zap, Target, FileText, Users, TrendingUp, CheckCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Zap, Target, FileText, Users, TrendingUp, CheckCircle, Menu, X } from 'lucide-react';
 
 export default function HomePage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="flex min-h-screen flex-col">
       {/* Navigation */}
       <nav className="border-b">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="text-xl font-bold">HireFlux</div>
-          <div className="flex gap-4">
-            <Link href="/signin">
-              <Button variant="ghost">Sign In</Button>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex gap-4">
+            <Link href="/signin" className="inline-flex items-center min-h-[44px]">
+              <Button variant="ghost" size="lg">Sign In</Button>
             </Link>
-            <Link href="/signup">
-              <Button>Sign Up</Button>
+            <Link href="/signup" className="inline-flex items-center min-h-[44px]">
+              <Button size="lg">Sign Up</Button>
             </Link>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            data-testid="mobile-menu-button"
+            className="md:hidden p-2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open mobile menu"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
         </div>
       </nav>
 
+      {/* Mobile Menu Dialog */}
+      <Dialog open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <DialogContent data-testid="mobile-menu" className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Menu</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <Link href="/signin" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="ghost" className="w-full justify-start h-12">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
+              <Button className="w-full h-12">Sign Up</Button>
+            </Link>
+            <Link href="/pricing" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="outline" className="w-full justify-start h-12">
+                Pricing
+              </Button>
+            </Link>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Hero Section - AIApply Style */}
       <main className="flex-1">
-        <section className="container mx-auto px-4 py-24 md:py-32">
+        <section data-testid="hero-section" className="container mx-auto px-4 py-24 md:py-32">
           <div className="mx-auto max-w-4xl text-center">
             <Badge variant="secondary" className="mb-4">
               <Zap className="h-3 w-3 mr-1" />
