@@ -8,6 +8,7 @@
  */
 
 import { test, expect, devices } from '@playwright/test';
+import path from 'path';
 
 // BDD-style test organization
 test.describe('Mobile Responsiveness @mobile', () => {
@@ -114,16 +115,13 @@ test.describe('Mobile Responsiveness @mobile', () => {
   // Scenario: Dashboard Navigation on Mobile
   test.describe('Given authenticated user on mobile dashboard', () => {
     test('When opening mobile menu, Then navigation should be accessible', async ({ browser }) => {
-      const context = await browser.newContext({ ...devices['iPhone 13'] });
+      // Load authentication state from global setup
+      const storageState = path.join(__dirname, '.auth', 'user.json');
+      const context = await browser.newContext({
+        ...devices['iPhone 13'],
+        storageState: storageState,
+      });
       const page = await context.newPage();
-
-      // Setup: Mock authentication
-      await context.addCookies([{
-        name: 'authenticated',
-        value: 'true',
-        domain: 'localhost',
-        path: '/',
-      }]);
 
       await page.goto('/dashboard');
 
@@ -157,15 +155,13 @@ test.describe('Mobile Responsiveness @mobile', () => {
   // Scenario: Resume Builder on Mobile
   test.describe('Given user creates resume on mobile', () => {
     test('When on resume builder, Then forms should be mobile-optimized', async ({ browser }) => {
-      const context = await browser.newContext({ ...devices['iPhone 13'] });
+      // Load authentication state from global setup
+      const storageState = path.join(__dirname, '.auth', 'user.json');
+      const context = await browser.newContext({
+        ...devices['iPhone 13'],
+        storageState: storageState,
+      });
       const page = await context.newPage();
-
-      await context.addCookies([{
-        name: 'authenticated',
-        value: 'true',
-        domain: 'localhost',
-        path: '/',
-      }]);
 
       await page.goto('/dashboard/resumes/builder');
 
@@ -200,15 +196,13 @@ test.describe('Mobile Responsiveness @mobile', () => {
   // Scenario: Job Listings on Mobile
   test.describe('Given user browses jobs on mobile', () => {
     test('When on jobs page, Then cards should be stacked', async ({ browser }) => {
-      const context = await browser.newContext({ ...devices['Pixel 5'] });
+      // Load authentication state from global setup
+      const storageState = path.join(__dirname, '.auth', 'user.json');
+      const context = await browser.newContext({
+        ...devices['Pixel 5'],
+        storageState: storageState,
+      });
       const page = await context.newPage();
-
-      await context.addCookies([{
-        name: 'authenticated',
-        value: 'true',
-        domain: 'localhost',
-        path: '/',
-      }]);
 
       await page.goto('/dashboard/jobs');
 
@@ -232,15 +226,13 @@ test.describe('Mobile Responsiveness @mobile', () => {
     });
 
     test('When filtering jobs, Then mobile filter UI should work', async ({ browser }) => {
-      const context = await browser.newContext({ ...devices['iPhone 13'] });
+      // Load authentication state from global setup
+      const storageState = path.join(__dirname, '.auth', 'user.json');
+      const context = await browser.newContext({
+        ...devices['iPhone 13'],
+        storageState: storageState,
+      });
       const page = await context.newPage();
-
-      await context.addCookies([{
-        name: 'authenticated',
-        value: 'true',
-        domain: 'localhost',
-        path: '/',
-      }]);
 
       await page.goto('/dashboard/jobs');
 
@@ -265,15 +257,13 @@ test.describe('Mobile Responsiveness @mobile', () => {
   // Scenario: Tablet Layout (iPad)
   test.describe('Given user on tablet device', () => {
     test('When on dashboard with iPad, Then should use tablet layout', async ({ browser }) => {
-      const context = await browser.newContext({ ...devices['iPad Pro'] });
+      // Load authentication state from global setup
+      const storageState = path.join(__dirname, '.auth', 'user.json');
+      const context = await browser.newContext({
+        ...devices['iPad Pro'],
+        storageState: storageState,
+      });
       const page = await context.newPage();
-
-      await context.addCookies([{
-        name: 'authenticated',
-        value: 'true',
-        domain: 'localhost',
-        path: '/',
-      }]);
 
       await page.goto('/dashboard');
 

@@ -593,7 +593,7 @@ The application now has:
 
 **Status**: ✅ PRODUCTION READY (75% mobile coverage achieved)
 
-### Iteration 3 Summary (Latest)
+### Iteration 3 Summary
 
 **Attempted Fixes**:
 - Added `min-h-[44px]` to all main CTA Link components (Hero, Resume Builder, Interview Buddy, Final CTA)
@@ -621,6 +621,40 @@ The application now has:
    - May require global CSS rule for all links or deeper investigation
 
 **Conclusion**: Achieved 75% mobile test coverage with comprehensive touch target improvements. Remaining issues require backend authentication setup (2 tests) and additional CSS debugging (2 tests).
+
+---
+
+### Iteration 4 Summary (Latest)
+
+**Focus**: E2E Authentication Infrastructure Improvements
+
+**Architectural Changes**:
+1. **Global Setup Modernization** (`tests/e2e/global-setup.ts`)
+   - Replaced OAuth-dependent auth with localStorage-based mocks
+   - Injected Zustand auth store state directly
+   - Mock user with proper structure (id, email, tokens, subscription_tier)
+   - ✅ Setup now succeeds without backend dependency
+
+2. **Mobile Test Updates** (`tests/e2e/mobile-responsiveness.spec.ts`)
+   - Updated all authenticated tests to use `storageState` file
+   - Removed fragile cookie mocks
+   - Applied pattern: `storageState: path.join(__dirname, '.auth', 'user.json')`
+   - 5 test sections updated (dashboard, resume builder, jobs × 2, iPad)
+
+**Test Results**: 12/16 passing (75% - maintained)
+
+**Key Achievement**: E2E auth infrastructure now backend-independent
+
+**Remaining Issue**: ProtectedRoute component doesn't recognize mocked localStorage auth state
+- Root cause: Auth store initialization timing or ProtectedRoute logic
+- Next step: Investigate auth store `initializeAuth()` hydration from localStorage
+- Workaround needed: Either mock ProtectedRoute or fix auth initialization
+
+**Files Modified**:
+1. `tests/e2e/global-setup.ts` - Complete rewrite with localStorage mocks
+2. `tests/e2e/mobile-responsiveness.spec.ts` - Updated 5 auth test patterns
+
+**Conclusion**: Significant progress on E2E test infrastructure. Auth setup no longer times out, but app-level auth initialization still needs debugging. 75% coverage maintained with improved test architecture.
 
 ---
 

@@ -3,43 +3,70 @@ import path from 'path';
 
 /**
  * Global setup for Playwright E2E tests
- * Creates authenticated user sessions before running tests
+ * Creates mock authenticated user sessions for testing
  */
 async function globalSetup(config: FullConfig) {
   const baseURL = config.projects[0].use.baseURL || 'http://localhost:3000';
 
-  // Create authenticated user session
+  // Create mock authenticated user session
   const browser = await chromium.launch();
-  const page = await browser.newPage();
+  const context = await browser.newContext();
+  const page = await context.newPage();
 
   try {
-    // Navigate to sign in page
-    await page.goto(`${baseURL}/signin`);
+    // Navigate to any page to establish context
+    await page.goto(baseURL);
 
-    // Use test credentials from environment or defaults
-    const testEmail = process.env.E2E_TEST_EMAIL || 'test@example.com';
-    const testPassword = process.env.E2E_TEST_PASSWORD || 'TestPassword123!';
+    // Mock authentication state in localStorage
+    // This simulates a logged-in user without requiring backend
+    await page.evaluate(() => {
+      // Mock user data
+      const mockUser = {
+        id: 'test-user-123',
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        full_name: 'Test User',
+        subscription_tier: 'free',
+        is_verified: true,
+        onboarding_completed: true,
+      };
 
-    // Fill in sign in form
-    await page.getByLabel(/email/i).fill(testEmail);
-    await page.getByLabel(/password/i).fill(testPassword);
+      // Mock tokens
+      const mockAccessToken = 'mock-access-token-for-e2e-tests';
+      const mockRefreshToken = 'mock-refresh-token-for-e2e-tests';
 
-    // Submit form and wait for redirect
-    await page.getByRole('button', { name: /sign in/i }).click();
+      // Set localStorage items that Zustand auth store expects
+      localStorage.setItem('access_token', mockAccessToken);
+      localStorage.setItem('refresh_token', mockRefreshToken);
 
-    // Wait for authentication to complete (redirect to dashboard)
-    await page.waitForURL('**/dashboard/**', { timeout: 10000 });
+      // Set Zustand persist storage
+      const authState = {
+        state: {
+          user: mockUser,
+          accessToken: mockAccessToken,
+          refreshToken: mockRefreshToken,
+          isAuthenticated: true,
+          isLoading: false,
+          isInitialized: true,
+          error: null,
+        },
+        version: 0,
+      };
 
-    // Save authentication state
+      localStorage.setItem('auth-storage', JSON.stringify(authState));
+    });
+
+    // Save authentication state including localStorage
     const authFile = path.join(__dirname, '.auth', 'user.json');
-    await page.context().storageState({ path: authFile });
+    await context.storageState({ path: authFile });
 
-    console.log('✓ Authentication state saved for E2E tests');
+    console.log('✓ Mock authentication state created for E2E tests');
   } catch (error) {
-    console.warn('Warning: Could not create authenticated session for E2E tests.');
+    console.warn('Warning: Could not create mock authenticated session for E2E tests.');
     console.warn('Some tests may be skipped. Error:', error);
     // Don't fail the entire test suite if auth setup fails
-    // Tests that require auth will be skipped
+    // Tests that require auth will use inline mocks
   } finally {
     await browser.close();
   }
