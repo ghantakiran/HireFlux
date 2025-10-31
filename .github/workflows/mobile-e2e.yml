@@ -55,7 +55,7 @@ jobs:
 
       - name: Install Playwright browsers
         working-directory: frontend
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+        run: npx playwright install --with-deps chromium ${{ matrix.browser }}
 
       - name: Run mobile E2E tests
         working-directory: frontend
@@ -125,7 +125,7 @@ jobs:
 
       - name: Install Playwright browser
         working-directory: frontend
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+        run: npx playwright install --with-deps chromium ${{ matrix.browser }}
 
       - name: Run cross-browser mobile tests
         working-directory: frontend
