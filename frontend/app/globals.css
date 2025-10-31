@@ -56,4 +56,10 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Touch-friendly links for mobile (iOS HIG: 44x44px minimum) */
+  a {
+    @apply inline-flex items-center;
+    min-height: 44px;
+  }
 }

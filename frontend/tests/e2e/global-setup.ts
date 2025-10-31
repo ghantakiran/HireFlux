@@ -41,6 +41,7 @@ async function globalSetup(config: FullConfig) {
       localStorage.setItem('refresh_token', mockRefreshToken);
 
       // Set Zustand persist storage
+      // IMPORTANT: Set isInitialized: true to prevent initializeAuth() from making API calls
       const authState = {
         state: {
           user: mockUser,
@@ -48,7 +49,7 @@ async function globalSetup(config: FullConfig) {
           refreshToken: mockRefreshToken,
           isAuthenticated: true,
           isLoading: false,
-          isInitialized: true,
+          isInitialized: true, // Prevents ProtectedRoute from calling initializeAuth()
           error: null,
         },
         version: 0,

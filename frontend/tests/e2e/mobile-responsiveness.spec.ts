@@ -7,8 +7,50 @@
  * So that I can access all features on the go
  */
 
-import { test, expect, devices } from '@playwright/test';
+import { test, expect, devices, Page } from '@playwright/test';
 import path from 'path';
+
+// Mock user data - consistent with global-setup.ts
+const mockUser = {
+  id: 'test-user-123',
+  email: 'test@example.com',
+  first_name: 'Test',
+  last_name: 'User',
+  full_name: 'Test User',
+  subscription_tier: 'free',
+  is_verified: true,
+  onboarding_completed: true,
+};
+
+// Helper function to set up API mocking for authenticated tests
+async function setupAuthApiMocks(page: Page) {
+  // Mock the /users/me endpoint that initializeAuth() calls
+  await page.route('**/api/v1/users/me', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: mockUser,
+      }),
+    });
+  });
+
+  // Mock the refresh token endpoint in case it's called
+  await page.route('**/api/v1/auth/refresh', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: {
+          access_token: 'mock-access-token-for-e2e-tests',
+          refresh_token: 'mock-refresh-token-for-e2e-tests',
+        },
+      }),
+    });
+  });
+}
 
 // BDD-style test organization
 test.describe('Mobile Responsiveness @mobile', () => {
@@ -123,11 +165,19 @@ test.describe('Mobile Responsiveness @mobile', () => {
       });
       const page = await context.newPage();
 
-      await page.goto('/dashboard');
+      // Set up API mocking to prevent auth failures
+      await setupAuthApiMocks(page);
+
+      await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+
+      // Wait for ProtectedRoute loading screen to disappear
+      await page.waitForSelector('text=Loading...', { state: 'hidden', timeout: 10000 }).catch(() => {
+        // If loading screen doesn't appear, that's fine - page loaded directly
+      });
 
       // Then: Mobile menu button should be visible
       const menuButton = page.locator('[data-testid="mobile-menu-button"]');
-      await expect(menuButton).toBeVisible();
+      await expect(menuButton).toBeVisible({ timeout: 10000 });
 
       // When: User taps menu button
       await menuButton.click();
@@ -162,6 +212,9 @@ test.describe('Mobile Responsiveness @mobile', () => {
         storageState: storageState,
       });
       const page = await context.newPage();
+
+      // Set up API mocking to prevent auth failures
+      await setupAuthApiMocks(page);
 
       await page.goto('/dashboard/resumes/builder');
 
@@ -204,6 +257,9 @@ test.describe('Mobile Responsiveness @mobile', () => {
       });
       const page = await context.newPage();
 
+      // Set up API mocking to prevent auth failures
+      await setupAuthApiMocks(page);
+
       await page.goto('/dashboard/jobs');
 
       // Then: Job cards should be single column on mobile
@@ -233,6 +289,9 @@ test.describe('Mobile Responsiveness @mobile', () => {
         storageState: storageState,
       });
       const page = await context.newPage();
+
+      // Set up API mocking to prevent auth failures
+      await setupAuthApiMocks(page);
 
       await page.goto('/dashboard/jobs');
 
@@ -264,6 +323,9 @@ test.describe('Mobile Responsiveness @mobile', () => {
         storageState: storageState,
       });
       const page = await context.newPage();
+
+      // Set up API mocking to prevent auth failures
+      await setupAuthApiMocks(page);
 
       await page.goto('/dashboard');
 
