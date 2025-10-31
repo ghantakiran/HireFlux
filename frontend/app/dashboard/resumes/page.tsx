@@ -31,6 +31,7 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
+import { ResumeCardSkeleton } from '@/components/skeletons/card-skeleton';
 
 export default function ResumesPage() {
   const router = useRouter();
@@ -160,10 +161,26 @@ export default function ResumesPage() {
 
   if (isLoading && resumes.length === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <p className="text-muted-foreground">Loading resumes...</p>
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">My Resumes</h1>
+            <p className="mt-2 text-muted-foreground">
+              Upload and manage your resumes for job applications
+            </p>
+          </div>
+          <Button size="lg" onClick={handleUploadClick}>
+            <Upload className="mr-2 h-4 w-4" />
+            Upload Resume
+          </Button>
+        </div>
+
+        {/* Skeleton Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ResumeCardSkeleton key={i} />
+          ))}
         </div>
       </div>
     );

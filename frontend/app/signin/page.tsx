@@ -65,6 +65,19 @@ export default function SignInPage() {
     }
   };
 
+  const handleOAuthSignIn = (provider: 'google' | 'linkedin') => {
+    // Store return URL in session storage
+    const searchParams = new URLSearchParams(window.location.search);
+    const returnUrl = searchParams.get('returnUrl');
+    if (returnUrl) {
+      sessionStorage.setItem('oauth_return_url', returnUrl);
+    }
+
+    // Redirect to backend OAuth authorize endpoint
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    window.location.href = `${apiUrl}/api/v1/auth/${provider}/authorize`;
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
@@ -139,7 +152,7 @@ export default function SignInPage() {
                 type="button"
                 variant="outline"
                 disabled={isLoading}
-                onClick={() => setError('OAuth coming soon')}
+                onClick={() => handleOAuthSignIn('google')}
                 className="w-full"
               >
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -167,7 +180,7 @@ export default function SignInPage() {
                 type="button"
                 variant="outline"
                 disabled={isLoading}
-                onClick={() => setError('OAuth coming soon')}
+                onClick={() => handleOAuthSignIn('linkedin')}
                 className="w-full"
               >
                 <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">

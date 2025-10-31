@@ -99,9 +99,104 @@ jobs:
           echo "## Build Size Report" >> $GITHUB_STEP_SUMMARY
           du -sh .next >> $GITHUB_STEP_SUMMARY
 
-  accessibility-check:
-    name: Accessibility Check
+  # E2E Tests with Playwright (TDD/BDD)
+  e2e-tests:
+    name: E2E Tests - ${{ matrix.browser }}
     runs-on: ubuntu-latest
+    needs: [build-check]
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox]
+        shard: [1, 2]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run E2E tests (BDD scenarios)
+        run: npm run test:e2e -- --project=${{ matrix.browser }} --shard=${{ matrix.shard }}/2
+        env:
+          CI: true
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}-${{ matrix.shard }}
+          path: frontend/playwright-report
+          retention-days: 14
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.browser }}-${{ matrix.shard }}
+          path: frontend/test-results
+          retention-days: 7
+
+  # Mobile Responsiveness Tests (BDD)
+  mobile-e2e-tests:
+    name: Mobile E2E Tests - ${{ matrix.device }}
+    runs-on: ubuntu-latest
+    needs: [build-check]
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        device: ['iPhone 13', 'Pixel 5', 'iPad Pro']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run mobile E2E tests
+        run: npm run test:e2e:mobile -- --project=chromium --grep="@mobile"
+        env:
+          CI: true
+          PLAYWRIGHT_DEVICE: ${{ matrix.device }}
+
+      - name: Upload mobile test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-test-results-${{ matrix.device }}
+          path: frontend/test-results
+          retention-days: 7
+
+  # Lighthouse Performance Audit
+  lighthouse-audit:
+    name: Lighthouse Performance Audit
+    runs-on: ubuntu-latest
+    needs: [build-check]
+    if: github.event_name == 'pull_request'
 
     steps:
       - uses: actions/checkout@v4
@@ -119,22 +214,112 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Run accessibility tests
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli
+
+      - name: Run Lighthouse CI
+        run: lhci autorun || echo "Lighthouse completed with warnings"
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-results
+          path: frontend/.lighthouseci
+          retention-days: 14
+
+  # Security Audit
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check for vulnerabilities
         run: |
-          npm install -D @axe-core/cli
-          npx @axe-core/cli http://localhost:3000 --exit || echo "Accessibility check completed with warnings"
+          echo "## Security Audit" >> $GITHUB_STEP_SUMMARY
+          npm audit --json >> $GITHUB_STEP_SUMMARY || echo "Vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+
+  accessibility-check:
+    name: Accessibility Check
+    runs-on: ubuntu-latest
+    needs: [build-check]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run accessibility tests with axe
+        run: npm run test:e2e -- --grep="@accessibility"
+        continue-on-error: true
+
+      - name: Upload accessibility results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accessibility-results
+          path: frontend/test-results
+          retention-days: 7
 
   frontend-summary:
     name: Frontend CI Summary
     runs-on: ubuntu-latest
-    needs: [lint-and-type-check, unit-tests, build-check, accessibility-check]
+    needs: [lint-and-type-check, unit-tests, build-check, e2e-tests, mobile-e2e-tests, security-audit, accessibility-check]
     if: always()
 
     steps:
       - name: Check results
         run: |
-          echo "## Frontend CI Results" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Lint & Type Check: ${{ needs.lint-and-type-check.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Unit Tests: ${{ needs.unit-tests.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Build Check: ${{ needs.build-check.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Accessibility: ${{ needs.accessibility-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Frontend CI/CD Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Core CI Checks" >> $GITHUB_STEP_SUMMARY
+          echo "- Lint & Type Check: ${{ needs.lint-and-type-check.result == 'success' && '✅' || '❌' }} ${{ needs.lint-and-type-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Unit Tests: ${{ needs.unit-tests.result == 'success' && '✅' || '❌' }} ${{ needs.unit-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Build Check: ${{ needs.build-check.result == 'success' && '✅' || '❌' }} ${{ needs.build-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### E2E & BDD Tests" >> $GITHUB_STEP_SUMMARY
+          echo "- E2E Tests (Desktop): ${{ needs.e2e-tests.result == 'success' && '✅' || '❌' }} ${{ needs.e2e-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Mobile E2E Tests: ${{ needs.mobile-e2e-tests.result == 'success' && '✅' || '❌' }} ${{ needs.mobile-e2e-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Quality & Security" >> $GITHUB_STEP_SUMMARY
+          echo "- Security Audit: ${{ needs.security-audit.result == 'success' && '✅' || '⚠️' }} ${{ needs.security-audit.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Accessibility: ${{ needs.accessibility-check.result == 'success' && '✅' || '❌' }} ${{ needs.accessibility-check.result }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if required checks failed
+        if: |
+          needs.lint-and-type-check.result != 'success' ||
+          needs.unit-tests.result != 'success' ||
+          needs.build-check.result != 'success' ||
+          needs.e2e-tests.result != 'success'
+        run: |
+          echo "❌ One or more required CI checks failed"
+          exit 1

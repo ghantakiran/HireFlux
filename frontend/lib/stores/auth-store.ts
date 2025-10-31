@@ -12,6 +12,9 @@ export interface User {
   onboarding_completed?: boolean;
   subscription_tier?: string;
   is_verified?: boolean;
+  oauth_provider?: 'google' | 'linkedin' | 'facebook' | 'apple' | null;
+  oauth_provider_id?: string;
+  oauth_picture?: string;
 }
 
 interface AuthState {

@@ -15,9 +15,14 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=True)  # Nullable for OAuth users
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
+
+    # OAuth fields
+    oauth_provider = Column(String(50), nullable=True)  # google, linkedin, email
+    oauth_provider_id = Column(String(255), nullable=True, index=True)  # Provider's user ID
+    oauth_picture = Column(String(500), nullable=True)  # Profile picture URL from OAuth
 
     # Profile information
     phone = Column(String(20), nullable=True)

@@ -81,12 +81,12 @@ export default function HomePage() {
               and coaches you live - so you move from submit to scheduled fast.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Link href="/signup">
+              <Link href="/signup" className="inline-flex items-center min-h-[44px]">
                 <Button size="lg" className="h-12 px-8">
                   Start now for free
                 </Button>
               </Link>
-              <Link href="/pricing">
+              <Link href="/pricing" className="inline-flex items-center min-h-[44px]">
                 <Button variant="outline" size="lg" className="h-12 px-8">
                   View Pricing
                 </Button>
@@ -125,10 +125,12 @@ export default function HomePage() {
                 <p>Our AI models are trained on successful resumes that have landed $100k+ jobs at top companies.</p>
               </div>
               <div className="mt-6">
-                <Button size="lg">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Try Resume Builder
-                </Button>
+                <Link href="/dashboard/resumes/builder" className="inline-flex items-center min-h-[44px]">
+                  <Button size="lg">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Try Resume Builder
+                  </Button>
+                </Link>
               </div>
             </div>
             <div className="bg-muted p-6 rounded-lg">
@@ -248,10 +250,12 @@ export default function HomePage() {
                 </p>
                 <p className="text-sm font-medium mt-2">- Jason T., Sales Executive</p>
               </div>
-              <Button size="lg">
-                <Users className="h-4 w-4 mr-2" />
-                Try Interview Buddy
-              </Button>
+              <Link href="/dashboard/interview-buddy" className="inline-flex items-center min-h-[44px]">
+                <Button size="lg">
+                  <Users className="h-4 w-4 mr-2" />
+                  Try Interview Buddy
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
@@ -324,7 +328,7 @@ export default function HomePage() {
               Join thousands of job seekers who are landing interviews faster with HireFlux.
             </p>
             <div className="mt-8">
-              <Link href="/signup">
+              <Link href="/signup" className="inline-flex items-center min-h-[44px]">
                 <Button size="lg" variant="secondary">
                   Start Free Trial
                 </Button>

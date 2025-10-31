@@ -1,398 +1,543 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, FileText, Building, Calendar, Edit, Trash2 } from "lucide-react"
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Plus,
+  FileText,
+  Building,
+  Calendar,
+  Edit,
+  Trash2,
+  Download,
+  Loader2,
+  AlertCircle,
+  X,
+  Filter,
+  Eye,
+  ChevronDown,
+} from 'lucide-react';
+import { CoverLetterCardSkeleton } from '@/components/skeletons/card-skeleton';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  useCoverLetterStore,
+  type CoverLetterTone,
+} from '@/lib/stores/cover-letter-store';
+import { toast } from 'sonner';
 
 export default function CoverLettersPage() {
+  const router = useRouter();
+  const {
+    coverLetters,
+    stats,
+    isLoading,
+    error,
+    filters,
+    pagination,
+    fetchCoverLetters,
+    fetchStats,
+    deleteCoverLetter,
+    downloadCoverLetter,
+    setFilters,
+    clearFilters,
+    clearError,
+  } = useCoverLetterStore();
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedCoverLetter, setSelectedCoverLetter] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch cover letters and stats on mount
+    fetchCoverLetters();
+    fetchStats();
+  }, []);
+
+  const handleFilterChange = (key: 'tone', value: string) => {
+    if (value === 'all') {
+      const newFilters = { ...filters };
+      delete newFilters[key];
+      setFilters(newFilters);
+      fetchCoverLetters({ ...newFilters, page: 1 });
+    } else {
+      const newFilters = { ...filters, [key]: value as CoverLetterTone };
+      setFilters(newFilters);
+      fetchCoverLetters({ ...newFilters, page: 1 });
+    }
+  };
+
+  const handleClearFilters = () => {
+    clearFilters();
+    fetchCoverLetters({ page: 1 });
+  };
+
+  const handlePageChange = (newPage: number) => {
+    fetchCoverLetters({ page: newPage });
+  };
+
+  const handleDelete = async () => {
+    if (!selectedCoverLetter) return;
+
+    try {
+      setDeletingId(selectedCoverLetter);
+      await deleteCoverLetter(selectedCoverLetter);
+      setDeleteDialogOpen(false);
+      setSelectedCoverLetter(null);
+      await fetchStats(); // Refresh stats
+    } catch (err) {
+      // Error handled by store
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const openDeleteDialog = (id: string) => {
+    setSelectedCoverLetter(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDownload = async (id: string, format: 'pdf' | 'docx') => {
+    try {
+      setDownloadingId(id);
+      await downloadCoverLetter(id, format);
+      toast.success(`Downloaded as ${format.toUpperCase()}`, {
+        description: 'Your cover letter has been downloaded successfully.',
+      });
+    } catch (err) {
+      toast.error('Download failed', {
+        description: 'Please try again or contact support.',
+      });
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const getToneBadge = (tone: CoverLetterTone) => {
+    const configs = {
+      formal: { label: 'Formal', className: 'bg-blue-100 text-blue-800' },
+      concise: { label: 'Concise', className: 'bg-purple-100 text-purple-800' },
+      conversational: { label: 'Conversational', className: 'bg-green-100 text-green-800' },
+    };
+
+    const config = configs[tone];
+    return (
+      <Badge variant="outline" className={config.className}>
+        {config.label}
+      </Badge>
+    );
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return `${Math.floor(diffDays / 30)} months ago`;
+  };
+
+  const activeFiltersCount = Object.keys(filters).length;
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8 flex justify-between items-center">
+      {/* Header */}
+      <div className="mb-8 flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold mb-4">Cover Letters</h1>
           <p className="text-muted-foreground">
-            Manage your AI-generated cover letters
+            AI-generated cover letters tailored to your target jobs
           </p>
+          {pagination.total > 0 && (
+            <p className="text-sm text-muted-foreground mt-2">
+              Showing {(pagination.page - 1) * pagination.limit + 1} -{' '}
+              {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
+              {pagination.total} cover letters
+            </p>
+          )}
         </div>
-        <Button>
+        <Button onClick={() => router.push('/dashboard/cover-letters/new')}>
           <Plus className="h-4 w-4 mr-2" />
           Generate New
         </Button>
       </div>
 
+      {/* Error Banner */}
+      {error && (
+        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4" role="alert">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-medium text-red-800">Error</h3>
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={clearError}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Usage Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">12</div>
-            <div className="text-sm text-muted-foreground">Total Generated</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">8</div>
-            <div className="text-sm text-muted-foreground">Used in Applications</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600">3</div>
-            <div className="text-sm text-muted-foreground">This Month</div>
-          </CardContent>
-        </Card>
-      </div>
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">
+                {stats.total_generated}
+              </div>
+              <div className="text-sm text-muted-foreground">Total Generated</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {stats.used_in_applications}
+              </div>
+              <div className="text-sm text-muted-foreground">Used in Applications</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-orange-600">
+                {stats.this_month}
+              </div>
+              <div className="text-sm text-muted-foreground">This Month</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-sm text-muted-foreground mb-1">Most Used Tone</div>
+              <div className="font-semibold">
+                {Object.entries(stats.by_tone).sort(([, a], [, b]) => b - a)[0]?.[0] ||
+                  'N/A'}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Filters */}
       <Card className="mb-6">
-        <CardContent className="p-4">
-          <div className="flex gap-4 items-center">
-            <Select>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by job" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Jobs</SelectItem>
-                <SelectItem value="techcorp">TechCorp</SelectItem>
-                <SelectItem value="startupco">StartupCo</SelectItem>
-                <SelectItem value="bigcorp">BigCorp</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="date">Date Created</SelectItem>
-                <SelectItem value="company">Company</SelectItem>
-                <SelectItem value="tone">Tone</SelectItem>
-                <SelectItem value="length">Length</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Cover Letters List */}
-      <div className="space-y-4">
-        {/* Sample Cover Letter */}
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Senior Software Engineer Application
-                </CardTitle>
-                <CardDescription className="text-lg flex items-center gap-2">
-                  <Building className="h-4 w-4" />
-                  TechCorp Inc.
-                </CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">Professional</Badge>
-                <Badge variant="secondary">Medium</Badge>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-4 mb-4">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                <span>Created 3 days ago</span>
-              </div>
-              <div className="text-muted-foreground">
-                <span className="font-medium">280 words</span>
-              </div>
-              <div className="text-muted-foreground">
-                <span className="font-medium">Used in application</span>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <h4 className="font-semibold mb-2">Preview:</h4>
-              <div className="bg-muted p-4 rounded-lg">
-                <p className="text-sm">
-                  Dear Hiring Manager,<br/><br/>
-                  I am writing to express my strong interest in the Senior Software Engineer position at TechCorp Inc. 
-                  With over 5 years of experience in Python and FastAPI development, I am excited about the opportunity 
-                  to contribute to your backend infrastructure...<br/><br/>
-                  In my previous role at XYZ Corp, I led the development of a microservices architecture that reduced 
-                  system latency by 40% and improved scalability for our growing user base...
-                </p>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <h4 className="font-semibold mb-2">Generation Details:</h4>
-              <div className="text-sm text-muted-foreground">
-                <p>• Generated in 3.2 seconds using GPT-4 Turbo</p>
-                <p>• Based on resume version: "Tech Companies v2"</p>
-                <p>• Company personalized: Yes</p>
-                <p>• Cost: $0.12</p>
-              </div>
-            </div>
-          </CardContent>
-          <CardContent className="pt-0">
-            <div className="flex gap-2">
-              <Button variant="outline">View Full Letter</Button>
-              <Button variant="outline">
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </Button>
-              <Button variant="outline">Export PDF</Button>
-              <Button variant="outline" className="text-red-600 hover:text-red-700">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Another Cover Letter */}
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Backend Developer Application
-                </CardTitle>
-                <CardDescription className="text-lg flex items-center gap-2">
-                  <Building className="h-4 w-4" />
-                  StartupCo
-                </CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">Conversational</Badge>
-                <Badge variant="secondary">Short</Badge>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-4 mb-4">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                <span>Created 1 week ago</span>
-              </div>
-              <div className="text-muted-foreground">
-                <span className="font-medium">180 words</span>
-              </div>
-              <div className="text-muted-foreground">
-                <span className="font-medium">Used in application</span>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <h4 className="font-semibold mb-2">Preview:</h4>
-              <div className="bg-muted p-4 rounded-lg">
-                <p className="text-sm">
-                  Hi there!<br/><br/>
-                  I'm excited to apply for the Backend Developer position at StartupCo. 
-                  Your mission to revolutionize the industry really resonates with me, 
-                  and I'd love to be part of building something amazing...<br/><br/>
-                  My experience with Python and Django, combined with my passion for 
-                  scalable systems, makes me a great fit for your team...
-                </p>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <h4 className="font-semibold mb-2">Generation Details:</h4>
-              <div className="text-sm text-muted-foreground">
-                <p>• Generated in 2.8 seconds using GPT-4 Turbo</p>
-                <p>• Based on resume version: "Startup Focus"</p>
-                <p>• Company personalized: Yes</p>
-                <p>• Cost: $0.08</p>
-              </div>
-            </div>
-          </CardContent>
-          <CardContent className="pt-0">
-            <div className="flex gap-2">
-              <Button variant="outline">View Full Letter</Button>
-              <Button variant="outline">
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </Button>
-              <Button variant="outline">Export PDF</Button>
-              <Button variant="outline" className="text-red-600 hover:text-red-700">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Draft Cover Letter */}
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Full Stack Engineer Application
-                </CardTitle>
-                <CardDescription className="text-lg flex items-center gap-2">
-                  <Building className="h-4 w-4" />
-                  BigCorp
-                </CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">Concise</Badge>
-                <Badge variant="secondary">Long</Badge>
-                <Badge variant="destructive">Draft</Badge>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-4 mb-4">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                <span>Created 2 weeks ago</span>
-              </div>
-              <div className="text-muted-foreground">
-                <span className="font-medium">320 words</span>
-              </div>
-              <div className="text-muted-foreground">
-                <span className="font-medium">Not used yet</span>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <h4 className="font-semibold mb-2">Preview:</h4>
-              <div className="bg-muted p-4 rounded-lg">
-                <p className="text-sm">
-                  Dear Hiring Team,<br/><br/>
-                  I am writing to apply for the Full Stack Engineer position at BigCorp. 
-                  With extensive experience in both frontend and backend development, 
-                  I am confident I can contribute to your engineering team...<br/><br/>
-                  My technical expertise spans React, Node.js, Python, and cloud technologies, 
-                  making me well-suited for full-stack development challenges...
-                </p>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <h4 className="font-semibold mb-2">Notes:</h4>
-              <Textarea 
-                placeholder="Add notes about this cover letter..."
-                className="min-h-[80px]"
-                defaultValue="Need to emphasize cloud experience more. Consider adding specific AWS projects."
-              />
-            </div>
-          </CardContent>
-          <CardContent className="pt-0">
-            <div className="flex gap-2">
-              <Button variant="outline">View Full Letter</Button>
-              <Button variant="outline">
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </Button>
-              <Button variant="outline">Export PDF</Button>
-              <Button variant="outline" className="text-red-600 hover:text-red-700">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Generation Form */}
-      <Card className="mt-8">
         <CardHeader>
-          <CardTitle>Generate New Cover Letter</CardTitle>
-          <CardDescription>Create a personalized cover letter for your next application</CardDescription>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              Filters
+              {activeFiltersCount > 0 && (
+                <Badge variant="secondary">{activeFiltersCount} active</Badge>
+              )}
+            </CardTitle>
+            {activeFiltersCount > 0 && (
+              <Button variant="ghost" size="sm" onClick={handleClearFilters}>
+                Clear All
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-semibold mb-4">Job Information</h4>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Job Title</label>
-                  <input 
-                    type="text" 
-                    className="w-full mt-1 p-2 border rounded-md"
-                    placeholder="e.g., Senior Software Engineer"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Company</label>
-                  <input 
-                    type="text" 
-                    className="w-full mt-1 p-2 border rounded-md"
-                    placeholder="e.g., TechCorp Inc."
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Job Description</label>
-                  <Textarea 
-                    className="mt-1"
-                    placeholder="Paste the job description here..."
-                    rows={4}
-                  />
-                </div>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Generation Options</h4>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Resume Version</label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select resume version" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="tech">Tech Companies v2</SelectItem>
-                      <SelectItem value="startup">Startup Focus</SelectItem>
-                      <SelectItem value="general">General Purpose</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Tone</label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select tone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="professional">Professional</SelectItem>
-                      <SelectItem value="conversational">Conversational</SelectItem>
-                      <SelectItem value="concise">Concise</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Length</label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select length" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="short">Short (150-200 words)</SelectItem>
-                      <SelectItem value="medium">Medium (250-300 words)</SelectItem>
-                      <SelectItem value="long">Long (350-400 words)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input type="checkbox" id="personalize" />
-                  <label htmlFor="personalize" className="text-sm">
-                    Personalize for company
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="mt-6 flex justify-end">
-            <Button>
-              Generate Cover Letter
-            </Button>
+          <div className="flex gap-4 items-center">
+            {/* Tone Filter */}
+            <Select
+              value={filters.tone || 'all'}
+              onValueChange={(value) => handleFilterChange('tone', value)}
+            >
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by tone" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Tones</SelectItem>
+                <SelectItem value="formal">Formal</SelectItem>
+                <SelectItem value="concise">Concise</SelectItem>
+                <SelectItem value="conversational">Conversational</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
+
+      {/* Loading State */}
+      {isLoading && coverLetters.length === 0 && (
+        <div className="grid gap-6 md:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <CoverLetterCardSkeleton key={i} />
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!isLoading && coverLetters.length === 0 && (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+            <p className="text-lg font-medium text-muted-foreground">
+              No cover letters yet
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground text-center max-w-md">
+              {activeFiltersCount > 0
+                ? 'No cover letters match your filters. Try adjusting your filters.'
+                : 'Generate your first AI-powered cover letter to get started.'}
+            </p>
+            {activeFiltersCount > 0 ? (
+              <Button className="mt-4" variant="outline" onClick={handleClearFilters}>
+                Clear Filters
+              </Button>
+            ) : (
+              <Button
+                className="mt-4"
+                onClick={() => router.push('/dashboard/cover-letters/new')}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Generate Cover Letter
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Cover Letters Grid */}
+      {coverLetters.length > 0 && (
+        <div className="grid md:grid-cols-2 gap-6">
+          {coverLetters.map((coverLetter) => (
+            <Card
+              key={coverLetter.id}
+              className="hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => router.push(`/dashboard/cover-letters/${coverLetter.id}`)}
+            >
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <CardTitle className="text-xl">
+                      {coverLetter.job_title || 'Cover Letter'}
+                    </CardTitle>
+                    {coverLetter.company_name && (
+                      <CardDescription className="text-lg flex items-center gap-2 mt-1">
+                        <Building className="h-4 w-4" />
+                        {coverLetter.company_name}
+                      </CardDescription>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {getToneBadge(coverLetter.tone)}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {/* Meta Information */}
+                <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <span>{formatDate(coverLetter.created_at)}</span>
+                  </div>
+                  <Badge variant="outline">
+                    {coverLetter.length === 'short'
+                      ? 'Short'
+                      : coverLetter.length === 'medium'
+                      ? 'Medium'
+                      : 'Long'}
+                  </Badge>
+                </div>
+
+                {/* Content Preview */}
+                <p className="text-muted-foreground mb-4 line-clamp-3">
+                  {coverLetter.content}
+                </p>
+
+                {/* Actions */}
+                <div className="flex gap-2 pt-2 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/dashboard/cover-letters/${coverLetter.id}`);
+                    }}
+                  >
+                    <Eye className="mr-1 h-3 w-3" />
+                    View
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/dashboard/cover-letters/${coverLetter.id}/edit`);
+                    }}
+                  >
+                    <Edit className="mr-1 h-3 w-3" />
+                    Edit
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => e.stopPropagation()}
+                        disabled={downloadingId === coverLetter.id}
+                      >
+                        {downloadingId === coverLetter.id ? (
+                          <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                        ) : (
+                          <Download className="mr-1 h-3 w-3" />
+                        )}
+                        Download
+                        <ChevronDown className="ml-1 h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownload(coverLetter.id, 'pdf');
+                        }}
+                      >
+                        Download as PDF
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownload(coverLetter.id, 'docx');
+                        }}
+                      >
+                        Download as DOCX
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openDeleteDialog(coverLetter.id);
+                    }}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="mr-1 h-3 w-3" />
+                    Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {pagination.total_pages > 1 && (
+        <div className="mt-8 flex justify-center">
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              disabled={pagination.page === 1 || isLoading}
+              onClick={() => handlePageChange(pagination.page - 1)}
+            >
+              Previous
+            </Button>
+
+            {/* Page Numbers */}
+            {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
+              let pageNum;
+              if (pagination.total_pages <= 5) {
+                pageNum = i + 1;
+              } else if (pagination.page <= 3) {
+                pageNum = i + 1;
+              } else if (pagination.page >= pagination.total_pages - 2) {
+                pageNum = pagination.total_pages - 4 + i;
+              } else {
+                pageNum = pagination.page - 2 + i;
+              }
+
+              return (
+                <Button
+                  key={pageNum}
+                  variant={pagination.page === pageNum ? 'default' : 'outline'}
+                  onClick={() => handlePageChange(pageNum)}
+                  disabled={isLoading}
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+
+            <Button
+              variant="outline"
+              disabled={pagination.page === pagination.total_pages || isLoading}
+              onClick={() => handlePageChange(pagination.page + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Cover Letter</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this cover letter? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deletingId !== null}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deletingId !== null}
+            >
+              {deletingId ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
-  )
+  );
 }

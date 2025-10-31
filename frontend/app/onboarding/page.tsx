@@ -135,7 +135,11 @@ export default function OnboardingPage() {
       setIsLoading(true);
       setError(null);
 
-      const completeData = { ...formData, ...data };
+      const completeData = {
+        ...formData,
+        ...data,
+        locations: data.preferred_locations || []
+      };
       await userApi.completeOnboarding(completeData);
 
       router.push('/dashboard');
@@ -435,7 +439,7 @@ export default function OnboardingPage() {
                   <Checkbox
                     id="visa_sponsorship"
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onChange={(e) => field.onChange(e.target.checked)}
                     aria-label="Visa Sponsorship"
                   />
                 )}
@@ -453,7 +457,7 @@ export default function OnboardingPage() {
                   <Checkbox
                     id="willing_to_relocate"
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onChange={(e) => field.onChange(e.target.checked)}
                     aria-label="Willing to Relocate"
                   />
                 )}

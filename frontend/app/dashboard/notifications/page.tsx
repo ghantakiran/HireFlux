@@ -55,7 +55,7 @@ export default function NotificationsPage() {
                   <Badge variant="secondary" className="text-xs">New</Badge>
                 </div>
                 <p className="text-sm text-muted-foreground mb-2">
-                  We found 10 jobs matching your profile with Fit Index > 80
+                  We found 10 jobs matching your profile with Fit Index {'>'}  80
                 </p>
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span>2 hours ago</span>

@@ -51,6 +51,8 @@ import {
   type ApplicationStatus,
   type ApplicationMode,
 } from '@/lib/stores/application-store';
+import { ApplicationCardSkeleton } from '@/components/skeletons/card-skeleton';
+import { StatsRowSkeleton } from '@/components/skeletons/stats-skeleton';
 
 export default function ApplicationsPage() {
   const router = useRouter();
@@ -178,11 +180,13 @@ export default function ApplicationsPage() {
         variant: 'secondary' as const,
         icon: <Briefcase className="h-3 w-3 mr-1" />,
         label: 'Saved',
+        className: '',
       },
       applied: {
         variant: 'default' as const,
         icon: <CheckCircle className="h-3 w-3 mr-1" />,
         label: 'Applied',
+        className: '',
       },
       interview: {
         variant: 'secondary' as const,
@@ -200,6 +204,7 @@ export default function ApplicationsPage() {
         variant: 'destructive' as const,
         icon: <XCircle className="h-3 w-3 mr-1" />,
         label: 'Rejected',
+        className: '',
       },
     };
 
@@ -400,10 +405,15 @@ export default function ApplicationsPage() {
 
       {/* Loading State */}
       {isLoading && applications.length === 0 && (
-        <div className="flex min-h-[400px] items-center justify-center">
-          <div className="flex flex-col items-center gap-2">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-            <p className="text-muted-foreground">Loading applications...</p>
+        <div className="space-y-6">
+          {/* Stats Skeleton */}
+          <StatsRowSkeleton count={5} />
+
+          {/* Application Cards Skeleton */}
+          <div className="space-y-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <ApplicationCardSkeleton key={i} />
+            ))}
           </div>
         </div>
       )}

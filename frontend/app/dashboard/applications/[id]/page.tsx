@@ -139,11 +139,13 @@ export default function ApplicationDetailPage() {
         variant: 'secondary' as const,
         icon: <Briefcase className="h-4 w-4 mr-1" />,
         label: 'Saved',
+        className: '',
       },
       applied: {
         variant: 'default' as const,
         icon: <CheckCircle className="h-4 w-4 mr-1" />,
         label: 'Applied',
+        className: '',
       },
       interview: {
         variant: 'secondary' as const,
@@ -161,12 +163,13 @@ export default function ApplicationDetailPage() {
         variant: 'destructive' as const,
         icon: <XCircle className="h-4 w-4 mr-1" />,
         label: 'Rejected',
+        className: '',
       },
     };
 
     const config = configs[status];
     return (
-      <Badge variant={config.variant} className={config.className}>
+      <Badge variant={config.variant} className={config.className || ''}>
         {config.icon}
         {config.label}
       </Badge>

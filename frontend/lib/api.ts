@@ -173,8 +173,6 @@ export const resumeApi = {
   createVersion: (id: string, data: { name: string }) =>
     apiClient.post<ApiResponse>(`/resumes/${id}/versions`, data),
 
-  getVersions: () => apiClient.get<ApiResponse>('/resumes/versions'),
-
   tailorToJob: (id: string, data: { job_description: string }) =>
     apiClient.post<ApiResponse>(`/resumes/${id}/tailor`, data),
 
@@ -247,33 +245,44 @@ export const applicationApi = {
   getAnalytics: () => apiClient.get<ApiResponse>('/applications/analytics'),
 };
 
-// Subscription API
-export const subscriptionApi = {
-  getPlans: () => apiClient.get<ApiResponse>('/subscriptions/plans'),
-
+// Billing & Subscription API
+export const billingApi = {
+  // Subscription endpoints
   createCheckoutSession: (data: {
-    plan_id: string;
+    plan: 'plus' | 'pro';
+    billing_interval: 'monthly' | 'yearly';
     success_url: string;
     cancel_url: string;
-  }) => apiClient.post<ApiResponse>('/subscriptions/checkout', data),
+    promo_code?: string;
+  }) => apiClient.post<ApiResponse>('/billing/subscriptions/create', data),
 
-  getCurrentSubscription: () => apiClient.get<ApiResponse>('/subscriptions/current'),
+  getCurrentSubscription: () => apiClient.get<ApiResponse>('/billing/subscriptions/current'),
 
-  cancelSubscription: () => apiClient.post<ApiResponse>('/subscriptions/cancel'),
-};
+  cancelSubscription: (data: {
+    immediate: boolean;
+    reason?: string;
+  }) => apiClient.post<ApiResponse>('/billing/subscriptions/cancel', data),
 
-// Credits API
-export const creditsApi = {
-  getBalance: () => apiClient.get<ApiResponse>('/credits/balance'),
+  createBillingPortalSession: (data: {
+    return_url: string;
+  }) => apiClient.post<ApiResponse>('/billing/portal', data),
+
+  // Credits endpoints
+  getCredits: () => apiClient.get<ApiResponse>('/billing/credits'),
+
+  getCreditHistory: (params?: {
+    credit_type?: string;
+    limit?: number;
+  }) => apiClient.get<ApiResponse>('/billing/credits/history', { params }),
+
+  checkCredits: (creditType: string, amount: number) =>
+    apiClient.get<ApiResponse>(`/billing/credits/check/${creditType}/${amount}`),
 
   purchaseCredits: (data: {
     amount: number;
     success_url: string;
     cancel_url: string;
-  }) => apiClient.post<ApiResponse>('/credits/purchase', data),
-
-  getLedger: (params?: { page?: number; limit?: number }) =>
-    apiClient.get<ApiResponse>('/credits/ledger', { params }),
+  }) => apiClient.post<ApiResponse>('/billing/credits/purchase', data),
 };
 
 // Notification API

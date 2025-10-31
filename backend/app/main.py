@@ -29,10 +29,132 @@ if settings.SENTRY_DSN:
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="AI-Powered Job Application Copilot API",
-    docs_url=f"{settings.API_V1_PREFIX}/docs" if settings.DEBUG else None,
-    redoc_url=f"{settings.API_V1_PREFIX}/redoc" if settings.DEBUG else None,
-    openapi_url=f"{settings.API_V1_PREFIX}/openapi.json" if settings.DEBUG else None,
+    description="""
+# HireFlux API
+
+AI-Powered Job Application Copilot that streamlines job search with:
+- **Tailored Resumes**: ATS-optimized resumes with multiple versions
+- **AI Cover Letters**: Personalized cover letters in formal, concise, or conversational tones
+- **Smart Job Matching**: Embeddings-based matching with 0-100 Fit Index
+- **Application Tracking**: Comprehensive pipeline management
+- **Auto-Apply**: Consent-based automated job applications
+- **Interview Coach**: Mock interviews with AI feedback
+
+## Authentication
+
+All endpoints (except `/auth/*` and `/health`) require Bearer token authentication:
+
+```
+Authorization: Bearer <your_jwt_token>
+```
+
+Obtain tokens via:
+- Email/Password: `POST /auth/login`
+- Google OAuth: `GET /auth/google/authorize`
+- LinkedIn OAuth: `GET /auth/linkedin/authorize`
+
+## Rate Limiting
+
+- **Per Minute**: 60 requests
+- **Per Hour**: 1000 requests
+
+## Pagination
+
+List endpoints support pagination via query parameters:
+- `page`: Page number (default: 1)
+- `limit`: Items per page (default: 20, max: 100)
+
+## Response Format
+
+### Success Response
+```json
+{
+  "success": true,
+  "data": { ... },
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 100
+  }
+}
+```
+
+### Error Response
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable error message",
+    "details": { ... },
+    "request_id": "uuid"
+  }
+}
+```
+
+## Webhooks
+
+Stripe webhooks are handled at:
+- `POST /billing/webhook` (signature verification required)
+""",
+    docs_url=f"{settings.API_V1_PREFIX}/docs",
+    redoc_url=f"{settings.API_V1_PREFIX}/redoc",
+    openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
+    contact={
+        "name": "HireFlux Support",
+        "email": "support@hireflux.com",
+        "url": "https://hireflux.com/support"
+    },
+    license_info={
+        "name": "Proprietary",
+        "url": "https://hireflux.com/terms"
+    },
+    openapi_tags=[
+        {
+            "name": "Health",
+            "description": "Health check and system status endpoints"
+        },
+        {
+            "name": "Authentication",
+            "description": "User authentication, registration, and OAuth flows"
+        },
+        {
+            "name": "Resumes",
+            "description": "Resume creation, management, and versioning"
+        },
+        {
+            "name": "Cover Letters",
+            "description": "AI-powered cover letter generation and management"
+        },
+        {
+            "name": "Jobs",
+            "description": "Job search, matching, and recommendations"
+        },
+        {
+            "name": "Applications",
+            "description": "Job application tracking and management"
+        },
+        {
+            "name": "Auto-Apply",
+            "description": "Automated job application submission"
+        },
+        {
+            "name": "Billing",
+            "description": "Subscriptions, payments, and credit management"
+        },
+        {
+            "name": "Analytics",
+            "description": "User analytics and insights"
+        },
+        {
+            "name": "Interview",
+            "description": "Interview preparation and coaching"
+        },
+        {
+            "name": "Notifications",
+            "description": "User notifications and alerts"
+        },
+    ]
 )
 
 # CORS Middleware

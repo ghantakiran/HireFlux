@@ -541,10 +541,10 @@ export default function ResumeEditPage() {
                           <Checkbox
                             id={`current-${index}`}
                             checked={watch(`work_experience.${index}.is_current`)}
-                            onCheckedChange={(checked) =>
+                            onChange={(e) =>
                               setValue(
                                 `work_experience.${index}.is_current`,
-                                checked as boolean
+                                e.target.checked
                               )
                             }
                           />
