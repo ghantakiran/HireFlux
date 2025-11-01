@@ -154,6 +154,10 @@ Stripe webhooks are handled at:
             "name": "Notifications",
             "description": "User notifications and alerts"
         },
+        {
+            "name": "Employers",
+            "description": "Employer/company registration, management, and team collaboration"
+        },
     ]
 )
 
