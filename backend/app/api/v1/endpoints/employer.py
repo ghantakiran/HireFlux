@@ -16,7 +16,14 @@ from app.schemas.company import (
     EmployerRegistrationResponse,
     DashboardResponse,
 )
+from app.schemas.dashboard import (
+    DashboardStats,
+    PipelineMetrics,
+    RecentActivity,
+    TeamActivity,
+)
 from app.services.employer_service import EmployerService
+from app.services.dashboard_service import DashboardService
 from app.services.auth import AuthService
 from app.api.dependencies import get_current_user
 from app.db.models.user import User
@@ -407,4 +414,233 @@ def remove_team_member(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to remove team member: {str(e)}"
+        )
+
+
+# ===========================================================================
+# Dashboard Endpoints
+# ===========================================================================
+
+
+@router.get("/dashboard/stats", response_model=DashboardStats)
+def get_dashboard_stats(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get comprehensive dashboard statistics for employer.
+
+    Returns metrics including:
+    - Active jobs count
+    - Total applications received
+    - Applications by status (pipeline breakdown)
+    - Top performing jobs
+    - Usage tracking (jobs posted, candidate views)
+    - Plan limits
+
+    **Authentication Required:** Employer user
+
+    **Permissions:** owner, admin, hiring_manager
+    """
+    # Get user's company membership
+    company_member = (
+        db.query(CompanyMember)
+        .filter(CompanyMember.user_id == current_user.id)
+        .first()
+    )
+
+    if not company_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with any company"
+        )
+
+    # Check permissions (only certain roles can view dashboard)
+    allowed_roles = ["owner", "admin", "hiring_manager", "recruiter"]
+    if company_member.role not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
+        )
+
+    try:
+        dashboard_service = DashboardService(db)
+        stats = dashboard_service.get_dashboard_stats(company_member.company_id)
+        return stats
+
+    except Exception as e:
+        if "not found" in str(e).lower():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch dashboard stats: {str(e)}"
+        )
+
+
+@router.get("/dashboard/pipeline", response_model=PipelineMetrics)
+def get_pipeline_metrics(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get hiring pipeline conversion metrics.
+
+    Returns:
+    - Total applicants
+    - Candidates at each stage (interviewed, offered, hired, rejected)
+    - Conversion rates (application→interview, interview→offer, offer→acceptance)
+
+    **Use Cases:**
+    - Analyze hiring funnel effectiveness
+    - Identify bottlenecks in hiring process
+    - Track conversion rates over time
+
+    **Authentication Required:** Employer user
+
+    **Permissions:** owner, admin, hiring_manager, recruiter
+    """
+    company_member = (
+        db.query(CompanyMember)
+        .filter(CompanyMember.user_id == current_user.id)
+        .first()
+    )
+
+    if not company_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with any company"
+        )
+
+    allowed_roles = ["owner", "admin", "hiring_manager", "recruiter"]
+    if company_member.role not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
+        )
+
+    try:
+        dashboard_service = DashboardService(db)
+        pipeline = dashboard_service.get_pipeline_metrics(company_member.company_id)
+        return pipeline
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch pipeline metrics: {str(e)}"
+        )
+
+
+@router.get("/dashboard/activity", response_model=RecentActivity)
+def get_recent_activity(
+    limit: int = 20,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get recent activity feed for company.
+
+    Returns chronological list of events:
+    - Job postings
+    - New applications received
+    - Application status changes (future)
+    - Team member actions (future)
+
+    **Query Parameters:**
+    - `limit` (optional): Number of events to return (default: 20, max: 100)
+
+    **Authentication Required:** Employer user
+
+    **Permissions:** owner, admin, hiring_manager, recruiter
+    """
+    company_member = (
+        db.query(CompanyMember)
+        .filter(CompanyMember.user_id == current_user.id)
+        .first()
+    )
+
+    if not company_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with any company"
+        )
+
+    allowed_roles = ["owner", "admin", "hiring_manager", "recruiter", "viewer"]
+    if company_member.role not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
+        )
+
+    # Enforce max limit
+    if limit > 100:
+        limit = 100
+    if limit < 1:
+        limit = 20
+
+    try:
+        dashboard_service = DashboardService(db)
+        activity = dashboard_service.get_recent_activity(company_member.company_id, limit=limit)
+        return activity
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch recent activity: {str(e)}"
+        )
+
+
+@router.get("/dashboard/team-activity", response_model=TeamActivity)
+def get_team_activity(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get team activity overview.
+
+    Returns:
+    - Total team members
+    - Active members this week
+    - Per-member breakdown (jobs posted, candidates reviewed)
+
+    **Use Cases:**
+    - Monitor team engagement
+    - Track individual contributions
+    - Identify inactive team members
+
+    **Authentication Required:** Employer user
+
+    **Permissions:** owner, admin
+    """
+    company_member = (
+        db.query(CompanyMember)
+        .filter(CompanyMember.user_id == current_user.id)
+        .first()
+    )
+
+    if not company_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with any company"
+        )
+
+    # Only owners and admins can view team activity
+    allowed_roles = ["owner", "admin"]
+    if company_member.role not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
+        )
+
+    try:
+        dashboard_service = DashboardService(db)
+        team_activity = dashboard_service.get_team_activity(company_member.company_id)
+        return team_activity
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch team activity: {str(e)}"
         )

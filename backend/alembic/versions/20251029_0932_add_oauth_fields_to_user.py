@@ -17,26 +17,20 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Make hashed_password nullable for OAuth users
-    op.alter_column('users', 'hashed_password', nullable=True, existing_type=sa.String(255))
+    """
+    NOTE: OAuth fields already exist in users table from initial migration.
+    This migration is a no-op to maintain migration chain integrity.
 
-    # Add OAuth fields
-    op.add_column('users', sa.Column('oauth_provider', sa.String(50), nullable=True))
-    op.add_column('users', sa.Column('oauth_provider_id', sa.String(255), nullable=True))
-    op.add_column('users', sa.Column('oauth_picture', sa.String(500), nullable=True))
-
-    # Add index on oauth_provider_id for faster lookups
-    op.create_index('ix_users_oauth_provider_id', 'users', ['oauth_provider_id'])
+    The initial migration (cae7bbeff042) already includes:
+    - oauth_provider VARCHAR(50)
+    - oauth_provider_id VARCHAR(255)
+    - oauth_picture VARCHAR(500)
+    - ix_users_oauth_provider_id index
+    - hashed_password is already nullable
+    """
+    pass
 
 
 def downgrade() -> None:
-    # Remove index
-    op.drop_index('ix_users_oauth_provider_id', 'users')
-
-    # Remove OAuth fields
-    op.drop_column('users', 'oauth_picture')
-    op.drop_column('users', 'oauth_provider_id')
-    op.drop_column('users', 'oauth_provider')
-
-    # Make hashed_password not nullable again
-    op.alter_column('users', 'hashed_password', nullable=False, existing_type=sa.String(255))
+    """No-op downgrade since nothing was changed in upgrade"""
+    pass

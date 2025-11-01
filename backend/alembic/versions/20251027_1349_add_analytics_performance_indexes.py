@@ -73,84 +73,73 @@ def upgrade() -> None:
 
     # Activity Events table indexes (if exists)
     # ============================================================================
+    # NOTE: activity_events table doesn't exist yet - skipping these indexes
 
-    # Index for user + timestamp (activity timeline)
-    op.create_index(
-        'idx_activity_user_timestamp',
-        'activity_events',
-        ['user_id', 'timestamp'],
-        unique=False
-    )
+    # # Index for user + timestamp (activity timeline)
+    # op.create_index(
+    #     'idx_activity_user_timestamp',
+    #     'activity_events',
+    #     ['user_id', 'timestamp'],
+    #     unique=False
+    # )
 
-    # Index for user + event_type (filtered activity queries)
-    op.create_index(
-        'idx_activity_user_type',
-        'activity_events',
-        ['user_id', 'event_type'],
-        unique=False
-    )
+    # # Index for user + event_type (filtered activity queries)
+    # op.create_index(
+    #     'idx_activity_user_type',
+    #     'activity_events',
+    #     ['user_id', 'event_type'],
+    #     unique=False
+    # )
 
     # Resumes table indexes
     # ============================================================================
+    # NOTE: resumes table doesn't have updated_at or is_active columns - skipping
 
-    # Index for user + updated_at (recent resume activity)
-    op.create_index(
-        'idx_resumes_user_updated',
-        'resumes',
-        ['user_id', 'updated_at'],
-        unique=False
-    )
+    # # Index for user + updated_at (recent resume activity)
+    # op.create_index(
+    #     'idx_resumes_user_updated',
+    #     'resumes',
+    #     ['user_id', 'updated_at'],
+    #     unique=False
+    # )
 
-    # Index for user + is_active (active resume queries)
-    op.create_index(
-        'idx_resumes_user_active',
-        'resumes',
-        ['user_id', 'is_active'],
-        unique=False
-    )
+    # # Index for user + is_active (active resume queries)
+    # op.create_index(
+    #     'idx_resumes_user_active',
+    #     'resumes',
+    #     ['user_id', 'is_active'],
+    #     unique=False
+    # )
 
     # Jobs table indexes
     # ============================================================================
 
-    # Index for posted_date (trending jobs, recent jobs)
+    # Index for posted_at (trending jobs, recent jobs) - column is posted_at not posted_date
     op.create_index(
-        'idx_jobs_posted_date',
+        'idx_jobs_posted_at',
         'jobs',
-        ['posted_date'],
+        ['posted_at'],
         unique=False
     )
 
-    # Index for is_active (active job filtering)
-    op.create_index(
-        'idx_jobs_active',
-        'jobs',
-        ['is_active'],
-        unique=False
-    )
+    # NOTE: ix_jobs_is_active already created by enhancement migration - skip
+    # NOTE: ix_jobs_company already created by initial migration - skip
 
-    # Index for company (company-based filtering)
-    op.create_index(
-        'idx_jobs_company',
-        'jobs',
-        ['company'],
-        unique=False
-    )
-
-    # Job Matches table indexes
+    # Match Scores table indexes (table is called match_scores not job_matches)
     # ============================================================================
 
-    # Index for user + match_score (top matches queries)
+    # Index for user + fit_index (top matches queries) - column is fit_index not match_score
     op.create_index(
-        'idx_job_matches_user_score',
-        'job_matches',
-        ['user_id', 'match_score'],
+        'idx_match_scores_user_fit_index',
+        'match_scores',
+        ['user_id', 'fit_index'],
         unique=False
     )
 
     # Index for user + created_at (recent matches)
     op.create_index(
-        'idx_job_matches_user_created',
-        'job_matches',
+        'idx_match_scores_user_created',
+        'match_scores',
         ['user_id', 'created_at'],
         unique=False
     )
@@ -168,22 +157,23 @@ def upgrade() -> None:
 
     # Interview Sessions table indexes
     # ============================================================================
+    # NOTE: interview_sessions table doesn't exist yet - skipping these indexes
 
-    # Index for user + scheduled_at (upcoming interviews)
-    op.create_index(
-        'idx_interviews_user_scheduled',
-        'interview_sessions',
-        ['user_id', 'scheduled_at'],
-        unique=False
-    )
+    # # Index for user + scheduled_at (upcoming interviews)
+    # op.create_index(
+    #     'idx_interviews_user_scheduled',
+    #     'interview_sessions',
+    #     ['user_id', 'scheduled_at'],
+    #     unique=False
+    # )
 
-    # Index for user + status (active interviews)
-    op.create_index(
-        'idx_interviews_user_status',
-        'interview_sessions',
-        ['user_id', 'status'],
-        unique=False
-    )
+    # # Index for user + status (active interviews)
+    # op.create_index(
+    #     'idx_interviews_user_status',
+    #     'interview_sessions',
+    #     ['user_id', 'status'],
+    #     unique=False
+    # )
 
 
 def downgrade() -> None:
@@ -198,26 +188,26 @@ def downgrade() -> None:
     op.drop_index('idx_applications_user_updated', table_name='applications')
     op.drop_index('idx_applications_user_status_created', table_name='applications')
 
-    # Activity Events indexes
-    op.drop_index('idx_activity_user_timestamp', table_name='activity_events')
-    op.drop_index('idx_activity_user_type', table_name='activity_events')
+    # Activity Events indexes - skipped (table doesn't exist)
+    # op.drop_index('idx_activity_user_timestamp', table_name='activity_events')
+    # op.drop_index('idx_activity_user_type', table_name='activity_events')
 
-    # Resumes indexes
-    op.drop_index('idx_resumes_user_updated', table_name='resumes')
-    op.drop_index('idx_resumes_user_active', table_name='resumes')
+    # Resumes indexes - skipped (columns don't exist)
+    # op.drop_index('idx_resumes_user_updated', table_name='resumes')
+    # op.drop_index('idx_resumes_user_active', table_name='resumes')
 
     # Jobs indexes
-    op.drop_index('idx_jobs_posted_date', table_name='jobs')
-    op.drop_index('idx_jobs_active', table_name='jobs')
-    op.drop_index('idx_jobs_company', table_name='jobs')
+    op.drop_index('idx_jobs_posted_at', table_name='jobs')
+    # idx_jobs_is_active already exists from enhancement migration - don't drop
+    # idx_jobs_company already exists from initial migration - don't drop
 
-    # Job Matches indexes
-    op.drop_index('idx_job_matches_user_score', table_name='job_matches')
-    op.drop_index('idx_job_matches_user_created', table_name='job_matches')
+    # Match Scores indexes (fixed table name from job_matches to match_scores)
+    op.drop_index('idx_match_scores_user_fit_index', table_name='match_scores')
+    op.drop_index('idx_match_scores_user_created', table_name='match_scores')
 
     # Cover Letters indexes
     op.drop_index('idx_cover_letters_user_created', table_name='cover_letters')
 
-    # Interview Sessions indexes
-    op.drop_index('idx_interviews_user_scheduled', table_name='interview_sessions')
-    op.drop_index('idx_interviews_user_status', table_name='interview_sessions')
+    # Interview Sessions indexes - skipped (table doesn't exist)
+    # op.drop_index('idx_interviews_user_scheduled', table_name='interview_sessions')
+    # op.drop_index('idx_interviews_user_status', table_name='interview_sessions')

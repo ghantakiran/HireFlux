@@ -39,13 +39,20 @@ class Job(Base):
     __tablename__ = "jobs"
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+
+    # Employer relationship (for jobs posted by companies on the platform)
+    company_id = Column(
+        GUID(), ForeignKey("companies.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+
+    # External source relationship (for jobs sourced from job boards)
     source_id = Column(
         GUID(), ForeignKey("job_sources.id", ondelete="SET NULL"), nullable=True
     )
-    source = Column(String(50))  # 'greenhouse', 'lever', 'manual'
+    source = Column(String(50))  # 'greenhouse', 'lever', 'manual', 'employer'
     external_id = Column(String(255))  # ID from job board
     title = Column(String(255), index=True)
-    company = Column(String(255), index=True)
+    company = Column(String(255), index=True)  # Company name (string for external jobs)
     description = Column(Text)
     location = Column(String(255))
     location_type = Column(String(50))  # 'remote', 'hybrid', 'onsite'
@@ -78,6 +85,7 @@ class Job(Base):
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
     # Relationships
+    employer_company = relationship("Company", back_populates="jobs")
     job_source = relationship("JobSource", back_populates="jobs")
     match_scores = relationship(
         "MatchScore", back_populates="job", cascade="all, delete-orphan"

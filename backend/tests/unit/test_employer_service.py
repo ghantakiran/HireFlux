@@ -12,7 +12,7 @@ Test Coverage:
 """
 import pytest
 from datetime import datetime, timedelta
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from uuid import uuid4
 
 from app.services.employer_service import EmployerService
@@ -40,7 +40,7 @@ def company_create_data():
 
 
 @pytest.fixture
-async def sample_company(db_session: AsyncSession):
+async def sample_company(db_session: Session):
     """Create a sample company for testing"""
     # Create user
     user = User(
@@ -50,7 +50,7 @@ async def sample_company(db_session: AsyncSession):
         user_type="employer"
     )
     db_session.add(user)
-    await db_session.flush()
+    db_session.flush()
 
     # Create company
     company = Company(
@@ -63,7 +63,7 @@ async def sample_company(db_session: AsyncSession):
         subscription_status="active"
     )
     db_session.add(company)
-    await db_session.flush()
+    db_session.flush()
 
     # Create company owner
     member = CompanyMember(
@@ -85,8 +85,8 @@ async def sample_company(db_session: AsyncSession):
     )
     db_session.add(subscription)
 
-    await db_session.commit()
-    await db_session.refresh(company)
+    db_session.commit()
+    db_session.refresh(company)
 
     return company, user
 
@@ -95,8 +95,8 @@ async def sample_company(db_session: AsyncSession):
 # Test Cases: Company Creation (Happy Path)
 # ===========================================================================
 
-@pytest.mark.asyncio
-async def test_create_company_success(db_session: AsyncSession, company_create_data: CompanyCreate):
+
+def test_create_company_success(db_session: Session, company_create_data: CompanyCreate):
     """
     GIVEN: Valid company registration data
     WHEN: create_company() is called
@@ -105,7 +105,7 @@ async def test_create_company_success(db_session: AsyncSession, company_create_d
     service = EmployerService(db_session)
 
     # Execute
-    company = await service.create_company(company_create_data)
+    company = service.create_company(company_create_data)
 
     # Assert company created
     assert company.id is not None
@@ -142,8 +142,8 @@ async def test_create_company_success(db_session: AsyncSession, company_create_d
     assert company.subscription.candidate_views_this_month == 0
 
 
-@pytest.mark.asyncio
-async def test_create_company_sets_trial_period(db_session: AsyncSession, company_create_data: CompanyCreate):
+
+def test_create_company_sets_trial_period(db_session: Session, company_create_data: CompanyCreate):
     """
     GIVEN: New company registration
     WHEN: create_company() is called
@@ -151,7 +151,7 @@ async def test_create_company_sets_trial_period(db_session: AsyncSession, compan
     """
     service = EmployerService(db_session)
 
-    company = await service.create_company(company_create_data)
+    company = service.create_company(company_create_data)
 
     expected_trial_end = datetime.utcnow() + timedelta(days=14)
     assert company.trial_ends_at is not None
@@ -159,8 +159,8 @@ async def test_create_company_sets_trial_period(db_session: AsyncSession, compan
     assert abs((company.trial_ends_at - expected_trial_end).total_seconds()) < 60
 
 
-@pytest.mark.asyncio
-async def test_create_company_hashes_password(db_session: AsyncSession, company_create_data: CompanyCreate):
+
+def test_create_company_hashes_password(db_session: Session, company_create_data: CompanyCreate):
     """
     GIVEN: Company registration with plaintext password
     WHEN: create_company() is called
@@ -168,11 +168,11 @@ async def test_create_company_hashes_password(db_session: AsyncSession, company_
     """
     service = EmployerService(db_session)
 
-    company = await service.create_company(company_create_data)
+    company = service.create_company(company_create_data)
     founder_member = company.members[0]
 
     # Get the user from database
-    user = await db_session.get(User, founder_member.user_id)
+    user = db_session.get(User, founder_member.user_id)
 
     assert user.hashed_password is not None
     assert user.hashed_password != "SecurePass123!"
@@ -183,8 +183,8 @@ async def test_create_company_hashes_password(db_session: AsyncSession, company_
 # Test Cases: Validation Errors
 # ===========================================================================
 
-@pytest.mark.asyncio
-async def test_create_company_invalid_email(db_session: AsyncSession):
+
+def test_create_company_invalid_email(db_session: Session):
     """
     GIVEN: Company data with invalid email
     WHEN: create_company() is called
@@ -200,11 +200,11 @@ async def test_create_company_invalid_email(db_session: AsyncSession):
     )
 
     with pytest.raises(ValueError, match="email"):
-        await service.create_company(invalid_data)
+        service.create_company(invalid_data)
 
 
-@pytest.mark.asyncio
-async def test_create_company_weak_password(db_session: AsyncSession):
+
+def test_create_company_weak_password(db_session: Session):
     """
     GIVEN: Company data with weak password
     WHEN: create_company() is called
@@ -220,11 +220,11 @@ async def test_create_company_weak_password(db_session: AsyncSession):
     )
 
     with pytest.raises(ValueError, match="Password"):
-        await service.create_company(weak_password_data)
+        service.create_company(weak_password_data)
 
 
-@pytest.mark.asyncio
-async def test_create_company_invalid_size(db_session: AsyncSession):
+
+def test_create_company_invalid_size(db_session: Session):
     """
     GIVEN: Company data with invalid size value
     WHEN: create_company() is called
@@ -240,15 +240,15 @@ async def test_create_company_invalid_size(db_session: AsyncSession):
     )
 
     with pytest.raises(ValueError, match="Size must be one of"):
-        await service.create_company(invalid_size_data)
+        service.create_company(invalid_size_data)
 
 
 # ===========================================================================
 # Test Cases: Duplicate Company
 # ===========================================================================
 
-@pytest.mark.asyncio
-async def test_create_company_duplicate_domain(db_session: AsyncSession, sample_company):
+
+def test_create_company_duplicate_domain(db_session: Session, sample_company):
     """
     GIVEN: Company already exists with domain "company.com"
     WHEN: Attempting to create new company with email @company.com
@@ -265,15 +265,15 @@ async def test_create_company_duplicate_domain(db_session: AsyncSession, sample_
     )
 
     with pytest.raises(Exception):  # Will be IntegrityError from database
-        await service.create_company(duplicate_data)
+        service.create_company(duplicate_data)
 
 
 # ===========================================================================
 # Test Cases: Company Updates
 # ===========================================================================
 
-@pytest.mark.asyncio
-async def test_update_company_success(db_session: AsyncSession, sample_company):
+
+def test_update_company_success(db_session: Session, sample_company):
     """
     GIVEN: Existing company
     WHEN: update_company() is called with new data
@@ -289,7 +289,7 @@ async def test_update_company_success(db_session: AsyncSession, sample_company):
         location="New York, NY"
     )
 
-    updated_company = await service.update_company(existing_company.id, update_data)
+    updated_company = service.update_company(existing_company.id, update_data)
 
     assert updated_company.name == "Updated Company Name"
     assert updated_company.industry == "FinTech"
@@ -299,8 +299,8 @@ async def test_update_company_success(db_session: AsyncSession, sample_company):
     assert updated_company.domain == "company.com"
 
 
-@pytest.mark.asyncio
-async def test_update_company_not_found(db_session: AsyncSession):
+
+def test_update_company_not_found(db_session: Session):
     """
     GIVEN: Non-existent company ID
     WHEN: update_company() is called
@@ -312,15 +312,15 @@ async def test_update_company_not_found(db_session: AsyncSession):
     update_data = CompanyUpdate(name="Updated Name")
 
     with pytest.raises(Exception, match="not found"):
-        await service.update_company(non_existent_id, update_data)
+        service.update_company(non_existent_id, update_data)
 
 
 # ===========================================================================
 # Test Cases: Team Member Management
 # ===========================================================================
 
-@pytest.mark.asyncio
-async def test_add_team_member_success(db_session: AsyncSession, sample_company):
+
+def test_add_team_member_success(db_session: Session, sample_company):
     """
     GIVEN: Existing company
     WHEN: add_team_member() is called
@@ -334,7 +334,7 @@ async def test_add_team_member_success(db_session: AsyncSession, sample_company)
         role="recruiter"
     )
 
-    new_member = await service.add_team_member(
+    new_member = service.add_team_member(
         company_id=existing_company.id,
         member_data=member_data,
         invited_by_user_id=owner_user.id
@@ -348,8 +348,8 @@ async def test_add_team_member_success(db_session: AsyncSession, sample_company)
     assert new_member.joined_at is None  # Not joined yet
 
 
-@pytest.mark.asyncio
-async def test_add_team_member_exceeds_limit(db_session: AsyncSession, sample_company):
+
+def test_add_team_member_exceeds_limit(db_session: Session, sample_company):
     """
     GIVEN: Company on Starter plan (max 1 team member)
     WHEN: Attempting to add 2nd team member
@@ -368,15 +368,15 @@ async def test_add_team_member_exceeds_limit(db_session: AsyncSession, sample_co
     )
 
     with pytest.raises(Exception, match="team member limit"):
-        await service.add_team_member(
+        service.add_team_member(
             company_id=existing_company.id,
             member_data=member_data,
             invited_by_user_id=owner_user.id
         )
 
 
-@pytest.mark.asyncio
-async def test_remove_team_member_success(db_session: AsyncSession, sample_company):
+
+def test_remove_team_member_success(db_session: Session, sample_company):
     """
     GIVEN: Company with multiple team members
     WHEN: remove_team_member() is called
@@ -387,17 +387,17 @@ async def test_remove_team_member_success(db_session: AsyncSession, sample_compa
 
     # First upgrade to allow more members
     existing_company.max_team_members = 3
-    await db_session.commit()
+    db_session.commit()
 
     # Add a member
     member_data = CompanyMemberCreate(email="temp@company.com", role="viewer")
-    member = await service.add_team_member(existing_company.id, member_data, owner_user.id)
+    member = service.add_team_member(existing_company.id, member_data, owner_user.id)
 
     # Remove the member
-    await service.remove_team_member(existing_company.id, member.id)
+    service.remove_team_member(existing_company.id, member.id)
 
     # Verify member removed
-    remaining_members = await service.get_team_members(existing_company.id)
+    remaining_members = service.get_team_members(existing_company.id)
     assert len(remaining_members) == 1  # Only owner remains
     assert member.id not in [m.id for m in remaining_members]
 
@@ -406,8 +406,8 @@ async def test_remove_team_member_success(db_session: AsyncSession, sample_compa
 # Test Cases: Subscription Limits
 # ===========================================================================
 
-@pytest.mark.asyncio
-async def test_check_job_posting_limit_starter(db_session: AsyncSession, sample_company):
+
+def test_check_job_posting_limit_starter(db_session: Session, sample_company):
     """
     GIVEN: Company on Starter plan (max 1 active job)
     WHEN: check_can_post_job() is called with 1 existing job
@@ -419,13 +419,13 @@ async def test_check_job_posting_limit_starter(db_session: AsyncSession, sample_
     # Simulate 1 existing active job
     existing_company.subscription.jobs_posted_this_month = 1
 
-    can_post = await service.check_can_post_job(existing_company.id)
+    can_post = service.check_can_post_job(existing_company.id)
 
     assert can_post is False
 
 
-@pytest.mark.asyncio
-async def test_check_candidate_view_limit(db_session: AsyncSession, sample_company):
+
+def test_check_candidate_view_limit(db_session: Session, sample_company):
     """
     GIVEN: Company on Starter plan (max 10 candidate views/month)
     WHEN: check_can_view_candidate() is called with 10 existing views
@@ -437,7 +437,7 @@ async def test_check_candidate_view_limit(db_session: AsyncSession, sample_compa
     # Simulate 10 candidate views this month
     existing_company.subscription.candidate_views_this_month = 10
 
-    can_view = await service.check_can_view_candidate(existing_company.id)
+    can_view = service.check_can_view_candidate(existing_company.id)
 
     assert can_view is False
 
@@ -446,8 +446,8 @@ async def test_check_candidate_view_limit(db_session: AsyncSession, sample_compa
 # Test Cases: Company Retrieval
 # ===========================================================================
 
-@pytest.mark.asyncio
-async def test_get_company_by_id_success(db_session: AsyncSession, sample_company):
+
+def test_get_company_by_id_success(db_session: Session, sample_company):
     """
     GIVEN: Existing company
     WHEN: get_company() is called with valid ID
@@ -456,7 +456,7 @@ async def test_get_company_by_id_success(db_session: AsyncSession, sample_compan
     service = EmployerService(db_session)
     existing_company, _ = sample_company
 
-    company = await service.get_company(existing_company.id)
+    company = service.get_company(existing_company.id)
 
     assert company.id == existing_company.id
     assert company.name == existing_company.name
@@ -464,8 +464,8 @@ async def test_get_company_by_id_success(db_session: AsyncSession, sample_compan
     assert company.subscription is not None
 
 
-@pytest.mark.asyncio
-async def test_get_company_by_id_not_found(db_session: AsyncSession):
+
+def test_get_company_by_id_not_found(db_session: Session):
     """
     GIVEN: Non-existent company ID
     WHEN: get_company() is called
@@ -474,7 +474,7 @@ async def test_get_company_by_id_not_found(db_session: AsyncSession):
     service = EmployerService(db_session)
     non_existent_id = uuid4()
 
-    company = await service.get_company(non_existent_id)
+    company = service.get_company(non_existent_id)
 
     assert company is None
 
@@ -483,8 +483,8 @@ async def test_get_company_by_id_not_found(db_session: AsyncSession):
 # BDD-Style Feature Tests
 # ===========================================================================
 
-@pytest.mark.asyncio
-async def test_feature_complete_onboarding_flow(db_session: AsyncSession):
+
+def test_feature_complete_onboarding_flow(db_session: Session):
     """
     Feature: Complete employer onboarding flow
 
@@ -510,7 +510,7 @@ async def test_feature_complete_onboarding_flow(db_session: AsyncSession):
         size="1-10"
     )
 
-    company = await service.create_company(company_data)
+    company = service.create_company(company_data)
 
     # Verify company created with correct defaults
     assert company.subscription_tier == "starter"
@@ -524,14 +524,14 @@ async def test_feature_complete_onboarding_flow(db_session: AsyncSession):
 
     # First upgrade plan to allow more members
     company.max_team_members = 3
-    await db_session.commit()
+    db_session.commit()
 
     recruiter_data = CompanyMemberCreate(
         email="recruiter@startup.com",
         role="recruiter"
     )
 
-    new_member = await service.add_team_member(
+    new_member = service.add_team_member(
         company_id=company.id,
         member_data=recruiter_data,
         invited_by_user_id=founder_user_id
@@ -542,5 +542,5 @@ async def test_feature_complete_onboarding_flow(db_session: AsyncSession):
     assert new_member.role == "recruiter"
 
     # Verify team member count
-    team_members = await service.get_team_members(company.id)
+    team_members = service.get_team_members(company.id)
     assert len(team_members) == 2  # Owner + Recruiter

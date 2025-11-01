@@ -45,6 +45,7 @@ class Company(Base):
     # Relationships
     members = relationship("CompanyMember", back_populates="company", cascade="all, delete-orphan")
     subscription = relationship("CompanySubscription", back_populates="company", uselist=False, cascade="all, delete-orphan")
+    jobs = relationship("Job", back_populates="employer_company", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Company {self.name}>"

@@ -19,9 +19,9 @@
 
 ---
 
-## Sprint 1-2: Foundation (Weeks 1-4) - 25% Complete
+## Sprint 1-2: Foundation (Weeks 1-4) - 75% Complete
 
-### Week 1-2: Database Schema Design & Migrations ✅ 50% Complete
+### Week 1-2: Database Schema Design & Migrations ✅ 90% Complete
 
 #### ✅ Completed Tasks
 
@@ -40,19 +40,74 @@
    - ✅ CompanySubscription model with Stripe integration
    - ✅ Models registered in `__init__.py`
 
-#### 🔄 In Progress Tasks
+3. **Pydantic Schemas Created** (`backend/app/schemas/company.py`) - ✅ **COMPLETE** (Commit: f430d09)
+   - ✅ CompanyCreate schema with password validation
+   - ✅ CompanyUpdate schema
+   - ✅ CompanyResponse schema
+   - ✅ CompanyMemberCreate/Update/Response schemas
+   - ✅ CompanySubscriptionResponse schema
+   - ✅ EmployerRegistrationResponse schema
+   - ✅ DashboardStats and DashboardResponse schemas
+   - ✅ 15 schemas total with full field validation
 
-3. **Pydantic Schemas** (`backend/app/schemas/company.py`) - NOT STARTED
-   - ⏸️ CompanyCreate schema
-   - ⏸️ CompanyUpdate schema
-   - ⏸️ CompanyResponse schema
-   - ⏸️ CompanyMemberCreate schema
-   - ⏸️ CompanySubscriptionResponse schema
+4. **Unit Tests Created (TDD)** (`backend/tests/unit/test_employer_service.py`) - ✅ **COMPLETE** (Commit: f430d09)
+   - ✅ 20+ test cases following TDD approach
+   - ✅ Tests written BEFORE service implementation
+   - ✅ Happy path tests (company creation, trial period, password hashing)
+   - ✅ Validation error tests (email, password, size)
+   - ✅ Business logic tests (duplicate domain, team limits, subscription limits)
+   - ✅ BDD-style feature test (complete onboarding flow)
+   - ✅ Test fixtures for sample data
 
-4. **Database Migration Execution** - NOT STARTED
+5. **Employer Service Implemented** (`backend/app/services/employer_service.py`) - ✅ **COMPLETE** (Commit: f430d09)
+   - ✅ create_company() - Company registration with trial period
+   - ✅ get_company() - Fetch company with relationships
+   - ✅ update_company() - Profile updates
+   - ✅ add_team_member() - Invite with limit checks
+   - ✅ remove_team_member() - Remove member
+   - ✅ get_team_members() - List all members
+   - ✅ check_can_post_job() - Subscription limit check
+   - ✅ check_can_view_candidate() - Subscription limit check
+
+6. **API Endpoints Created** (`backend/app/api/v1/endpoints/employer.py`) - ✅ **COMPLETE** (Commit: f430d09)
+   - ✅ POST /api/v1/employers/register - Company registration
+   - ✅ GET /api/v1/employers/me - Get current company
+   - ✅ PUT /api/v1/employers/me - Update company
+   - ✅ POST /api/v1/employers/me/members - Invite team member
+   - ✅ GET /api/v1/employers/me/members - List team members
+   - ✅ DELETE /api/v1/employers/me/members/{id} - Remove member
+   - ✅ Router mounted in main app with "Employers" tag
+
+7. **Frontend Registration Page** (`frontend/app/employer/register/page.tsx`) - ✅ **COMPLETE** (Commit: fe45d11)
+   - ✅ Complete registration form with Zod validation
+   - ✅ Industry dropdown (10 industries)
+   - ✅ Company size dropdown (5 ranges)
+   - ✅ Password strength validation matching backend
+   - ✅ Error handling with user-friendly messages
+   - ✅ Trial plan benefits display
+   - ✅ Responsive design with Tailwind CSS
+   - ✅ Links to signin and job seeker registration
+
+8. **Frontend API Client** (`frontend/lib/api.ts`) - ✅ **COMPLETE** (Commit: fe45d11)
+   - ✅ employerApi.register() - Company registration
+   - ✅ employerApi.getCompany() - Get current company
+   - ✅ employerApi.updateCompany() - Update company
+   - ✅ employerApi.getTeamMembers() - List members
+   - ✅ employerApi.inviteTeamMember() - Invite member
+   - ✅ employerApi.removeTeamMember() - Remove member
+
+#### ⏸️ Blocked Tasks (Requires Docker)
+
+4. **Database Migration Execution** - ⏸️ **BLOCKED** (Docker daemon not running)
+   - ⏸️ Start Docker: `docker-compose up -d postgres`
    - ⏸️ Run migration locally: `alembic upgrade head`
    - ⏸️ Verify tables created in PostgreSQL
    - ⏸️ Test migration rollback: `alembic downgrade -1`
+
+5. **Run Unit Tests** - ⏸️ **BLOCKED** (Requires PostgreSQL)
+   - ⏸️ Run tests: `pytest backend/tests/unit/test_employer_service.py -v`
+   - ⏸️ Verify all 20+ tests pass
+   - ⏸️ Check test coverage
 
 #### ⏸️ Pending Tasks
 
