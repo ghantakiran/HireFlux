@@ -15,6 +15,7 @@ from app.db.models.application import Application
 from app.db.models.billing import CreditWallet, CreditLedger, Subscription
 from app.db.models.audit import EventAudit
 from app.db.models.interview import InterviewSession
+from app.db.models.company import Company, CompanyMember, CompanySubscription
 
 __all__ = [
     "Base",
@@ -32,4 +33,7 @@ __all__ = [
     "Subscription",
     "EventAudit",
     "InterviewSession",
+    "Company",
+    "CompanyMember",
+    "CompanySubscription",
 ]
