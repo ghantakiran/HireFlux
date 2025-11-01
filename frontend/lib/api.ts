@@ -355,4 +355,40 @@ export const analyticsApi = {
     }),
 };
 
+// Employer API
+export const employerApi = {
+  register: (data: {
+    name: string;
+    email: string;
+    password: string;
+    industry?: string;
+    size?: string;
+    location?: string;
+    website?: string;
+  }) => apiClient.post<ApiResponse>('/employers/register', data),
+
+  getCompany: () => apiClient.get<ApiResponse>('/employers/me'),
+
+  updateCompany: (data: Partial<{
+    name: string;
+    industry: string;
+    size: string;
+    location: string;
+    website: string;
+    logo_url: string;
+    description: string;
+  }>) => apiClient.put<ApiResponse>('/employers/me', data),
+
+  getTeamMembers: () => apiClient.get<ApiResponse>('/employers/me/members'),
+
+  inviteTeamMember: (data: {
+    email: string;
+    role: string;
+    permissions?: any;
+  }) => apiClient.post<ApiResponse>('/employers/me/members', data),
+
+  removeTeamMember: (memberId: string) =>
+    apiClient.delete<ApiResponse>(`/employers/me/members/${memberId}`),
+};
+
 export default apiClient;
