@@ -1,266 +1,401 @@
-"""Job matching and search endpoints"""
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-import uuid
+"""Job Posting API Endpoints
 
-from app.db.session import get_db
-from app.api.dependencies import get_current_user
+Provides REST API for employer job posting management.
+"""
+from typing import Optional
+from uuid import UUID
+import math
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.orm import Session
+
+from app.api.deps import get_current_user, get_db
 from app.db.models.user import User
-from app.services.job_matching_service import JobMatchingService
-from app.services.job_ingestion_service import JobIngestionService
-from app.core.exceptions import ValidationError, ServiceError
-from app.schemas.job_matching import (
-    JobMatchRequest,
-    JobMatchResponse,
-    JobSearchFilters,
+from app.db.models.company import CompanyMember
+from app.services.job_service import JobService
+from app.schemas.job import (
+    JobCreate,
+    JobUpdate,
+    JobResponse,
+    JobListResponse,
+    JobStatusUpdate,
 )
-from app.schemas.job_feed import JobIngestionRequest, JobIngestionResult, JobSource
 
 
 router = APIRouter()
 
 
-@router.post("/matches", response_model=List[JobMatchResponse])
-def find_job_matches(
-    request: JobMatchRequest,
+def get_user_company_member(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
+    db: Session = Depends(get_db)
+) -> CompanyMember:
     """
-    Find job matches for user based on their resume and preferences.
-    Returns jobs ranked by Fit Index (0-100).
-    """
-    try:
-        service = JobMatchingService(db)
-        matches = service.find_matches(user_id=current_user.id, request=request)
-        return matches
+    Get company member for current user.
 
-    except ValidationError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except ServiceError as e:
+    Raises:
+        HTTPException: If user is not a company member
+    """
+    company_member = (
+        db.query(CompanyMember)
+        .filter(CompanyMember.user_id == current_user.id)
+        .first()
+    )
+
+    if not company_member:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with any company"
         )
 
+    return company_member
 
-@router.get("/top-matches", response_model=List[JobMatchResponse])
-def get_top_matches(
-    resume_id: str = None,
-    limit: int = 10,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
+
+def check_job_management_permissions(company_member: CompanyMember) -> bool:
     """
-    Get top N job matches for user.
-    Convenience endpoint for dashboard display.
+    Check if user has permissions to manage jobs.
+
+    Allowed roles: owner, admin, hiring_manager
     """
-    try:
-        request = JobMatchRequest(
-            resume_id=resume_id,
-            limit=limit,
-            offset=0,
-            filters=JobSearchFilters(min_fit_index=40),  # Only show decent matches
-        )
-
-        service = JobMatchingService(db)
-        matches = service.find_matches(user_id=current_user.id, request=request)
-        return matches
-
-    except ValidationError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except ServiceError as e:
+    allowed_roles = ["owner", "admin", "hiring_manager"]
+    if company_member.role not in allowed_roles:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
         )
+    return True
 
 
-@router.get("/skill-gap-analysis")
-def analyze_skill_gaps(
-    job_id: str,
-    resume_id: str = None,
+@router.post(
+    "",
+    response_model=JobResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new job posting",
+    description="Create a new job posting for your company. Requires hiring_manager, admin, or owner role."
+)
+def create_job(
+    job_data: JobCreate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
-    Analyze skill gaps between user's resume and a specific job.
-    Returns detailed skill match breakdown and learning recommendations.
+    Create a new job posting.
+
+    **Permissions**: owner, admin, hiring_manager
+
+    **Subscription Limits**:
+    - Starter: 1 active job
+    - Growth: 10 active jobs
+    - Professional: Unlimited jobs
+
+    **Required Fields**:
+    - title
+    - company_name
+    - location
+    - location_type (remote/hybrid/onsite)
+    - employment_type (full_time/part_time/contract/internship)
+    - description
     """
+    # Get company member and check permissions
+    company_member = get_user_company_member(current_user, db)
+    check_job_management_permissions(company_member)
+
+    # Create job via service
+    job_service = JobService(db)
+
     try:
-        from app.db.models.job import Job
-        from app.db.models.resume import Resume
-
-        # Get job
-        job = (
-            db.query(Job)
-            .filter(Job.id == uuid.UUID(job_id), Job.is_active == True)
-            .first()
+        job = job_service.create_job(
+            company_id=company_member.company_id,
+            job_data=job_data
         )
+        return JobResponse.model_validate(job)
 
-        if not job:
+    except Exception as e:
+        # Check if it's a subscription limit error
+        if "subscription limit" in str(e).lower() or "maximum" in str(e).lower():
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Job not found"
+                status_code=status.HTTP_402_PAYMENT_REQUIRED,
+                detail=str(e)
             )
-
-        # Get resume
-        if resume_id:
-            resume = (
-                db.query(Resume)
-                .filter(
-                    Resume.id == uuid.UUID(resume_id), Resume.user_id == current_user.id
-                )
-                .first()
-            )
-        else:
-            resume = (
-                db.query(Resume)
-                .filter(
-                    Resume.user_id == current_user.id,
-                    Resume.is_default == True,
-                    Resume.is_deleted == False,
-                )
-                .first()
-            )
-
-        if not resume:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Resume not found"
-            )
-
-        # Analyze gaps
-        service = JobMatchingService(db)
-        user_skills = service._extract_skills_from_resume(resume)
-        user_experience_years = service._calculate_experience_years(resume)
-
-        # Calculate fit index with detailed breakdown
-        fit_index, breakdown, rationale, skill_matches = service._calculate_fit_index(
-            user_skills=user_skills,
-            user_experience_years=user_experience_years,
-            job=job,
-            semantic_score=0.8,  # Default semantic score
-        )
-
-        return {
-            "job_id": job_id,
-            "job_title": job.title,
-            "company": job.company,
-            "fit_index": fit_index,
-            "breakdown": breakdown,
-            "rationale": rationale,
-            "skill_matches": skill_matches,
-            "learning_path": [
-                {
-                    "skill": sm.skill,
-                    "priority": "high"
-                    if not sm.user_has and not sm.is_transferable
-                    else "medium",
-                    "current_level": "none" if not sm.user_has else "proficient",
-                    "target_level": "proficient",
-                    "estimated_learning_time": "2-4 weeks"
-                    if not sm.is_transferable
-                    else "1-2 weeks",
-                }
-                for sm in skill_matches
-                if not sm.user_has
-            ][:5],
-        }
-
-    except ValidationError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except Exception as e:
+        # Other errors
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error analyzing skill gaps: {str(e)}",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
         )
 
 
-# Admin endpoints for job ingestion
-@router.post("/admin/ingest", response_model=JobIngestionResult)
-def ingest_jobs(
-    request: JobIngestionRequest,
+@router.get(
+    "",
+    response_model=JobListResponse,
+    summary="List all jobs for your company",
+    description="Get a paginated list of all jobs posted by your company with optional filtering."
+)
+def list_jobs(
+    status_filter: Optional[str] = Query(None, alias="status", description="Filter by status: active, closed"),
+    page: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(10, ge=1, le=100, description="Items per page"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
-    Admin endpoint to ingest jobs from external sources.
-    Requires admin privileges.
+    List all jobs for your company with pagination and filtering.
+
+    **Permissions**: All company members can view jobs
+
+    **Query Parameters**:
+    - status: Filter by job status (active, closed)
+    - page: Page number (default: 1)
+    - limit: Items per page (default: 10, max: 100)
     """
-    # TODO: Add admin role check
-    # if not current_user.is_admin:
-    #     raise HTTPException(status_code=403, detail="Admin access required")
+    # Get company member (all roles can view jobs)
+    company_member = get_user_company_member(current_user, db)
 
-    try:
-        service = JobIngestionService(db)
-        result = service.ingest_jobs(request)
+    # List jobs via service
+    job_service = JobService(db)
+    jobs, total = job_service.list_jobs(
+        company_id=company_member.company_id,
+        status=status_filter,
+        page=page,
+        limit=limit
+    )
 
-        # Update sync timestamps
-        if request.sources:
-            for source_config in request.sources:
-                service.update_source_sync_time(source_config.source)
+    total_pages = math.ceil(total / limit) if total > 0 else 0
 
-        return result
-
-    except ServiceError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
-
-
-@router.get("/admin/source-health")
-def get_source_health(
-    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
-):
-    """
-    Admin endpoint to check health of job sources.
-    Returns metrics for each configured source.
-    """
-    # TODO: Add admin role check
-
-    try:
-        service = JobIngestionService(db)
-
-        health_status = {
-            "greenhouse": service.get_source_health(JobSource.GREENHOUSE),
-            "lever": service.get_source_health(JobSource.LEVER),
-        }
-
-        return {
-            "sources": health_status,
-            "overall_healthy": all(
-                source["is_healthy"] for source in health_status.values()
-            ),
-        }
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error fetching source health: {str(e)}",
-        )
+    return JobListResponse(
+        jobs=[JobResponse.model_validate(job) for job in jobs],
+        total=total,
+        page=page,
+        limit=limit,
+        total_pages=total_pages
+    )
 
 
-@router.post("/admin/deactivate-stale")
-def deactivate_stale_jobs(
-    source: JobSource,
-    days_old: int = 30,
+@router.get(
+    "/{job_id}",
+    response_model=JobResponse,
+    summary="Get a specific job",
+    description="Retrieve detailed information about a specific job posting."
+)
+def get_job(
+    job_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
-    Admin endpoint to deactivate jobs that haven't been updated recently.
+    Get detailed information about a specific job.
+
+    **Permissions**: All company members can view jobs
     """
-    # TODO: Add admin role check
+    # Get company member
+    company_member = get_user_company_member(current_user, db)
 
+    # Get job via service
+    job_service = JobService(db)
+    job = job_service.get_job(job_id=job_id)
+
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found"
+        )
+
+    # Verify job belongs to user's company
+    if job.company_id != company_member.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this job"
+        )
+
+    return JobResponse.model_validate(job)
+
+
+@router.put(
+    "/{job_id}",
+    response_model=JobResponse,
+    summary="Update a job posting",
+    description="Update an existing job posting. Requires hiring_manager, admin, or owner role."
+)
+def update_job(
+    job_id: UUID,
+    job_data: JobUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Update an existing job posting.
+
+    **Permissions**: owner, admin, hiring_manager
+
+    All fields are optional - only provided fields will be updated.
+    """
+    # Get company member and check permissions
+    company_member = get_user_company_member(current_user, db)
+    check_job_management_permissions(company_member)
+
+    # Get job and verify ownership
+    job_service = JobService(db)
+    job = job_service.get_job(job_id=job_id)
+
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found"
+        )
+
+    if job.company_id != company_member.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this job"
+        )
+
+    # Update job
     try:
-        service = JobIngestionService(db)
-        count = service.deactivate_stale_jobs(source, days_old)
-
-        return {
-            "message": f"Deactivated {count} stale jobs from {source.value}",
-            "count": count,
-        }
+        updated_job = job_service.update_job(
+            job_id=job_id,
+            job_data=job_data
+        )
+        return JobResponse.model_validate(updated_job)
 
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error deactivating jobs: {str(e)}",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
         )
+
+
+@router.patch(
+    "/{job_id}/status",
+    response_model=JobResponse,
+    summary="Update job status",
+    description="Change the status of a job (active, paused, closed). Requires hiring_manager, admin, or owner role."
+)
+def update_job_status(
+    job_id: UUID,
+    status_data: JobStatusUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Update job status.
+
+    **Permissions**: owner, admin, hiring_manager
+
+    **Status Options**:
+    - active: Job is live and accepting applications
+    - paused: Job is temporarily paused (still counts toward subscription limit)
+    - closed: Job is closed and no longer accepting applications (frees subscription slot)
+    """
+    # Get company member and check permissions
+    company_member = get_user_company_member(current_user, db)
+    check_job_management_permissions(company_member)
+
+    # Get job and verify ownership
+    job_service = JobService(db)
+    job = job_service.get_job(job_id=job_id)
+
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found"
+        )
+
+    if job.company_id != company_member.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this job"
+        )
+
+    # Update status
+    try:
+        updated_job = job_service.update_job_status(
+            job_id=job_id,
+            status=status_data.status
+        )
+        return JobResponse.model_validate(updated_job)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+
+@router.delete(
+    "/{job_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a job posting",
+    description="Soft delete a job posting (sets is_active to False). Requires hiring_manager, admin, or owner role."
+)
+def delete_job(
+    job_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Delete a job posting (soft delete).
+
+    **Permissions**: owner, admin, hiring_manager
+
+    This performs a soft delete by setting is_active to False.
+    The job data is preserved but no longer visible in active listings.
+    """
+    # Get company member and check permissions
+    company_member = get_user_company_member(current_user, db)
+    check_job_management_permissions(company_member)
+
+    # Get job and verify ownership
+    job_service = JobService(db)
+    job = job_service.get_job(job_id=job_id)
+
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found"
+        )
+
+    if job.company_id != company_member.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this job"
+        )
+
+    # Delete job
+    try:
+        job_service.delete_job(job_id=job_id)
+        return None  # 204 No Content
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+
+@router.get(
+    "/check/can-post",
+    summary="Check if company can post more jobs",
+    description="Check if your company has available job slots based on subscription plan."
+)
+def check_can_post_job(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Check if company can post more jobs based on subscription limits.
+
+    Returns:
+        {
+            "can_post": true/false,
+            "message": "You can post 5 more jobs"
+        }
+    """
+    # Get company member
+    company_member = get_user_company_member(current_user, db)
+
+    # Check via service
+    job_service = JobService(db)
+    can_post, message = job_service.check_can_post_job(company_id=company_member.company_id)
+
+    return {
+        "can_post": can_post,
+        "message": message
+    }
