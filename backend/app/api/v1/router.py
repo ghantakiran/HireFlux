@@ -18,6 +18,7 @@ from app.api.v1.endpoints import (
     webhooks,
     analytics,
     employer,
+    applications,
 )
 
 api_router = APIRouter()
@@ -38,11 +39,11 @@ api_router.include_router(auto_apply.router)
 api_router.include_router(webhooks.router, prefix="/webhooks", tags=["Webhooks"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
 api_router.include_router(employer.router)  # Employer/company endpoints
+api_router.include_router(applications.router, prefix="/ats", tags=["ATS/Applications"])  # Employer ATS
 
 # Future routers (to be created)
-# from app.api.v1.endpoints import users, applications
+# from app.api.v1.endpoints import users
 # api_router.include_router(users.router, prefix="/users", tags=["Users"])
-# api_router.include_router(applications.router, prefix="/applications", tags=["Applications"])
 
 
 # Health check for API

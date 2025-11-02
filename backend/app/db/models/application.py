@@ -1,5 +1,5 @@
 """Application tracking model"""
-from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Text, Boolean
+from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Text, Boolean, Integer, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -44,6 +44,17 @@ class Application(Base):
         String(50), nullable=True, index=True
     )  # 'greenhouse', 'lever', etc.
 
+    # Employer ATS fields
+    fit_index = Column(
+        Integer, nullable=True, index=True
+    )  # AI-calculated fit score 0-100
+    assigned_to = Column(
+        JSON, nullable=True, server_default='[]'
+    )  # Array of user IDs (team members assigned to review)
+    tags = Column(
+        JSON, nullable=True, server_default='[]'
+    )  # Array of tags: "strong_candidate", "needs_review", etc.
+
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
@@ -66,3 +77,38 @@ class Application(Base):
         back_populates="application",
         cascade="all, delete-orphan",
     )
+    application_notes = relationship(
+        "ApplicationNote",
+        back_populates="application",
+        cascade="all, delete-orphan",
+    )
+
+
+class ApplicationNote(Base):
+    """Internal notes on applications for employer ATS"""
+
+    __tablename__ = "application_notes"
+
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    application_id = Column(
+        GUID(), ForeignKey("applications.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    author_id = Column(
+        GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+
+    # Note content
+    content = Column(Text, nullable=False)
+
+    # Visibility control
+    visibility = Column(
+        String(50), nullable=False, server_default="team"
+    )  # 'private' (author only) or 'team' (all team members)
+
+    # Timestamps
+    created_at = Column(TIMESTAMP, server_default=func.now(), index=True)
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    application = relationship("Application", back_populates="application_notes")
+    author = relationship("User")
