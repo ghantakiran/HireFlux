@@ -27,8 +27,8 @@ def upgrade() -> None:
     op.create_table(
         'application_notes',
         sa.Column('id', GUID(), primary_key=True),
-        sa.Column('application_id', GUID(), sa.ForeignKey('applications.id', ondelete='CASCADE'), nullable=False, index=True),
-        sa.Column('author_id', GUID(), sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True),
+        sa.Column('application_id', GUID(), sa.ForeignKey('applications.id', ondelete='CASCADE'), nullable=False),
+        sa.Column('author_id', GUID(), sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False),
         sa.Column('content', sa.Text(), nullable=False),
         sa.Column('visibility', sa.String(50), nullable=False, server_default='team'),  # 'private' or 'team'
         sa.Column('created_at', sa.TIMESTAMP(), server_default=func.now(), nullable=False),
