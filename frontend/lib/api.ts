@@ -391,4 +391,64 @@ export const employerApi = {
     apiClient.delete<ApiResponse>(`/employers/me/members/${memberId}`),
 };
 
+// ATS (Applicant Tracking System) API
+export const atsApi = {
+  // Application listing with filtering and sorting
+  getJobApplications: (
+    jobId: string,
+    params?: {
+      status?: string;
+      min_fit_index?: number;
+      sort_by?: string;
+      order?: string;
+      page?: number;
+      limit?: number;
+    }
+  ) => apiClient.get<ApiResponse>(`/ats/jobs/${jobId}/applications`, { params }),
+
+  // AI candidate ranking
+  getRankedApplications: (jobId: string) =>
+    apiClient.get<ApiResponse>(`/ats/jobs/${jobId}/applications/ranked`),
+
+  // Status management
+  updateApplicationStatus: (
+    applicationId: string,
+    data: {
+      status: string;
+      note?: string;
+    }
+  ) => apiClient.patch<ApiResponse>(`/ats/applications/${applicationId}/status`, data),
+
+  // Notes and collaboration
+  addApplicationNote: (
+    applicationId: string,
+    data: {
+      content: string;
+      visibility: 'team' | 'private';
+    }
+  ) => apiClient.post<ApiResponse>(`/ats/applications/${applicationId}/notes`, data),
+
+  getApplicationNotes: (applicationId: string) =>
+    apiClient.get<ApiResponse>(`/ats/applications/${applicationId}/notes`),
+
+  // Reviewer assignment
+  assignReviewers: (
+    applicationId: string,
+    data: {
+      assigned_to: string[];
+    }
+  ) => apiClient.patch<ApiResponse>(`/ats/applications/${applicationId}/assign`, data),
+
+  // Bulk operations
+  bulkUpdateApplications: (data: {
+    application_ids: string[];
+    action: 'reject' | 'shortlist' | 'move_to_stage';
+    target_status?: string;
+  }) => apiClient.post<ApiResponse>(`/ats/applications/bulk-update`, data),
+
+  // Fit score calculation
+  calculateFit: (applicationId: string) =>
+    apiClient.post<ApiResponse>(`/ats/applications/${applicationId}/calculate-fit`),
+};
+
 export default apiClient;
