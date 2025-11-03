@@ -19,6 +19,7 @@ from app.api.v1.endpoints import (
     analytics,
     employer,
     applications,
+    candidate_profiles,
 )
 
 api_router = APIRouter()
@@ -40,6 +41,7 @@ api_router.include_router(webhooks.router, prefix="/webhooks", tags=["Webhooks"]
 api_router.include_router(analytics.router, prefix="/analytics", tags=["Analytics"])
 api_router.include_router(employer.router)  # Employer/company endpoints
 api_router.include_router(applications.router, prefix="/ats", tags=["ATS/Applications"])  # Employer ATS
+api_router.include_router(candidate_profiles.router)  # Candidate profiles & search
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users
