@@ -11,6 +11,7 @@ export default function SettingsPage() {
 
   const menuItems = [
     { label: 'Profile', href: '/dashboard/settings', icon: User },
+    { label: 'Profile Settings', href: '/dashboard/settings/profile', icon: User },
     { label: 'Subscription', href: '/dashboard/settings/subscription', icon: CreditCard },
     { label: 'Credits', href: '/dashboard/settings/credits', icon: Coins },
     { label: 'Notifications', href: '/dashboard/settings/notifications', icon: Bell },

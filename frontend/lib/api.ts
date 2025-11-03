@@ -451,4 +451,92 @@ export const atsApi = {
     apiClient.post<ApiResponse>(`/ats/applications/${applicationId}/calculate-fit`),
 };
 
+// Candidate Profile API (Job Seeker Profile Management)
+export const candidateProfileApi = {
+  // Create candidate profile
+  create: (data: {
+    headline: string;
+    bio?: string;
+    location?: string;
+    skills?: string[];
+    years_experience?: number;
+    experience_level?: string;
+    min_salary?: number;
+    max_salary?: number;
+    preferred_location_type?: string;
+    open_to_remote?: boolean;
+    availability_status?: string;
+    visibility?: string;
+    profile_picture_url?: string;
+    preferred_roles?: string[];
+  }) => apiClient.post<ApiResponse>('/candidate-profiles', data),
+
+  // Get own profile
+  getMyProfile: () => apiClient.get<ApiResponse>('/candidate-profiles/me'),
+
+  // Update profile
+  update: (data: Partial<{
+    headline: string;
+    bio: string;
+    location: string;
+    skills: string[];
+    years_experience: number;
+    experience_level: string;
+    min_salary: number;
+    max_salary: number;
+    preferred_location_type: string;
+    open_to_remote: boolean;
+    profile_picture_url: string;
+    preferred_roles: string[];
+  }>) => apiClient.patch<ApiResponse>('/candidate-profiles/me', data),
+
+  // Set visibility (public/private)
+  setVisibility: (visibility: 'public' | 'private') =>
+    apiClient.put<ApiResponse>(`/candidate-profiles/me/visibility?visibility=${visibility}`),
+
+  // Update availability
+  updateAvailability: (data: {
+    availability_status: 'actively_looking' | 'open_to_offers' | 'not_looking';
+    available_from?: string;
+  }) => apiClient.put<ApiResponse>('/candidate-profiles/me/availability', data),
+
+  // Portfolio management
+  addPortfolioItem: (data: {
+    type: 'github' | 'website' | 'article' | 'project';
+    title: string;
+    description?: string;
+    url: string;
+  }) => apiClient.post<ApiResponse>('/candidate-profiles/me/portfolio', data),
+
+  removePortfolioItem: (itemIndex: number) =>
+    apiClient.delete<ApiResponse>(`/candidate-profiles/me/portfolio/${itemIndex}`),
+
+  // Delete profile
+  delete: () => apiClient.delete<ApiResponse>('/candidate-profiles/me'),
+};
+
+// Candidate Search API (Employer Candidate Discovery)
+export const candidateSearchApi = {
+  // Search candidates with filters
+  search: (data: {
+    skills?: string[];
+    experience_level?: string[];
+    min_years_experience?: number;
+    max_years_experience?: number;
+    location?: string;
+    remote_only?: boolean;
+    location_type?: string;
+    min_salary?: number;
+    max_salary?: number;
+    availability_status?: string[];
+    preferred_roles?: string[];
+    page?: number;
+    limit?: number;
+  }) => apiClient.post<ApiResponse>('/candidate-profiles/search', data),
+
+  // Get specific candidate profile
+  getProfile: (profileId: string) =>
+    apiClient.get<ApiResponse>(`/candidate-profiles/${profileId}`),
+};
+
 export default apiClient;

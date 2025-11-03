@@ -176,8 +176,25 @@ export default function EmployerDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      {/* Navigation Bar */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-900">HireFlux Employer</h1>
+            <nav className="flex gap-6">
+              <a href="/employer/dashboard" className="text-gray-700 hover:text-blue-600 font-medium">
+                Dashboard
+              </a>
+              <a href="/employer/candidates" className="text-gray-700 hover:text-blue-600 font-medium">
+                Candidate Search
+              </a>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Employer Dashboard</h1>

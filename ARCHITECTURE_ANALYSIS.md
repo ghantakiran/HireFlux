@@ -1008,9 +1008,27 @@ Employer Service
 
 ### Phase 2: Advanced Employer Features (Months 5-8)
 
-**Sprint 9-10: Candidate Search (Weeks 17-20)**
-- [ ] Week 17-18: Public candidate profiles (opt-in)
-- [ ] Week 19-20: Candidate search + invite to apply
+**Sprint 9-10: Candidate Search (Weeks 17-20)** ✅ COMPLETED
+- [x] Week 17-18: Public candidate profiles (opt-in)
+  - ✅ Backend: CandidateProfile model with visibility controls
+  - ✅ Backend: CandidateProfileService with 29 unit tests passing
+  - ✅ Backend: 7 REST API endpoints for profile management
+  - ✅ Frontend: Profile settings page (`/dashboard/settings/profile`)
+  - ✅ Frontend: Profile creation/editing with validation
+  - ✅ Frontend: Visibility toggle (public/private)
+  - ✅ Frontend: Portfolio management UI
+  - ✅ Frontend: Availability status selector
+  - ✅ E2E: 29 test scenarios written
+- [x] Week 19-20: Candidate search + invite to apply
+  - ✅ Backend: CandidateSearchService with 35 unit tests passing
+  - ✅ Backend: Advanced filtering (skills, experience, location, salary, availability)
+  - ✅ Backend: 2 REST API endpoints for search
+  - ✅ Frontend: Candidate search page (`/employer/candidates`)
+  - ✅ Frontend: Multi-criteria search with 10+ filters
+  - ✅ Frontend: Candidate card grid with detail modal
+  - ✅ Frontend: Pagination and save search features
+  - ✅ E2E: 38 test scenarios written
+  - ⏳ Interview invite feature (deferred to Sprint 13-14)
 
 **Sprint 11-12: Mass Posting (Weeks 21-24)**
 - [ ] Week 21-22: CSV bulk upload + AI normalization
