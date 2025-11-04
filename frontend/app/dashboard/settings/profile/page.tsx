@@ -348,7 +348,6 @@ export default function ProfileSettingsPage() {
                 value={profile.skills || []}
                 onChange={(skills) => setProfile({ ...profile, skills })}
                 placeholder="Add skills..."
-                suggestions={SKILLS_OPTIONS}
               />
             </div>
 
