@@ -43,29 +43,45 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+    // Employer-authenticated tests
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: './tests/e2e/.auth/employer.json',
+      },
     },
 
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: {
+        ...devices['Desktop Firefox'],
+        storageState: './tests/e2e/.auth/employer.json',
+      },
     },
 
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: {
+        ...devices['Desktop Safari'],
+        storageState: './tests/e2e/.auth/employer.json',
+      },
     },
 
-    /* Test against mobile viewports. */
+    /* Job seeker authenticated tests (mobile) */
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      use: {
+        ...devices['Pixel 5'],
+        storageState: './tests/e2e/.auth/jobseeker.json',
+      },
     },
     {
       name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      use: {
+        ...devices['iPhone 12'],
+        storageState: './tests/e2e/.auth/jobseeker.json',
+      },
     },
 
     /* Test against branded browsers. */

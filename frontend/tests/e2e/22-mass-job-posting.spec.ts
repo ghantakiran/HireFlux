@@ -20,15 +20,7 @@ import { test, expect, Page } from '@playwright/test';
 import * as path from 'path';
 import * as fs from 'fs';
 
-// Helper functions
-async function loginAsEmployer(page: Page) {
-  await page.goto('/signin');
-  await page.getByLabel(/email/i).fill('employer@company.com');
-  await page.getByLabel(/password/i).fill('TestPassword123!');
-  await page.getByRole('button', { name: /sign in/i }).click();
-  await expect(page).toHaveURL(/.*employer.*dashboard/);
-}
-
+// Helper functions - No login needed, using pre-authenticated session via storageState
 async function navigateToBulkUpload(page: Page) {
   await page.goto('/employer/jobs/bulk-upload');
   await expect(page.getByRole('heading', { name: /bulk job upload/i })).toBeVisible();
@@ -48,9 +40,8 @@ function createSampleCSV(filename: string, rows: any[]): string {
 }
 
 test.describe('Mass Job Posting', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginAsEmployer(page);
-  });
+  // Using pre-authenticated employer session from storageState
+  // No login required in beforeEach
 
   test.describe('CSV Upload', () => {
     test('should upload valid CSV with multiple jobs', async ({ page }) => {

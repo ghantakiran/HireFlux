@@ -175,7 +175,7 @@ export default function BulkJobUploadPage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Bulk Job Posting</h1>
+        <h1 className="text-3xl font-bold mb-2">Bulk Job Upload</h1>
         <p className="text-gray-600">
           Upload a CSV file with up to 500 job postings. Jobs will be validated, checked for
           duplicates, and distributed to your selected channels.
