@@ -539,4 +539,50 @@ export const candidateSearchApi = {
     apiClient.get<ApiResponse>(`/candidate-profiles/${profileId}`),
 };
 
+// Bulk Job Posting API (Sprint 11-12)
+export const bulkJobPostingApi = {
+  // Upload CSV file with job postings
+  uploadCSV: (file: File, channels?: string, scheduledAt?: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (channels) {
+      formData.append('channels', channels);
+    }
+    if (scheduledAt) {
+      formData.append('scheduled_at', scheduledAt);
+    }
+    return apiClient.post<ApiResponse>('/bulk-job-posting/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
+  // List all bulk upload sessions
+  listUploads: (params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+  }) => apiClient.get<ApiResponse>('/bulk-job-posting/uploads', { params }),
+
+  // Get detailed upload session
+  getUploadDetail: (uploadId: string) =>
+    apiClient.get<ApiResponse>(`/bulk-job-posting/uploads/${uploadId}`),
+
+  // Update upload status
+  updateUploadStatus: (uploadId: string, newStatus: string) =>
+    apiClient.patch<ApiResponse>(`/bulk-job-posting/uploads/${uploadId}/status`, {
+      new_status: newStatus,
+    }),
+
+  // Cancel upload session
+  cancelUpload: (uploadId: string) =>
+    apiClient.post<ApiResponse>(`/bulk-job-posting/uploads/${uploadId}/cancel`),
+
+  // Delete upload session
+  deleteUpload: (uploadId: string) =>
+    apiClient.delete<ApiResponse>(`/bulk-job-posting/uploads/${uploadId}`),
+
+  // Download CSV template
+  getTemplate: () => apiClient.get<ApiResponse>('/bulk-job-posting/template'),
+};
+
 export default apiClient;
