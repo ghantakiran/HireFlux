@@ -7,17 +7,17 @@ from typing import Optional
 from uuid import uuid4
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, JSON, Numeric, String, Text
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.db.base import Base
+from app.db.types import GUID
 
 
 class Company(Base):
     """Company model for employer accounts"""
     __tablename__ = "companies"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid4)
     name = Column(String(255), nullable=False)
     domain = Column(String(255), unique=True, nullable=True)
     industry = Column(String(100), nullable=True)
@@ -46,6 +46,8 @@ class Company(Base):
     members = relationship("CompanyMember", back_populates="company", cascade="all, delete-orphan")
     subscription = relationship("CompanySubscription", back_populates="company", uselist=False, cascade="all, delete-orphan")
     jobs = relationship("Job", back_populates="employer_company", cascade="all, delete-orphan")
+    bulk_job_uploads = relationship("BulkJobUpload", back_populates="company", cascade="all, delete-orphan")
+    job_distributions = relationship("JobDistribution", back_populates="company", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Company {self.name}>"
@@ -55,9 +57,9 @@ class CompanyMember(Base):
     """Company member model for team collaboration"""
     __tablename__ = "company_members"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    id = Column(GUID(), primary_key=True, default=uuid4)
+    company_id = Column(GUID(), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     # Role & permissions
     role = Column(String(50), nullable=False)  # "owner", "admin", "hiring_manager", "recruiter", "interviewer", "viewer"
@@ -65,7 +67,7 @@ class CompanyMember(Base):
 
     # Status
     status = Column(String(50), default="active")  # "active", "invited", "suspended"
-    invited_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    invited_by = Column(GUID(), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     invited_at = Column(DateTime, nullable=True)
     joined_at = Column(DateTime, nullable=True)
 
@@ -86,8 +88,8 @@ class CompanySubscription(Base):
     """Company subscription model for billing"""
     __tablename__ = "company_subscriptions"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False)
+    id = Column(GUID(), primary_key=True, default=uuid4)
+    company_id = Column(GUID(), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False)
 
     # Stripe integration
     stripe_subscription_id = Column(String(255), unique=True, nullable=True)

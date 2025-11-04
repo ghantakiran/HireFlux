@@ -20,6 +20,7 @@ from app.db.models.notification import Notification, NotificationPreference
 from app.db.models.candidate_profile import CandidateProfile, CandidateView
 from app.db.models.auto_apply import AutoApplyConfig, AutoApplyJob
 from app.db.models.webhook import WebhookEvent, InterviewSchedule
+from app.db.models.bulk_job_posting import BulkJobUpload, JobDistribution, BulkUploadStatus, DistributionStatus, DistributionChannel
 
 __all__ = [
     "Base",
@@ -50,4 +51,9 @@ __all__ = [
     "WebhookEvent",
     "InterviewSchedule",
     "PaymentMethod",
+    "BulkJobUpload",
+    "JobDistribution",
+    "BulkUploadStatus",
+    "DistributionStatus",
+    "DistributionChannel",
 ]

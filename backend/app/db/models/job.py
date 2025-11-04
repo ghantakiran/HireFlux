@@ -95,6 +95,9 @@ class Job(Base):
     auto_apply_jobs = relationship(
         "AutoApplyJob", back_populates="job", cascade="all, delete-orphan"
     )
+    distributions = relationship(
+        "JobDistribution", back_populates="job", cascade="all, delete-orphan"
+    )
 
 
 class MatchScore(Base):
