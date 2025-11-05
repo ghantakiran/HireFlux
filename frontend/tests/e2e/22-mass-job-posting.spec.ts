@@ -19,11 +19,19 @@
 import { test, expect, Page } from '@playwright/test';
 import * as path from 'path';
 import * as fs from 'fs';
+import { mockBulkJobPostingAPI } from './mocks/bulk-job-posting.mock';
 
 // Helper functions - No login needed, using pre-authenticated session via storageState
 async function navigateToBulkUpload(page: Page) {
   await page.goto('/employer/jobs/bulk-upload');
   await expect(page.getByRole('heading', { name: /bulk job upload/i })).toBeVisible();
+}
+
+// Upload CSV file and click upload button
+async function uploadCSVFile(page: Page, csvPath: string) {
+  const fileInput = page.locator('input[type="file"]');
+  await fileInput.setInputFiles(csvPath);
+  await page.getByRole('button', { name: /upload.*validate/i }).click();
 }
 
 // Create sample CSV file
@@ -42,6 +50,11 @@ function createSampleCSV(filename: string, rows: any[]): string {
 test.describe('Mass Job Posting', () => {
   // Using pre-authenticated employer session from storageState
   // No login required in beforeEach
+
+  // Enable API mocking for all tests
+  test.beforeEach(async ({ page }) => {
+    await mockBulkJobPostingAPI(page);
+  });
 
   test.describe('CSV Upload', () => {
     test('should upload valid CSV with multiple jobs', async ({ page }) => {
@@ -78,12 +91,11 @@ test.describe('Mass Job Posting', () => {
       const csvPath = createSampleCSV('jobs.csv', csvData);
 
       // WHEN: User uploads a CSV file
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       // THEN: Upload is processed successfully
-      await expect(page.getByText(/uploading.*jobs/i)).toBeVisible();
-      await expect(page.getByText(/2 jobs uploaded/i)).toBeVisible({ timeout: 10000 });
+      await expect(page.getByRole('heading', { name: /uploading.*validating/i })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /2.*job.*uploaded/i })).toBeVisible({ timeout: 10000 });
       await expect(page.getByText(/senior software engineer/i)).toBeVisible();
       await expect(page.getByText(/product manager/i)).toBeVisible();
 
@@ -113,8 +125,7 @@ test.describe('Mass Job Posting', () => {
       const csvPath = createSampleCSV('invalid.csv', invalidData);
 
       // WHEN: User uploads an invalid CSV
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       // THEN: Validation errors are shown
       await expect(page.getByText(/validation error/i)).toBeVisible();
@@ -145,8 +156,7 @@ test.describe('Mass Job Posting', () => {
       const csvPath = createSampleCSV('large.csv', largeData);
 
       // WHEN: User uploads a CSV with too many jobs
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       // THEN: Error message is shown
       await expect(page.getByText(/maximum.*500.*jobs/i)).toBeVisible();
@@ -175,15 +185,14 @@ test.describe('Mass Job Posting', () => {
       const csvPath = createSampleCSV('progress.csv', csvData);
 
       // WHEN: User uploads the file
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       // THEN: Progress indicator is visible
       await expect(page.locator('[data-testid="upload-progress"]')).toBeVisible();
       await expect(page.getByText(/processing/i)).toBeVisible();
 
       // Wait for completion
-      await expect(page.getByText(/10 jobs uploaded/i)).toBeVisible({ timeout: 10000 });
+      await expect(page.getByRole('heading', { name: /10.*job.*uploaded/i })).toBeVisible({ timeout: 10000 });
 
       // Cleanup
       fs.unlinkSync(csvPath);
@@ -211,8 +220,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('normalize.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/1 job uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -244,8 +252,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('skills.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/1 job uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -280,8 +287,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('salary.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/1 job uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -313,8 +319,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('suggestions.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/1 job uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -363,8 +368,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('duplicates.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/2 jobs uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -408,8 +412,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('similar.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/2 jobs uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -453,8 +456,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('dup-action.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/2 jobs uploaded/i)).toBeVisible({ timeout: 10000 });
       await expect(page.getByText(/duplicate.*detected/i)).toBeVisible();
@@ -491,8 +493,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('review.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/1 job uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -527,8 +528,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('edit.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/1 job uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -577,8 +577,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('remove.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/2 jobs uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -615,8 +614,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('distribute.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/1 job uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -653,8 +651,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('publish.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/1 job uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -692,8 +689,7 @@ test.describe('Mass Job Posting', () => {
       }));
 
       const csvPath = createSampleCSV('progress-dist.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/5 jobs uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -734,8 +730,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('schedule.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/1 job uploaded/i)).toBeVisible({ timeout: 10000 });
 
@@ -868,8 +863,7 @@ test.describe('Mass Job Posting', () => {
       ];
 
       const csvPath = createSampleCSV('mobile.csv', csvData);
-      const fileInput = page.locator('input[type="file"]');
-      await fileInput.setInputFiles(csvPath);
+      await uploadCSVFile(page, csvPath);
 
       await expect(page.getByText(/1 job uploaded/i)).toBeVisible({ timeout: 10000 });
 

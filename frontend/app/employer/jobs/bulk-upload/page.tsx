@@ -140,7 +140,11 @@ export default function BulkJobUploadPage() {
       setUploadResponse(response.data.data);
     } catch (error: any) {
       setUploadStage('error');
-      setErrorMessage(error.response?.data?.detail || 'Upload failed. Please try again.');
+      const errorMsg = error.response?.data?.error?.message ||
+                       error.response?.data?.detail ||
+                       error.message ||
+                       'Upload failed. Please try again.';
+      setErrorMessage(errorMsg);
     }
   };
 
@@ -301,7 +305,7 @@ export default function BulkJobUploadPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <Progress value={uploadProgress} className="w-full" />
+              <Progress value={uploadProgress} className="w-full" data-testid="upload-progress" />
               <p className="text-center text-gray-600">
                 Processing {selectedFile?.name}...
               </p>
@@ -313,6 +317,23 @@ export default function BulkJobUploadPage() {
       {/* Upload Stage: Review */}
       {uploadStage === 'review' && uploadResponse && (
         <div className="space-y-6">
+          {/* Success Header */}
+          <Card>
+            <CardContent className="pt-6 pb-6">
+              <div className="flex items-center justify-center space-x-3">
+                <CheckCircle2 className="h-8 w-8 text-green-600" />
+                <div>
+                  <h2 className="text-2xl font-bold">
+                    {uploadResponse.total_jobs} {uploadResponse.total_jobs === 1 ? 'job' : 'jobs'} uploaded
+                  </h2>
+                  <p className="text-gray-600">
+                    {uploadResponse.valid_jobs} valid, {uploadResponse.invalid_jobs} invalid, {uploadResponse.duplicate_jobs} duplicates
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Summary Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
@@ -389,12 +410,15 @@ export default function BulkJobUploadPage() {
 
           {/* Duplicate Detection */}
           {uploadResponse.duplicate_info && uploadResponse.duplicate_info.length > 0 && (
-            <Card>
+            <Card data-testid="duplicate-warning">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <AlertCircle className="mr-2 h-5 w-5 text-yellow-600" />
-                  Potential Duplicates ({uploadResponse.duplicate_info.length})
+                  {uploadResponse.duplicate_jobs} Duplicate{uploadResponse.duplicate_jobs !== 1 ? 's' : ''} Detected
                 </CardTitle>
+                <CardDescription>
+                  Similar jobs found in your upload
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 max-h-64 overflow-y-auto">
