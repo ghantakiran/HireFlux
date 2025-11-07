@@ -11,13 +11,17 @@ export interface ProgressProps {
   value?: number;
   max?: number;
   className?: string;
+  'data-testid'?: string;
 }
 
-export function Progress({ value = 0, max = 100, className = '' }: ProgressProps) {
+export function Progress({ value = 0, max = 100, className = '', 'data-testid': dataTestId }: ProgressProps) {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
   return (
-    <div className={`w-full bg-gray-200 rounded-full h-2 overflow-hidden ${className}`}>
+    <div
+      className={`w-full bg-gray-200 rounded-full h-4 overflow-hidden ${className}`}
+      data-testid={dataTestId}
+    >
       <div
         className="h-full bg-blue-600 transition-all duration-300 ease-in-out"
         style={{ width: `${percentage}%` }}

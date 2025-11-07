@@ -277,3 +277,111 @@ class DashboardResponse(BaseModel):
     stats: DashboardStats
     recent_activities: List[RecentActivity] = []
     subscription: CompanySubscriptionResponse
+
+
+# ============================================================================
+# Team Collaboration Schemas (Sprint 13-14)
+# ============================================================================
+
+class TeamInvitationCreate(BaseModel):
+    """Schema for inviting a team member"""
+    email: EmailStr = Field(..., description="Email address to invite")
+    role: str = Field(..., description="Role to assign (owner, admin, hiring_manager, recruiter, interviewer, viewer)")
+
+    @field_validator('role')
+    @classmethod
+    def validate_role(cls, v: str) -> str:
+        """Validate role is valid"""
+        valid_roles = ["owner", "admin", "hiring_manager", "recruiter", "interviewer", "viewer"]
+        if v not in valid_roles:
+            raise ValueError(f"Role must be one of: {', '.join(valid_roles)}")
+        return v
+
+
+class TeamInvitationResponse(BaseModel):
+    """Schema for team invitation response"""
+    id: UUID
+    company_id: UUID
+    email: str
+    role: str
+    invited_by: UUID
+    invitation_token: str
+    expires_at: datetime
+    status: str  # 'pending', 'accepted', 'expired', 'revoked'
+    accepted_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class CompanyMemberUpdate(BaseModel):
+    """Schema for updating a team member"""
+    role: Optional[str] = Field(None, description="New role to assign")
+
+    @field_validator('role')
+    @classmethod
+    def validate_role(cls, v: Optional[str]) -> Optional[str]:
+        """Validate role is valid"""
+        if v is None:
+            return v
+        valid_roles = ["owner", "admin", "hiring_manager", "recruiter", "interviewer", "viewer"]
+        if v not in valid_roles:
+            raise ValueError(f"Role must be one of: {', '.join(valid_roles)}")
+        return v
+
+
+class TeamMemberResponse(BaseModel):
+    """Schema for team member response"""
+    id: UUID
+    company_id: UUID
+    user_id: UUID
+    role: str
+    status: str  # 'active', 'suspended'
+    last_active_at: Optional[datetime] = None
+    joined_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+
+    # User details
+    email: Optional[str] = None
+    full_name: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
+class TeamActivityResponse(BaseModel):
+    """Schema for team activity response"""
+    id: UUID
+    company_id: UUID
+    member_id: UUID
+    user_id: UUID
+    action_type: str  # 'job_posted', 'application_reviewed', etc.
+    entity_type: Optional[str] = None  # 'job', 'application', etc.
+    entity_id: Optional[UUID] = None
+    description: Optional[str] = None
+    activity_metadata: Optional[dict] = None
+    created_at: datetime
+
+    # Member details
+    member_name: Optional[str] = None
+    member_email: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
+class PermissionMatrixResponse(BaseModel):
+    """Schema for permission matrix response"""
+    member_id: UUID
+    role: str
+    permissions: dict  # Map of action -> bool
+
+    model_config = {"from_attributes": True}
+
+
+class TeamListResponse(BaseModel):
+    """Schema for team listing response"""
+    members: List[TeamMemberResponse]
+    pending_invitations: List[TeamInvitationResponse]
+    total_members: int
+    total_pending: int

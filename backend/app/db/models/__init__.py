@@ -15,11 +15,11 @@ from app.db.models.application import Application, ApplicationNote
 from app.db.models.billing import CreditWallet, CreditLedger, Subscription, PaymentMethod
 from app.db.models.audit import EventAudit
 from app.db.models.interview import InterviewSession
-from app.db.models.company import Company, CompanyMember, CompanySubscription
+from app.db.models.company import Company, CompanyMember, CompanySubscription, TeamInvitation, TeamActivity, TeamMention
 from app.db.models.notification import Notification, NotificationPreference
 from app.db.models.candidate_profile import CandidateProfile, CandidateView
 from app.db.models.auto_apply import AutoApplyConfig, AutoApplyJob
-from app.db.models.webhook import WebhookEvent, InterviewSchedule
+from app.db.models.webhook import WebhookEvent, InterviewSchedule, InterviewFeedback, CandidateAvailability
 from app.db.models.bulk_job_posting import BulkJobUpload, JobDistribution, BulkUploadStatus, DistributionStatus, DistributionChannel
 
 __all__ = [
@@ -42,6 +42,9 @@ __all__ = [
     "Company",
     "CompanyMember",
     "CompanySubscription",
+    "TeamInvitation",
+    "TeamActivity",
+    "TeamMention",
     "Notification",
     "NotificationPreference",
     "CandidateProfile",
@@ -50,6 +53,8 @@ __all__ = [
     "AutoApplyJob",
     "WebhookEvent",
     "InterviewSchedule",
+    "InterviewFeedback",
+    "CandidateAvailability",
     "PaymentMethod",
     "BulkJobUpload",
     "JobDistribution",

@@ -21,6 +21,8 @@ from app.api.v1.endpoints import (
     applications,
     candidate_profiles,
     bulk_job_posting,
+    team,  # Sprint 13-14: Team collaboration
+    interviews,  # Sprint 13-14: Interview scheduling
 )
 
 api_router = APIRouter()
@@ -44,6 +46,8 @@ api_router.include_router(employer.router)  # Employer/company endpoints
 api_router.include_router(applications.router, prefix="/ats", tags=["ATS/Applications"])  # Employer ATS
 api_router.include_router(candidate_profiles.router)  # Candidate profiles & search
 api_router.include_router(bulk_job_posting.router)  # Bulk job posting (Sprint 11-12)
+api_router.include_router(team.router, prefix="/employer")  # Team collaboration (Sprint 13-14)
+api_router.include_router(interviews.router, prefix="/employer")  # Interview scheduling (Sprint 13-14)
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users

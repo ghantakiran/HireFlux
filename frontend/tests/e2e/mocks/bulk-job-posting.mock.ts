@@ -30,6 +30,14 @@ export interface MockBulkJobResponse {
       similarity_score: number;
       matching_fields: string[];
     }>;
+    ai_suggestions?: Array<{
+      job_index: number;
+      normalized_title?: string;
+      original_title?: string;
+      extracted_skills?: string[];
+      suggested_salary_min?: number;
+      suggested_salary_max?: number;
+    }>;
     raw_jobs_data?: Array<{
       title: string;
       department?: string;
@@ -53,8 +61,8 @@ export async function mockBulkJobPostingAPI(page: Page) {
   await page.route('**/api/v1/bulk-job-posting/upload', async (route: Route) => {
     const request = route.request();
 
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Simulate processing delay (3000ms allows tests to verify progress indicator)
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
     // Extract filename from FormData (parse the multipart body)
     const postData = request.postData() || '';
@@ -108,17 +116,149 @@ export async function mockBulkJobPostingAPI(page: Page) {
           },
         }),
       });
-    } else if (filename.includes('duplicate')) {
-      // Mock duplicate detection
+    } else if (filename.includes('normalize') || filename.includes('suggestions')) {
+      // Mock AI title normalization
+      response = {
+        success: true,
+        data: {
+          id: 'upload-normalize-111',
+          filename: filename,
+          total_jobs: 1,
+          valid_jobs: 1,
+          invalid_jobs: 0,
+          duplicate_jobs: 0,
+          status: 'completed',
+          ai_suggestions: [
+            {
+              job_index: 0,
+              normalized_title: 'Senior Software Engineer',
+              original_title: 'Sr. SW Eng',
+            },
+          ],
+          raw_jobs_data: [
+            {
+              title: 'Sr. SW Eng',
+              department: 'Engineering',
+              location: 'Remote',
+              location_type: 'remote',
+              employment_type: 'full_time',
+              experience_level: 'senior',
+              salary_min: 130000,
+              salary_max: 170000,
+              description: 'Software engineering role',
+              requirements: 'React, Node.js',
+            },
+          ],
+        },
+      };
+    } else if (filename.includes('skills')) {
+      // Mock AI skill extraction
+      response = {
+        success: true,
+        data: {
+          id: 'upload-skills-222',
+          filename: filename,
+          total_jobs: 1,
+          valid_jobs: 1,
+          invalid_jobs: 0,
+          duplicate_jobs: 0,
+          status: 'completed',
+          ai_suggestions: [
+            {
+              job_index: 0,
+              extracted_skills: ['React', 'TypeScript', 'Python', 'AWS'],
+            },
+          ],
+          raw_jobs_data: [
+            {
+              title: 'Full Stack Developer',
+              department: 'Engineering',
+              location: 'Remote',
+              location_type: 'remote',
+              employment_type: 'full_time',
+              experience_level: 'mid',
+              salary_min: 100000,
+              salary_max: 130000,
+              description: 'Looking for a developer with React, TypeScript, Python, and AWS experience',
+              requirements: 'Strong coding skills',
+            },
+          ],
+        },
+      };
+    } else if (filename.includes('salary')) {
+      // Mock AI salary suggestion
+      response = {
+        success: true,
+        data: {
+          id: 'upload-salary-333',
+          filename: filename,
+          total_jobs: 1,
+          valid_jobs: 1,
+          invalid_jobs: 0,
+          duplicate_jobs: 0,
+          status: 'completed',
+          ai_suggestions: [
+            {
+              job_index: 0,
+              suggested_salary_min: 130000,
+              suggested_salary_max: 170000,
+            },
+          ],
+          raw_jobs_data: [
+            {
+              title: 'Senior Software Engineer',
+              department: 'Engineering',
+              location: 'San Francisco, CA',
+              location_type: 'hybrid',
+              employment_type: 'full_time',
+              experience_level: 'senior',
+              salary_min: 0,
+              salary_max: 0,
+              description: 'Software engineering role',
+              requirements: 'React, Node.js',
+            },
+          ],
+        },
+      };
+    } else if (filename.includes('progress')) {
+      // Mock progress test with 10 jobs
+      const jobs = Array.from({ length: 10 }, (_, i) => ({
+        title: `Job ${i + 1}`,
+        department: 'Engineering',
+        location: 'Remote',
+        location_type: 'remote',
+        employment_type: 'full_time',
+        experience_level: 'mid',
+        salary_min: 100000,
+        salary_max: 130000,
+        description: 'Description',
+        requirements: 'Requirements',
+      }));
+
+      response = {
+        success: true,
+        data: {
+          id: 'upload-progress-999',
+          filename: filename,
+          total_jobs: 10,
+          valid_jobs: 10,
+          invalid_jobs: 0,
+          duplicate_jobs: 0,
+          status: 'completed',
+          raw_jobs_data: jobs,
+        },
+      };
+    } else if (filename.includes('duplicate') || filename.includes('dup-action')) {
+      // Mock duplicate detection (2 identical jobs)
       response = {
         success: true,
         data: {
           id: 'upload-dup-456',
           filename: filename,
-          total_jobs: 3,
+          total_jobs: 2,
           valid_jobs: 1,
           invalid_jobs: 0,
-          duplicate_jobs: 2,
+          duplicate_jobs: 1,
           status: 'completed',
           duplicate_info: [
             {
@@ -126,12 +266,6 @@ export async function mockBulkJobPostingAPI(page: Page) {
               duplicate_of: 0,
               similarity_score: 0.95,
               matching_fields: ['title', 'location', 'department'],
-            },
-            {
-              row_index: 2,
-              duplicate_of: 0,
-              similarity_score: 0.88,
-              matching_fields: ['title', 'department'],
             },
           ],
           raw_jobs_data: [
@@ -151,13 +285,45 @@ export async function mockBulkJobPostingAPI(page: Page) {
               salary_min: 130000,
               salary_max: 170000,
             },
+          ],
+        },
+      };
+    } else if (filename.includes('similar')) {
+      // Mock similar jobs detection (fuzzy matching with 85% similarity)
+      response = {
+        success: true,
+        data: {
+          id: 'upload-similar-789',
+          filename: filename,
+          total_jobs: 2,
+          valid_jobs: 2,
+          invalid_jobs: 0,
+          duplicate_jobs: 0,
+          status: 'completed',
+          duplicate_info: [
+            {
+              row_index: 1,
+              duplicate_of: 0,
+              similarity_score: 0.85,
+              matching_fields: ['title', 'department'],
+            },
+          ],
+          raw_jobs_data: [
             {
               title: 'Senior Software Engineer',
               department: 'Engineering',
-              location: 'Remote',
+              location: 'San Francisco, CA',
               employment_type: 'full_time',
-              salary_min: 120000,
-              salary_max: 160000,
+              salary_min: 130000,
+              salary_max: 170000,
+            },
+            {
+              title: 'Sr. Software Engineer',
+              department: 'Engineering',
+              location: 'San Francisco, California',
+              employment_type: 'full_time',
+              salary_min: 135000,
+              salary_max: 175000,
             },
           ],
         },

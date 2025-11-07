@@ -161,6 +161,12 @@ class InterviewSchedule(Base):
     interviewer_names = Column(JSON, nullable=True)  # List of interviewer names
     interviewer_emails = Column(JSON, nullable=True)  # List of interviewer emails
 
+    # Sprint 13-14: Enhanced interview scheduling
+    interviewer_ids = Column(JSON, nullable=True)  # Array of company_member IDs assigned as interviewers
+    meeting_platform = Column(String(50), nullable=True)  # 'zoom', 'google_meet', 'microsoft_teams', 'in_person'
+    calendar_event_id = Column(String(255), nullable=True)  # Google Calendar / Outlook event ID
+    reminders_config = Column(JSON, nullable=True)  # {"24h": true, "1h": true}
+
     # Status
     status = Column(
         String(50), default="scheduled", nullable=False, index=True
@@ -203,6 +209,7 @@ class InterviewSchedule(Base):
     application = relationship("Application", back_populates="interview_schedules")
     user = relationship("User", back_populates="interview_schedules")
     webhook_event = relationship("WebhookEvent")
+    interview_feedback = relationship("InterviewFeedback", back_populates="interview", cascade="all, delete-orphan")
 
 
 class WebhookSubscription(Base):
@@ -243,3 +250,100 @@ class WebhookSubscription(Base):
     # Timestamps
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
+
+class InterviewFeedback(Base):
+    """Interview feedback from interviewers (Sprint 13-14)"""
+
+    __tablename__ = "interview_feedback"
+
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    interview_id = Column(
+        GUID(),
+        ForeignKey("interview_schedules.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    interviewer_id = Column(
+        GUID(),
+        ForeignKey("company_members.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    application_id = Column(
+        GUID(),
+        ForeignKey("applications.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    # Ratings (1-5 scale)
+    overall_rating = Column(Integer, nullable=True)  # CHECK (overall_rating BETWEEN 1 AND 5)
+    technical_rating = Column(Integer, nullable=True)  # CHECK (technical_rating BETWEEN 1 AND 5)
+    communication_rating = Column(Integer, nullable=True)  # CHECK (communication_rating BETWEEN 1 AND 5)
+    culture_fit_rating = Column(Integer, nullable=True)  # CHECK (culture_fit_rating BETWEEN 1 AND 5)
+
+    # Detailed feedback
+    strengths = Column(JSON, nullable=True)  # Array of strengths
+    concerns = Column(JSON, nullable=True)  # Array of concerns
+    notes = Column(Text, nullable=True)
+
+    # Recommendation
+    recommendation = Column(
+        String(50), nullable=True
+    )  # 'strong_yes', 'yes', 'maybe', 'no', 'strong_no'
+    next_steps = Column(Text, nullable=True)
+
+    # Status
+    is_submitted = Column(Boolean, default=False, nullable=False)
+    submitted_at = Column(TIMESTAMP, nullable=True)
+
+    # Timestamps
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    interview = relationship("InterviewSchedule", back_populates="interview_feedback")
+    interviewer = relationship("CompanyMember")
+    application = relationship("Application")
+
+
+class CandidateAvailability(Base):
+    """Candidate availability for interview scheduling (Sprint 13-14)"""
+
+    __tablename__ = "candidate_availability"
+
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    application_id = Column(
+        GUID(),
+        ForeignKey("applications.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    candidate_id = Column(
+        GUID(),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    # Time slots (candidate provides multiple options)
+    available_slots = Column(
+        JSON, nullable=False
+    )  # [{"start": "2025-11-10T10:00:00Z", "end": "2025-11-10T11:00:00Z"}, ...]
+    timezone = Column(String(50), nullable=False)
+
+    # Preferences
+    preferred_platform = Column(String(50), nullable=True)  # 'zoom', 'google_meet', etc.
+    notes = Column(Text, nullable=True)
+
+    # Expiration
+    expires_at = Column(TIMESTAMP, nullable=False)
+
+    # Timestamps
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    application = relationship("Application")
+    candidate = relationship("User")

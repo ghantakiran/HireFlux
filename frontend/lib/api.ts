@@ -585,4 +585,180 @@ export const bulkJobPostingApi = {
   getTemplate: () => apiClient.get<ApiResponse>('/bulk-job-posting/template'),
 };
 
+// Team Collaboration API (Sprint 13-14)
+export const teamCollaborationApi = {
+  // List team members with optional filtering
+  getTeamMembers: (params?: {
+    include_suspended?: boolean;
+    role?: string;
+  }) => apiClient.get<ApiResponse>('/employer/team/members', { params }),
+
+  // Invite new team member
+  inviteTeamMember: (data: {
+    email: string;
+    role: 'owner' | 'admin' | 'hiring_manager' | 'recruiter' | 'interviewer' | 'viewer';
+  }) => apiClient.post<ApiResponse>('/employer/team/invite', data),
+
+  // Resend invitation
+  resendInvitation: (invitationId: string) =>
+    apiClient.post<ApiResponse>(`/employer/team/invitations/${invitationId}/resend`),
+
+  // Revoke invitation
+  revokeInvitation: (invitationId: string) =>
+    apiClient.delete<ApiResponse>(`/employer/team/invitations/${invitationId}`),
+
+  // Update team member role
+  updateMemberRole: (
+    memberId: string,
+    data: {
+      role: 'owner' | 'admin' | 'hiring_manager' | 'recruiter' | 'interviewer' | 'viewer';
+    }
+  ) => apiClient.patch<ApiResponse>(`/employer/team/members/${memberId}/role`, data),
+
+  // Suspend team member
+  suspendMember: (memberId: string, data: { reason?: string }) =>
+    apiClient.post<ApiResponse>(`/employer/team/members/${memberId}/suspend`, data),
+
+  // Reactivate suspended member
+  reactivateMember: (memberId: string) =>
+    apiClient.post<ApiResponse>(`/employer/team/members/${memberId}/reactivate`),
+
+  // Remove team member
+  removeMember: (memberId: string) =>
+    apiClient.delete<ApiResponse>(`/employer/team/members/${memberId}`),
+
+  // Get team activity feed
+  getTeamActivity: (params?: {
+    days?: number;
+    member_id?: string;
+    action_type?: string;
+    limit?: number;
+  }) => apiClient.get<ApiResponse>('/employer/team/activity', { params }),
+
+  // Get specific member's activity
+  getMemberActivity: (memberId: string, params?: { days?: number; limit?: number }) =>
+    apiClient.get<ApiResponse>(`/employer/team/members/${memberId}/activity`, { params }),
+
+  // Get current user's permissions
+  getMyPermissions: () => apiClient.get<ApiResponse>('/employer/team/permissions'),
+
+  // Accept team invitation
+  acceptInvitation: (token: string) =>
+    apiClient.post<ApiResponse>(`/employer/team/accept/${token}`),
+};
+
+// Interview Scheduling API (Sprint 13-14)
+export const interviewSchedulingApi = {
+  // Schedule new interview
+  scheduleInterview: (data: {
+    application_id: string;
+    interview_type: 'phone_screen' | 'technical' | 'behavioral' | 'cultural_fit' | 'final' | 'other';
+    interview_round: number;
+    scheduled_at: string;
+    duration_minutes: number;
+    timezone: string;
+    meeting_platform?: 'zoom' | 'google_meet' | 'microsoft_teams' | 'phone' | 'in_person' | 'other';
+    meeting_link?: string;
+    location?: string;
+    interviewer_ids: string[];
+    notes?: string;
+  }) => apiClient.post<ApiResponse>('/employer/interviews', data),
+
+  // List all interviews with filtering
+  listInterviews: (params?: {
+    status?: 'scheduled' | 'confirmed' | 'rescheduled' | 'completed' | 'cancelled' | 'no_show';
+    interview_type?: string;
+    interviewer_id?: string;
+    application_id?: string;
+    start_date?: string;
+    end_date?: string;
+    page?: number;
+    limit?: number;
+  }) => apiClient.get<ApiResponse>('/employer/interviews', { params }),
+
+  // Get upcoming interviews
+  getUpcomingInterviews: (params?: {
+    days?: number;
+    interviewer_id?: string;
+  }) => apiClient.get<ApiResponse>('/employer/interviews/upcoming', { params }),
+
+  // Get interview details
+  getInterviewDetails: (interviewId: string) =>
+    apiClient.get<ApiResponse>(`/employer/interviews/${interviewId}`),
+
+  // Reschedule interview
+  rescheduleInterview: (
+    interviewId: string,
+    data: {
+      new_time: string;
+      timezone?: string;
+      reason?: string;
+    }
+  ) => apiClient.post<ApiResponse>(`/employer/interviews/${interviewId}/reschedule`, data),
+
+  // Cancel interview
+  cancelInterview: (interviewId: string, data: { reason?: string }) =>
+    apiClient.delete<ApiResponse>(`/employer/interviews/${interviewId}`, { data }),
+
+  // Assign additional interviewers
+  assignInterviewers: (
+    interviewId: string,
+    data: {
+      interviewer_ids: string[];
+    }
+  ) => apiClient.post<ApiResponse>(`/employer/interviews/${interviewId}/assign`, data),
+
+  // Submit interview feedback
+  submitFeedback: (
+    interviewId: string,
+    data: {
+      overall_rating?: number;
+      technical_rating?: number;
+      communication_rating?: number;
+      culture_fit_rating?: number;
+      strengths: string[];
+      concerns: string[];
+      notes?: string;
+      recommendation?: 'yes' | 'no' | 'maybe';
+      next_steps?: string;
+    }
+  ) => apiClient.post<ApiResponse>(`/employer/interviews/${interviewId}/feedback`, data),
+
+  // Get interview feedback
+  getFeedback: (interviewId: string) =>
+    apiClient.get<ApiResponse>(`/employer/interviews/${interviewId}/feedback`),
+
+  // Request candidate availability
+  requestCandidateAvailability: (
+    applicationId: string,
+    data: {
+      interview_type: string;
+      duration_minutes: number;
+      timezone: string;
+      preferred_platforms?: string[];
+      notes?: string;
+    }
+  ) => apiClient.post<ApiResponse>(`/employer/applications/${applicationId}/request-availability`, data),
+
+  // Get candidate availability
+  getCandidateAvailability: (applicationId: string) =>
+    apiClient.get<ApiResponse>(`/employer/applications/${applicationId}/availability`),
+
+  // Get aggregated feedback for application
+  getAggregatedFeedback: (applicationId: string) =>
+    apiClient.get<ApiResponse>(`/employer/interviews/applications/${applicationId}/feedback/aggregated`),
+
+  // Sync interview to calendar
+  syncToCalendar: (
+    interviewId: string,
+    data: {
+      calendar_provider: 'google' | 'outlook' | 'other';
+    }
+  ) => apiClient.post<ApiResponse>(`/employer/interviews/${interviewId}/calendar/sync`, data),
+
+  // Send calendar invites
+  sendCalendarInvites: (interviewId: string) =>
+    apiClient.post<ApiResponse>(`/employer/interviews/${interviewId}/calendar/invite`),
+};
+
 export default apiClient;

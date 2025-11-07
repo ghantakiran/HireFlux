@@ -29,7 +29,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Upload, FileText, AlertCircle, CheckCircle2, XCircle, Download } from 'lucide-react';
+import { Upload, FileText, AlertCircle, CheckCircle2, XCircle, Download, Sparkles, DollarSign } from 'lucide-react';
 
 // Types matching backend schemas
 interface ValidationError {
@@ -43,6 +43,15 @@ interface DuplicateInfo {
   duplicate_of: number;
   similarity_score: number;
   matching_fields: string[];
+}
+
+interface AISuggestion {
+  job_index: number;
+  normalized_title?: string;
+  original_title?: string;
+  extracted_skills?: string[];
+  suggested_salary_min?: number;
+  suggested_salary_max?: number;
 }
 
 interface JobRow {
@@ -85,6 +94,7 @@ export default function BulkJobUploadPage() {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [selectedChannels, setSelectedChannels] = useState<string[]>(['INTERNAL']);
   const [isDragging, setIsDragging] = useState(false);
+  const [removedDuplicates, setRemovedDuplicates] = useState<Set<number>>(new Set());
 
   // Handle file selection
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
@@ -140,7 +150,11 @@ export default function BulkJobUploadPage() {
       setUploadResponse(response.data.data);
     } catch (error: any) {
       setUploadStage('error');
-      const errorMsg = error.response?.data?.error?.message ||
+      // Prefer details message if available, fallback to main error message
+      const details = error.response?.data?.error?.details;
+      const detailsMsg = details && details.length > 0 ? details[0].message : null;
+      const errorMsg = detailsMsg ||
+                       error.response?.data?.error?.message ||
                        error.response?.data?.detail ||
                        error.message ||
                        'Upload failed. Please try again.';
@@ -175,6 +189,24 @@ export default function BulkJobUploadPage() {
         : [...prev, channel]
     );
   };
+
+  // Remove duplicate
+  const handleRemoveDuplicate = (rowIndex: number) => {
+    setRemovedDuplicates((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(rowIndex);
+      return newSet;
+    });
+  };
+
+  // Calculate active job counts (excluding removed duplicates)
+  const activeDuplicateCount = uploadResponse?.duplicate_info?.filter(
+    (dup) => !removedDuplicates.has(dup.row_index)
+  ).length || 0;
+
+  const activeJobCount = uploadResponse
+    ? uploadResponse.total_jobs - removedDuplicates.size
+    : 0;
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
@@ -414,39 +446,56 @@ export default function BulkJobUploadPage() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <AlertCircle className="mr-2 h-5 w-5 text-yellow-600" />
-                  {uploadResponse.duplicate_jobs} Duplicate{uploadResponse.duplicate_jobs !== 1 ? 's' : ''} Detected
+                  {activeDuplicateCount} Duplicate{activeDuplicateCount !== 1 ? 's' : ''} Detected
                 </CardTitle>
                 <CardDescription>
                   Similar jobs found in your upload
+                  {removedDuplicates.size > 0 && (
+                    <span className="block mt-1 font-medium">
+                      {activeJobCount} {activeJobCount === 1 ? 'job' : 'jobs'} remaining
+                    </span>
+                  )}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {uploadResponse.duplicate_info.map((dup, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
-                      data-testid={`duplicate-info-${idx}`}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <span className="font-medium">Row {dup.row_index + 1}</span>
-                          <span className="text-gray-600">
-                            {' '}
-                            is similar to Row {dup.duplicate_of + 1}
-                          </span>
+                  {uploadResponse.duplicate_info
+                    .filter((dup) => !removedDuplicates.has(dup.row_index))
+                    .map((dup, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
+                        data-testid={`duplicate-info-${idx}`}
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1">
+                            <span className="font-medium">Row {dup.row_index + 1}</span>
+                            <span className="text-gray-600">
+                              {' '}
+                              is similar to Row {dup.duplicate_of + 1}
+                            </span>
+                            {dup.matching_fields.length > 0 && (
+                              <p className="text-sm text-gray-600 mt-1">
+                                Matching fields: {dup.matching_fields.join(', ')}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <Badge variant="outline">
+                              {(dup.similarity_score * 100).toFixed(0)}% match
+                            </Badge>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleRemoveDuplicate(dup.row_index)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              Remove Duplicate
+                            </Button>
+                          </div>
                         </div>
-                        <Badge variant="outline">
-                          {(dup.similarity_score * 100).toFixed(0)}% match
-                        </Badge>
                       </div>
-                      {dup.matching_fields.length > 0 && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          Matching fields: {dup.matching_fields.join(', ')}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </CardContent>
             </Card>
