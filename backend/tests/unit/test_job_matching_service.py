@@ -1,4 +1,5 @@
 """Unit tests for JobMatchingService"""
+
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 import uuid

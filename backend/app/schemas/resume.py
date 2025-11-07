@@ -1,4 +1,5 @@
 """Resume schemas for validation and serialization"""
+
 from pydantic import BaseModel, Field, field_validator, HttpUrl
 from typing import Optional, List, Dict, Any
 from datetime import datetime

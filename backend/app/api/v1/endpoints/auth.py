@@ -1,4 +1,5 @@
 """Authentication endpoints"""
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
@@ -78,19 +79,25 @@ def get_current_user_info(
             "email": current_user.email,
             "email_verified": current_user.email_verified,
             "created_at": current_user.created_at.isoformat(),
-            "profile": {
-                "first_name": current_user.profile.first_name
+            "profile": (
+                {
+                    "first_name": (
+                        current_user.profile.first_name
+                        if current_user.profile
+                        else None
+                    ),
+                    "last_name": (
+                        current_user.profile.last_name if current_user.profile else None
+                    ),
+                    "onboarding_complete": (
+                        current_user.profile.onboarding_complete
+                        if current_user.profile
+                        else False
+                    ),
+                }
                 if current_user.profile
-                else None,
-                "last_name": current_user.profile.last_name
-                if current_user.profile
-                else None,
-                "onboarding_complete": current_user.profile.onboarding_complete
-                if current_user.profile
-                else False,
-            }
-            if current_user.profile
-            else None,
+                else None
+            ),
         },
     }
 

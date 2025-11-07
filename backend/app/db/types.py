@@ -1,4 +1,5 @@
 """Custom database types for cross-database compatibility"""
+
 from sqlalchemy import TypeDecorator, String, CHAR
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 import uuid

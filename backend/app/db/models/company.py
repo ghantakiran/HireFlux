@@ -2,6 +2,7 @@
 
 Models for employer/company functionality including companies, team members, and subscriptions.
 """
+
 from datetime import datetime
 from typing import Optional
 from uuid import uuid4

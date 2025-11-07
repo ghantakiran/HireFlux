@@ -1,4 +1,5 @@
 """Application tracking model"""
+
 from sqlalchemy import (
     Column,
     String,

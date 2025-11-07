@@ -1,4 +1,5 @@
 """Credit wallet management service"""
+
 import uuid
 from typing import Optional, List
 from datetime import datetime

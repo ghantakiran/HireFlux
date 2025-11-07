@@ -1,6 +1,7 @@
 """
 API V1 Router - Combines all endpoint routers
 """
+
 from fastapi import APIRouter
 
 # Import routers

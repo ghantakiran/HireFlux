@@ -1,4 +1,5 @@
 """AI-powered resume generation and optimization service"""
+
 import uuid
 from typing import Dict, Any, List, Optional
 from datetime import datetime

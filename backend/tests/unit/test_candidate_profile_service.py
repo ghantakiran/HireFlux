@@ -14,6 +14,7 @@ Test Coverage:
 - Profile retrieval
 - Error handling
 """
+
 import pytest
 from datetime import datetime, date, timedelta
 from sqlalchemy.orm import Session

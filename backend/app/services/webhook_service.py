@@ -1,4 +1,5 @@
 """Webhook service for job board integrations"""
+
 import hashlib
 import hmac
 import json
@@ -281,9 +282,9 @@ class WebhookService:
         if "candidate" in data:
             candidate = data["candidate"]
             parsed["candidate_email"] = candidate.get("email")
-            parsed[
-                "candidate_name"
-            ] = f"{candidate.get('first_name', '')} {candidate.get('last_name', '')}".strip()
+            parsed["candidate_name"] = (
+                f"{candidate.get('first_name', '')} {candidate.get('last_name', '')}".strip()
+            )
 
         # Extract application info
         if "application" in data:

@@ -6,6 +6,7 @@ Distributes jobs to multiple job boards:
 - Glassdoor
 - Internal job board
 """
+
 import asyncio
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta

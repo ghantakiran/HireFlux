@@ -1,4 +1,5 @@
 """Unit tests for AIJobNormalizationService (Sprint 11-12 Phase 3 TDD)"""
+
 import pytest
 from unittest.mock import Mock, AsyncMock, patch
 import uuid

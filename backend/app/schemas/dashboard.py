@@ -2,6 +2,7 @@
 
 Pydantic schemas for employer dashboard data including statistics, metrics, and activity feeds.
 """
+
 from datetime import datetime
 from typing import Dict, List, Optional
 from pydantic import BaseModel, Field

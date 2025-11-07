@@ -1,4 +1,5 @@
 """OpenAI service wrapper with rate limiting and cost tracking"""
+
 import json
 import time
 import hashlib

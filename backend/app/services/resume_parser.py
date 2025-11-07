@@ -1,4 +1,5 @@
 """Resume parsing service"""
+
 import re
 import io
 from typing import List, Optional

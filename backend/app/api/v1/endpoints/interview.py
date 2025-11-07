@@ -2,6 +2,7 @@
 Interview Coaching API Endpoints
 Endpoints for interview practice sessions
 """
+
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session

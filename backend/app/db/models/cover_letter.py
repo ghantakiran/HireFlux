@@ -1,4 +1,5 @@
 """Cover Letter model"""
+
 from sqlalchemy import (
     Column,
     String,

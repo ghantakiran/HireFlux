@@ -1,4 +1,5 @@
 """User and Profile models"""
+
 from sqlalchemy import Boolean, Column, String, TIMESTAMP, ForeignKey, Integer, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func

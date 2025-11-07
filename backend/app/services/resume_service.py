@@ -1,4 +1,5 @@
 """Resume service for handling resume operations"""
+
 import os
 import uuid
 from typing import List, Optional

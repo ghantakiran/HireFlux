@@ -1,4 +1,5 @@
 """Stripe billing service"""
+
 import stripe
 import uuid
 from typing import Optional, Dict, Any

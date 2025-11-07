@@ -1,4 +1,5 @@
 """Analytics and Dashboard API endpoints"""
+
 from typing import List, Optional
 from uuid import UUID
 

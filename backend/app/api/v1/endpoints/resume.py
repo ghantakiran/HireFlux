@@ -1,4 +1,5 @@
 """Resume management endpoints"""
+
 from fastapi import APIRouter, Depends, UploadFile, File, status, HTTPException
 from sqlalchemy.orm import Session
 from typing import List

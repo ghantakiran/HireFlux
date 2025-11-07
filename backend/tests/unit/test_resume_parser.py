@@ -1,4 +1,5 @@
 """Unit tests for resume parsing service"""
+
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 import io

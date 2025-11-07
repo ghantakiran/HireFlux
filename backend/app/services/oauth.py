@@ -1,4 +1,5 @@
 """OAuth Service for Third-Party Authentication"""
+
 import httpx
 import jwt as pyjwt
 from typing import Dict, Any, Optional

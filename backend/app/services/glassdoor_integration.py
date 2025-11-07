@@ -3,6 +3,7 @@
 Stub implementation for Glassdoor job posting API.
 Production would use Glassdoor's Employer API.
 """
+
 from typing import Dict, Any
 
 

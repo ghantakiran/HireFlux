@@ -1,4 +1,5 @@
 """Billing and subscription endpoints"""
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from sqlalchemy.orm import Session
 import uuid

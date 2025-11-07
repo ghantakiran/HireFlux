@@ -1,4 +1,5 @@
 """Unit tests for LeverService"""
+
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime

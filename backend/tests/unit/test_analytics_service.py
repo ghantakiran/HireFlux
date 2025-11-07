@@ -1,4 +1,5 @@
 """Unit tests for Analytics Service"""
+
 import uuid
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, Mock, patch

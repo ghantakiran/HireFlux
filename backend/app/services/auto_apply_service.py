@@ -1,4 +1,5 @@
 """Auto-apply service for background job applications"""
+
 import uuid
 from typing import List, Optional, Dict, Tuple
 from datetime import datetime, timedelta

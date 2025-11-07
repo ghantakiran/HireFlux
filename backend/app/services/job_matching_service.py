@@ -1,4 +1,5 @@
 """Job matching service with Fit Index calculation"""
+
 import uuid
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
@@ -103,9 +104,11 @@ class JobMatchingService:
                     company=job.company,
                     location=job.location,
                     location_type=LocationType(job.location_type or "onsite"),
-                    salary_range=f"${job.salary_min:,}-${job.salary_max:,}"
-                    if job.salary_min and job.salary_max
-                    else None,
+                    salary_range=(
+                        f"${job.salary_min:,}-${job.salary_max:,}"
+                        if job.salary_min and job.salary_max
+                        else None
+                    ),
                     fit_index=fit_index,
                     match_quality=self._get_match_quality(fit_index),
                     rationale=rationale,
@@ -237,9 +240,11 @@ class JobMatchingService:
                 SkillMatch(
                     skill=req_skill,
                     user_has=has_skill,
-                    user_years=user_skill_names[req_lower].years_experience
-                    if has_skill and req_lower in user_skill_names
-                    else None,
+                    user_years=(
+                        user_skill_names[req_lower].years_experience
+                        if has_skill and req_lower in user_skill_names
+                        else None
+                    ),
                     similarity_score=1.0 if has_skill else similarity,
                     is_transferable=is_transferable,
                 )

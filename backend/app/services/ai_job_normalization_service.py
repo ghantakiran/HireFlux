@@ -5,6 +5,7 @@ Uses OpenAI to:
 - Extract skills from job descriptions
 - Suggest salary ranges based on market data
 """
+
 import json
 import hashlib
 from typing import List, Dict, Any, Optional

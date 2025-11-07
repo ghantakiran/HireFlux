@@ -1,4 +1,5 @@
 """Job data normalization service"""
+
 import re
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
@@ -96,9 +97,11 @@ class JobNormalizationService:
             salary=self.extract_salary_range(description),
             department=job.departments[0].name if job.departments else None,
             application_url=job.absolute_url,
-            posted_date=datetime.fromisoformat(job.updated_at.replace("Z", "+00:00"))
-            if job.updated_at
-            else None,
+            posted_date=(
+                datetime.fromisoformat(job.updated_at.replace("Z", "+00:00"))
+                if job.updated_at
+                else None
+            ),
         )
 
     def normalize_lever_job(self, job: LeverJob, company_name: str) -> NormalizedJob:
@@ -123,9 +126,11 @@ class JobNormalizationService:
             title=job.text,
             company=company_name,
             description=description,
-            location=job.categories[0].location
-            if job.categories and job.categories[0].location
-            else "Remote",
+            location=(
+                job.categories[0].location
+                if job.categories and job.categories[0].location
+                else "Remote"
+            ),
             location_type=job.location_type or "onsite",
             required_skills=self.extract_skills(description, is_required=True),
             preferred_skills=self.extract_skills(description, is_required=False),
@@ -137,9 +142,9 @@ class JobNormalizationService:
             department=department,
             employment_type=job.employment_type,
             application_url=job.hostedUrl,
-            posted_date=datetime.fromtimestamp(job.createdAt / 1000)
-            if job.createdAt
-            else None,
+            posted_date=(
+                datetime.fromtimestamp(job.createdAt / 1000) if job.createdAt else None
+            ),
         )
 
     def extract_skills(self, text: str, is_required: bool = True) -> List[str]:

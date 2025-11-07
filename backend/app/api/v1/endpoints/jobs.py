@@ -2,6 +2,7 @@
 
 Provides REST API for employer job posting management.
 """
+
 from typing import Optional
 from uuid import UUID
 import math

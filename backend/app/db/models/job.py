@@ -1,4 +1,5 @@
 """Job, JobSource, and MatchScore models"""
+
 from sqlalchemy import (
     Column,
     String,

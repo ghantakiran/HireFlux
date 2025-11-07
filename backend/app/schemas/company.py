@@ -2,6 +2,7 @@
 
 Schemas for request/response validation in employer APIs.
 """
+
 from datetime import datetime
 from typing import Optional, List
 from uuid import UUID

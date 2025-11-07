@@ -3,6 +3,7 @@
 Following TDD/BDD patterns with Given-When-Then structure.
 Tests written BEFORE implementation.
 """
+
 import pytest
 from datetime import datetime
 from uuid import UUID, uuid4

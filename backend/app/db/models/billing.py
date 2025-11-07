@@ -1,4 +1,5 @@
 """Billing models: CreditWallet, CreditLedger, Subscription"""
+
 from sqlalchemy import (
     Column,
     String,

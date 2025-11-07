@@ -1,4 +1,5 @@
 """Unit tests for onboarding service"""
+
 import pytest
 import uuid
 from unittest.mock import Mock, MagicMock

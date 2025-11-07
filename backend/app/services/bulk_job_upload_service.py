@@ -2,6 +2,7 @@
 
 Handles CSV parsing, validation, duplicate detection, and upload session management.
 """
+
 from typing import List, Dict, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
@@ -67,9 +68,9 @@ class BulkJobUploadService:
             status=BulkUploadStatus.UPLOADED,
             raw_jobs_data=raw_jobs_data,
             validation_errors=validation_result["errors"],
-            duplicate_info=[d.model_dump() for d in duplicate_info]
-            if duplicate_info
-            else [],
+            duplicate_info=(
+                [d.model_dump() for d in duplicate_info] if duplicate_info else []
+            ),
             distribution_channels=[
                 c.value for c in upload_request.distribution_channels
             ],

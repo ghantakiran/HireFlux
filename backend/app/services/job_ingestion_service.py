@@ -1,4 +1,5 @@
 """Job ingestion orchestration service"""
+
 import uuid
 from typing import List, Dict, Optional
 from datetime import datetime, timedelta
@@ -231,12 +232,12 @@ class JobIngestionService:
             experience_min_years=normalized_job.experience_min_years,
             experience_max_years=normalized_job.experience_max_years,
             experience_level=normalized_job.experience_level,
-            salary_min=normalized_job.salary.min_salary
-            if normalized_job.salary
-            else None,
-            salary_max=normalized_job.salary.max_salary
-            if normalized_job.salary
-            else None,
+            salary_min=(
+                normalized_job.salary.min_salary if normalized_job.salary else None
+            ),
+            salary_max=(
+                normalized_job.salary.max_salary if normalized_job.salary else None
+            ),
             department=normalized_job.department,
             employment_type=normalized_job.employment_type,
             requires_visa_sponsorship=self.normalizer.detect_visa_sponsorship(

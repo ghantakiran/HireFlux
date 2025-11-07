@@ -1,4 +1,5 @@
 """Unit tests for WebhookService"""
+
 import hashlib
 import hmac
 import json

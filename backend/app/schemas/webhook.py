@@ -1,4 +1,5 @@
 """Webhook event schemas for job board integrations"""
+
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional

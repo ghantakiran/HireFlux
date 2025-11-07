@@ -15,6 +15,7 @@ Test Strategy:
 - Test all 6 roles: owner, admin, hiring_manager, recruiter, interviewer, viewer
 - Test permission matrix: 12 actions × 6 roles
 """
+
 import pytest
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session

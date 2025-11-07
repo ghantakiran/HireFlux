@@ -3,6 +3,7 @@
 Stub implementation for LinkedIn job posting API.
 Production would use LinkedIn's Marketing Developer Platform API.
 """
+
 from typing import Dict, Any
 
 

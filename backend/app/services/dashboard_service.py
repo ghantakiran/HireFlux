@@ -2,6 +2,7 @@
 
 Provides dashboard statistics, activity feeds, and team analytics for employers.
 """
+
 from datetime import datetime, timedelta
 from typing import List, Optional
 import sqlalchemy
@@ -153,12 +154,12 @@ class DashboardService:
             avg_time_to_first_application_hours=avg_time_to_first_app,
             avg_candidate_quality=None,  # TODO: Implement with match scores
             # Usage tracking
-            jobs_posted_this_month=subscription.jobs_posted_this_month
-            if subscription
-            else 0,
-            candidate_views_this_month=subscription.candidate_views_this_month
-            if subscription
-            else 0,
+            jobs_posted_this_month=(
+                subscription.jobs_posted_this_month if subscription else 0
+            ),
+            candidate_views_this_month=(
+                subscription.candidate_views_this_month if subscription else 0
+            ),
             # Plan limits
             max_active_jobs=company.max_active_jobs,
             max_candidate_views=company.max_candidate_views,

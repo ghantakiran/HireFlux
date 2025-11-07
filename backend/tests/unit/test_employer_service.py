@@ -10,6 +10,7 @@ Test Coverage:
 - Company updates
 - Subscription limits
 """
+
 import pytest
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session

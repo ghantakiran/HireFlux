@@ -1,4 +1,5 @@
 """Integration tests for onboarding endpoints"""
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine

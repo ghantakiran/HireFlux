@@ -2,6 +2,7 @@
 Notification Service
 Handles creating and managing user notifications
 """
+
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
@@ -50,9 +51,11 @@ class NotificationService:
                 message=notification_data.message,
                 action_url=notification_data.action_url,
                 priority=notification_data.priority.value,
-                category=notification_data.category.value
-                if notification_data.category
-                else None,
+                category=(
+                    notification_data.category.value
+                    if notification_data.category
+                    else None
+                ),
                 data=notification_data.data,
                 expires_at=notification_data.expires_at,
             )

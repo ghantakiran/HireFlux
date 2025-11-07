@@ -3,6 +3,7 @@
 Following TDD/BDD patterns with Given-When-Then structure.
 Tests written BEFORE implementation.
 """
+
 import pytest
 from uuid import UUID
 from sqlalchemy.orm import Session

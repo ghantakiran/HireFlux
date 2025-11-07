@@ -1,4 +1,5 @@
 """Pydantic schemas for bulk job posting (Sprint 11-12)"""
+
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator

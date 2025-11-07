@@ -1,4 +1,5 @@
 """Unit tests for JobNormalizationService"""
+
 import pytest
 from datetime import datetime
 

@@ -1,4 +1,5 @@
 """REST API endpoints for bulk job posting (Sprint 11-12)"""
+
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession

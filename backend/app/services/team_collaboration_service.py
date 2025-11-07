@@ -10,6 +10,7 @@ Service Responsibilities:
 - Activity tracking (log activity, get feeds)
 - Team mentions (@mentions in notes)
 """
+
 import secrets
 from datetime import datetime, timedelta
 from typing import Optional, List, Dict

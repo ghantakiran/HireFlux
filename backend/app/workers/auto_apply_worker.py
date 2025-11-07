@@ -1,4 +1,5 @@
 """Celery worker tasks for auto-apply processing"""
+
 import logging
 from datetime import datetime, timedelta
 from typing import List

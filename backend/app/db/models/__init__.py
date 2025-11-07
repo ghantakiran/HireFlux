@@ -3,6 +3,7 @@
 Import all models here to ensure SQLAlchemy can resolve relationships.
 These imports must happen before any database queries are made.
 """
+
 # Import base first
 from app.db.base import Base
 

@@ -1,4 +1,5 @@
 """Cover letter generation service"""
+
 import uuid
 from typing import List, Dict, Any, Optional
 from datetime import datetime
@@ -254,18 +255,20 @@ class CoverLetterService:
         return CoverLetterResponse(
             id=str(cover_letter.id),
             user_id=str(cover_letter.user_id),
-            resume_version_id=str(cover_letter.resume_version_id)
-            if cover_letter.resume_version_id
-            else None,
+            resume_version_id=(
+                str(cover_letter.resume_version_id)
+                if cover_letter.resume_version_id
+                else None
+            ),
             job_title=cover_letter.job_title,
             company_name=cover_letter.company_name,
             tone=cover_letter.tone,
             length=cover_letter.length,
             content=cover_letter.content,
             status=CoverLetterStatus(cover_letter.status),
-            token_usage=int(cover_letter.token_usage)
-            if cover_letter.token_usage
-            else 0,
+            token_usage=(
+                int(cover_letter.token_usage) if cover_letter.token_usage else 0
+            ),
             cost=float(cover_letter.cost) if cover_letter.cost else 0.0,
             quality_score=cover_letter.quality_score,
             created_at=cover_letter.created_at,

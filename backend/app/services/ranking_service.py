@@ -8,6 +8,7 @@ Calculates 0-100 fit index based on weighted factors:
 - Salary expectation: 10%
 - Availability: 10%
 """
+
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from uuid import UUID

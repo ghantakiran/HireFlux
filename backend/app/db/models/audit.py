@@ -1,4 +1,5 @@
 """Audit log model for compliance"""
+
 from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, JSON, Text
 from sqlalchemy.sql import func
 import uuid

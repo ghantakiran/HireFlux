@@ -1,4 +1,5 @@
 """Resume and ResumeVersion models"""
+
 from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, JSON, Boolean, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func

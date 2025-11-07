@@ -2,6 +2,7 @@
 Email Service
 Handles sending emails via Resend with template support
 """
+
 import re
 from typing import Dict, Any, List, Optional
 import resend
@@ -85,9 +86,7 @@ class EmailService:
         self, to_email: str, user_name: str, job_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Send job match notification email"""
-        subject = (
-            f"🎯 New High-Fit Job: {job_data['job_title']} at {job_data['company_name']}"
-        )
+        subject = f"🎯 New High-Fit Job: {job_data['job_title']} at {job_data['company_name']}"
 
         html_body = f"""
         <!DOCTYPE html>

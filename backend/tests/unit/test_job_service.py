@@ -10,6 +10,7 @@ Tests job posting functionality with TDD approach:
 
 Test Approach: BDD-style with Given-When-Then pattern
 """
+
 import pytest
 from datetime import datetime, timedelta
 from uuid import uuid4

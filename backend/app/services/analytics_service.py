@@ -1,4 +1,5 @@
 """Analytics Service for Job Insights Dashboard"""
+
 import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -297,9 +298,9 @@ class AnalyticsService:
             avg_applications_per_week=round(avg_per_week, 2),
             total_responses=responses,
             response_rate=round(response_rate, 2),
-            avg_response_time_days=round(avg_response_time, 1)
-            if avg_response_time
-            else None,
+            avg_response_time_days=(
+                round(avg_response_time, 1) if avg_response_time else None
+            ),
             total_interviews=total_interviews,
             interview_conversion_rate=round(interview_conversion, 2),
             interviews_scheduled=interviews_scheduled,
@@ -353,9 +354,9 @@ class AnalyticsService:
                 id=event.id,
                 activity_type=ActivityType(event.event_type),
                 title=event.event_type.replace("_", " ").title(),
-                description=event.event_data.get("description")
-                if event.event_data
-                else None,
+                description=(
+                    event.event_data.get("description") if event.event_data else None
+                ),
                 entity_id=event.entity_id,
                 entity_type=event.entity_type,
                 metadata=event.event_data,

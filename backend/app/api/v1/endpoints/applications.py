@@ -2,6 +2,7 @@
 
 Provides REST API for employer applicant tracking system.
 """
+
 import math
 from typing import Optional
 from uuid import UUID

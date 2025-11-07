@@ -2,6 +2,7 @@
 
 Request/response models for job posting endpoints.
 """
+
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID

@@ -1,4 +1,5 @@
 """Pinecone vector database service"""
+
 import pinecone
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta

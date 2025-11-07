@@ -1,4 +1,5 @@
 """Bulk Job Posting and Distribution models (Sprint 11-12)"""
+
 from sqlalchemy import (
     Column,
     String,

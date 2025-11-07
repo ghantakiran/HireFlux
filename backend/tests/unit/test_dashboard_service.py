@@ -10,6 +10,7 @@ Test Coverage:
 - Top performing jobs
 - Quality metrics (avg candidate fit, time to fill)
 """
+
 import pytest
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session

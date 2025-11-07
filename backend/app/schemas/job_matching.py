@@ -1,4 +1,5 @@
 """Schemas for job matching and vector search"""
+
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
@@ -49,9 +50,9 @@ class SkillVector(BaseModel):
     skill: str
     category: Optional[str] = None  # "language", "framework", "tool", "soft_skill"
     years_experience: Optional[int] = None
-    proficiency: Optional[
-        str
-    ] = None  # "beginner", "intermediate", "advanced", "expert"
+    proficiency: Optional[str] = (
+        None  # "beginner", "intermediate", "advanced", "expert"
+    )
     vector: Optional[List[float]] = None  # 1536 dimensions
 
 

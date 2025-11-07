@@ -1,4 +1,5 @@
 """Onboarding service"""
+
 from sqlalchemy.orm import Session
 from typing import Dict, Any
 import uuid

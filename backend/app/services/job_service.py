@@ -2,6 +2,7 @@
 
 Provides CRUD operations for job postings with subscription limit enforcement.
 """
+
 from datetime import datetime
 from typing import List, Optional, Tuple
 from uuid import UUID
@@ -67,9 +68,9 @@ class JobService:
             location=job_data.location,
             location_type=job_data.location_type.value,
             employment_type=job_data.employment_type.value,
-            experience_level=job_data.experience_level.value
-            if job_data.experience_level
-            else None,
+            experience_level=(
+                job_data.experience_level.value if job_data.experience_level else None
+            ),
             experience_min_years=job_data.experience_min_years,
             experience_max_years=job_data.experience_max_years,
             experience_requirement=job_data.experience_requirement,

@@ -1,4 +1,5 @@
 """Auto-apply models for background job application"""
+
 from sqlalchemy import (
     Column,
     String,

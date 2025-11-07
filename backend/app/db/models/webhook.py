@@ -1,4 +1,5 @@
 """Webhook event models for job board integrations"""
+
 from sqlalchemy import (
     Column,
     String,

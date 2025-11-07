@@ -3,6 +3,7 @@
 API endpoints for job seeker profile management and employer candidate discovery.
 Enables two-sided marketplace functionality.
 """
+
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional

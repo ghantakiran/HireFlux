@@ -4,6 +4,7 @@ Test-Driven Development (TDD) approach:
 - Tests written BEFORE implementation
 - Following E2E test requirements from 22-mass-job-posting.spec.ts
 """
+
 import pytest
 from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime, timedelta

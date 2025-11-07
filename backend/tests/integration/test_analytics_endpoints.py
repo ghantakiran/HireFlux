@@ -2,6 +2,7 @@
 
 Tests all 16 analytics endpoints with real database interactions.
 """
+
 import pytest
 from fastapi.testclient import TestClient
 from datetime import datetime, timedelta

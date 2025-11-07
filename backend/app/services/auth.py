@@ -1,4 +1,5 @@
 """Authentication service"""
+
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from typing import Optional, Dict, Any

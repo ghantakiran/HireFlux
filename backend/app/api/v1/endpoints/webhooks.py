@@ -1,4 +1,5 @@
 """Webhook receiver API endpoints"""
+
 import json
 import logging
 from typing import List, Optional
@@ -108,9 +109,11 @@ async def receive_greenhouse_webhook(
 
         event_data = WebhookEventCreate(
             source=WebhookSource.GREENHOUSE,
-            event_type=WebhookEventType(event_type)
-            if event_type != "unknown"
-            else WebhookEventType.UNKNOWN,
+            event_type=(
+                WebhookEventType(event_type)
+                if event_type != "unknown"
+                else WebhookEventType.UNKNOWN
+            ),
             event_id=payload.get("event_id"),
             payload=payload,
             headers=dict(request.headers),
@@ -188,9 +191,11 @@ async def receive_lever_webhook(
 
         event_data = WebhookEventCreate(
             source=WebhookSource.LEVER,
-            event_type=WebhookEventType(event_type)
-            if event_type != "unknown"
-            else WebhookEventType.UNKNOWN,
+            event_type=(
+                WebhookEventType(event_type)
+                if event_type != "unknown"
+                else WebhookEventType.UNKNOWN
+            ),
             payload=payload,
             headers=dict(request.headers),
             signature=x_lever_signature,

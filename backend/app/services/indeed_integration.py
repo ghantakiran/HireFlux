@@ -3,6 +3,7 @@
 Stub implementation for Indeed job posting API.
 Production would use Indeed's Employer API.
 """
+
 from typing import Dict, Any
 
 

@@ -1,4 +1,5 @@
 """Pytest configuration for integration tests"""
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine

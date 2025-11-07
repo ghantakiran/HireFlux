@@ -9,6 +9,7 @@ Service Responsibilities:
 - Subscription limit enforcement
 - Company profile updates
 """
+
 from datetime import datetime, timedelta
 from typing import Optional, List
 from uuid import UUID, uuid4

@@ -1,4 +1,5 @@
 """Greenhouse API integration service"""
+
 import requests
 import time
 from typing import List, Dict, Optional
