@@ -67,7 +67,7 @@ jobs:
 
       - name: Run linting with Black
         run: |
-          pip install black
+          pip install --upgrade black
           black --check app/ tests/
 
       - name: Run tests with pytest
@@ -108,7 +108,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install black flake8 mypy
+          pip install --upgrade black flake8 mypy
 
       - name: Check code formatting
         run: black --check app/ tests/
