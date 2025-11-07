@@ -87,7 +87,9 @@ def upgrade() -> None:
         # External references
         sa.Column('external_event_id', sa.String(255), nullable=True),
         sa.Column('calendar_invite_sent', sa.Boolean(), server_default='false'),
-        sa.Column('webhook_event_id', GUID(), sa.ForeignKey('webhook_events.id', ondelete='SET NULL'), nullable=True),
+        # Note: webhook_event_id foreign key omitted - webhook_events table doesn't exist yet
+        # Will be added when webhook system is implemented
+        sa.Column('webhook_event_id', GUID(), nullable=True),
 
         # Outcome
         sa.Column('completed_at', sa.DateTime(), nullable=True),
