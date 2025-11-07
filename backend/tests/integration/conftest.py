@@ -7,11 +7,12 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.main import app
-from app.core.database import Base, get_db
-from app.models.user import User
-from app.models.resume import Resume
-from app.models.job import Job
-from app.models.application import Application
+from app.db.base import Base
+from app.db.session import get_db
+from app.db.models.user import User
+from app.db.models.resume import Resume
+from app.db.models.job import Job
+from app.db.models.application import Application
 from app.core.security import get_password_hash, create_access_token
 from datetime import datetime, timedelta
 import uuid
