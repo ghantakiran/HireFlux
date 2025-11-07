@@ -57,9 +57,7 @@ class InterviewSchedulingService:
         """
         # Verify application exists
         application = (
-            self.db.query(Application)
-            .filter(Application.id == application_id)
-            .first()
+            self.db.query(Application).filter(Application.id == application_id).first()
         )
         if not application:
             raise ValueError("Application not found")
@@ -171,7 +169,9 @@ class InterviewSchedulingService:
 
         interview.status = "cancelled"
         if reason:
-            interview.notes = (interview.notes or "") + f"\nCancellation reason: {reason}"
+            interview.notes = (
+                interview.notes or ""
+            ) + f"\nCancellation reason: {reason}"
 
         interview.updated_at = datetime.utcnow()
 
@@ -316,9 +316,7 @@ class InterviewSchedulingService:
             ValueError: If application not found
         """
         application = (
-            self.db.query(Application)
-            .filter(Application.id == application_id)
-            .first()
+            self.db.query(Application).filter(Application.id == application_id).first()
         )
 
         if not application:
@@ -366,9 +364,7 @@ class InterviewSchedulingService:
             ValueError: If application not found or validation fails
         """
         application = (
-            self.db.query(Application)
-            .filter(Application.id == application_id)
-            .first()
+            self.db.query(Application).filter(Application.id == application_id).first()
         )
 
         if not application:
@@ -778,8 +774,7 @@ class InterviewSchedulingService:
         member_interviews = [
             interview
             for interview in interviews
-            if interview.interviewer_ids
-            and str(member_id) in interview.interviewer_ids
+            if interview.interviewer_ids and str(member_id) in interview.interviewer_ids
         ]
 
         return sorted(member_interviews, key=lambda x: x.scheduled_at)

@@ -23,7 +23,9 @@ from app.schemas.bulk_job_posting import (
 router = APIRouter(prefix="/bulk-job-posting", tags=["Bulk Job Posting"])
 
 
-@router.post("/upload", response_model=BulkUploadResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/upload", response_model=BulkUploadResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_bulk_upload(
     file: UploadFile = File(...),
     channels: Optional[str] = None,  # Comma-separated channel names
@@ -49,7 +51,7 @@ async def create_bulk_upload(
     if not current_user.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can upload jobs"
+            detail="Only employers can upload jobs",
         )
 
     # Parse distribution channels
@@ -62,7 +64,7 @@ async def create_bulk_upload(
             except KeyError:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Invalid channel: {channel_name}. Valid channels: LINKEDIN, INDEED, GLASSDOOR, INTERNAL"
+                    detail=f"Invalid channel: {channel_name}. Valid channels: LINKEDIN, INDEED, GLASSDOOR, INTERNAL",
                 )
     else:
         distribution_channels = [DistributionChannelEnum.INTERNAL]
@@ -70,46 +72,46 @@ async def create_bulk_upload(
     # Read and parse CSV
     try:
         contents = await file.read()
-        csv_text = contents.decode('utf-8')
+        csv_text = contents.decode("utf-8")
         csv_reader = csv.DictReader(io.StringIO(csv_text))
 
         jobs_data = []
         for row in csv_reader:
             # Parse CSV row into CSVJobRow
             job = CSVJobRow(
-                title=row.get('title', ''),
-                department=row.get('department'),
-                location=row.get('location'),
-                location_type=row.get('location_type'),
-                employment_type=row.get('employment_type'),
-                experience_level=row.get('experience_level'),
-                salary_min=int(row['salary_min']) if row.get('salary_min') else None,
-                salary_max=int(row['salary_max']) if row.get('salary_max') else None,
-                description=row.get('description'),
-                requirements=row.get('requirements'),
+                title=row.get("title", ""),
+                department=row.get("department"),
+                location=row.get("location"),
+                location_type=row.get("location_type"),
+                employment_type=row.get("employment_type"),
+                experience_level=row.get("experience_level"),
+                salary_min=int(row["salary_min"]) if row.get("salary_min") else None,
+                salary_max=int(row["salary_max"]) if row.get("salary_max") else None,
+                description=row.get("description"),
+                requirements=row.get("requirements"),
             )
             jobs_data.append(job)
 
         if len(jobs_data) == 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="CSV file is empty or has no valid data rows"
+                detail="CSV file is empty or has no valid data rows",
             )
 
     except UnicodeDecodeError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid file encoding. Please upload UTF-8 encoded CSV"
+            detail="Invalid file encoding. Please upload UTF-8 encoded CSV",
         )
     except KeyError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Missing required CSV column: {str(e)}"
+            detail=f"Missing required CSV column: {str(e)}",
         )
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid data format: {str(e)}"
+            detail=f"Invalid data format: {str(e)}",
         )
 
     # Create upload request
@@ -129,10 +131,7 @@ async def create_bulk_upload(
             upload_request=upload_request,
         )
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     return BulkUploadResponse.model_validate(upload)
 
@@ -159,7 +158,7 @@ async def list_uploads(
     if not current_user.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can view uploads"
+            detail="Only employers can view uploads",
         )
 
     if limit > 100:
@@ -201,7 +200,7 @@ async def get_upload_detail(
     if not current_user.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can view uploads"
+            detail="Only employers can view uploads",
         )
 
     service = BulkJobUploadService(db)
@@ -209,8 +208,7 @@ async def get_upload_detail(
 
     if not upload:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Upload not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found"
         )
 
     return BulkUploadDetail.model_validate(upload)
@@ -232,7 +230,7 @@ async def update_upload_status(
     if not current_user.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can update uploads"
+            detail="Only employers can update uploads",
         )
 
     service = BulkJobUploadService(db)
@@ -241,10 +239,7 @@ async def update_upload_status(
             upload_id, str(current_user.company_id), new_status
         )
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
     return {"message": "Status updated successfully"}
 
@@ -263,17 +258,14 @@ async def cancel_upload(
     if not current_user.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can cancel uploads"
+            detail="Only employers can cancel uploads",
         )
 
     service = BulkJobUploadService(db)
     try:
         await service.cancel_upload(upload_id, str(current_user.company_id))
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     return {"message": "Upload cancelled successfully"}
 
@@ -292,17 +284,14 @@ async def delete_upload(
     if not current_user.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can delete uploads"
+            detail="Only employers can delete uploads",
         )
 
     service = BulkJobUploadService(db)
     try:
         await service.delete_upload(upload_id, str(current_user.company_id))
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
     return {"message": "Upload deleted successfully"}
 
@@ -325,5 +314,5 @@ Data Scientist,Data,New York NY,onsite,full-time,mid,130000,170000,"Build ML mod
     return {
         "filename": "job_upload_template.csv",
         "content": csv_content,
-        "mime_type": "text/csv"
+        "mime_type": "text/csv",
     }

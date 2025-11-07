@@ -20,13 +20,28 @@ class AIJobNormalizationService:
 
     # Common job title patterns for confidence scoring
     STANDARD_TITLES = [
-        "Software Engineer", "Senior Software Engineer", "Staff Software Engineer",
-        "Principal Software Engineer", "Engineering Manager", "Senior Engineering Manager",
-        "Product Manager", "Senior Product Manager", "Director of Product",
-        "Data Scientist", "Senior Data Scientist", "Machine Learning Engineer",
-        "DevOps Engineer", "Senior DevOps Engineer", "Site Reliability Engineer",
-        "Frontend Engineer", "Backend Engineer", "Full Stack Engineer",
-        "QA Engineer", "Test Engineer", "Data Analyst", "Business Analyst",
+        "Software Engineer",
+        "Senior Software Engineer",
+        "Staff Software Engineer",
+        "Principal Software Engineer",
+        "Engineering Manager",
+        "Senior Engineering Manager",
+        "Product Manager",
+        "Senior Product Manager",
+        "Director of Product",
+        "Data Scientist",
+        "Senior Data Scientist",
+        "Machine Learning Engineer",
+        "DevOps Engineer",
+        "Senior DevOps Engineer",
+        "Site Reliability Engineer",
+        "Frontend Engineer",
+        "Backend Engineer",
+        "Full Stack Engineer",
+        "QA Engineer",
+        "Test Engineer",
+        "Data Analyst",
+        "Business Analyst",
     ]
 
     def __init__(self):
@@ -52,16 +67,13 @@ class AIJobNormalizationService:
 
     def _save_to_cache(self, cache_key: str, data: Dict[str, Any]) -> None:
         """Save item to cache"""
-        self._cache[cache_key] = {
-            "data": data,
-            "timestamp": datetime.utcnow()
-        }
+        self._cache[cache_key] = {"data": data, "timestamp": datetime.utcnow()}
 
     async def normalize_job_title(
         self,
         title: str,
         department: Optional[str] = None,
-        experience_level: Optional[str] = None
+        experience_level: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Normalize a job title using AI.
@@ -82,7 +94,9 @@ class AIJobNormalizationService:
             raise ValueError("Job title cannot be empty")
 
         # Check cache
-        cache_key = self._generate_cache_key("title", title, department, experience_level)
+        cache_key = self._generate_cache_key(
+            "title", title, department, experience_level
+        )
         cached = self._get_from_cache(cache_key)
         if cached:
             return cached
@@ -96,7 +110,7 @@ class AIJobNormalizationService:
             "- Be consistent with industry-standard titles",
             "- Maintain the seniority level if present",
             "- If the title is already standard, return it unchanged",
-            f"\nJob Title: {title}"
+            f"\nJob Title: {title}",
         ]
 
         if department:
@@ -111,14 +125,17 @@ class AIJobNormalizationService:
         try:
             # Call OpenAI
             messages = [
-                {"role": "system", "content": "You are a job title normalization expert."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "You are a job title normalization expert.",
+                },
+                {"role": "user", "content": prompt},
             ]
 
             response = await self.openai_service.generate_completion(
                 messages=messages,
                 max_tokens=50,
-                temperature=0.3  # Lower temperature for more consistent results
+                temperature=0.3,  # Lower temperature for more consistent results
             )
 
             normalized_title = response["content"].strip()
@@ -126,7 +143,7 @@ class AIJobNormalizationService:
             # Calculate cost
             cost = self.openai_service.calculate_cost(
                 prompt_tokens=response["usage"]["prompt_tokens"],
-                completion_tokens=response["usage"]["completion_tokens"]
+                completion_tokens=response["usage"]["completion_tokens"],
             )
 
             # Calculate confidence score
@@ -137,7 +154,7 @@ class AIJobNormalizationService:
                 "original_title": title,
                 "confidence": confidence,
                 "cost": cost,
-                "tokens_used": response["usage"]["total_tokens"]
+                "tokens_used": response["usage"]["total_tokens"],
             }
 
             # Cache result
@@ -165,6 +182,7 @@ class AIJobNormalizationService:
 
         # Calculate similarity ratio
         from difflib import SequenceMatcher
+
         similarity = SequenceMatcher(None, original.lower(), normalized.lower()).ratio()
 
         # Adjust confidence based on similarity
@@ -181,7 +199,7 @@ class AIJobNormalizationService:
         self,
         description: str,
         requirements: Optional[str] = None,
-        title: Optional[str] = None
+        title: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Extract technical skills from job description and requirements.
@@ -222,14 +240,15 @@ Example response:
 
         try:
             messages = [
-                {"role": "system", "content": "You are a technical skills extraction expert."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "You are a technical skills extraction expert.",
+                },
+                {"role": "user", "content": prompt},
             ]
 
             response = await self.openai_service.generate_completion(
-                messages=messages,
-                max_tokens=200,
-                temperature=0.3
+                messages=messages, max_tokens=200, temperature=0.3
             )
 
             # Parse JSON response
@@ -249,14 +268,14 @@ Example response:
             # Calculate cost
             cost = self.openai_service.calculate_cost(
                 prompt_tokens=response["usage"]["prompt_tokens"],
-                completion_tokens=response["usage"]["completion_tokens"]
+                completion_tokens=response["usage"]["completion_tokens"],
             )
 
             return {
                 "skills": skills_deduped,
                 "confidence": result_data.get("confidence", 0.8),
                 "cost": cost,
-                "tokens_used": response["usage"]["total_tokens"]
+                "tokens_used": response["usage"]["total_tokens"],
             }
 
         except Exception as e:
@@ -267,7 +286,7 @@ Example response:
         title: str,
         location: str,
         experience_level: Optional[str] = None,
-        skills: Optional[List[str]] = None
+        skills: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Suggest salary range based on job details and market data.
@@ -315,14 +334,15 @@ Example response:
 
         try:
             messages = [
-                {"role": "system", "content": "You are a compensation data expert with knowledge of 2025 tech salary trends."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "You are a compensation data expert with knowledge of 2025 tech salary trends.",
+                },
+                {"role": "user", "content": prompt},
             ]
 
             response = await self.openai_service.generate_completion(
-                messages=messages,
-                max_tokens=150,
-                temperature=0.5
+                messages=messages, max_tokens=150, temperature=0.5
             )
 
             # Parse JSON response
@@ -336,12 +356,14 @@ Example response:
                 raise ValueError("AI did not return valid salary range")
 
             if salary_min >= salary_max:
-                raise ValueError(f"Invalid salary range: min ({salary_min}) >= max ({salary_max})")
+                raise ValueError(
+                    f"Invalid salary range: min ({salary_min}) >= max ({salary_max})"
+                )
 
             # Calculate cost
             cost = self.openai_service.calculate_cost(
                 prompt_tokens=response["usage"]["prompt_tokens"],
-                completion_tokens=response["usage"]["completion_tokens"]
+                completion_tokens=response["usage"]["completion_tokens"],
             )
 
             return {
@@ -350,7 +372,7 @@ Example response:
                 "confidence": result_data.get("confidence", 0.75),
                 "market_data": result_data.get("market_data", ""),
                 "cost": cost,
-                "tokens_used": response["usage"]["total_tokens"]
+                "tokens_used": response["usage"]["total_tokens"],
             }
 
         except json.JSONDecodeError as e:
@@ -372,14 +394,14 @@ Example response:
         title_result = await self.normalize_job_title(
             title=job.title,
             department=job.department,
-            experience_level=job.experience_level
+            experience_level=job.experience_level,
         )
 
         # Extract skills
         skills_result = await self.extract_skills(
             description=job.description or "",
             requirements=job.requirements or "",
-            title=job.title
+            title=job.title,
         )
 
         # Suggest salary (only if not provided)
@@ -389,7 +411,7 @@ Example response:
                 title=title_result["normalized_title"],
                 location=job.location or "Remote",
                 experience_level=job.experience_level,
-                skills=skills_result["skills"]
+                skills=skills_result["skills"],
             )
 
         return {
@@ -401,13 +423,11 @@ Example response:
                 title_result["cost"]
                 + skills_result["cost"]
                 + (salary_result["cost"] if salary_result else 0)
-            )
+            ),
         }
 
     async def normalize_job_batch(
-        self,
-        jobs: List[CSVJobRow],
-        skip_on_error: bool = False
+        self, jobs: List[CSVJobRow], skip_on_error: bool = False
     ) -> List[Dict[str, Any]]:
         """
         Normalize multiple jobs in batch.
@@ -424,17 +444,12 @@ Example response:
         for job in jobs:
             try:
                 enriched = await self.enrich_job(job)
-                results.append({
-                    "success": True,
-                    **enriched
-                })
+                results.append({"success": True, **enriched})
             except Exception as e:
                 if skip_on_error:
-                    results.append({
-                        "success": False,
-                        "error": str(e),
-                        "original_job": job
-                    })
+                    results.append(
+                        {"success": False, "error": str(e), "original_job": job}
+                    )
                 else:
                     raise
 

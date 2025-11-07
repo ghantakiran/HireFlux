@@ -67,8 +67,12 @@ class BulkJobUploadService:
             status=BulkUploadStatus.UPLOADED,
             raw_jobs_data=raw_jobs_data,
             validation_errors=validation_result["errors"],
-            duplicate_info=[d.model_dump() for d in duplicate_info] if duplicate_info else [],
-            distribution_channels=[c.value for c in upload_request.distribution_channels],
+            duplicate_info=[d.model_dump() for d in duplicate_info]
+            if duplicate_info
+            else [],
+            distribution_channels=[
+                c.value for c in upload_request.distribution_channels
+            ],
             scheduled_publish_at=upload_request.scheduled_publish_at,
         )
 
@@ -122,7 +126,9 @@ class BulkJobUploadService:
             "errors": errors,
         }
 
-    def _validate_single_job(self, job: CSVJobRow, row_index: int) -> List[Dict[str, Any]]:
+    def _validate_single_job(
+        self, job: CSVJobRow, row_index: int
+    ) -> List[Dict[str, Any]]:
         """
         Validate a single job entry.
 
@@ -137,43 +143,53 @@ class BulkJobUploadService:
 
         # Required fields
         if not job.title or len(job.title.strip()) == 0:
-            errors.append({
-                "row_index": row_index,
-                "field": "title",
-                "error_message": "Title is required"
-            })
+            errors.append(
+                {
+                    "row_index": row_index,
+                    "field": "title",
+                    "error_message": "Title is required",
+                }
+            )
 
         # Salary validation
         if job.salary_min is not None and job.salary_max is not None:
             if job.salary_min > job.salary_max:
-                errors.append({
-                    "row_index": row_index,
-                    "field": "salary",
-                    "error_message": "Minimum salary cannot exceed maximum salary"
-                })
+                errors.append(
+                    {
+                        "row_index": row_index,
+                        "field": "salary",
+                        "error_message": "Minimum salary cannot exceed maximum salary",
+                    }
+                )
 
         if job.salary_min is not None and job.salary_min < 0:
-            errors.append({
-                "row_index": row_index,
-                "field": "salary_min",
-                "error_message": "Salary must be positive"
-            })
+            errors.append(
+                {
+                    "row_index": row_index,
+                    "field": "salary_min",
+                    "error_message": "Salary must be positive",
+                }
+            )
 
         if job.salary_max is not None and job.salary_max < 0:
-            errors.append({
-                "row_index": row_index,
-                "field": "salary_max",
-                "error_message": "Salary must be positive"
-            })
+            errors.append(
+                {
+                    "row_index": row_index,
+                    "field": "salary_max",
+                    "error_message": "Salary must be positive",
+                }
+            )
 
         # Validate location_type values
         valid_location_types = ["remote", "hybrid", "onsite", "any"]
         if job.location_type and job.location_type.lower() not in valid_location_types:
-            errors.append({
-                "row_index": row_index,
-                "field": "location_type",
-                "error_message": f"Location type must be one of: {', '.join(valid_location_types)}"
-            })
+            errors.append(
+                {
+                    "row_index": row_index,
+                    "field": "location_type",
+                    "error_message": f"Location type must be one of: {', '.join(valid_location_types)}",
+                }
+            )
 
         return errors
 
@@ -202,7 +218,7 @@ class BulkJobUploadService:
                             row_index=j,
                             duplicate_of=i,
                             similarity_score=similarity,
-                            matching_fields=self._get_matching_fields(jobs[i], jobs[j])
+                            matching_fields=self._get_matching_fields(jobs[i], jobs[j]),
                         )
                     )
 
@@ -229,7 +245,11 @@ class BulkJobUploadService:
         # Calculate location similarity
         location1 = (job1.location or "").lower().strip()
         location2 = (job2.location or "").lower().strip()
-        location_similarity = SequenceMatcher(None, location1, location2).ratio() if location1 and location2 else 0
+        location_similarity = (
+            SequenceMatcher(None, location1, location2).ratio()
+            if location1 and location2
+            else 0
+        )
 
         # Weighted average (title is more important)
         similarity = (title_similarity * 0.7) + (location_similarity * 0.3)
@@ -368,7 +388,9 @@ class BulkJobUploadService:
 
         # Cannot cancel completed or failed uploads
         if upload.status in [BulkUploadStatus.COMPLETED, BulkUploadStatus.FAILED]:
-            raise ValueError(f"Upload with status {upload.status.value} cannot be cancelled")
+            raise ValueError(
+                f"Upload with status {upload.status.value} cannot be cancelled"
+            )
 
         upload.status = BulkUploadStatus.CANCELLED
         await self.db.commit()

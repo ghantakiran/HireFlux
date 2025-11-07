@@ -42,7 +42,10 @@ class Job(Base):
 
     # Employer relationship (for jobs posted by companies on the platform)
     company_id = Column(
-        GUID(), ForeignKey("companies.id", ondelete="CASCADE"), nullable=True, index=True
+        GUID(),
+        ForeignKey("companies.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
     )
 
     # External source relationship (for jobs sourced from job boards)

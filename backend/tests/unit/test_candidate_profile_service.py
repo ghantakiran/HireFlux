@@ -26,7 +26,7 @@ from app.schemas.candidate_profile import (
     CandidateProfileCreate,
     CandidateProfileUpdate,
     PortfolioItemCreate,
-    AvailabilityUpdate
+    AvailabilityUpdate,
 )
 from app.db.models.candidate_profile import CandidateProfile, CandidateView
 from app.db.models.user import User
@@ -35,6 +35,7 @@ from app.db.models.user import User
 # ===========================================================================
 # Test Fixtures
 # ===========================================================================
+
 
 @pytest.fixture
 def profile_service(db_session: Session):
@@ -49,7 +50,7 @@ def sample_user(db_session: Session):
         id=uuid4(),
         email="john@example.com",
         password_hash="hashed_password",
-        email_verified=True
+        email_verified=True,
     )
     db_session.add(user)
     db_session.commit()
@@ -64,7 +65,7 @@ def sample_employer_user(db_session: Session):
         id=uuid4(),
         email="jane@company.com",
         password_hash="hashed_password",
-        email_verified=True
+        email_verified=True,
     )
     db_session.add(user)
     db_session.commit()
@@ -90,7 +91,7 @@ def profile_create_data():
         availability_status="open_to_offers",
         open_to_remote=True,
         open_to_work=True,
-        visibility="private"  # Default to private
+        visibility="private",  # Default to private
     )
 
 
@@ -116,7 +117,7 @@ def public_profile(db_session: Session, sample_user: User):
         expected_salary_currency="USD",
         availability_status="actively_looking",
         profile_views=0,
-        invites_received=0
+        invites_received=0,
     )
     db_session.add(profile)
     db_session.commit()
@@ -128,7 +129,12 @@ def public_profile(db_session: Session, sample_user: User):
 # Test Cases: Profile Creation (Happy Path)
 # ===========================================================================
 
-def test_create_profile_success(profile_service: CandidateProfileService, sample_user: User, profile_create_data: CandidateProfileCreate):
+
+def test_create_profile_success(
+    profile_service: CandidateProfileService,
+    sample_user: User,
+    profile_create_data: CandidateProfileCreate,
+):
     """
     Test: Create a new candidate profile successfully
 
@@ -137,7 +143,9 @@ def test_create_profile_success(profile_service: CandidateProfileService, sample
     THEN: Profile is created with all fields populated correctly
     """
     # Act
-    profile = profile_service.create_profile(user_id=sample_user.id, profile_data=profile_create_data)
+    profile = profile_service.create_profile(
+        user_id=sample_user.id, profile_data=profile_create_data
+    )
 
     # Assert
     assert profile is not None
@@ -150,7 +158,9 @@ def test_create_profile_success(profile_service: CandidateProfileService, sample
     assert profile.years_experience == profile_create_data.years_experience
     assert profile.experience_level == profile_create_data.experience_level
     assert profile.preferred_roles == profile_create_data.preferred_roles
-    assert profile.preferred_location_type == profile_create_data.preferred_location_type
+    assert (
+        profile.preferred_location_type == profile_create_data.preferred_location_type
+    )
     assert profile.expected_salary_min == profile_create_data.expected_salary_min
     assert profile.expected_salary_max == profile_create_data.expected_salary_max
     assert profile.visibility == "private"  # Default
@@ -160,7 +170,9 @@ def test_create_profile_success(profile_service: CandidateProfileService, sample
     assert profile.updated_at is not None
 
 
-def test_create_profile_with_minimal_data(profile_service: CandidateProfileService, sample_user: User):
+def test_create_profile_with_minimal_data(
+    profile_service: CandidateProfileService, sample_user: User
+):
     """
     Test: Create profile with minimal required data
 
@@ -170,12 +182,13 @@ def test_create_profile_with_minimal_data(profile_service: CandidateProfileServi
     """
     # Arrange
     minimal_data = CandidateProfileCreate(
-        headline="Software Engineer",
-        visibility="private"
+        headline="Software Engineer", visibility="private"
     )
 
     # Act
-    profile = profile_service.create_profile(user_id=sample_user.id, profile_data=minimal_data)
+    profile = profile_service.create_profile(
+        user_id=sample_user.id, profile_data=minimal_data
+    )
 
     # Assert
     assert profile is not None
@@ -189,7 +202,13 @@ def test_create_profile_with_minimal_data(profile_service: CandidateProfileServi
 # Test Cases: Profile Creation (Validation Errors)
 # ===========================================================================
 
-def test_create_profile_duplicate_user(profile_service: CandidateProfileService, public_profile: CandidateProfile, sample_user: User, profile_create_data: CandidateProfileCreate):
+
+def test_create_profile_duplicate_user(
+    profile_service: CandidateProfileService,
+    public_profile: CandidateProfile,
+    sample_user: User,
+    profile_create_data: CandidateProfileCreate,
+):
     """
     Test: Cannot create duplicate profile for same user
 
@@ -199,10 +218,14 @@ def test_create_profile_duplicate_user(profile_service: CandidateProfileService,
     """
     # Act & Assert
     with pytest.raises(ValueError, match="already has a profile"):
-        profile_service.create_profile(user_id=public_profile.user_id, profile_data=profile_create_data)
+        profile_service.create_profile(
+            user_id=public_profile.user_id, profile_data=profile_create_data
+        )
 
 
-def test_create_profile_invalid_visibility(profile_service: CandidateProfileService, sample_user: User):
+def test_create_profile_invalid_visibility(
+    profile_service: CandidateProfileService, sample_user: User
+):
     """
     Test: Cannot create profile with invalid visibility value
 
@@ -212,13 +235,12 @@ def test_create_profile_invalid_visibility(profile_service: CandidateProfileServ
     """
     # Act & Assert - Pydantic validates at schema level
     with pytest.raises(ValidationError, match="Visibility must be"):
-        invalid_data = CandidateProfileCreate(
-            headline="Test",
-            visibility="invalid"
-        )
+        invalid_data = CandidateProfileCreate(headline="Test", visibility="invalid")
 
 
-def test_create_profile_invalid_experience_level(profile_service: CandidateProfileService, sample_user: User):
+def test_create_profile_invalid_experience_level(
+    profile_service: CandidateProfileService, sample_user: User
+):
     """
     Test: Cannot create profile with invalid experience level
 
@@ -229,8 +251,7 @@ def test_create_profile_invalid_experience_level(profile_service: CandidateProfi
     # Act & Assert - Pydantic validates at schema level
     with pytest.raises(ValidationError, match="Experience level must be"):
         invalid_data = CandidateProfileCreate(
-            headline="Test",
-            experience_level="super_senior"
+            headline="Test", experience_level="super_senior"
         )
 
 
@@ -238,7 +259,10 @@ def test_create_profile_invalid_experience_level(profile_service: CandidateProfi
 # Test Cases: Profile Updates
 # ===========================================================================
 
-def test_update_profile_success(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+
+def test_update_profile_success(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Update profile successfully
 
@@ -252,11 +276,13 @@ def test_update_profile_success(profile_service: CandidateProfileService, public
         bio="Updated bio with new achievements",
         years_experience=7,
         expected_salary_min=Decimal("150000.00"),
-        expected_salary_max=Decimal("220000.00")
+        expected_salary_max=Decimal("220000.00"),
     )
 
     # Act
-    updated_profile = profile_service.update_profile(profile_id=public_profile.id, profile_data=update_data)
+    updated_profile = profile_service.update_profile(
+        profile_id=public_profile.id, profile_data=update_data
+    )
 
     # Assert
     assert updated_profile.headline == update_data.headline
@@ -267,7 +293,9 @@ def test_update_profile_success(profile_service: CandidateProfileService, public
     # Note: updated_at assertion removed - can fail due to sub-millisecond timing
 
 
-def test_update_profile_partial(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+def test_update_profile_partial(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Partial update preserves unchanged fields
 
@@ -277,12 +305,12 @@ def test_update_profile_partial(profile_service: CandidateProfileService, public
     """
     # Arrange
     original_bio = public_profile.bio
-    update_data = CandidateProfileUpdate(
-        headline="New Headline Only"
-    )
+    update_data = CandidateProfileUpdate(headline="New Headline Only")
 
     # Act
-    updated_profile = profile_service.update_profile(profile_id=public_profile.id, profile_data=update_data)
+    updated_profile = profile_service.update_profile(
+        profile_id=public_profile.id, profile_data=update_data
+    )
 
     # Assert
     assert updated_profile.headline == "New Headline Only"
@@ -310,7 +338,13 @@ def test_update_nonexistent_profile(profile_service: CandidateProfileService):
 # Test Cases: Visibility Management
 # ===========================================================================
 
-def test_set_visibility_to_public(profile_service: CandidateProfileService, db_session: Session, sample_user: User, profile_create_data: CandidateProfileCreate):
+
+def test_set_visibility_to_public(
+    profile_service: CandidateProfileService,
+    db_session: Session,
+    sample_user: User,
+    profile_create_data: CandidateProfileCreate,
+):
     """
     Test: Change profile from private to public
 
@@ -319,18 +353,24 @@ def test_set_visibility_to_public(profile_service: CandidateProfileService, db_s
     THEN: Profile becomes publicly visible
     """
     # Arrange
-    profile = profile_service.create_profile(user_id=sample_user.id, profile_data=profile_create_data)
+    profile = profile_service.create_profile(
+        user_id=sample_user.id, profile_data=profile_create_data
+    )
     assert profile.visibility == "private"
 
     # Act
-    updated_profile = profile_service.set_visibility(profile_id=profile.id, visibility="public")
+    updated_profile = profile_service.set_visibility(
+        profile_id=profile.id, visibility="public"
+    )
 
     # Assert
     assert updated_profile.visibility == "public"
     assert updated_profile.is_public is True
 
 
-def test_set_visibility_to_private(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+def test_set_visibility_to_private(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Change profile from public to private
 
@@ -339,14 +379,18 @@ def test_set_visibility_to_private(profile_service: CandidateProfileService, pub
     THEN: Profile becomes private
     """
     # Act
-    updated_profile = profile_service.set_visibility(profile_id=public_profile.id, visibility="private")
+    updated_profile = profile_service.set_visibility(
+        profile_id=public_profile.id, visibility="private"
+    )
 
     # Assert
     assert updated_profile.visibility == "private"
     assert updated_profile.is_public is False
 
 
-def test_set_invalid_visibility(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+def test_set_invalid_visibility(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Cannot set invalid visibility value
 
@@ -356,14 +400,19 @@ def test_set_invalid_visibility(profile_service: CandidateProfileService, public
     """
     # Act & Assert
     with pytest.raises(ValueError, match="Visibility must be"):
-        profile_service.set_visibility(profile_id=public_profile.id, visibility="semi-public")
+        profile_service.set_visibility(
+            profile_id=public_profile.id, visibility="semi-public"
+        )
 
 
 # ===========================================================================
 # Test Cases: Portfolio Management
 # ===========================================================================
 
-def test_add_portfolio_item(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+
+def test_add_portfolio_item(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Add portfolio item to profile
 
@@ -377,11 +426,13 @@ def test_add_portfolio_item(profile_service: CandidateProfileService, public_pro
         title="Open Source ML Library",
         description="A machine learning library for text classification",
         url="https://github.com/john/ml-lib",
-        thumbnail="https://github.com/john/ml-lib/preview.png"
+        thumbnail="https://github.com/john/ml-lib/preview.png",
     )
 
     # Act
-    updated_profile = profile_service.add_portfolio_item(profile_id=public_profile.id, item=portfolio_item)
+    updated_profile = profile_service.add_portfolio_item(
+        profile_id=public_profile.id, item=portfolio_item
+    )
 
     # Assert
     assert len(updated_profile.portfolio) == 1
@@ -390,7 +441,9 @@ def test_add_portfolio_item(profile_service: CandidateProfileService, public_pro
     assert updated_profile.portfolio[0]["url"] == "https://github.com/john/ml-lib"
 
 
-def test_add_multiple_portfolio_items(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+def test_add_multiple_portfolio_items(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Add multiple portfolio items
 
@@ -399,14 +452,22 @@ def test_add_multiple_portfolio_items(profile_service: CandidateProfileService, 
     THEN: All items are stored in portfolio
     """
     # Arrange
-    item1 = PortfolioItemCreate(type="github", title="Project 1", url="https://github.com/user/project1")
-    item2 = PortfolioItemCreate(type="website", title="Personal Site", url="https://mysite.com")
-    item3 = PortfolioItemCreate(type="article", title="Blog Post", url="https://medium.com/@user/article")
+    item1 = PortfolioItemCreate(
+        type="github", title="Project 1", url="https://github.com/user/project1"
+    )
+    item2 = PortfolioItemCreate(
+        type="website", title="Personal Site", url="https://mysite.com"
+    )
+    item3 = PortfolioItemCreate(
+        type="article", title="Blog Post", url="https://medium.com/@user/article"
+    )
 
     # Act
     profile_service.add_portfolio_item(profile_id=public_profile.id, item=item1)
     profile_service.add_portfolio_item(profile_id=public_profile.id, item=item2)
-    updated_profile = profile_service.add_portfolio_item(profile_id=public_profile.id, item=item3)
+    updated_profile = profile_service.add_portfolio_item(
+        profile_id=public_profile.id, item=item3
+    )
 
     # Assert
     assert len(updated_profile.portfolio) == 3
@@ -415,7 +476,9 @@ def test_add_multiple_portfolio_items(profile_service: CandidateProfileService, 
     assert updated_profile.portfolio[2]["type"] == "article"
 
 
-def test_remove_portfolio_item(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+def test_remove_portfolio_item(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Remove portfolio item from profile
 
@@ -424,14 +487,20 @@ def test_remove_portfolio_item(profile_service: CandidateProfileService, public_
     THEN: Item is removed from portfolio
     """
     # Arrange
-    item1 = PortfolioItemCreate(type="github", title="Project 1", url="https://github.com/user/project1")
-    item2 = PortfolioItemCreate(type="website", title="Personal Site", url="https://mysite.com")
+    item1 = PortfolioItemCreate(
+        type="github", title="Project 1", url="https://github.com/user/project1"
+    )
+    item2 = PortfolioItemCreate(
+        type="website", title="Personal Site", url="https://mysite.com"
+    )
 
     profile_service.add_portfolio_item(profile_id=public_profile.id, item=item1)
     profile_service.add_portfolio_item(profile_id=public_profile.id, item=item2)
 
     # Act
-    updated_profile = profile_service.remove_portfolio_item(profile_id=public_profile.id, item_index=0)
+    updated_profile = profile_service.remove_portfolio_item(
+        profile_id=public_profile.id, item_index=0
+    )
 
     # Assert
     assert len(updated_profile.portfolio) == 1
@@ -442,7 +511,10 @@ def test_remove_portfolio_item(profile_service: CandidateProfileService, public_
 # Test Cases: Availability Updates
 # ===========================================================================
 
-def test_update_availability_to_actively_looking(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+
+def test_update_availability_to_actively_looking(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Update availability to actively looking
 
@@ -453,11 +525,13 @@ def test_update_availability_to_actively_looking(profile_service: CandidateProfi
     # Arrange
     availability_data = AvailabilityUpdate(
         availability_status="actively_looking",
-        availability_start_date=date(2025, 12, 1)
+        availability_start_date=date(2025, 12, 1),
     )
 
     # Act
-    updated_profile = profile_service.update_availability(profile_id=public_profile.id, availability_data=availability_data)
+    updated_profile = profile_service.update_availability(
+        profile_id=public_profile.id, availability_data=availability_data
+    )
 
     # Assert
     assert updated_profile.availability_status == "actively_looking"
@@ -466,7 +540,9 @@ def test_update_availability_to_actively_looking(profile_service: CandidateProfi
     assert updated_profile.availability_updated_at is not None
 
 
-def test_update_availability_to_not_looking(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+def test_update_availability_to_not_looking(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Update availability to not looking
 
@@ -475,12 +551,12 @@ def test_update_availability_to_not_looking(profile_service: CandidateProfileSer
     THEN: Availability status is updated
     """
     # Arrange
-    availability_data = AvailabilityUpdate(
-        availability_status="not_looking"
-    )
+    availability_data = AvailabilityUpdate(availability_status="not_looking")
 
     # Act
-    updated_profile = profile_service.update_availability(profile_id=public_profile.id, availability_data=availability_data)
+    updated_profile = profile_service.update_availability(
+        profile_id=public_profile.id, availability_data=availability_data
+    )
 
     # Assert
     assert updated_profile.availability_status == "not_looking"
@@ -488,7 +564,9 @@ def test_update_availability_to_not_looking(profile_service: CandidateProfileSer
     assert updated_profile.is_available is False
 
 
-def test_update_availability_invalid_status(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+def test_update_availability_invalid_status(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Cannot set invalid availability status
 
@@ -498,16 +576,20 @@ def test_update_availability_invalid_status(profile_service: CandidateProfileSer
     """
     # Act & Assert - Pydantic validates at schema level
     with pytest.raises(ValidationError, match="Status must be one of"):
-        availability_data = AvailabilityUpdate(
-            availability_status="maybe_looking"
-        )
+        availability_data = AvailabilityUpdate(availability_status="maybe_looking")
 
 
 # ===========================================================================
 # Test Cases: View Tracking
 # ===========================================================================
 
-def test_track_profile_view(profile_service: CandidateProfileService, public_profile: CandidateProfile, sample_employer_user: User, db_session: Session):
+
+def test_track_profile_view(
+    profile_service: CandidateProfileService,
+    public_profile: CandidateProfile,
+    sample_employer_user: User,
+    db_session: Session,
+):
     """
     Test: Track employer view of candidate profile
 
@@ -524,7 +606,7 @@ def test_track_profile_view(profile_service: CandidateProfileService, public_pro
         profile_id=public_profile.id,
         company_id=company_id,
         viewer_id=sample_employer_user.id,
-        source="search"
+        source="search",
     )
 
     # Refresh profile
@@ -539,7 +621,11 @@ def test_track_profile_view(profile_service: CandidateProfileService, public_pro
     assert public_profile.profile_views == initial_view_count + 1
 
 
-def test_track_profile_view_with_job_context(profile_service: CandidateProfileService, public_profile: CandidateProfile, sample_employer_user: User):
+def test_track_profile_view_with_job_context(
+    profile_service: CandidateProfileService,
+    public_profile: CandidateProfile,
+    sample_employer_user: User,
+):
     """
     Test: Track view with job context
 
@@ -557,7 +643,7 @@ def test_track_profile_view_with_job_context(profile_service: CandidateProfileSe
         company_id=company_id,
         viewer_id=sample_employer_user.id,
         source="application",
-        context_job_id=job_id
+        context_job_id=job_id,
     )
 
     # Assert
@@ -565,7 +651,12 @@ def test_track_profile_view_with_job_context(profile_service: CandidateProfileSe
     assert view_record.context_job_id == job_id
 
 
-def test_get_profile_views(profile_service: CandidateProfileService, public_profile: CandidateProfile, sample_employer_user: User, db_session: Session):
+def test_get_profile_views(
+    profile_service: CandidateProfileService,
+    public_profile: CandidateProfile,
+    sample_employer_user: User,
+    db_session: Session,
+):
     """
     Test: Retrieve all views for a profile
 
@@ -576,8 +667,12 @@ def test_get_profile_views(profile_service: CandidateProfileService, public_prof
     # Arrange
     company_id = uuid4()
 
-    profile_service.track_profile_view(public_profile.id, company_id, sample_employer_user.id, "search")
-    profile_service.track_profile_view(public_profile.id, company_id, sample_employer_user.id, "invite")
+    profile_service.track_profile_view(
+        public_profile.id, company_id, sample_employer_user.id, "search"
+    )
+    profile_service.track_profile_view(
+        public_profile.id, company_id, sample_employer_user.id, "invite"
+    )
 
     # Act
     views = profile_service.get_profile_views(profile_id=public_profile.id)
@@ -592,7 +687,12 @@ def test_get_profile_views(profile_service: CandidateProfileService, public_prof
 # Test Cases: Invite Tracking
 # ===========================================================================
 
-def test_increment_invite_count(profile_service: CandidateProfileService, public_profile: CandidateProfile, db_session: Session):
+
+def test_increment_invite_count(
+    profile_service: CandidateProfileService,
+    public_profile: CandidateProfile,
+    db_session: Session,
+):
     """
     Test: Increment invite count when candidate is invited
 
@@ -604,13 +704,17 @@ def test_increment_invite_count(profile_service: CandidateProfileService, public
     initial_invites = public_profile.invites_received
 
     # Act
-    updated_profile = profile_service.increment_invite_count(profile_id=public_profile.id)
+    updated_profile = profile_service.increment_invite_count(
+        profile_id=public_profile.id
+    )
 
     # Assert
     assert updated_profile.invites_received == initial_invites + 1
 
 
-def test_increment_invite_count_multiple_times(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+def test_increment_invite_count_multiple_times(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Multiple invites increment count correctly
 
@@ -621,7 +725,9 @@ def test_increment_invite_count_multiple_times(profile_service: CandidateProfile
     # Act
     profile_service.increment_invite_count(profile_id=public_profile.id)
     profile_service.increment_invite_count(profile_id=public_profile.id)
-    updated_profile = profile_service.increment_invite_count(profile_id=public_profile.id)
+    updated_profile = profile_service.increment_invite_count(
+        profile_id=public_profile.id
+    )
 
     # Assert
     assert updated_profile.invites_received == 3
@@ -631,7 +737,10 @@ def test_increment_invite_count_multiple_times(profile_service: CandidateProfile
 # Test Cases: Profile Retrieval
 # ===========================================================================
 
-def test_get_profile_by_id(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+
+def test_get_profile_by_id(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Retrieve profile by ID
 
@@ -648,7 +757,9 @@ def test_get_profile_by_id(profile_service: CandidateProfileService, public_prof
     assert profile.user_id == public_profile.user_id
 
 
-def test_get_profile_by_user_id(profile_service: CandidateProfileService, public_profile: CandidateProfile):
+def test_get_profile_by_user_id(
+    profile_service: CandidateProfileService, public_profile: CandidateProfile
+):
     """
     Test: Retrieve profile by user ID
 
@@ -679,7 +790,12 @@ def test_get_profile_not_found(profile_service: CandidateProfileService):
     assert profile is None
 
 
-def test_get_all_public_profiles(profile_service: CandidateProfileService, db_session: Session, public_profile: CandidateProfile, profile_create_data: CandidateProfileCreate):
+def test_get_all_public_profiles(
+    profile_service: CandidateProfileService,
+    db_session: Session,
+    public_profile: CandidateProfile,
+    profile_create_data: CandidateProfileCreate,
+):
     """
     Test: Retrieve only public profiles
 
@@ -692,7 +808,7 @@ def test_get_all_public_profiles(profile_service: CandidateProfileService, db_se
         id=uuid4(),
         email="jane@example.com",
         password_hash="hashed",
-        email_verified=True
+        email_verified=True,
     )
     db_session.add(user2)
     db_session.commit()
@@ -714,7 +830,11 @@ def test_get_all_public_profiles(profile_service: CandidateProfileService, db_se
 # Test Cases: Error Handling
 # ===========================================================================
 
-def test_create_profile_for_nonexistent_user(profile_service: CandidateProfileService, profile_create_data: CandidateProfileCreate):
+
+def test_create_profile_for_nonexistent_user(
+    profile_service: CandidateProfileService,
+    profile_create_data: CandidateProfileCreate,
+):
     """
     Test: Cannot create profile for non-existent user
 
@@ -724,10 +844,16 @@ def test_create_profile_for_nonexistent_user(profile_service: CandidateProfileSe
     """
     # Act & Assert
     with pytest.raises(ValueError, match="User not found"):
-        profile_service.create_profile(user_id=uuid4(), profile_data=profile_create_data)
+        profile_service.create_profile(
+            user_id=uuid4(), profile_data=profile_create_data
+        )
 
 
-def test_delete_profile(profile_service: CandidateProfileService, public_profile: CandidateProfile, db_session: Session):
+def test_delete_profile(
+    profile_service: CandidateProfileService,
+    public_profile: CandidateProfile,
+    db_session: Session,
+):
     """
     Test: Delete profile successfully
 

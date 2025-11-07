@@ -118,9 +118,7 @@ def sample_application(db_session: Session):
 
 
 @pytest.mark.asyncio
-async def test_create_interview_success(
-    db_session: Session, sample_application: dict
-):
+async def test_create_interview_success(db_session: Session, sample_application: dict):
     """Test: Successfully schedule a new interview"""
     # Arrange
     service = InterviewSchedulingService(db_session)
@@ -179,9 +177,7 @@ async def test_create_interview_with_interviewers(
 
 
 @pytest.mark.asyncio
-async def test_update_interview_success(
-    db_session: Session, sample_application: dict
-):
+async def test_update_interview_success(db_session: Session, sample_application: dict):
     """Test: Successfully update an existing interview"""
     # Arrange
     service = InterviewSchedulingService(db_session)
@@ -213,9 +209,7 @@ async def test_update_interview_success(
 
 
 @pytest.mark.asyncio
-async def test_cancel_interview_success(
-    db_session: Session, sample_application: dict
-):
+async def test_cancel_interview_success(db_session: Session, sample_application: dict):
     """Test: Successfully cancel an interview"""
     # Arrange
     service = InterviewSchedulingService(db_session)
@@ -476,9 +470,7 @@ async def test_get_candidate_availability_success(
 
 
 @pytest.mark.asyncio
-async def test_sync_to_calendar_success(
-    db_session: Session, sample_application: dict
-):
+async def test_sync_to_calendar_success(db_session: Session, sample_application: dict):
     """Test: Sync interview to Google Calendar"""
     # Arrange
     service = InterviewSchedulingService(db_session)
@@ -547,9 +539,7 @@ async def test_send_calendar_invite_success(
 
 
 @pytest.mark.asyncio
-async def test_submit_feedback_success(
-    db_session: Session, sample_application: dict
-):
+async def test_submit_feedback_success(db_session: Session, sample_application: dict):
     """Test: Interviewer submits feedback after interview"""
     # Arrange
     service = InterviewSchedulingService(db_session)
@@ -670,9 +660,7 @@ async def test_get_aggregated_feedback_success(
         )
 
     # Act
-    aggregated = await service.get_aggregated_feedback(
-        application_id=application.id
-    )
+    aggregated = await service.get_aggregated_feedback(application_id=application.id)
 
     # Assert
     assert aggregated is not None
@@ -821,9 +809,7 @@ async def test_list_upcoming_interviews_for_member(
 
 
 @pytest.mark.asyncio
-async def test_invalid_rating_fails(
-    db_session: Session, sample_application: dict
-):
+async def test_invalid_rating_fails(db_session: Session, sample_application: dict):
     """Test: Cannot submit feedback with invalid ratings"""
     # Arrange
     service = InterviewSchedulingService(db_session)

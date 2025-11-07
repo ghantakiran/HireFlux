@@ -25,6 +25,7 @@ from app.db.models.user import User
 # Test Fixtures
 # ===========================================================================
 
+
 @pytest.fixture
 def company_create_data():
     """Valid company creation data"""
@@ -35,7 +36,7 @@ def company_create_data():
         industry="Technology",
         size="1-10",
         location="San Francisco, CA",
-        website="https://testcompany.com"
+        website="https://testcompany.com",
     )
 
 
@@ -47,7 +48,7 @@ async def sample_company(db_session: Session):
         id=uuid4(),
         email="existing@company.com",
         hashed_password="hashed_password",
-        user_type="employer"
+        user_type="employer",
     )
     db_session.add(user)
     db_session.flush()
@@ -60,7 +61,7 @@ async def sample_company(db_session: Session):
         industry="Technology",
         size="11-50",
         subscription_tier="starter",
-        subscription_status="active"
+        subscription_status="active",
     )
     db_session.add(company)
     db_session.flush()
@@ -72,16 +73,13 @@ async def sample_company(db_session: Session):
         user_id=user.id,
         role="owner",
         status="active",
-        joined_at=datetime.utcnow()
+        joined_at=datetime.utcnow(),
     )
     db_session.add(member)
 
     # Create subscription
     subscription = CompanySubscription(
-        id=uuid4(),
-        company_id=company.id,
-        plan_tier="starter",
-        status="active"
+        id=uuid4(), company_id=company.id, plan_tier="starter", status="active"
     )
     db_session.add(subscription)
 
@@ -96,7 +94,9 @@ async def sample_company(db_session: Session):
 # ===========================================================================
 
 
-def test_create_company_success(db_session: Session, company_create_data: CompanyCreate):
+def test_create_company_success(
+    db_session: Session, company_create_data: CompanyCreate
+):
     """
     GIVEN: Valid company registration data
     WHEN: create_company() is called
@@ -142,8 +142,9 @@ def test_create_company_success(db_session: Session, company_create_data: Compan
     assert company.subscription.candidate_views_this_month == 0
 
 
-
-def test_create_company_sets_trial_period(db_session: Session, company_create_data: CompanyCreate):
+def test_create_company_sets_trial_period(
+    db_session: Session, company_create_data: CompanyCreate
+):
     """
     GIVEN: New company registration
     WHEN: create_company() is called
@@ -159,8 +160,9 @@ def test_create_company_sets_trial_period(db_session: Session, company_create_da
     assert abs((company.trial_ends_at - expected_trial_end).total_seconds()) < 60
 
 
-
-def test_create_company_hashes_password(db_session: Session, company_create_data: CompanyCreate):
+def test_create_company_hashes_password(
+    db_session: Session, company_create_data: CompanyCreate
+):
     """
     GIVEN: Company registration with plaintext password
     WHEN: create_company() is called
@@ -196,12 +198,11 @@ def test_create_company_invalid_email(db_session: Session):
         name="Test Company",
         email="not-an-email",  # Invalid email
         password="SecurePass123!",
-        industry="Technology"
+        industry="Technology",
     )
 
     with pytest.raises(ValueError, match="email"):
         service.create_company(invalid_data)
-
 
 
 def test_create_company_weak_password(db_session: Session):
@@ -216,12 +217,11 @@ def test_create_company_weak_password(db_session: Session):
         name="Test Company",
         email="founder@test.com",
         password="weak",  # Too short, no uppercase, no digit
-        industry="Technology"
+        industry="Technology",
     )
 
     with pytest.raises(ValueError, match="Password"):
         service.create_company(weak_password_data)
-
 
 
 def test_create_company_invalid_size(db_session: Session):
@@ -236,7 +236,7 @@ def test_create_company_invalid_size(db_session: Session):
         name="Test Company",
         email="founder@test.com",
         password="SecurePass123!",
-        size="invalid-size"  # Invalid size
+        size="invalid-size",  # Invalid size
     )
 
     with pytest.raises(ValueError, match="Size must be one of"):
@@ -261,7 +261,7 @@ def test_create_company_duplicate_domain(db_session: Session, sample_company):
         name="Another Company",
         email="founder@company.com",  # Same domain as existing company
         password="SecurePass123!",
-        industry="Finance"
+        industry="Finance",
     )
 
     with pytest.raises(Exception):  # Will be IntegrityError from database
@@ -286,7 +286,7 @@ def test_update_company_success(db_session: Session, sample_company):
         name="Updated Company Name",
         industry="FinTech",
         size="51-200",
-        location="New York, NY"
+        location="New York, NY",
     )
 
     updated_company = service.update_company(existing_company.id, update_data)
@@ -297,7 +297,6 @@ def test_update_company_success(db_session: Session, sample_company):
     assert updated_company.location == "New York, NY"
     # Unchanged fields should remain the same
     assert updated_company.domain == "company.com"
-
 
 
 def test_update_company_not_found(db_session: Session):
@@ -329,15 +328,12 @@ def test_add_team_member_success(db_session: Session, sample_company):
     service = EmployerService(db_session)
     existing_company, owner_user = sample_company
 
-    member_data = CompanyMemberCreate(
-        email="recruiter@company.com",
-        role="recruiter"
-    )
+    member_data = CompanyMemberCreate(email="recruiter@company.com", role="recruiter")
 
     new_member = service.add_team_member(
         company_id=existing_company.id,
         member_data=member_data,
-        invited_by_user_id=owner_user.id
+        invited_by_user_id=owner_user.id,
     )
 
     assert new_member.company_id == existing_company.id
@@ -346,7 +342,6 @@ def test_add_team_member_success(db_session: Session, sample_company):
     assert new_member.invited_by == owner_user.id
     assert new_member.invited_at is not None
     assert new_member.joined_at is None  # Not joined yet
-
 
 
 def test_add_team_member_exceeds_limit(db_session: Session, sample_company):
@@ -362,18 +357,14 @@ def test_add_team_member_exceeds_limit(db_session: Session, sample_company):
     assert existing_company.max_team_members == 1
     assert len(existing_company.members) == 1
 
-    member_data = CompanyMemberCreate(
-        email="recruiter@company.com",
-        role="recruiter"
-    )
+    member_data = CompanyMemberCreate(email="recruiter@company.com", role="recruiter")
 
     with pytest.raises(Exception, match="team member limit"):
         service.add_team_member(
             company_id=existing_company.id,
             member_data=member_data,
-            invited_by_user_id=owner_user.id
+            invited_by_user_id=owner_user.id,
         )
-
 
 
 def test_remove_team_member_success(db_session: Session, sample_company):
@@ -424,7 +415,6 @@ def test_check_job_posting_limit_starter(db_session: Session, sample_company):
     assert can_post is False
 
 
-
 def test_check_candidate_view_limit(db_session: Session, sample_company):
     """
     GIVEN: Company on Starter plan (max 10 candidate views/month)
@@ -462,7 +452,6 @@ def test_get_company_by_id_success(db_session: Session, sample_company):
     assert company.name == existing_company.name
     assert len(company.members) > 0
     assert company.subscription is not None
-
 
 
 def test_get_company_by_id_not_found(db_session: Session):
@@ -507,7 +496,7 @@ def test_feature_complete_onboarding_flow(db_session: Session):
         email="founder@startup.com",
         password="Secure123!",
         industry="Technology",
-        size="1-10"
+        size="1-10",
     )
 
     company = service.create_company(company_data)
@@ -527,14 +516,13 @@ def test_feature_complete_onboarding_flow(db_session: Session):
     db_session.commit()
 
     recruiter_data = CompanyMemberCreate(
-        email="recruiter@startup.com",
-        role="recruiter"
+        email="recruiter@startup.com", role="recruiter"
     )
 
     new_member = service.add_team_member(
         company_id=company.id,
         member_data=recruiter_data,
-        invited_by_user_id=founder_user_id
+        invited_by_user_id=founder_user_id,
     )
 
     # Verify invitation sent

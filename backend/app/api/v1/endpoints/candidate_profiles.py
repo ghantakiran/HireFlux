@@ -33,6 +33,7 @@ router = APIRouter(prefix="/candidate-profiles", tags=["Candidate Profiles"])
 # Job Seeker Profile Management Endpoints
 # ===========================================================================
 
+
 @router.post("", response_model=dict, status_code=status.HTTP_201_CREATED)
 def create_candidate_profile(
     profile_data: CandidateProfileCreate,
@@ -69,14 +70,11 @@ def create_candidate_profile(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create profile: {str(e)}"
+            detail=f"Failed to create profile: {str(e)}",
         )
 
 
@@ -101,7 +99,7 @@ def get_my_profile(
     if not profile:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate profile not found. Create one to get started."
+            detail="Candidate profile not found. Create one to get started.",
         )
 
     return {
@@ -136,8 +134,7 @@ def update_my_profile(
     profile = service.get_profile_by_user_id(current_user.id)
     if not profile:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate profile not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Candidate profile not found"
         )
 
     try:
@@ -150,20 +147,19 @@ def update_my_profile(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update profile: {str(e)}"
+            detail=f"Failed to update profile: {str(e)}",
         )
 
 
 @router.put("/me/visibility", response_model=dict, status_code=status.HTTP_200_OK)
 def set_profile_visibility(
-    visibility: str = Query(..., regex="^(public|private)$", description="Profile visibility"),
+    visibility: str = Query(
+        ..., regex="^(public|private)$", description="Profile visibility"
+    ),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -184,8 +180,7 @@ def set_profile_visibility(
     profile = service.get_profile_by_user_id(current_user.id)
     if not profile:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate profile not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Candidate profile not found"
         )
 
     try:
@@ -198,10 +193,7 @@ def set_profile_visibility(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.put("/me/availability", response_model=dict, status_code=status.HTTP_200_OK)
@@ -227,8 +219,7 @@ def update_availability(
     profile = service.get_profile_by_user_id(current_user.id)
     if not profile:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate profile not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Candidate profile not found"
         )
 
     try:
@@ -241,10 +232,7 @@ def update_availability(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post("/me/portfolio", response_model=dict, status_code=status.HTTP_201_CREATED)
@@ -272,8 +260,7 @@ def add_portfolio_item(
     profile = service.get_profile_by_user_id(current_user.id)
     if not profile:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate profile not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Candidate profile not found"
         )
 
     try:
@@ -286,13 +273,12 @@ def add_portfolio_item(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.delete("/me/portfolio/{item_index}", response_model=dict, status_code=status.HTTP_200_OK)
+@router.delete(
+    "/me/portfolio/{item_index}", response_model=dict, status_code=status.HTTP_200_OK
+)
 def remove_portfolio_item(
     item_index: int,
     current_user: User = Depends(get_current_user),
@@ -308,8 +294,7 @@ def remove_portfolio_item(
     profile = service.get_profile_by_user_id(current_user.id)
     if not profile:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate profile not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Candidate profile not found"
         )
 
     try:
@@ -322,10 +307,7 @@ def remove_portfolio_item(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.delete("/me", response_model=dict, status_code=status.HTTP_200_OK)
@@ -344,15 +326,14 @@ def delete_my_profile(
     profile = service.get_profile_by_user_id(current_user.id)
     if not profile:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate profile not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Candidate profile not found"
         )
 
     success = service.delete_profile(profile.id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to delete profile"
+            detail="Failed to delete profile",
         )
 
     return {
@@ -364,6 +345,7 @@ def delete_my_profile(
 # ===========================================================================
 # Employer Candidate Search Endpoints
 # ===========================================================================
+
 
 @router.post("/search", response_model=dict, status_code=status.HTTP_200_OK)
 def search_candidates(
@@ -412,14 +394,11 @@ def search_candidates(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Search failed: {str(e)}"
+            detail=f"Search failed: {str(e)}",
         )
 
 
@@ -453,15 +432,13 @@ def get_candidate_profile(
     profile = profile_service.get_profile_by_id(profile_id)
     if not profile:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate profile not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Candidate profile not found"
         )
 
     # Only return public profiles
-    if profile.visibility != 'public':
+    if profile.visibility != "public":
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate profile not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Candidate profile not found"
         )
 
     # TODO: Track profile view for billing/analytics

@@ -21,6 +21,7 @@ from app.db.types import GUID
 
 class BulkUploadStatus(str, enum.Enum):
     """Status of a bulk job upload session"""
+
     UPLOADED = "uploaded"  # CSV uploaded and parsed
     VALIDATING = "validating"  # Validating job data
     ENRICHING = "enriching"  # AI normalization in progress
@@ -33,6 +34,7 @@ class BulkUploadStatus(str, enum.Enum):
 
 class DistributionStatus(str, enum.Enum):
     """Status of a job distribution to a specific channel"""
+
     PENDING = "pending"  # Scheduled for publishing
     PUBLISHING = "publishing"  # Currently publishing
     PUBLISHED = "published"  # Successfully published
@@ -42,6 +44,7 @@ class DistributionStatus(str, enum.Enum):
 
 class DistributionChannel(str, enum.Enum):
     """Job board distribution channels"""
+
     LINKEDIN = "linkedin"
     INDEED = "indeed"
     GLASSDOOR = "glassdoor"
@@ -57,7 +60,10 @@ class BulkJobUpload(Base):
 
     # Company/employer relationship
     company_id = Column(
-        GUID(), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False, index=True
+        GUID(),
+        ForeignKey("companies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     uploaded_by_user_id = Column(
         GUID(), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
@@ -75,7 +81,7 @@ class BulkJobUpload(Base):
         Enum(BulkUploadStatus),
         default=BulkUploadStatus.UPLOADED,
         nullable=False,
-        index=True
+        index=True,
     )
     error_message = Column(Text)  # Error details if failed
 
@@ -119,34 +125,27 @@ class JobDistribution(Base):
         GUID(),
         ForeignKey("bulk_job_uploads.id", ondelete="CASCADE"),
         nullable=True,
-        index=True
+        index=True,
     )
     job_id = Column(
-        GUID(),
-        ForeignKey("jobs.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
+        GUID(), ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True
     )
     company_id = Column(
         GUID(),
         ForeignKey("companies.id", ondelete="CASCADE"),
         nullable=False,
-        index=True
+        index=True,
     )
 
     # Distribution channel
-    channel = Column(
-        Enum(DistributionChannel),
-        nullable=False,
-        index=True
-    )
+    channel = Column(Enum(DistributionChannel), nullable=False, index=True)
 
     # Status tracking
     status = Column(
         Enum(DistributionStatus),
         default=DistributionStatus.PENDING,
         nullable=False,
-        index=True
+        index=True,
     )
 
     # External tracking

@@ -73,7 +73,7 @@ def register_company(
         if not founder_member:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to create founder account"
+                detail="Failed to create founder account",
             )
 
         # Generate JWT tokens for founder
@@ -93,21 +93,18 @@ def register_company(
 
     except ValueError as e:
         # Validation errors (from Pydantic or service)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         # Check if it's a duplicate domain error
         if "unique constraint" in str(e).lower() or "duplicate" in str(e).lower():
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="A company with this domain already exists"
+                detail="A company with this domain already exists",
             )
         # Generic error
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to register company: {str(e)}"
+            detail=f"Failed to register company: {str(e)}",
         )
 
 
@@ -130,22 +127,20 @@ def get_current_company(
     if current_user.user_type != "employer":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can access this endpoint"
+            detail="Only employers can access this endpoint",
         )
 
     employer_service = EmployerService(db)
 
     # Find company where user is a member
     company_member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not company_member:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No company found for this user"
+            detail="No company found for this user",
         )
 
     company = employer_service.get_company(company_member.company_id)
@@ -186,27 +181,25 @@ def update_current_company(
     if current_user.user_type != "employer":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can access this endpoint"
+            detail="Only employers can access this endpoint",
         )
 
     # Find company where user is a member
     company_member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not company_member:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No company found for this user"
+            detail="No company found for this user",
         )
 
     # Check if user has permission to update (owner or admin)
     if company_member.role not in ["owner", "admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only company owners or admins can update company profile"
+            detail="Only company owners or admins can update company profile",
         )
 
     employer_service = EmployerService(db)
@@ -251,27 +244,25 @@ def invite_team_member(
     if current_user.user_type != "employer":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can access this endpoint"
+            detail="Only employers can access this endpoint",
         )
 
     # Find company where user is a member
     company_member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not company_member:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No company found for this user"
+            detail="No company found for this user",
         )
 
     # Check if user has permission to invite (owner, admin, or hiring_manager)
     if company_member.role not in ["owner", "admin", "hiring_manager"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only owners, admins, or hiring managers can invite team members"
+            detail="Only owners, admins, or hiring managers can invite team members",
         )
 
     employer_service = EmployerService(db)
@@ -292,12 +283,11 @@ def invite_team_member(
     except Exception as e:
         if "limit" in str(e).lower():
             raise HTTPException(
-                status_code=status.HTTP_402_PAYMENT_REQUIRED,
-                detail=str(e)
+                status_code=status.HTTP_402_PAYMENT_REQUIRED, detail=str(e)
             )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to invite team member: {str(e)}"
+            detail=f"Failed to invite team member: {str(e)}",
         )
 
 
@@ -320,20 +310,18 @@ def get_team_members(
     if current_user.user_type != "employer":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can access this endpoint"
+            detail="Only employers can access this endpoint",
         )
 
     # Find company where user is a member
     company_member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not company_member:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No company found for this user"
+            detail="No company found for this user",
         )
 
     employer_service = EmployerService(db)
@@ -366,43 +354,41 @@ def remove_team_member(
     if current_user.user_type != "employer":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can access this endpoint"
+            detail="Only employers can access this endpoint",
         )
 
     # Find company where user is a member
     company_member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not company_member:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No company found for this user"
+            detail="No company found for this user",
         )
 
     # Check if user has permission to remove (owner or admin)
     if company_member.role not in ["owner", "admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only company owners or admins can remove team members"
+            detail="Only company owners or admins can remove team members",
         )
 
     # Check if trying to remove self
     if str(company_member.id) == member_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot remove yourself. Transfer ownership first."
+            detail="Cannot remove yourself. Transfer ownership first.",
         )
 
     employer_service = EmployerService(db)
 
     try:
         import uuid
+
         employer_service.remove_team_member(
-            company_id=company_member.company_id,
-            member_id=uuid.UUID(member_id)
+            company_id=company_member.company_id, member_id=uuid.UUID(member_id)
         )
 
         return {
@@ -413,7 +399,7 @@ def remove_team_member(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to remove team member: {str(e)}"
+            detail=f"Failed to remove team member: {str(e)}",
         )
 
 
@@ -444,15 +430,13 @@ def get_dashboard_stats(
     """
     # Get user's company membership
     company_member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not company_member:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with any company"
+            detail="User is not associated with any company",
         )
 
     # Check permissions (only certain roles can view dashboard)
@@ -460,7 +444,7 @@ def get_dashboard_stats(
     if company_member.role not in allowed_roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}",
         )
 
     try:
@@ -470,13 +454,10 @@ def get_dashboard_stats(
 
     except Exception as e:
         if "not found" in str(e).lower():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=str(e)
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch dashboard stats: {str(e)}"
+            detail=f"Failed to fetch dashboard stats: {str(e)}",
         )
 
 
@@ -503,22 +484,20 @@ def get_pipeline_metrics(
     **Permissions:** owner, admin, hiring_manager, recruiter
     """
     company_member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not company_member:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with any company"
+            detail="User is not associated with any company",
         )
 
     allowed_roles = ["owner", "admin", "hiring_manager", "recruiter"]
     if company_member.role not in allowed_roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}",
         )
 
     try:
@@ -529,7 +508,7 @@ def get_pipeline_metrics(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch pipeline metrics: {str(e)}"
+            detail=f"Failed to fetch pipeline metrics: {str(e)}",
         )
 
 
@@ -556,22 +535,20 @@ def get_recent_activity(
     **Permissions:** owner, admin, hiring_manager, recruiter
     """
     company_member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not company_member:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with any company"
+            detail="User is not associated with any company",
         )
 
     allowed_roles = ["owner", "admin", "hiring_manager", "recruiter", "viewer"]
     if company_member.role not in allowed_roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}",
         )
 
     # Enforce max limit
@@ -582,13 +559,15 @@ def get_recent_activity(
 
     try:
         dashboard_service = DashboardService(db)
-        activity = dashboard_service.get_recent_activity(company_member.company_id, limit=limit)
+        activity = dashboard_service.get_recent_activity(
+            company_member.company_id, limit=limit
+        )
         return activity
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch recent activity: {str(e)}"
+            detail=f"Failed to fetch recent activity: {str(e)}",
         )
 
 
@@ -615,15 +594,13 @@ def get_team_activity(
     **Permissions:** owner, admin
     """
     company_member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not company_member:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with any company"
+            detail="User is not associated with any company",
         )
 
     # Only owners and admins can view team activity
@@ -631,7 +608,7 @@ def get_team_activity(
     if company_member.role not in allowed_roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}",
         )
 
     try:
@@ -642,5 +619,5 @@ def get_team_activity(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch team activity: {str(e)}"
+            detail=f"Failed to fetch team activity: {str(e)}",
         )

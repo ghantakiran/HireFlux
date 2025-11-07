@@ -22,6 +22,7 @@ from app.schemas.candidate_profile import CandidateSearchFilters
 # Fixtures
 # ===========================================================================
 
+
 @pytest.fixture
 def search_service(db_session: Session):
     """Create CandidateSearchService instance"""
@@ -37,7 +38,7 @@ def sample_users(db_session: Session):
             id=uuid4(),
             email=f"candidate{i+1}@example.com",
             password_hash="hashed_password",
-            email_verified=True
+            email_verified=True,
         )
         db_session.add(user)
         users.append(user)
@@ -152,16 +153,13 @@ def sample_profiles(db_session: Session, sample_users: list[User]):
             "availability_status": "open_to_offers",
             "open_to_work": True,
             "open_to_remote": True,
-        }
+        },
     ]
 
     profiles = []
     for data in profiles_data:
         user = data.pop("user")
-        profile = CandidateProfile(
-            user_id=user.id,
-            **data
-        )
+        profile = CandidateProfile(user_id=user.id, **data)
         db_session.add(profile)
         profiles.append(profile)
 
@@ -176,7 +174,10 @@ def sample_profiles(db_session: Session, sample_users: list[User]):
 # Basic Search Tests
 # ===========================================================================
 
-def test_search_all_public_profiles(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+
+def test_search_all_public_profiles(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Search with no filters returns all public profiles
     GIVEN: Multiple candidate profiles with mixed visibility
@@ -200,7 +201,9 @@ def test_search_all_public_profiles(search_service: CandidateSearchService, samp
     # The service filters for public profiles internally
 
 
-def test_search_pagination_first_page(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_pagination_first_page(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Pagination works correctly for first page
     GIVEN: 4 public profiles
@@ -221,7 +224,9 @@ def test_search_pagination_first_page(search_service: CandidateSearchService, sa
     assert result.total_pages == 2
 
 
-def test_search_pagination_second_page(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_pagination_second_page(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Pagination works correctly for second page
     GIVEN: 4 public profiles
@@ -242,7 +247,9 @@ def test_search_pagination_second_page(search_service: CandidateSearchService, s
     assert result.total_pages == 2
 
 
-def test_search_pagination_beyond_results(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_pagination_beyond_results(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Requesting page beyond available results returns empty
     GIVEN: 4 public profiles
@@ -266,7 +273,10 @@ def test_search_pagination_beyond_results(search_service: CandidateSearchService
 # Skills Filtering Tests
 # ===========================================================================
 
-def test_search_by_single_skill(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+
+def test_search_by_single_skill(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by single skill
     GIVEN: Profiles with various skills
@@ -288,7 +298,9 @@ def test_search_by_single_skill(search_service: CandidateSearchService, sample_p
         assert "Python" in profile_data.skills
 
 
-def test_search_by_multiple_skills(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_multiple_skills(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by multiple skills (AND logic)
     GIVEN: Profiles with various skills
@@ -310,7 +322,9 @@ def test_search_by_multiple_skills(search_service: CandidateSearchService, sampl
         assert "AWS" in profile_data.skills
 
 
-def test_search_by_skills_case_insensitive(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_skills_case_insensitive(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Skills search is case-insensitive
     GIVEN: Skills stored as 'Python', 'React'
@@ -327,7 +341,9 @@ def test_search_by_skills_case_insensitive(search_service: CandidateSearchServic
     assert result.total == 1  # Only profile 1 has both Python and React
 
 
-def test_search_by_nonexistent_skill(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_nonexistent_skill(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Searching for non-existent skill returns empty
     GIVEN: Profiles with various skills
@@ -349,7 +365,10 @@ def test_search_by_nonexistent_skill(search_service: CandidateSearchService, sam
 # Experience Level Filtering Tests
 # ===========================================================================
 
-def test_search_by_single_experience_level(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+
+def test_search_by_single_experience_level(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by single experience level
     GIVEN: Profiles with different experience levels
@@ -367,7 +386,9 @@ def test_search_by_single_experience_level(search_service: CandidateSearchServic
     assert result.profiles[0].experience_level == "senior"
 
 
-def test_search_by_multiple_experience_levels(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_multiple_experience_levels(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by multiple experience levels (OR logic)
     GIVEN: Profiles with different experience levels
@@ -387,7 +408,9 @@ def test_search_by_multiple_experience_levels(search_service: CandidateSearchSer
     assert "lead" in experience_levels
 
 
-def test_search_by_min_years_experience(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_min_years_experience(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by minimum years of experience
     GIVEN: Profiles with 1, 5, 8, 10 years experience
@@ -406,7 +429,9 @@ def test_search_by_min_years_experience(search_service: CandidateSearchService, 
         assert profile_data.years_experience >= 8
 
 
-def test_search_by_max_years_experience(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_max_years_experience(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by maximum years of experience
     GIVEN: Profiles with 1, 5, 8, 10 years experience
@@ -425,7 +450,9 @@ def test_search_by_max_years_experience(search_service: CandidateSearchService, 
         assert profile_data.years_experience <= 5
 
 
-def test_search_by_years_experience_range(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_years_experience_range(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by years experience range
     GIVEN: Profiles with 1, 5, 8, 10 years experience
@@ -448,7 +475,10 @@ def test_search_by_years_experience_range(search_service: CandidateSearchService
 # Location Filtering Tests
 # ===========================================================================
 
-def test_search_by_location(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+
+def test_search_by_location(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by location string
     GIVEN: Profiles in various locations
@@ -466,7 +496,9 @@ def test_search_by_location(search_service: CandidateSearchService, sample_profi
     assert "San Francisco" in result.profiles[0].location
 
 
-def test_search_by_location_case_insensitive(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_location_case_insensitive(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Location search is case-insensitive
     GIVEN: Location stored as 'Austin, TX'
@@ -483,7 +515,9 @@ def test_search_by_location_case_insensitive(search_service: CandidateSearchServ
     assert result.total == 1
 
 
-def test_search_by_remote_only(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_remote_only(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by remote_only flag
     GIVEN: Profiles with open_to_remote=True/False
@@ -502,7 +536,9 @@ def test_search_by_remote_only(search_service: CandidateSearchService, sample_pr
         assert profile_data.open_to_remote is True
 
 
-def test_search_by_location_type_remote(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_location_type_remote(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by location type 'remote'
     GIVEN: Profiles with various location type preferences
@@ -521,7 +557,9 @@ def test_search_by_location_type_remote(search_service: CandidateSearchService, 
         assert profile_data.preferred_location_type == "remote"
 
 
-def test_search_by_location_type_hybrid(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_location_type_hybrid(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by location type 'hybrid'
     GIVEN: Profiles with various location type preferences
@@ -543,7 +581,10 @@ def test_search_by_location_type_hybrid(search_service: CandidateSearchService, 
 # Salary Filtering Tests
 # ===========================================================================
 
-def test_search_by_min_salary(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+
+def test_search_by_min_salary(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by minimum salary
     GIVEN: Profiles with salary expectations 80-100k, 120-150k, 150-180k, 180-220k
@@ -560,7 +601,9 @@ def test_search_by_min_salary(search_service: CandidateSearchService, sample_pro
     assert result.total == 3
 
 
-def test_search_by_max_salary(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_max_salary(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by maximum salary
     GIVEN: Profiles with salary expectations
@@ -577,7 +620,9 @@ def test_search_by_max_salary(search_service: CandidateSearchService, sample_pro
     assert result.total == 2
 
 
-def test_search_by_salary_range(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_salary_range(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by salary range (overlap logic)
     GIVEN: Profiles with salary expectations
@@ -586,8 +631,7 @@ def test_search_by_salary_range(search_service: CandidateSearchService, sample_p
     """
     # Arrange
     filters = CandidateSearchFilters(
-        min_salary=Decimal("100000"),
-        max_salary=Decimal("160000")
+        min_salary=Decimal("100000"), max_salary=Decimal("160000")
     )
 
     # Act
@@ -601,7 +645,10 @@ def test_search_by_salary_range(search_service: CandidateSearchService, sample_p
 # Availability Filtering Tests
 # ===========================================================================
 
-def test_search_by_single_availability_status(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+
+def test_search_by_single_availability_status(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by single availability status
     GIVEN: Profiles with different availability statuses
@@ -620,7 +667,9 @@ def test_search_by_single_availability_status(search_service: CandidateSearchSer
         assert profile_data.availability_status == "actively_looking"
 
 
-def test_search_by_multiple_availability_statuses(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_multiple_availability_statuses(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by multiple availability statuses (OR logic)
     GIVEN: Profiles with different availability statuses
@@ -628,7 +677,9 @@ def test_search_by_multiple_availability_statuses(search_service: CandidateSearc
     THEN: Returns profiles 1, 2, and 4
     """
     # Arrange
-    filters = CandidateSearchFilters(availability_status=["actively_looking", "open_to_offers"])
+    filters = CandidateSearchFilters(
+        availability_status=["actively_looking", "open_to_offers"]
+    )
 
     # Act
     result = search_service.search_candidates(filters)
@@ -644,7 +695,10 @@ def test_search_by_multiple_availability_statuses(search_service: CandidateSearc
 # Preferred Roles Filtering Tests
 # ===========================================================================
 
-def test_search_by_single_preferred_role(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+
+def test_search_by_single_preferred_role(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by single preferred role
     GIVEN: Profiles with various preferred roles
@@ -662,7 +716,9 @@ def test_search_by_single_preferred_role(search_service: CandidateSearchService,
     assert "Backend Engineer" in result.profiles[0].preferred_roles
 
 
-def test_search_by_multiple_preferred_roles(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_by_multiple_preferred_roles(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Filter by multiple preferred roles (OR logic)
     GIVEN: Profiles with various preferred roles
@@ -670,7 +726,9 @@ def test_search_by_multiple_preferred_roles(search_service: CandidateSearchServi
     THEN: Returns profiles 2 and 4
     """
     # Arrange
-    filters = CandidateSearchFilters(preferred_roles=["DevOps Engineer", "Data Scientist"])
+    filters = CandidateSearchFilters(
+        preferred_roles=["DevOps Engineer", "Data Scientist"]
+    )
 
     # Act
     result = search_service.search_candidates(filters)
@@ -683,7 +741,10 @@ def test_search_by_multiple_preferred_roles(search_service: CandidateSearchServi
 # Combined Filters Tests
 # ===========================================================================
 
-def test_search_combined_filters(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+
+def test_search_combined_filters(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Multiple filters work together (AND logic between filter types)
     GIVEN: Various profiles
@@ -699,7 +760,7 @@ def test_search_combined_filters(search_service: CandidateSearchService, sample_
         skills=["Python", "AWS"],
         experience_level=["senior", "lead"],
         remote_only=True,
-        availability_status=["actively_looking"]
+        availability_status=["actively_looking"],
     )
 
     # Act
@@ -717,7 +778,9 @@ def test_search_combined_filters(search_service: CandidateSearchService, sample_
         assert profile_data.availability_status == "actively_looking"
 
 
-def test_search_complex_combined_filters(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_complex_combined_filters(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Complex combination of filters
     GIVEN: Various profiles
@@ -735,7 +798,7 @@ def test_search_complex_combined_filters(search_service: CandidateSearchService,
         min_years_experience=5,
         location_type="remote",
         min_salary=Decimal("150000"),
-        availability_status=["actively_looking", "open_to_offers"]
+        availability_status=["actively_looking", "open_to_offers"],
     )
 
     # Act
@@ -749,7 +812,10 @@ def test_search_complex_combined_filters(search_service: CandidateSearchService,
 # Empty Results Tests
 # ===========================================================================
 
-def test_search_no_matching_profiles(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+
+def test_search_no_matching_profiles(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Search with filters that match nothing
     GIVEN: Various profiles
@@ -758,8 +824,7 @@ def test_search_no_matching_profiles(search_service: CandidateSearchService, sam
     """
     # Arrange
     filters = CandidateSearchFilters(
-        experience_level=["entry"],
-        min_years_experience=20
+        experience_level=["entry"], min_years_experience=20
     )
 
     # Act
@@ -771,7 +836,9 @@ def test_search_no_matching_profiles(search_service: CandidateSearchService, sam
     assert result.total_pages == 0
 
 
-def test_search_empty_database(search_service: CandidateSearchService, db_session: Session):
+def test_search_empty_database(
+    search_service: CandidateSearchService, db_session: Session
+):
     """
     Test: Search with no profiles in database
     GIVEN: Empty database
@@ -794,7 +861,12 @@ def test_search_empty_database(search_service: CandidateSearchService, db_sessio
 # Edge Cases
 # ===========================================================================
 
-def test_search_with_null_skills_field(search_service: CandidateSearchService, db_session: Session, sample_users: list[User]):
+
+def test_search_with_null_skills_field(
+    search_service: CandidateSearchService,
+    db_session: Session,
+    sample_users: list[User],
+):
     """
     Test: Handle profiles with NULL skills gracefully
     GIVEN: A profile with skills=None
@@ -807,7 +879,7 @@ def test_search_with_null_skills_field(search_service: CandidateSearchService, d
         headline="Test Profile",
         visibility="public",
         skills=None,  # NULL skills
-        experience_level="mid"
+        experience_level="mid",
     )
     db_session.add(profile)
     db_session.commit()
@@ -821,7 +893,11 @@ def test_search_with_null_skills_field(search_service: CandidateSearchService, d
     assert result.total == 0  # Profile with NULL skills should not match
 
 
-def test_search_with_empty_skills_array(search_service: CandidateSearchService, db_session: Session, sample_users: list[User]):
+def test_search_with_empty_skills_array(
+    search_service: CandidateSearchService,
+    db_session: Session,
+    sample_users: list[User],
+):
     """
     Test: Handle profiles with empty skills array
     GIVEN: A profile with skills=[]
@@ -834,7 +910,7 @@ def test_search_with_empty_skills_array(search_service: CandidateSearchService, 
         headline="Test Profile",
         visibility="public",
         skills=[],  # Empty array
-        experience_level="mid"
+        experience_level="mid",
     )
     db_session.add(profile)
     db_session.commit()
@@ -848,7 +924,9 @@ def test_search_with_empty_skills_array(search_service: CandidateSearchService, 
     assert result.total == 0
 
 
-def test_search_respects_max_limit(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_respects_max_limit(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Limit cannot exceed maximum (100)
     GIVEN: Multiple profiles
@@ -860,7 +938,9 @@ def test_search_respects_max_limit(search_service: CandidateSearchService, sampl
         filters = CandidateSearchFilters(limit=101)
 
 
-def test_search_with_zero_page(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_with_zero_page(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Page number must be >= 1
     GIVEN: Multiple profiles
@@ -872,7 +952,9 @@ def test_search_with_zero_page(search_service: CandidateSearchService, sample_pr
         filters = CandidateSearchFilters(page=0)
 
 
-def test_search_with_negative_years(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+def test_search_with_negative_years(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Years experience cannot be negative
     GIVEN: Multiple profiles
@@ -888,7 +970,10 @@ def test_search_with_negative_years(search_service: CandidateSearchService, samp
 # Ordering Tests
 # ===========================================================================
 
-def test_search_results_ordered_by_relevance(search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]):
+
+def test_search_results_ordered_by_relevance(
+    search_service: CandidateSearchService, sample_profiles: list[CandidateProfile]
+):
     """
     Test: Results should be ordered by relevance (most recent updated_at first)
     GIVEN: Multiple profiles

@@ -42,6 +42,7 @@ def test_db():
 @pytest.fixture(scope="function")
 def client(test_db):
     """Test client with database override"""
+
     def override_get_db():
         try:
             yield test_db
@@ -66,7 +67,7 @@ def test_user(test_db):
         is_verified=True,
         subscription_tier="plus",
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
     test_db.add(user)
     test_db.commit()
@@ -96,20 +97,20 @@ def test_resume(test_db, test_user):
             "personal_info": {
                 "name": "Test User",
                 "email": "test@example.com",
-                "phone": "123-456-7890"
+                "phone": "123-456-7890",
             },
             "experience": [
                 {
                     "company": "Tech Corp",
                     "title": "Senior Engineer",
                     "duration": "2020-2023",
-                    "achievements": ["Led team of 5", "Increased performance 40%"]
+                    "achievements": ["Led team of 5", "Increased performance 40%"],
                 }
             ],
-            "skills": ["Python", "FastAPI", "PostgreSQL", "Docker"]
+            "skills": ["Python", "FastAPI", "PostgreSQL", "Docker"],
         },
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
     test_db.add(resume)
     test_db.commit()
@@ -131,7 +132,7 @@ def test_jobs(test_db):
             "job_type": "full_time",
             "salary_min": 150000,
             "salary_max": 200000,
-            "is_remote": True
+            "is_remote": True,
         },
         {
             "title": "Full Stack Engineer",
@@ -140,7 +141,7 @@ def test_jobs(test_db):
             "job_type": "full_time",
             "salary_min": 120000,
             "salary_max": 160000,
-            "is_remote": False
+            "is_remote": False,
         },
         {
             "title": "Backend Developer",
@@ -149,8 +150,8 @@ def test_jobs(test_db):
             "job_type": "contract",
             "salary_min": 100000,
             "salary_max": 140000,
-            "is_remote": True
-        }
+            "is_remote": True,
+        },
     ]
 
     for data in job_data:
@@ -168,7 +169,7 @@ def test_jobs(test_db):
             posted_date=now - timedelta(days=5),
             is_active=True,
             created_at=now,
-            updated_at=now
+            updated_at=now,
         )
         test_db.add(job)
         jobs.append(job)
@@ -192,7 +193,7 @@ def test_applications(test_db, test_user, test_jobs, test_resume):
         ("interview_scheduled", 5),
         ("rejected", 7),
         ("offer_received", 2),
-        ("applied", 4)
+        ("applied", 4),
     ]
 
     for i, (status, days_ago) in enumerate(statuses):
@@ -207,7 +208,7 @@ def test_applications(test_db, test_user, test_jobs, test_resume):
                 created_at=now - timedelta(days=days_ago + 1),
                 updated_at=now - timedelta(days=days_ago),
                 cover_letter_content="Sample cover letter",
-                notes="Test application"
+                notes="Test application",
             )
             test_db.add(app)
             applications.append(app)

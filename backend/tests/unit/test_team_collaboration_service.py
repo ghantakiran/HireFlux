@@ -120,9 +120,7 @@ def additional_users(db_session: Session):
 
 
 @pytest.mark.asyncio
-async def test_invite_team_member_success(
-    db_session: Session, sample_company: dict
-):
+async def test_invite_team_member_success(db_session: Session, sample_company: dict):
     """Test: Owner successfully invites a new team member"""
     # Arrange
     service = TeamCollaborationService(db_session)
@@ -152,9 +150,7 @@ async def test_invite_team_member_success(
 
 
 @pytest.mark.asyncio
-async def test_invite_duplicate_email_fails(
-    db_session: Session, sample_company: dict
-):
+async def test_invite_duplicate_email_fails(db_session: Session, sample_company: dict):
     """Test: Cannot invite same email twice"""
     # Arrange
     service = TeamCollaborationService(db_session)
@@ -225,9 +221,7 @@ async def test_invite_exceeds_team_limit_fails(
 
 
 @pytest.mark.asyncio
-async def test_resend_invitation_success(
-    db_session: Session, sample_company: dict
-):
+async def test_resend_invitation_success(db_session: Session, sample_company: dict):
     """Test: Successfully resend invitation email"""
     # Arrange
     service = TeamCollaborationService(db_session)
@@ -244,7 +238,9 @@ async def test_resend_invitation_success(
         )
 
     # Act
-    with patch.object(service, "_send_invitation_email", new_callable=AsyncMock) as mock_send:
+    with patch.object(
+        service, "_send_invitation_email", new_callable=AsyncMock
+    ) as mock_send:
         resent_invitation = await service.resend_invitation(
             invitation_id=invitation.id,
             company_id=company.id,
@@ -257,9 +253,7 @@ async def test_resend_invitation_success(
 
 
 @pytest.mark.asyncio
-async def test_revoke_invitation_success(
-    db_session: Session, sample_company: dict
-):
+async def test_revoke_invitation_success(db_session: Session, sample_company: dict):
     """Test: Successfully revoke pending invitation"""
     # Arrange
     service = TeamCollaborationService(db_session)
@@ -427,9 +421,7 @@ async def test_update_member_role_success(
 
 
 @pytest.mark.asyncio
-async def test_cannot_change_owner_role(
-    db_session: Session, sample_company: dict
-):
+async def test_cannot_change_owner_role(db_session: Session, sample_company: dict):
     """Test: Cannot change the role of the company owner"""
     # Arrange
     service = TeamCollaborationService(db_session)
@@ -538,9 +530,7 @@ async def test_remove_member_success(
 
     # Assert
     removed_member = (
-        db_session.query(CompanyMember)
-        .filter(CompanyMember.id == member_id)
-        .first()
+        db_session.query(CompanyMember).filter(CompanyMember.id == member_id).first()
     )
     assert removed_member is None
 
@@ -657,7 +647,9 @@ async def test_permission_matrix(
     )
 
     # Assert
-    assert has_permission == expected, f"{role} should {'have' if expected else 'not have'} {action} permission"
+    assert (
+        has_permission == expected
+    ), f"{role} should {'have' if expected else 'not have'} {action} permission"
 
 
 @pytest.mark.asyncio
@@ -707,9 +699,7 @@ async def test_get_member_permissions_returns_all(
 
 
 @pytest.mark.asyncio
-async def test_log_team_activity_success(
-    db_session: Session, sample_company: dict
-):
+async def test_log_team_activity_success(db_session: Session, sample_company: dict):
     """Test: Successfully log team activity"""
     # Arrange
     service = TeamCollaborationService(db_session)
@@ -730,9 +720,7 @@ async def test_log_team_activity_success(
 
 
 @pytest.mark.asyncio
-async def test_get_team_activity_last_7_days(
-    db_session: Session, sample_company: dict
-):
+async def test_get_team_activity_last_7_days(db_session: Session, sample_company: dict):
     """Test: Get team activity for last 7 days"""
     # Arrange
     service = TeamCollaborationService(db_session)
@@ -786,9 +774,7 @@ async def test_get_member_activity_last_30_days(
 
 
 @pytest.mark.asyncio
-async def test_invite_invalid_role_fails(
-    db_session: Session, sample_company: dict
-):
+async def test_invite_invalid_role_fails(db_session: Session, sample_company: dict):
     """Test: Cannot invite with invalid role"""
     # Arrange
     service = TeamCollaborationService(db_session)
@@ -806,9 +792,7 @@ async def test_invite_invalid_role_fails(
 
 
 @pytest.mark.asyncio
-async def test_member_not_found_raises_error(
-    db_session: Session, sample_company: dict
-):
+async def test_member_not_found_raises_error(db_session: Session, sample_company: dict):
     """Test: Operations on non-existent member raise error"""
     # Arrange
     service = TeamCollaborationService(db_session)

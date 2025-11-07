@@ -55,15 +55,19 @@ class JobDistributionService:
 
         # Rate limiters (simple in-memory, production should use Redis)
         self._rate_limiters = {
-            DistributionChannelEnum.LINKEDIN: asyncio.Queue(maxsize=self.LINKEDIN_RATE_LIMIT),
-            DistributionChannelEnum.INDEED: asyncio.Queue(maxsize=self.INDEED_RATE_LIMIT),
-            DistributionChannelEnum.GLASSDOOR: asyncio.Queue(maxsize=self.GLASSDOOR_RATE_LIMIT),
+            DistributionChannelEnum.LINKEDIN: asyncio.Queue(
+                maxsize=self.LINKEDIN_RATE_LIMIT
+            ),
+            DistributionChannelEnum.INDEED: asyncio.Queue(
+                maxsize=self.INDEED_RATE_LIMIT
+            ),
+            DistributionChannelEnum.GLASSDOOR: asyncio.Queue(
+                maxsize=self.GLASSDOOR_RATE_LIMIT
+            ),
         }
 
     async def publish_to_channel(
-        self,
-        job_data: Dict[str, Any],
-        distribution: DistributionCreate
+        self, job_data: Dict[str, Any], distribution: DistributionCreate
     ) -> Dict[str, Any]:
         """
         Publish a single job to a specific channel.
@@ -80,7 +84,9 @@ class JobDistributionService:
         """
         try:
             # Validate job data for the specific channel
-            validation_error = self._validate_for_channel(job_data, distribution.channel)
+            validation_error = self._validate_for_channel(
+                job_data, distribution.channel
+            )
             if validation_error:
                 return {
                     "job_id": job_data.get("id"),
@@ -89,7 +95,7 @@ class JobDistributionService:
                     "external_post_id": None,
                     "external_post_url": None,
                     "error_message": validation_error,
-                    "retry_count": 0
+                    "retry_count": 0,
                 }
 
             # Route to appropriate channel
@@ -112,10 +118,12 @@ class JobDistributionService:
                 "external_post_id": None,
                 "external_post_url": None,
                 "error_message": str(e),
-                "retry_count": 0
+                "retry_count": 0,
             }
 
-    def _validate_for_channel(self, job_data: Dict[str, Any], channel: DistributionChannelEnum) -> Optional[str]:
+    def _validate_for_channel(
+        self, job_data: Dict[str, Any], channel: DistributionChannelEnum
+    ) -> Optional[str]:
         """
         Validate job data for specific channel requirements.
 
@@ -135,7 +143,9 @@ class JobDistributionService:
 
         elif channel == DistributionChannelEnum.INDEED:
             if len(job_data.get("title", "")) > self.INDEED_MAX_TITLE_LENGTH:
-                return f"Indeed title must be ≤ {self.INDEED_MAX_TITLE_LENGTH} characters"
+                return (
+                    f"Indeed title must be ≤ {self.INDEED_MAX_TITLE_LENGTH} characters"
+                )
 
         elif channel == DistributionChannelEnum.GLASSDOOR:
             if not job_data.get("salary_min") or not job_data.get("salary_max"):
@@ -146,20 +156,24 @@ class JobDistributionService:
         return None
 
     async def _publish_to_linkedin(
-        self,
-        job_data: Dict[str, Any],
-        distribution: DistributionCreate
+        self, job_data: Dict[str, Any], distribution: DistributionCreate
     ) -> Dict[str, Any]:
         """Publish job to LinkedIn"""
         try:
-            response = await self._linkedin_client.post_job({
-                "title": job_data["title"],
-                "description": job_data["description"],
-                "location": job_data.get("location", "Remote"),
-                "employmentType": job_data.get("employment_type", "FULL_TIME").upper(),
-                "experienceLevel": job_data.get("experience_level", "MID_SENIOR_LEVEL").upper(),
-                "companyId": job_data.get("company_id"),
-            })
+            response = await self._linkedin_client.post_job(
+                {
+                    "title": job_data["title"],
+                    "description": job_data["description"],
+                    "location": job_data.get("location", "Remote"),
+                    "employmentType": job_data.get(
+                        "employment_type", "FULL_TIME"
+                    ).upper(),
+                    "experienceLevel": job_data.get(
+                        "experience_level", "MID_SENIOR_LEVEL"
+                    ).upper(),
+                    "companyId": job_data.get("company_id"),
+                }
+            )
 
             return {
                 "job_id": job_data["id"],
@@ -169,29 +183,29 @@ class JobDistributionService:
                 "external_post_url": response.get("url"),
                 "error_message": None,
                 "retry_count": 0,
-                "published_at": datetime.utcnow()
+                "published_at": datetime.utcnow(),
             }
 
         except Exception as e:
             raise ServiceError(f"LinkedIn API Error: {str(e)}")
 
     async def _publish_to_indeed(
-        self,
-        job_data: Dict[str, Any],
-        distribution: DistributionCreate
+        self, job_data: Dict[str, Any], distribution: DistributionCreate
     ) -> Dict[str, Any]:
         """Publish job to Indeed"""
         try:
-            response = await self._indeed_client.post_job({
-                "title": job_data["title"],
-                "description": job_data.get("description", ""),
-                "location": job_data.get("location", "Remote"),
-                "employmentType": job_data.get("employment_type", "FULLTIME"),
-                "experienceLevel": job_data.get("experience_level", "MID_LEVEL"),
-                "salaryMin": job_data.get("salary_min"),
-                "salaryMax": job_data.get("salary_max"),
-                "company": job_data.get("company_id"),
-            })
+            response = await self._indeed_client.post_job(
+                {
+                    "title": job_data["title"],
+                    "description": job_data.get("description", ""),
+                    "location": job_data.get("location", "Remote"),
+                    "employmentType": job_data.get("employment_type", "FULLTIME"),
+                    "experienceLevel": job_data.get("experience_level", "MID_LEVEL"),
+                    "salaryMin": job_data.get("salary_min"),
+                    "salaryMax": job_data.get("salary_max"),
+                    "company": job_data.get("company_id"),
+                }
+            )
 
             return {
                 "job_id": job_data["id"],
@@ -201,7 +215,7 @@ class JobDistributionService:
                 "external_post_url": response.get("url"),
                 "error_message": None,
                 "retry_count": 0,
-                "published_at": datetime.utcnow()
+                "published_at": datetime.utcnow(),
             }
 
         except TimeoutError as e:
@@ -210,21 +224,21 @@ class JobDistributionService:
             raise ServiceError(f"Indeed API Error: {str(e)}")
 
     async def _publish_to_glassdoor(
-        self,
-        job_data: Dict[str, Any],
-        distribution: DistributionCreate
+        self, job_data: Dict[str, Any], distribution: DistributionCreate
     ) -> Dict[str, Any]:
         """Publish job to Glassdoor"""
         try:
-            response = await self._glassdoor_client.post_job({
-                "jobTitle": job_data["title"],
-                "jobDescription": job_data.get("description", ""),
-                "location": job_data.get("location", "Remote"),
-                "employmentType": job_data.get("employment_type", "FULL_TIME"),
-                "salaryMin": job_data["salary_min"],
-                "salaryMax": job_data["salary_max"],
-                "employerId": job_data.get("company_id"),
-            })
+            response = await self._glassdoor_client.post_job(
+                {
+                    "jobTitle": job_data["title"],
+                    "jobDescription": job_data.get("description", ""),
+                    "location": job_data.get("location", "Remote"),
+                    "employmentType": job_data.get("employment_type", "FULL_TIME"),
+                    "salaryMin": job_data["salary_min"],
+                    "salaryMax": job_data["salary_max"],
+                    "employerId": job_data.get("company_id"),
+                }
+            )
 
             return {
                 "job_id": job_data["id"],
@@ -234,16 +248,14 @@ class JobDistributionService:
                 "external_post_url": response.get("jobUrl"),
                 "error_message": None,
                 "retry_count": 0,
-                "published_at": datetime.utcnow()
+                "published_at": datetime.utcnow(),
             }
 
         except Exception as e:
             raise ServiceError(f"Glassdoor API Error: {str(e)}")
 
     async def _publish_to_internal(
-        self,
-        job_data: Dict[str, Any],
-        distribution: DistributionCreate
+        self, job_data: Dict[str, Any], distribution: DistributionCreate
     ) -> Dict[str, Any]:
         """Publish job to internal job board"""
         # Internal publishing doesn't require external API calls
@@ -255,14 +267,14 @@ class JobDistributionService:
             "external_post_url": None,
             "error_message": None,
             "retry_count": 0,
-            "published_at": datetime.utcnow()
+            "published_at": datetime.utcnow(),
         }
 
     async def bulk_distribute(
         self,
         jobs: List[Dict[str, Any]],
         distribution: BulkDistributionCreate,
-        skip_on_error: bool = True
+        skip_on_error: bool = True,
     ) -> List[Dict[str, Any]]:
         """
         Distribute multiple jobs to multiple channels.
@@ -282,34 +294,45 @@ class JobDistributionService:
                 dist_create = DistributionCreate(
                     job_id=job["id"],
                     channel=channel,
-                    scheduled_publish_at=distribution.scheduled_publish_at
+                    scheduled_publish_at=distribution.scheduled_publish_at,
                 )
 
                 try:
                     if distribution.scheduled_publish_at:
                         # Create scheduled distribution
-                        result = await self.create_scheduled_distribution(job, dist_create)
+                        result = await self.create_scheduled_distribution(
+                            job, dist_create
+                        )
                     else:
                         # Publish immediately
                         result = await self.publish_to_channel(job, dist_create)
 
                     # Check if result indicates failure due to validation
-                    if result["status"] == DistributionStatusEnum.FAILED and not skip_on_error:
-                        raise ServiceError(f"Failed to distribute job {job['id']} to {channel}: {result.get('error_message', 'Unknown error')}")
+                    if (
+                        result["status"] == DistributionStatusEnum.FAILED
+                        and not skip_on_error
+                    ):
+                        raise ServiceError(
+                            f"Failed to distribute job {job['id']} to {channel}: {result.get('error_message', 'Unknown error')}"
+                        )
 
                     results.append(result)
 
                 except Exception as e:
                     if skip_on_error:
-                        results.append({
-                            "job_id": job["id"],
-                            "channel": channel,
-                            "status": DistributionStatusEnum.FAILED,
-                            "error_message": str(e),
-                            "retry_count": 0
-                        })
+                        results.append(
+                            {
+                                "job_id": job["id"],
+                                "channel": channel,
+                                "status": DistributionStatusEnum.FAILED,
+                                "error_message": str(e),
+                                "retry_count": 0,
+                            }
+                        )
                     else:
-                        raise ServiceError(f"Failed to distribute job {job['id']} to {channel}: {str(e)}")
+                        raise ServiceError(
+                            f"Failed to distribute job {job['id']} to {channel}: {str(e)}"
+                        )
 
         return results
 
@@ -317,7 +340,7 @@ class JobDistributionService:
         self,
         job_data: Dict[str, Any],
         distribution: DistributionCreate,
-        max_retries: int = DEFAULT_MAX_RETRIES
+        max_retries: int = DEFAULT_MAX_RETRIES,
     ) -> Dict[str, Any]:
         """
         Publish with automatic retry on failure.
@@ -353,7 +376,7 @@ class JobDistributionService:
             # If not last attempt, wait with exponential backoff
             if attempt < max_retries:
                 retry_count += 1
-                backoff_seconds = self.RETRY_BACKOFF_BASE ** attempt
+                backoff_seconds = self.RETRY_BACKOFF_BASE**attempt
                 await asyncio.sleep(backoff_seconds)
 
         # All retries exhausted
@@ -364,7 +387,7 @@ class JobDistributionService:
             "external_post_id": None,
             "external_post_url": None,
             "error_message": f"Failed after {max_retries} retries: {last_error}",
-            "retry_count": retry_count
+            "retry_count": retry_count,
         }
 
     async def retry_distribution(self, distribution_id: str) -> Dict[str, Any]:
@@ -384,15 +407,16 @@ class JobDistributionService:
         distribution = await self._get_distribution(distribution_id)
 
         if distribution["retry_count"] >= distribution["max_retries"]:
-            raise ServiceError(f"Max retries ({distribution['max_retries']}) exceeded for distribution {distribution_id}")
+            raise ServiceError(
+                f"Max retries ({distribution['max_retries']}) exceeded for distribution {distribution_id}"
+            )
 
         # Get job data (mock for now - would query from DB in real implementation)
         job_data = await self._get_job_data(distribution["job_id"])
 
         # Create distribution config
         dist_create = DistributionCreate(
-            job_id=distribution["job_id"],
-            channel=distribution["channel"]
+            job_id=distribution["job_id"], channel=distribution["channel"]
         )
 
         # Retry publication
@@ -406,9 +430,7 @@ class JobDistributionService:
         return result
 
     async def create_scheduled_distribution(
-        self,
-        job_data: Dict[str, Any],
-        distribution: DistributionCreate
+        self, job_data: Dict[str, Any], distribution: DistributionCreate
     ) -> Dict[str, Any]:
         """
         Create a scheduled distribution for future publishing.
@@ -429,7 +451,7 @@ class JobDistributionService:
             "error_message": None,
             "retry_count": 0,
             "scheduled_publish_at": distribution.scheduled_publish_at,
-            "published_at": None
+            "published_at": None,
         }
 
     async def process_scheduled_distributions(self) -> List[Dict[str, Any]]:
@@ -456,8 +478,7 @@ class JobDistributionService:
 
             # Create distribution config
             dist_create = DistributionCreate(
-                job_id=dist["job_id"],
-                channel=dist["channel"]
+                job_id=dist["job_id"], channel=dist["channel"]
             )
 
             # Publish
@@ -476,7 +497,7 @@ class JobDistributionService:
         distribution_id: str,
         views_count: int = 0,
         applications_count: int = 0,
-        clicks_count: int = 0
+        clicks_count: int = 0,
     ) -> Dict[str, Any]:
         """
         Update distribution metrics.
@@ -496,7 +517,7 @@ class JobDistributionService:
             "views_count": views_count,
             "applications_count": applications_count,
             "clicks_count": clicks_count,
-            "updated_at": datetime.utcnow()
+            "updated_at": datetime.utcnow(),
         }
 
     async def get_distribution_dashboard(self, upload_id: str) -> Dict[str, Any]:
@@ -541,14 +562,14 @@ class JobDistributionService:
             "by_status": by_status,
             "total_views": total_views,
             "total_applications": total_applications,
-            "total_clicks": total_clicks
+            "total_clicks": total_clicks,
         }
 
         return {
             "upload_id": upload_id,
             "total_jobs": len(job_ids) if job_ids else 0,
             "distributions": distributions,
-            "metrics": metrics
+            "metrics": metrics,
         }
 
     async def list_distributions(
@@ -556,7 +577,7 @@ class JobDistributionService:
         company_id: str,
         status_filter: Optional[DistributionStatusEnum] = None,
         page: int = 1,
-        limit: int = 20
+        limit: int = 20,
     ) -> Dict[str, Any]:
         """
         List distributions for a company with optional filtering.
@@ -586,7 +607,7 @@ class JobDistributionService:
             "distributions": paginated,
             "total": len(distributions),
             "page": page,
-            "limit": limit
+            "limit": limit,
         }
 
     # Helper methods (mock implementations - would interact with DB in real implementation)
@@ -601,7 +622,9 @@ class JobDistributionService:
         # Mock - would query DB
         return {}
 
-    async def _update_distribution(self, distribution_id: str, data: Dict[str, Any]) -> None:
+    async def _update_distribution(
+        self, distribution_id: str, data: Dict[str, Any]
+    ) -> None:
         """Update distribution in DB"""
         # Mock - would update DB
         pass
@@ -611,12 +634,16 @@ class JobDistributionService:
         # Mock - would query DB
         return []
 
-    async def _get_distributions_by_upload(self, upload_id: str) -> List[Dict[str, Any]]:
+    async def _get_distributions_by_upload(
+        self, upload_id: str
+    ) -> List[Dict[str, Any]]:
         """Get all distributions for an upload"""
         # Mock - would query DB
         return []
 
-    async def _get_distributions_by_company(self, company_id: str) -> List[Dict[str, Any]]:
+    async def _get_distributions_by_company(
+        self, company_id: str
+    ) -> List[Dict[str, Any]]:
         """Get all distributions for a company"""
         # Mock - would query DB
         return []

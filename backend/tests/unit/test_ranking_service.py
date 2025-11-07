@@ -161,8 +161,7 @@ def test_calculate_fit_index_high_match(
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=high_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=high_fit_candidate.id, job_id=sample_job.id
     )
 
     assert isinstance(result, FitIndexResponse)
@@ -183,8 +182,7 @@ def test_calculate_fit_index_medium_match(
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=medium_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=medium_fit_candidate.id, job_id=sample_job.id
     )
 
     assert isinstance(result, FitIndexResponse)
@@ -204,8 +202,7 @@ def test_calculate_fit_index_low_match(
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=low_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=low_fit_candidate.id, job_id=sample_job.id
     )
 
     assert isinstance(result, FitIndexResponse)
@@ -227,8 +224,7 @@ def test_skills_match_scoring(db_session: Session, sample_job, high_fit_candidat
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=high_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=high_fit_candidate.id, job_id=sample_job.id
     )
 
     # Should have explanation about skills match
@@ -236,7 +232,11 @@ def test_skills_match_scoring(db_session: Session, sample_job, high_fit_candidat
     assert len(skills_explanation) > 0
 
     # Should list skills as strength
-    skills_strength = [s for s in result.strengths if "skill" in s.lower() or "react" in s.lower() or "typescript" in s.lower()]
+    skills_strength = [
+        s
+        for s in result.strengths
+        if "skill" in s.lower() or "react" in s.lower() or "typescript" in s.lower()
+    ]
     assert len(skills_strength) > 0
 
 
@@ -249,13 +249,16 @@ def test_partial_skills_match(db_session: Session, sample_job, medium_fit_candid
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=medium_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=medium_fit_candidate.id, job_id=sample_job.id
     )
 
     # Should mention missing skills as concern
-    missing_skills_concern = [c for c in result.concerns if "skill" in c.lower() or "missing" in c.lower()]
-    assert len(missing_skills_concern) >= 0  # May or may not flag depending on threshold
+    missing_skills_concern = [
+        c for c in result.concerns if "skill" in c.lower() or "missing" in c.lower()
+    ]
+    assert (
+        len(missing_skills_concern) >= 0
+    )  # May or may not flag depending on threshold
 
 
 # ============================================================================
@@ -272,12 +275,15 @@ def test_experience_level_match(db_session: Session, sample_job, high_fit_candid
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=high_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=high_fit_candidate.id, job_id=sample_job.id
     )
 
     # Should have explanation about experience
-    exp_explanation = [e for e in result.explanations if "experience" in e.lower() or "year" in e.lower()]
+    exp_explanation = [
+        e
+        for e in result.explanations
+        if "experience" in e.lower() or "year" in e.lower()
+    ]
     assert len(exp_explanation) > 0
 
 
@@ -290,12 +296,13 @@ def test_insufficient_experience(db_session: Session, sample_job, low_fit_candid
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=low_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=low_fit_candidate.id, job_id=sample_job.id
     )
 
     # Should flag insufficient experience
-    exp_concern = [c for c in result.concerns if "experience" in c.lower() or "year" in c.lower()]
+    exp_concern = [
+        c for c in result.concerns if "experience" in c.lower() or "year" in c.lower()
+    ]
     assert len(exp_concern) > 0
 
 
@@ -313,16 +320,21 @@ def test_location_match_same_city(db_session: Session, sample_job, high_fit_cand
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=high_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=high_fit_candidate.id, job_id=sample_job.id
     )
 
     # Should mention location as strength for hybrid role
-    location_strength = [s for s in result.strengths if "location" in s.lower() or "san francisco" in s.lower()]
+    location_strength = [
+        s
+        for s in result.strengths
+        if "location" in s.lower() or "san francisco" in s.lower()
+    ]
     assert len(location_strength) > 0
 
 
-def test_location_mismatch_remote_preferred(db_session: Session, sample_job, low_fit_candidate):
+def test_location_mismatch_remote_preferred(
+    db_session: Session, sample_job, low_fit_candidate
+):
     """
     GIVEN: A candidate in NYC preferring remote (job is SF hybrid)
     WHEN: Calculating location match component
@@ -331,12 +343,13 @@ def test_location_mismatch_remote_preferred(db_session: Session, sample_job, low
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=low_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=low_fit_candidate.id, job_id=sample_job.id
     )
 
     # Should flag location concern
-    location_concern = [c for c in result.concerns if "location" in c.lower() or "remote" in c.lower()]
+    location_concern = [
+        c for c in result.concerns if "location" in c.lower() or "remote" in c.lower()
+    ]
     assert len(location_concern) > 0
 
 
@@ -354,8 +367,7 @@ def test_salary_within_range(db_session: Session, sample_job, high_fit_candidate
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=high_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=high_fit_candidate.id, job_id=sample_job.id
     )
 
     # Should mention salary alignment
@@ -372,8 +384,7 @@ def test_salary_too_high(db_session: Session, sample_job, low_fit_candidate):
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=low_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=low_fit_candidate.id, job_id=sample_job.id
     )
 
     # Should flag salary concern
@@ -386,7 +397,9 @@ def test_salary_too_high(db_session: Session, sample_job, low_fit_candidate):
 # ============================================================================
 
 
-def test_availability_actively_looking(db_session: Session, sample_job, high_fit_candidate):
+def test_availability_actively_looking(
+    db_session: Session, sample_job, high_fit_candidate
+):
     """
     GIVEN: A candidate actively looking
     WHEN: Calculating availability match component
@@ -395,12 +408,15 @@ def test_availability_actively_looking(db_session: Session, sample_job, high_fit
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=high_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=high_fit_candidate.id, job_id=sample_job.id
     )
 
     # Actively looking should be a strength
-    availability_strength = [s for s in result.strengths if "actively" in s.lower() or "available" in s.lower()]
+    availability_strength = [
+        s
+        for s in result.strengths
+        if "actively" in s.lower() or "available" in s.lower()
+    ]
     assert len(availability_strength) >= 0  # Optional strength
 
 
@@ -413,12 +429,15 @@ def test_availability_not_looking(db_session: Session, sample_job, low_fit_candi
     service = CandidateRankingService(db_session)
 
     result = service.calculate_fit_index(
-        candidate_user_id=low_fit_candidate.id,
-        job_id=sample_job.id
+        candidate_user_id=low_fit_candidate.id, job_id=sample_job.id
     )
 
     # Not looking should be a concern
-    availability_concern = [c for c in result.concerns if "not looking" in c.lower() or "availability" in c.lower()]
+    availability_concern = [
+        c
+        for c in result.concerns
+        if "not looking" in c.lower() or "availability" in c.lower()
+    ]
     assert len(availability_concern) > 0
 
 
@@ -428,7 +447,11 @@ def test_availability_not_looking(db_session: Session, sample_job, low_fit_candi
 
 
 def test_rank_multiple_candidates(
-    db_session: Session, sample_job, high_fit_candidate, medium_fit_candidate, low_fit_candidate
+    db_session: Session,
+    sample_job,
+    high_fit_candidate,
+    medium_fit_candidate,
+    low_fit_candidate,
 ):
     """
     GIVEN: Multiple candidates for a job
@@ -445,19 +468,19 @@ def test_rank_multiple_candidates(
         user_id=high_fit_candidate.id,
         job_id=sample_job.id,
         status="new",
-        applied_at=datetime.utcnow()
+        applied_at=datetime.utcnow(),
     )
     app2 = Application(
         user_id=medium_fit_candidate.id,
         job_id=sample_job.id,
         status="new",
-        applied_at=datetime.utcnow()
+        applied_at=datetime.utcnow(),
     )
     app3 = Application(
         user_id=low_fit_candidate.id,
         job_id=sample_job.id,
         status="new",
-        applied_at=datetime.utcnow()
+        applied_at=datetime.utcnow(),
     )
     db_session.add_all([app1, app2, app3])
     db_session.commit()
@@ -498,7 +521,7 @@ def test_update_application_fit_index(
         job_id=sample_job.id,
         status="new",
         applied_at=datetime.utcnow(),
-        fit_index=None
+        fit_index=None,
     )
     db_session.add(app)
     db_session.commit()
@@ -523,7 +546,7 @@ def test_complete_ranking_workflow(
     sample_job,
     high_fit_candidate,
     medium_fit_candidate,
-    low_fit_candidate
+    low_fit_candidate,
 ):
     """
     Feature: AI-Powered Candidate Ranking
@@ -545,19 +568,19 @@ def test_complete_ranking_workflow(
         user_id=high_fit_candidate.id,
         job_id=sample_job.id,
         status="new",
-        applied_at=datetime.utcnow()
+        applied_at=datetime.utcnow(),
     )
     app2 = Application(
         user_id=medium_fit_candidate.id,
         job_id=sample_job.id,
         status="new",
-        applied_at=datetime.utcnow()
+        applied_at=datetime.utcnow(),
     )
     app3 = Application(
         user_id=low_fit_candidate.id,
         job_id=sample_job.id,
         status="new",
-        applied_at=datetime.utcnow()
+        applied_at=datetime.utcnow(),
     )
     db_session.add_all([app1, app2, app3])
     db_session.commit()

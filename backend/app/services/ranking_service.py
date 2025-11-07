@@ -37,9 +37,7 @@ class CandidateRankingService:
         self.db = db
 
     def calculate_fit_index(
-        self,
-        candidate_user_id: UUID,
-        job_id: UUID
+        self, candidate_user_id: UUID, job_id: UUID
     ) -> FitIndexResponse:
         """
         Calculate comprehensive fit score for a candidate-job pair.
@@ -77,12 +75,12 @@ class CandidateRankingService:
 
         # Calculate weighted total
         total_score = (
-            skills_score * self.WEIGHTS["skills_match"] +
-            experience_score * self.WEIGHTS["experience_level"] +
-            location_score * self.WEIGHTS["location_match"] +
-            culture_score * self.WEIGHTS["culture_fit"] +
-            salary_score * self.WEIGHTS["salary_expectation"] +
-            availability_score * self.WEIGHTS["availability"]
+            skills_score * self.WEIGHTS["skills_match"]
+            + experience_score * self.WEIGHTS["experience_level"]
+            + location_score * self.WEIGHTS["location_match"]
+            + culture_score * self.WEIGHTS["culture_fit"]
+            + salary_score * self.WEIGHTS["salary_expectation"]
+            + availability_score * self.WEIGHTS["availability"]
         )
 
         fit_index = int(total_score)
@@ -96,13 +94,17 @@ class CandidateRankingService:
         if skills_score >= 80:
             explanations.append(f"Skills match: {int(skills_score)}%")
             matched_skills = self._get_matched_skills(profile, job)
-            strengths.append(f"{len(matched_skills)}/{len(job.required_skills or [])} required skills match: {', '.join(matched_skills[:3])}")
+            strengths.append(
+                f"{len(matched_skills)}/{len(job.required_skills or [])} required skills match: {', '.join(matched_skills[:3])}"
+            )
         elif skills_score >= 60:
             explanations.append(f"Skills match: {int(skills_score)}% (partial)")
             matched_skills = self._get_matched_skills(profile, job)
             missing_skills = set(job.required_skills or []) - set(matched_skills)
             if missing_skills:
-                concerns.append(f"Missing skills: {', '.join(list(missing_skills)[:2])}")
+                concerns.append(
+                    f"Missing skills: {', '.join(list(missing_skills)[:2])}"
+                )
         else:
             explanations.append(f"Skills match: {int(skills_score)}% (low)")
             concerns.append("Significant skill gaps")
@@ -111,14 +113,18 @@ class CandidateRankingService:
         if experience_score >= 80:
             explanations.append("Experience level: Excellent match")
             if profile and profile.years_experience:
-                strengths.append(f"{profile.years_experience} years experience (Matches {job.experience_level or 'required'} level)")
+                strengths.append(
+                    f"{profile.years_experience} years experience (Matches {job.experience_level or 'required'} level)"
+                )
         elif experience_score >= 60:
             explanations.append("Experience level: Good match")
         else:
             explanations.append("Experience level: Below requirements")
             if profile and profile.years_experience and job.experience_min_years:
                 if profile.years_experience < job.experience_min_years:
-                    concerns.append(f"Only {profile.years_experience} years experience (requires {job.experience_min_years}+)")
+                    concerns.append(
+                        f"Only {profile.years_experience} years experience (requires {job.experience_min_years}+)"
+                    )
 
         # Location
         if location_score >= 80:
@@ -126,20 +132,28 @@ class CandidateRankingService:
                 if job.location_type == "remote":
                     strengths.append("Remote role, location flexible")
                 else:
-                    strengths.append(f"Based in {profile.location} (local for {job.location_type} role)")
+                    strengths.append(
+                        f"Based in {profile.location} (local for {job.location_type} role)"
+                    )
         elif location_score < 60:
             if profile and profile.location and job.location:
                 if job.location_type != "remote":
-                    concerns.append(f"Located in {profile.location}, job is in {job.location} ({job.location_type})")
+                    concerns.append(
+                        f"Located in {profile.location}, job is in {job.location} ({job.location_type})"
+                    )
 
         # Salary
         if salary_score >= 80:
             if profile and profile.expected_salary_min and job.salary_max:
-                strengths.append(f"Salary expectation ${profile.expected_salary_min:,}-${profile.expected_salary_max:,} within range (${job.salary_min:,}-${job.salary_max:,})")
+                strengths.append(
+                    f"Salary expectation ${profile.expected_salary_min:,}-${profile.expected_salary_max:,} within range (${job.salary_min:,}-${job.salary_max:,})"
+                )
         elif salary_score < 60:
             if profile and profile.expected_salary_min and job.salary_max:
                 if profile.expected_salary_min > job.salary_max:
-                    concerns.append(f"Salary expectation ${profile.expected_salary_min:,}+ exceeds budget (max ${job.salary_max:,})")
+                    concerns.append(
+                        f"Salary expectation ${profile.expected_salary_min:,}+ exceeds budget (max ${job.salary_max:,})"
+                    )
 
         # Availability
         if availability_score >= 80:
@@ -153,7 +167,7 @@ class CandidateRankingService:
             fit_index=fit_index,
             explanations=explanations,
             strengths=strengths,
-            concerns=concerns
+            concerns=concerns,
         )
 
     def _calculate_skills_match(self, profile: Optional[Profile], job: Job) -> float:
@@ -176,7 +190,9 @@ class CandidateRankingService:
             preferred_skills = set([s.lower() for s in job.preferred_skills])
             preferred_matched = candidate_skills.intersection(preferred_skills)
             # Bonus for preferred skills (up to 20%)
-            bonus = min(20.0, (len(preferred_matched) / max(1, len(preferred_skills))) * 20)
+            bonus = min(
+                20.0, (len(preferred_matched) / max(1, len(preferred_skills))) * 20
+            )
         else:
             bonus = 0
 
@@ -198,7 +214,9 @@ class CandidateRankingService:
 
         return matched
 
-    def _calculate_experience_match(self, profile: Optional[Profile], job: Job) -> float:
+    def _calculate_experience_match(
+        self, profile: Optional[Profile], job: Job
+    ) -> float:
         """Calculate experience level match score (0-100)"""
         if not profile or profile.years_experience is None:
             return 50.0  # Neutral if no data
@@ -231,7 +249,7 @@ class CandidateRankingService:
                 "mid": (3, 5),
                 "senior": (5, 10),
                 "lead": (8, 15),
-                "executive": (10, 99)
+                "executive": (10, 99),
             }
             min_years, max_years = level_ranges.get(job.experience_level, (0, 99))
             if min_years <= years_exp <= max_years:
@@ -315,7 +333,9 @@ class CandidateRankingService:
             # Candidate expects less (good for employer)
             return 100.0
 
-    def _calculate_availability_match(self, profile: Optional[Profile], job: Job) -> float:
+    def _calculate_availability_match(
+        self, profile: Optional[Profile], job: Job
+    ) -> float:
         """Calculate availability match score (0-100)"""
         if not profile or not profile.availability_status:
             return 75.0
@@ -323,15 +343,13 @@ class CandidateRankingService:
         status_scores = {
             "actively_looking": 100.0,
             "open_to_offers": 80.0,
-            "not_looking": 30.0
+            "not_looking": 30.0,
         }
 
         return status_scores.get(profile.availability_status, 75.0)
 
     def rank_candidates_for_job(
-        self,
-        job_id: UUID,
-        update_applications: bool = True
+        self, job_id: UUID, update_applications: bool = True
     ) -> List[Dict[str, Any]]:
         """
         Rank all candidates for a job by fit index.
@@ -356,8 +374,7 @@ class CandidateRankingService:
         for app in applications:
             # Calculate fit index
             fit_result = self.calculate_fit_index(
-                candidate_user_id=app.user_id,
-                job_id=job_id
+                candidate_user_id=app.user_id, job_id=job_id
             )
 
             # Update application if requested
@@ -365,14 +382,16 @@ class CandidateRankingService:
                 app.fit_index = fit_result.fit_index
                 app.updated_at = datetime.utcnow()
 
-            results.append({
-                "application_id": app.id,
-                "candidate_id": app.user_id,
-                "fit_index": fit_result.fit_index,
-                "explanations": fit_result.explanations,
-                "strengths": fit_result.strengths,
-                "concerns": fit_result.concerns,
-            })
+            results.append(
+                {
+                    "application_id": app.id,
+                    "candidate_id": app.user_id,
+                    "fit_index": fit_result.fit_index,
+                    "explanations": fit_result.explanations,
+                    "strengths": fit_result.strengths,
+                    "concerns": fit_result.concerns,
+                }
+            )
 
         if update_applications:
             self.db.commit()
@@ -382,10 +401,7 @@ class CandidateRankingService:
 
         return results
 
-    def update_application_fit_index(
-        self,
-        application_id: UUID
-    ) -> Application:
+    def update_application_fit_index(self, application_id: UUID) -> Application:
         """
         Calculate and update fit index for a single application.
 
@@ -407,8 +423,7 @@ class CandidateRankingService:
 
         # Calculate fit index
         fit_result = self.calculate_fit_index(
-            candidate_user_id=application.user_id,
-            job_id=application.job_id
+            candidate_user_id=application.user_id, job_id=application.job_id
         )
 
         # Update application

@@ -18,7 +18,7 @@ from app.schemas.candidate_profile import (
     CandidateProfileUpdate,
     PortfolioItemCreate,
     AvailabilityUpdate,
-    CandidateViewCreate
+    CandidateViewCreate,
 )
 
 
@@ -34,7 +34,9 @@ class CandidateProfileService:
     # Profile Creation
     # ===========================================================================
 
-    def create_profile(self, user_id: UUID, profile_data: CandidateProfileCreate) -> CandidateProfile:
+    def create_profile(
+        self, user_id: UUID, profile_data: CandidateProfileCreate
+    ) -> CandidateProfile:
         """
         Create a new candidate profile.
 
@@ -54,9 +56,11 @@ class CandidateProfileService:
             raise ValueError("User not found")
 
         # Check if profile already exists
-        existing_profile = self.db.query(CandidateProfile).filter(
-            CandidateProfile.user_id == user_id
-        ).first()
+        existing_profile = (
+            self.db.query(CandidateProfile)
+            .filter(CandidateProfile.user_id == user_id)
+            .first()
+        )
         if existing_profile:
             raise ValueError(f"User {user_id} already has a profile")
 
@@ -87,7 +91,7 @@ class CandidateProfileService:
             latest_resume_url=profile_data.latest_resume_url,
             portfolio=[],
             profile_views=0,
-            invites_received=0
+            invites_received=0,
         )
 
         self.db.add(profile)
@@ -100,7 +104,9 @@ class CandidateProfileService:
     # Profile Updates
     # ===========================================================================
 
-    def update_profile(self, profile_id: UUID, profile_data: CandidateProfileUpdate) -> CandidateProfile:
+    def update_profile(
+        self, profile_id: UUID, profile_data: CandidateProfileUpdate
+    ) -> CandidateProfile:
         """
         Update an existing profile.
 
@@ -114,7 +120,11 @@ class CandidateProfileService:
         Raises:
             ValueError: If profile not found or validation fails
         """
-        profile = self.db.query(CandidateProfile).filter(CandidateProfile.id == profile_id).first()
+        profile = (
+            self.db.query(CandidateProfile)
+            .filter(CandidateProfile.id == profile_id)
+            .first()
+        )
         if not profile:
             raise ValueError("Profile not found")
 
@@ -142,10 +152,14 @@ class CandidateProfileService:
         Raises:
             ValueError: If profile not found or invalid visibility
         """
-        if visibility not in ['public', 'private']:
+        if visibility not in ["public", "private"]:
             raise ValueError("Visibility must be 'public' or 'private'")
 
-        profile = self.db.query(CandidateProfile).filter(CandidateProfile.id == profile_id).first()
+        profile = (
+            self.db.query(CandidateProfile)
+            .filter(CandidateProfile.id == profile_id)
+            .first()
+        )
         if not profile:
             raise ValueError("Profile not found")
 
@@ -159,7 +173,9 @@ class CandidateProfileService:
     # Portfolio Management
     # ===========================================================================
 
-    def add_portfolio_item(self, profile_id: UUID, item: PortfolioItemCreate) -> CandidateProfile:
+    def add_portfolio_item(
+        self, profile_id: UUID, item: PortfolioItemCreate
+    ) -> CandidateProfile:
         """
         Add a portfolio item to profile.
 
@@ -173,7 +189,11 @@ class CandidateProfileService:
         Raises:
             ValueError: If profile not found
         """
-        profile = self.db.query(CandidateProfile).filter(CandidateProfile.id == profile_id).first()
+        profile = (
+            self.db.query(CandidateProfile)
+            .filter(CandidateProfile.id == profile_id)
+            .first()
+        )
         if not profile:
             raise ValueError("Profile not found")
 
@@ -184,14 +204,18 @@ class CandidateProfileService:
         if profile.portfolio is None:
             profile.portfolio = []
 
-        profile.portfolio = profile.portfolio + [item_dict]  # Create new list to trigger update
+        profile.portfolio = profile.portfolio + [
+            item_dict
+        ]  # Create new list to trigger update
 
         self.db.commit()
         self.db.refresh(profile)
 
         return profile
 
-    def remove_portfolio_item(self, profile_id: UUID, item_index: int) -> CandidateProfile:
+    def remove_portfolio_item(
+        self, profile_id: UUID, item_index: int
+    ) -> CandidateProfile:
         """
         Remove a portfolio item by index.
 
@@ -205,11 +229,19 @@ class CandidateProfileService:
         Raises:
             ValueError: If profile not found or invalid index
         """
-        profile = self.db.query(CandidateProfile).filter(CandidateProfile.id == profile_id).first()
+        profile = (
+            self.db.query(CandidateProfile)
+            .filter(CandidateProfile.id == profile_id)
+            .first()
+        )
         if not profile:
             raise ValueError("Profile not found")
 
-        if profile.portfolio is None or item_index < 0 or item_index >= len(profile.portfolio):
+        if (
+            profile.portfolio is None
+            or item_index < 0
+            or item_index >= len(profile.portfolio)
+        ):
             raise ValueError("Invalid portfolio item index")
 
         # Remove item and create new list to trigger update
@@ -226,7 +258,9 @@ class CandidateProfileService:
     # Availability Management
     # ===========================================================================
 
-    def update_availability(self, profile_id: UUID, availability_data: AvailabilityUpdate) -> CandidateProfile:
+    def update_availability(
+        self, profile_id: UUID, availability_data: AvailabilityUpdate
+    ) -> CandidateProfile:
         """
         Update candidate availability status.
 
@@ -240,11 +274,15 @@ class CandidateProfileService:
         Raises:
             ValueError: If profile not found or invalid status
         """
-        valid_statuses = ['actively_looking', 'open_to_offers', 'not_looking']
+        valid_statuses = ["actively_looking", "open_to_offers", "not_looking"]
         if availability_data.availability_status not in valid_statuses:
             raise ValueError(f"Status must be one of {valid_statuses}")
 
-        profile = self.db.query(CandidateProfile).filter(CandidateProfile.id == profile_id).first()
+        profile = (
+            self.db.query(CandidateProfile)
+            .filter(CandidateProfile.id == profile_id)
+            .first()
+        )
         if not profile:
             raise ValueError("Profile not found")
 
@@ -268,7 +306,7 @@ class CandidateProfileService:
         company_id: UUID,
         viewer_id: UUID,
         source: Optional[str] = None,
-        context_job_id: Optional[UUID] = None
+        context_job_id: Optional[UUID] = None,
     ) -> CandidateView:
         """
         Track an employer's view of a candidate profile.
@@ -286,7 +324,11 @@ class CandidateProfileService:
         Raises:
             ValueError: If profile not found
         """
-        profile = self.db.query(CandidateProfile).filter(CandidateProfile.id == profile_id).first()
+        profile = (
+            self.db.query(CandidateProfile)
+            .filter(CandidateProfile.id == profile_id)
+            .first()
+        )
         if not profile:
             raise ValueError("Profile not found")
 
@@ -297,7 +339,7 @@ class CandidateProfileService:
             candidate_id=profile.user_id,
             candidate_profile_id=profile_id,
             source=source,
-            context_job_id=context_job_id
+            context_job_id=context_job_id,
         )
 
         self.db.add(view)
@@ -320,9 +362,12 @@ class CandidateProfileService:
         Returns:
             List of CandidateView records
         """
-        views = self.db.query(CandidateView).filter(
-            CandidateView.candidate_profile_id == profile_id
-        ).order_by(CandidateView.created_at.desc()).all()
+        views = (
+            self.db.query(CandidateView)
+            .filter(CandidateView.candidate_profile_id == profile_id)
+            .order_by(CandidateView.created_at.desc())
+            .all()
+        )
 
         return views
 
@@ -343,7 +388,11 @@ class CandidateProfileService:
         Raises:
             ValueError: If profile not found
         """
-        profile = self.db.query(CandidateProfile).filter(CandidateProfile.id == profile_id).first()
+        profile = (
+            self.db.query(CandidateProfile)
+            .filter(CandidateProfile.id == profile_id)
+            .first()
+        )
         if not profile:
             raise ValueError("Profile not found")
 
@@ -368,7 +417,11 @@ class CandidateProfileService:
         Returns:
             CandidateProfile or None if not found
         """
-        return self.db.query(CandidateProfile).filter(CandidateProfile.id == profile_id).first()
+        return (
+            self.db.query(CandidateProfile)
+            .filter(CandidateProfile.id == profile_id)
+            .first()
+        )
 
     def get_profile_by_user_id(self, user_id: UUID) -> Optional[CandidateProfile]:
         """
@@ -380,9 +433,15 @@ class CandidateProfileService:
         Returns:
             CandidateProfile or None if not found
         """
-        return self.db.query(CandidateProfile).filter(CandidateProfile.user_id == user_id).first()
+        return (
+            self.db.query(CandidateProfile)
+            .filter(CandidateProfile.user_id == user_id)
+            .first()
+        )
 
-    def get_public_profiles(self, limit: int = 100, offset: int = 0) -> List[CandidateProfile]:
+    def get_public_profiles(
+        self, limit: int = 100, offset: int = 0
+    ) -> List[CandidateProfile]:
         """
         Get all public profiles.
 
@@ -393,9 +452,13 @@ class CandidateProfileService:
         Returns:
             List of public CandidateProfiles
         """
-        profiles = self.db.query(CandidateProfile).filter(
-            CandidateProfile.visibility == 'public'
-        ).limit(limit).offset(offset).all()
+        profiles = (
+            self.db.query(CandidateProfile)
+            .filter(CandidateProfile.visibility == "public")
+            .limit(limit)
+            .offset(offset)
+            .all()
+        )
 
         return profiles
 
@@ -413,7 +476,11 @@ class CandidateProfileService:
         Returns:
             True if deleted, False if not found
         """
-        profile = self.db.query(CandidateProfile).filter(CandidateProfile.id == profile_id).first()
+        profile = (
+            self.db.query(CandidateProfile)
+            .filter(CandidateProfile.id == profile_id)
+            .first()
+        )
         if not profile:
             return False
 
@@ -434,23 +501,26 @@ class CandidateProfileService:
             ValueError: If validation fails
         """
         # Validate visibility
-        if profile_data.visibility not in ['public', 'private']:
+        if profile_data.visibility not in ["public", "private"]:
             raise ValueError("Visibility must be 'public' or 'private'")
 
         # Validate experience level
         if profile_data.experience_level:
-            valid_levels = ['entry', 'mid', 'senior', 'lead', 'executive']
+            valid_levels = ["entry", "mid", "senior", "lead", "executive"]
             if profile_data.experience_level not in valid_levels:
                 raise ValueError(f"Experience level must be one of {valid_levels}")
 
         # Validate location type
         if profile_data.preferred_location_type:
-            valid_types = ['remote', 'hybrid', 'onsite', 'any']
+            valid_types = ["remote", "hybrid", "onsite", "any"]
             if profile_data.preferred_location_type not in valid_types:
                 raise ValueError(f"Location type must be one of {valid_types}")
 
         # Validate availability status
-        if hasattr(profile_data, 'availability_status') and profile_data.availability_status:
-            valid_statuses = ['actively_looking', 'open_to_offers', 'not_looking']
+        if (
+            hasattr(profile_data, "availability_status")
+            and profile_data.availability_status
+        ):
+            valid_statuses = ["actively_looking", "open_to_offers", "not_looking"]
             if profile_data.availability_status not in valid_statuses:
                 raise ValueError(f"Availability status must be one of {valid_statuses}")

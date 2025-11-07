@@ -26,6 +26,7 @@ from app.schemas.job import JobCreate, JobUpdate, JobStatus
 # Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def sample_company_with_owner(db_session: Session):
     """Create a sample company with owner for testing"""
@@ -130,18 +131,18 @@ def sample_job_data():
         requirements=[
             "5+ years of software development experience",
             "Strong Python and JavaScript skills",
-            "Experience with REST APIs"
+            "Experience with REST APIs",
         ],
         responsibilities=[
             "Design and implement scalable backend services",
             "Collaborate with cross-functional teams",
-            "Mentor junior developers"
+            "Mentor junior developers",
         ],
         benefits=[
             "Competitive salary",
             "Health insurance",
             "401(k) matching",
-            "Remote work options"
+            "Remote work options",
         ],
     )
 
@@ -150,7 +151,10 @@ def sample_job_data():
 # Job Creation Tests
 # ============================================================================
 
-def test_create_job_success(db_session: Session, sample_company_with_owner, sample_job_data):
+
+def test_create_job_success(
+    db_session: Session, sample_company_with_owner, sample_job_data
+):
     """
     GIVEN: A company with available job slots
     WHEN: create_job() is called with valid data
@@ -159,10 +163,7 @@ def test_create_job_success(db_session: Session, sample_company_with_owner, samp
     service = JobService(db_session)
     company = sample_company_with_owner["company"]
 
-    job = service.create_job(
-        company_id=company.id,
-        job_data=sample_job_data
-    )
+    job = service.create_job(company_id=company.id, job_data=sample_job_data)
 
     # Verify job was created
     assert job.id is not None
@@ -203,10 +204,7 @@ def test_create_job_with_minimal_fields(db_session: Session, sample_company_with
         description="Entry level position",
     )
 
-    job = service.create_job(
-        company_id=company.id,
-        job_data=minimal_job_data
-    )
+    job = service.create_job(company_id=company.id, job_data=minimal_job_data)
 
     assert job.id is not None
     assert job.title == "Junior Developer"
@@ -216,7 +214,9 @@ def test_create_job_with_minimal_fields(db_session: Session, sample_company_with
     assert job.is_active is True
 
 
-def test_create_job_exceeds_subscription_limit(db_session: Session, sample_company_with_owner, sample_job_data):
+def test_create_job_exceeds_subscription_limit(
+    db_session: Session, sample_company_with_owner, sample_job_data
+):
     """
     GIVEN: A Starter plan company with 1 active job (at limit)
     WHEN: Attempting to create another job
@@ -226,10 +226,7 @@ def test_create_job_exceeds_subscription_limit(db_session: Session, sample_compa
     company = sample_company_with_owner["company"]
 
     # Create first job (uses up the 1 job limit)
-    first_job = service.create_job(
-        company_id=company.id,
-        job_data=sample_job_data
-    )
+    first_job = service.create_job(company_id=company.id, job_data=sample_job_data)
     assert first_job.is_active is True
 
     # Attempt to create second job
@@ -243,15 +240,17 @@ def test_create_job_exceeds_subscription_limit(db_session: Session, sample_compa
     )
 
     with pytest.raises(Exception) as exc_info:
-        service.create_job(
-            company_id=company.id,
-            job_data=second_job_data
-        )
+        service.create_job(company_id=company.id, job_data=second_job_data)
 
-    assert "subscription limit" in str(exc_info.value).lower() or "maximum" in str(exc_info.value).lower()
+    assert (
+        "subscription limit" in str(exc_info.value).lower()
+        or "maximum" in str(exc_info.value).lower()
+    )
 
 
-def test_create_job_growth_plan_allows_multiple(db_session: Session, sample_growth_company, sample_job_data):
+def test_create_job_growth_plan_allows_multiple(
+    db_session: Session, sample_growth_company, sample_job_data
+):
     """
     GIVEN: A Growth plan company (10 jobs limit)
     WHEN: Creating multiple jobs within the limit
@@ -271,20 +270,18 @@ def test_create_job_growth_plan_allows_multiple(db_session: Session, sample_grow
             employment_type="full_time",
             description=f"Position {i+1}",
         )
-        job = service.create_job(
-            company_id=company.id,
-            job_data=job_data
-        )
+        job = service.create_job(company_id=company.id, job_data=job_data)
         jobs.append(job)
 
     assert len(jobs) == 3
     assert all(job.is_active for job in jobs)
 
     # Verify count in database
-    active_jobs = db_session.query(Job).filter(
-        Job.company_id == company.id,
-        Job.is_active == True
-    ).count()
+    active_jobs = (
+        db_session.query(Job)
+        .filter(Job.company_id == company.id, Job.is_active == True)
+        .count()
+    )
     assert active_jobs == 3
 
 
@@ -298,15 +295,17 @@ def test_create_job_requires_company_exists(db_session: Session, sample_job_data
     fake_company_id = uuid4()
 
     with pytest.raises(Exception) as exc_info:
-        service.create_job(
-            company_id=fake_company_id,
-            job_data=sample_job_data
-        )
+        service.create_job(company_id=fake_company_id, job_data=sample_job_data)
 
-    assert "company" in str(exc_info.value).lower() and "not found" in str(exc_info.value).lower()
+    assert (
+        "company" in str(exc_info.value).lower()
+        and "not found" in str(exc_info.value).lower()
+    )
 
 
-def test_create_job_validates_required_fields(db_session: Session, sample_company_with_owner):
+def test_create_job_validates_required_fields(
+    db_session: Session, sample_company_with_owner
+):
     """
     GIVEN: Job data missing required fields
     WHEN: Attempting to create a job
@@ -332,7 +331,10 @@ def test_create_job_validates_required_fields(db_session: Session, sample_compan
 # Job Retrieval Tests
 # ============================================================================
 
-def test_get_job_by_id_success(db_session: Session, sample_company_with_owner, sample_job_data):
+
+def test_get_job_by_id_success(
+    db_session: Session, sample_company_with_owner, sample_job_data
+):
     """
     GIVEN: An existing job
     WHEN: get_job() is called with the job ID
@@ -341,10 +343,7 @@ def test_get_job_by_id_success(db_session: Session, sample_company_with_owner, s
     service = JobService(db_session)
     company = sample_company_with_owner["company"]
 
-    created_job = service.create_job(
-        company_id=company.id,
-        job_data=sample_job_data
-    )
+    created_job = service.create_job(company_id=company.id, job_data=sample_job_data)
 
     retrieved_job = service.get_job(job_id=created_job.id)
 
@@ -460,10 +459,7 @@ def test_list_jobs_filter_by_status_active(db_session: Session, sample_growth_co
 
     # Filter by active status
     jobs, total = service.list_jobs(
-        company_id=company.id,
-        status="active",
-        page=1,
-        limit=10
+        company_id=company.id, status="active", page=1, limit=10
     )
 
     assert total == 3
@@ -475,7 +471,10 @@ def test_list_jobs_filter_by_status_active(db_session: Session, sample_growth_co
 # Job Update Tests
 # ============================================================================
 
-def test_update_job_success(db_session: Session, sample_company_with_owner, sample_job_data):
+
+def test_update_job_success(
+    db_session: Session, sample_company_with_owner, sample_job_data
+):
     """
     GIVEN: An existing job
     WHEN: update_job() is called with new data
@@ -484,10 +483,7 @@ def test_update_job_success(db_session: Session, sample_company_with_owner, samp
     service = JobService(db_session)
     company = sample_company_with_owner["company"]
 
-    job = service.create_job(
-        company_id=company.id,
-        job_data=sample_job_data
-    )
+    job = service.create_job(company_id=company.id, job_data=sample_job_data)
 
     update_data = JobUpdate(
         title="Lead Software Engineer",
@@ -496,10 +492,7 @@ def test_update_job_success(db_session: Session, sample_company_with_owner, samp
         description="Updated description with new requirements",
     )
 
-    updated_job = service.update_job(
-        job_id=job.id,
-        job_data=update_data
-    )
+    updated_job = service.update_job(job_id=job.id, job_data=update_data)
 
     assert updated_job.title == "Lead Software Engineer"
     assert updated_job.salary_min == 150000
@@ -510,7 +503,9 @@ def test_update_job_success(db_session: Session, sample_company_with_owner, samp
     assert updated_job.employment_type == "full_time"
 
 
-def test_update_job_partial_update(db_session: Session, sample_company_with_owner, sample_job_data):
+def test_update_job_partial_update(
+    db_session: Session, sample_company_with_owner, sample_job_data
+):
     """
     GIVEN: An existing job
     WHEN: update_job() is called with only some fields
@@ -519,10 +514,7 @@ def test_update_job_partial_update(db_session: Session, sample_company_with_owne
     service = JobService(db_session)
     company = sample_company_with_owner["company"]
 
-    job = service.create_job(
-        company_id=company.id,
-        job_data=sample_job_data
-    )
+    job = service.create_job(company_id=company.id, job_data=sample_job_data)
 
     original_title = job.title
     original_location = job.location
@@ -551,14 +543,20 @@ def test_update_job_not_found(db_session: Session):
     with pytest.raises(Exception) as exc_info:
         service.update_job(job_id=fake_job_id, job_data=update_data)
 
-    assert "job" in str(exc_info.value).lower() and "not found" in str(exc_info.value).lower()
+    assert (
+        "job" in str(exc_info.value).lower()
+        and "not found" in str(exc_info.value).lower()
+    )
 
 
 # ============================================================================
 # Job Status Management Tests
 # ============================================================================
 
-def test_update_job_status_to_paused(db_session: Session, sample_company_with_owner, sample_job_data):
+
+def test_update_job_status_to_paused(
+    db_session: Session, sample_company_with_owner, sample_job_data
+):
     """
     GIVEN: An active job
     WHEN: update_job_status() is called with status="paused"
@@ -577,7 +575,9 @@ def test_update_job_status_to_paused(db_session: Session, sample_company_with_ow
     assert updated_job.is_active is True
 
 
-def test_update_job_status_to_closed(db_session: Session, sample_company_with_owner, sample_job_data):
+def test_update_job_status_to_closed(
+    db_session: Session, sample_company_with_owner, sample_job_data
+):
     """
     GIVEN: An active job
     WHEN: update_job_status() is called with status="closed"
@@ -598,7 +598,9 @@ def test_update_job_status_to_closed(db_session: Session, sample_company_with_ow
     assert db_job.is_active is False
 
 
-def test_closed_job_doesnt_count_toward_limit(db_session: Session, sample_company_with_owner, sample_job_data):
+def test_closed_job_doesnt_count_toward_limit(
+    db_session: Session, sample_company_with_owner, sample_job_data
+):
     """
     GIVEN: A company at job limit with a closed job
     WHEN: Attempting to create a new job
@@ -629,7 +631,10 @@ def test_closed_job_doesnt_count_toward_limit(db_session: Session, sample_compan
 # Job Deletion Tests
 # ============================================================================
 
-def test_delete_job_soft_delete(db_session: Session, sample_company_with_owner, sample_job_data):
+
+def test_delete_job_soft_delete(
+    db_session: Session, sample_company_with_owner, sample_job_data
+):
     """
     GIVEN: An existing job
     WHEN: delete_job() is called
@@ -662,12 +667,16 @@ def test_delete_job_not_found(db_session: Session):
     with pytest.raises(Exception) as exc_info:
         service.delete_job(job_id=fake_job_id)
 
-    assert "job" in str(exc_info.value).lower() and "not found" in str(exc_info.value).lower()
+    assert (
+        "job" in str(exc_info.value).lower()
+        and "not found" in str(exc_info.value).lower()
+    )
 
 
 # ============================================================================
 # BDD Feature Test: Complete Job Lifecycle
 # ============================================================================
+
 
 def test_complete_job_lifecycle(db_session: Session, sample_growth_company):
     """
@@ -744,10 +753,11 @@ def test_complete_job_lifecycle(db_session: Session, sample_growth_company):
     assert closed_job.is_active is False
 
     # AND: The job slot is freed for new postings
-    active_jobs_count = db_session.query(Job).filter(
-        Job.company_id == company.id,
-        Job.is_active == True
-    ).count()
+    active_jobs_count = (
+        db_session.query(Job)
+        .filter(Job.company_id == company.id, Job.is_active == True)
+        .count()
+    )
     assert active_jobs_count == 0
 
     # Can create a new job now

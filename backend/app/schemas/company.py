@@ -13,16 +13,22 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 # Company Schemas
 # ============================================================================
 
+
 class CompanyBase(BaseModel):
     """Base company schema with common fields"""
+
     name: str = Field(..., min_length=2, max_length=255, description="Company name")
     industry: Optional[str] = Field(None, max_length=100, description="Industry sector")
     size: Optional[str] = Field(None, description="Company size range")
-    location: Optional[str] = Field(None, max_length=255, description="Company location")
-    website: Optional[str] = Field(None, max_length=255, description="Company website URL")
+    location: Optional[str] = Field(
+        None, max_length=255, description="Company location"
+    )
+    website: Optional[str] = Field(
+        None, max_length=255, description="Company website URL"
+    )
     description: Optional[str] = Field(None, description="Company description")
 
-    @field_validator('size')
+    @field_validator("size")
     @classmethod
     def validate_size(cls, v: Optional[str]) -> Optional[str]:
         """Validate company size is in allowed values"""
@@ -33,23 +39,26 @@ class CompanyBase(BaseModel):
             raise ValueError(f"Size must be one of: {', '.join(valid_sizes)}")
         return v
 
-    @field_validator('website')
+    @field_validator("website")
     @classmethod
     def validate_website(cls, v: Optional[str]) -> Optional[str]:
         """Validate website URL format"""
         if v is None:
             return v
-        if not v.startswith(('http://', 'https://')):
+        if not v.startswith(("http://", "https://")):
             return f"https://{v}"
         return v
 
 
 class CompanyCreate(CompanyBase):
     """Schema for creating a new company with founder account"""
-    email: EmailStr = Field(..., description="Founder's email address")
-    password: str = Field(..., min_length=8, max_length=100, description="Founder's password")
 
-    @field_validator('password')
+    email: EmailStr = Field(..., description="Founder's email address")
+    password: str = Field(
+        ..., min_length=8, max_length=100, description="Founder's password"
+    )
+
+    @field_validator("password")
     @classmethod
     def validate_password(cls, v: str) -> str:
         """Validate password strength"""
@@ -66,6 +75,7 @@ class CompanyCreate(CompanyBase):
 
 class CompanyUpdate(BaseModel):
     """Schema for updating company details"""
+
     name: Optional[str] = Field(None, min_length=2, max_length=255)
     industry: Optional[str] = Field(None, max_length=100)
     size: Optional[str] = None
@@ -74,7 +84,7 @@ class CompanyUpdate(BaseModel):
     logo_url: Optional[str] = Field(None, max_length=500)
     description: Optional[str] = None
 
-    @field_validator('size')
+    @field_validator("size")
     @classmethod
     def validate_size(cls, v: Optional[str]) -> Optional[str]:
         """Validate company size is in allowed values"""
@@ -88,6 +98,7 @@ class CompanyUpdate(BaseModel):
 
 class CompanyResponse(CompanyBase):
     """Schema for company response"""
+
     id: UUID
     domain: Optional[str]
     logo_url: Optional[str]
@@ -106,6 +117,7 @@ class CompanyResponse(CompanyBase):
 
 class CompanyWithMembers(CompanyResponse):
     """Company response with member count"""
+
     member_count: int
 
 
@@ -113,15 +125,24 @@ class CompanyWithMembers(CompanyResponse):
 # Company Member Schemas
 # ============================================================================
 
+
 class CompanyMemberBase(BaseModel):
     """Base company member schema"""
+
     role: str = Field(..., description="Member role")
 
-    @field_validator('role')
+    @field_validator("role")
     @classmethod
     def validate_role(cls, v: str) -> str:
         """Validate role is in allowed values"""
-        valid_roles = ["owner", "admin", "hiring_manager", "recruiter", "interviewer", "viewer"]
+        valid_roles = [
+            "owner",
+            "admin",
+            "hiring_manager",
+            "recruiter",
+            "interviewer",
+            "viewer",
+        ]
         if v not in valid_roles:
             raise ValueError(f"Role must be one of: {', '.join(valid_roles)}")
         return v
@@ -129,28 +150,37 @@ class CompanyMemberBase(BaseModel):
 
 class CompanyMemberCreate(CompanyMemberBase):
     """Schema for inviting a new team member"""
+
     email: EmailStr = Field(..., description="Email of user to invite")
     permissions: Optional[dict] = Field(None, description="Custom permissions")
 
 
 class CompanyMemberUpdate(BaseModel):
     """Schema for updating team member"""
+
     role: Optional[str] = None
     permissions: Optional[dict] = None
     status: Optional[str] = None
 
-    @field_validator('role')
+    @field_validator("role")
     @classmethod
     def validate_role(cls, v: Optional[str]) -> Optional[str]:
         """Validate role is in allowed values"""
         if v is None:
             return v
-        valid_roles = ["owner", "admin", "hiring_manager", "recruiter", "interviewer", "viewer"]
+        valid_roles = [
+            "owner",
+            "admin",
+            "hiring_manager",
+            "recruiter",
+            "interviewer",
+            "viewer",
+        ]
         if v not in valid_roles:
             raise ValueError(f"Role must be one of: {', '.join(valid_roles)}")
         return v
 
-    @field_validator('status')
+    @field_validator("status")
     @classmethod
     def validate_status(cls, v: Optional[str]) -> Optional[str]:
         """Validate status is in allowed values"""
@@ -164,6 +194,7 @@ class CompanyMemberUpdate(BaseModel):
 
 class CompanyMemberResponse(CompanyMemberBase):
     """Schema for company member response"""
+
     id: UUID
     company_id: UUID
     user_id: UUID
@@ -179,6 +210,7 @@ class CompanyMemberResponse(CompanyMemberBase):
 
 class CompanyMemberWithUser(CompanyMemberResponse):
     """Company member response with user details"""
+
     user_email: str
     user_name: Optional[str]
 
@@ -187,8 +219,10 @@ class CompanyMemberWithUser(CompanyMemberResponse):
 # Company Subscription Schemas
 # ============================================================================
 
+
 class CompanySubscriptionResponse(BaseModel):
     """Schema for company subscription response"""
+
     id: UUID
     company_id: UUID
     plan_tier: str
@@ -208,10 +242,11 @@ class CompanySubscriptionResponse(BaseModel):
 
 class SubscriptionUpgrade(BaseModel):
     """Schema for upgrading subscription"""
+
     plan_tier: str = Field(..., description="Target plan tier")
     plan_interval: str = Field("month", description="Billing interval")
 
-    @field_validator('plan_tier')
+    @field_validator("plan_tier")
     @classmethod
     def validate_plan_tier(cls, v: str) -> str:
         """Validate plan tier is in allowed values"""
@@ -220,7 +255,7 @@ class SubscriptionUpgrade(BaseModel):
             raise ValueError(f"Plan tier must be one of: {', '.join(valid_tiers)}")
         return v
 
-    @field_validator('plan_interval')
+    @field_validator("plan_interval")
     @classmethod
     def validate_plan_interval(cls, v: str) -> str:
         """Validate billing interval"""
@@ -234,8 +269,10 @@ class SubscriptionUpgrade(BaseModel):
 # Registration Response Schemas
 # ============================================================================
 
+
 class EmployerRegistrationResponse(BaseModel):
     """Response after successful employer registration"""
+
     company: CompanyResponse
     user_id: UUID
     access_token: str
@@ -250,8 +287,10 @@ class EmployerRegistrationResponse(BaseModel):
 # Dashboard Schemas
 # ============================================================================
 
+
 class DashboardStats(BaseModel):
     """Dashboard statistics for employer"""
+
     active_jobs: int = 0
     total_applications: int = 0
     new_applications: int = 0  # Last 7 days
@@ -263,6 +302,7 @@ class DashboardStats(BaseModel):
 
 class RecentActivity(BaseModel):
     """Recent activity item"""
+
     id: UUID
     type: str  # "application", "interview", "hire", "job_posted"
     title: str
@@ -273,6 +313,7 @@ class RecentActivity(BaseModel):
 
 class DashboardResponse(BaseModel):
     """Complete dashboard response"""
+
     company: CompanyResponse
     stats: DashboardStats
     recent_activities: List[RecentActivity] = []
@@ -283,16 +324,28 @@ class DashboardResponse(BaseModel):
 # Team Collaboration Schemas (Sprint 13-14)
 # ============================================================================
 
+
 class TeamInvitationCreate(BaseModel):
     """Schema for inviting a team member"""
-    email: EmailStr = Field(..., description="Email address to invite")
-    role: str = Field(..., description="Role to assign (owner, admin, hiring_manager, recruiter, interviewer, viewer)")
 
-    @field_validator('role')
+    email: EmailStr = Field(..., description="Email address to invite")
+    role: str = Field(
+        ...,
+        description="Role to assign (owner, admin, hiring_manager, recruiter, interviewer, viewer)",
+    )
+
+    @field_validator("role")
     @classmethod
     def validate_role(cls, v: str) -> str:
         """Validate role is valid"""
-        valid_roles = ["owner", "admin", "hiring_manager", "recruiter", "interviewer", "viewer"]
+        valid_roles = [
+            "owner",
+            "admin",
+            "hiring_manager",
+            "recruiter",
+            "interviewer",
+            "viewer",
+        ]
         if v not in valid_roles:
             raise ValueError(f"Role must be one of: {', '.join(valid_roles)}")
         return v
@@ -300,6 +353,7 @@ class TeamInvitationCreate(BaseModel):
 
 class TeamInvitationResponse(BaseModel):
     """Schema for team invitation response"""
+
     id: UUID
     company_id: UUID
     email: str
@@ -317,15 +371,23 @@ class TeamInvitationResponse(BaseModel):
 
 class CompanyMemberUpdate(BaseModel):
     """Schema for updating a team member"""
+
     role: Optional[str] = Field(None, description="New role to assign")
 
-    @field_validator('role')
+    @field_validator("role")
     @classmethod
     def validate_role(cls, v: Optional[str]) -> Optional[str]:
         """Validate role is valid"""
         if v is None:
             return v
-        valid_roles = ["owner", "admin", "hiring_manager", "recruiter", "interviewer", "viewer"]
+        valid_roles = [
+            "owner",
+            "admin",
+            "hiring_manager",
+            "recruiter",
+            "interviewer",
+            "viewer",
+        ]
         if v not in valid_roles:
             raise ValueError(f"Role must be one of: {', '.join(valid_roles)}")
         return v
@@ -333,6 +395,7 @@ class CompanyMemberUpdate(BaseModel):
 
 class TeamMemberResponse(BaseModel):
     """Schema for team member response"""
+
     id: UUID
     company_id: UUID
     user_id: UUID
@@ -352,6 +415,7 @@ class TeamMemberResponse(BaseModel):
 
 class TeamActivityResponse(BaseModel):
     """Schema for team activity response"""
+
     id: UUID
     company_id: UUID
     member_id: UUID
@@ -372,6 +436,7 @@ class TeamActivityResponse(BaseModel):
 
 class PermissionMatrixResponse(BaseModel):
     """Schema for permission matrix response"""
+
     member_id: UUID
     role: str
     permissions: dict  # Map of action -> bool
@@ -381,6 +446,7 @@ class PermissionMatrixResponse(BaseModel):
 
 class TeamListResponse(BaseModel):
     """Schema for team listing response"""
+
     members: List[TeamMemberResponse]
     pending_invitations: List[TeamInvitationResponse]
     total_members: int

@@ -45,7 +45,7 @@ def sample_job_data():
         "salary_max": 170000,
         "description": "We are looking for a Senior Software Engineer...",
         "requirements": "5+ years of experience with Python, React, AWS...",
-        "skills": ["Python", "React", "AWS", "PostgreSQL"]
+        "skills": ["Python", "React", "AWS", "PostgreSQL"],
     }
 
 
@@ -63,22 +63,22 @@ class TestLinkedInDistribution:
         """Should successfully publish job to LinkedIn"""
         # GIVEN: Valid job data and LinkedIn channel
         distribution_create = DistributionCreate(
-            job_id=sample_job_data["id"],
-            channel=DistributionChannelEnum.LINKEDIN
+            job_id=sample_job_data["id"], channel=DistributionChannelEnum.LINKEDIN
         )
 
         # Mock LinkedIn API response
         service._linkedin_client = Mock()
-        service._linkedin_client.post_job = AsyncMock(return_value={
-            "id": "linkedin-post-12345",
-            "url": "https://www.linkedin.com/jobs/view/12345",
-            "status": "published"
-        })
+        service._linkedin_client.post_job = AsyncMock(
+            return_value={
+                "id": "linkedin-post-12345",
+                "url": "https://www.linkedin.com/jobs/view/12345",
+                "status": "published",
+            }
+        )
 
         # WHEN: Publishing to LinkedIn
         result = await service.publish_to_channel(
-            job_data=sample_job_data,
-            distribution=distribution_create
+            job_data=sample_job_data, distribution=distribution_create
         )
 
         # THEN: Distribution is created successfully
@@ -93,8 +93,7 @@ class TestLinkedInDistribution:
         """Should handle LinkedIn API errors"""
         # GIVEN: LinkedIn API returns error
         distribution_create = DistributionCreate(
-            job_id=sample_job_data["id"],
-            channel=DistributionChannelEnum.LINKEDIN
+            job_id=sample_job_data["id"], channel=DistributionChannelEnum.LINKEDIN
         )
 
         service._linkedin_client = Mock()
@@ -104,8 +103,7 @@ class TestLinkedInDistribution:
 
         # WHEN: Publishing fails
         result = await service.publish_to_channel(
-            job_data=sample_job_data,
-            distribution=distribution_create
+            job_data=sample_job_data, distribution=distribution_create
         )
 
         # THEN: Distribution status is FAILED with error message
@@ -121,14 +119,12 @@ class TestLinkedInDistribution:
         invalid_job["description"] = None  # LinkedIn requires description
 
         distribution_create = DistributionCreate(
-            job_id=invalid_job["id"],
-            channel=DistributionChannelEnum.LINKEDIN
+            job_id=invalid_job["id"], channel=DistributionChannelEnum.LINKEDIN
         )
 
         # WHEN: Attempting to publish
         result = await service.publish_to_channel(
-            job_data=invalid_job,
-            distribution=distribution_create
+            job_data=invalid_job, distribution=distribution_create
         )
 
         # THEN: Validation error is returned
@@ -144,22 +140,22 @@ class TestIndeedDistribution:
         """Should successfully publish job to Indeed"""
         # GIVEN: Valid job data and Indeed channel
         distribution_create = DistributionCreate(
-            job_id=sample_job_data["id"],
-            channel=DistributionChannelEnum.INDEED
+            job_id=sample_job_data["id"], channel=DistributionChannelEnum.INDEED
         )
 
         # Mock Indeed API response
         service._indeed_client = Mock()
-        service._indeed_client.post_job = AsyncMock(return_value={
-            "jobId": "indeed-job-67890",
-            "url": "https://www.indeed.com/viewjob?jk=67890",
-            "status": "active"
-        })
+        service._indeed_client.post_job = AsyncMock(
+            return_value={
+                "jobId": "indeed-job-67890",
+                "url": "https://www.indeed.com/viewjob?jk=67890",
+                "status": "active",
+            }
+        )
 
         # WHEN: Publishing to Indeed
         result = await service.publish_to_channel(
-            job_data=sample_job_data,
-            distribution=distribution_create
+            job_data=sample_job_data, distribution=distribution_create
         )
 
         # THEN: Distribution is created successfully
@@ -173,8 +169,7 @@ class TestIndeedDistribution:
         """Should handle Indeed API timeout"""
         # GIVEN: Indeed API times out
         distribution_create = DistributionCreate(
-            job_id=sample_job_data["id"],
-            channel=DistributionChannelEnum.INDEED
+            job_id=sample_job_data["id"], channel=DistributionChannelEnum.INDEED
         )
 
         service._indeed_client = Mock()
@@ -184,8 +179,7 @@ class TestIndeedDistribution:
 
         # WHEN: Publishing times out
         result = await service.publish_to_channel(
-            job_data=sample_job_data,
-            distribution=distribution_create
+            job_data=sample_job_data, distribution=distribution_create
         )
 
         # THEN: Distribution status is FAILED
@@ -201,22 +195,22 @@ class TestGlassdoorDistribution:
         """Should successfully publish job to Glassdoor"""
         # GIVEN: Valid job data and Glassdoor channel
         distribution_create = DistributionCreate(
-            job_id=sample_job_data["id"],
-            channel=DistributionChannelEnum.GLASSDOOR
+            job_id=sample_job_data["id"], channel=DistributionChannelEnum.GLASSDOOR
         )
 
         # Mock Glassdoor API response
         service._glassdoor_client = Mock()
-        service._glassdoor_client.post_job = AsyncMock(return_value={
-            "jobListingId": "glassdoor-listing-abc123",
-            "jobUrl": "https://www.glassdoor.com/job-listing/abc123",
-            "status": "ACTIVE"
-        })
+        service._glassdoor_client.post_job = AsyncMock(
+            return_value={
+                "jobListingId": "glassdoor-listing-abc123",
+                "jobUrl": "https://www.glassdoor.com/job-listing/abc123",
+                "status": "ACTIVE",
+            }
+        )
 
         # WHEN: Publishing to Glassdoor
         result = await service.publish_to_channel(
-            job_data=sample_job_data,
-            distribution=distribution_create
+            job_data=sample_job_data, distribution=distribution_create
         )
 
         # THEN: Distribution is created successfully
@@ -233,14 +227,12 @@ class TestGlassdoorDistribution:
         invalid_job["salary_max"] = None
 
         distribution_create = DistributionCreate(
-            job_id=invalid_job["id"],
-            channel=DistributionChannelEnum.GLASSDOOR
+            job_id=invalid_job["id"], channel=DistributionChannelEnum.GLASSDOOR
         )
 
         # WHEN: Attempting to publish
         result = await service.publish_to_channel(
-            job_data=invalid_job,
-            distribution=distribution_create
+            job_data=invalid_job, distribution=distribution_create
         )
 
         # THEN: Validation error is returned
@@ -256,21 +248,22 @@ class TestInternalDistribution:
         """Should successfully publish job to internal board"""
         # GIVEN: Valid job data and INTERNAL channel
         distribution_create = DistributionCreate(
-            job_id=sample_job_data["id"],
-            channel=DistributionChannelEnum.INTERNAL
+            job_id=sample_job_data["id"], channel=DistributionChannelEnum.INTERNAL
         )
 
         # WHEN: Publishing to internal board
         result = await service.publish_to_channel(
-            job_data=sample_job_data,
-            distribution=distribution_create
+            job_data=sample_job_data, distribution=distribution_create
         )
 
         # THEN: Distribution is created successfully
         assert result["status"] == DistributionStatusEnum.PUBLISHED
         assert result["channel"] == DistributionChannelEnum.INTERNAL
         # Internal distribution doesn't need external IDs
-        assert result["external_post_id"] is None or result["external_post_id"] == sample_job_data["id"]
+        assert (
+            result["external_post_id"] is None
+            or result["external_post_id"] == sample_job_data["id"]
+        )
 
 
 class TestBulkDistribution:
@@ -281,40 +274,60 @@ class TestBulkDistribution:
         """Should distribute multiple jobs to multiple channels"""
         # GIVEN: Multiple jobs and multiple channels
         jobs = [
-            {"id": "job-1", "title": "Engineer 1", "description": "Desc 1", "company_id": "company-abc"},
-            {"id": "job-2", "title": "Engineer 2", "description": "Desc 2", "company_id": "company-abc"},
-            {"id": "job-3", "title": "Engineer 3", "description": "Desc 3", "company_id": "company-abc"},
+            {
+                "id": "job-1",
+                "title": "Engineer 1",
+                "description": "Desc 1",
+                "company_id": "company-abc",
+            },
+            {
+                "id": "job-2",
+                "title": "Engineer 2",
+                "description": "Desc 2",
+                "company_id": "company-abc",
+            },
+            {
+                "id": "job-3",
+                "title": "Engineer 3",
+                "description": "Desc 3",
+                "company_id": "company-abc",
+            },
         ]
 
         bulk_distribution = BulkDistributionCreate(
             upload_id="upload-123",
-            channels=[DistributionChannelEnum.LINKEDIN, DistributionChannelEnum.INDEED]
+            channels=[DistributionChannelEnum.LINKEDIN, DistributionChannelEnum.INDEED],
         )
 
         # Mock successful distributions
         service._linkedin_client = Mock()
-        service._linkedin_client.post_job = AsyncMock(return_value={
-            "id": "linkedin-post",
-            "url": "https://linkedin.com/jobs/123",
-            "status": "published"
-        })
+        service._linkedin_client.post_job = AsyncMock(
+            return_value={
+                "id": "linkedin-post",
+                "url": "https://linkedin.com/jobs/123",
+                "status": "published",
+            }
+        )
 
         service._indeed_client = Mock()
-        service._indeed_client.post_job = AsyncMock(return_value={
-            "jobId": "indeed-job",
-            "url": "https://indeed.com/job/123",
-            "status": "active"
-        })
+        service._indeed_client.post_job = AsyncMock(
+            return_value={
+                "jobId": "indeed-job",
+                "url": "https://indeed.com/job/123",
+                "status": "active",
+            }
+        )
 
         # WHEN: Bulk distributing
         results = await service.bulk_distribute(
-            jobs=jobs,
-            distribution=bulk_distribution
+            jobs=jobs, distribution=bulk_distribution
         )
 
         # THEN: All jobs distributed to all channels
         assert len(results) == 6  # 3 jobs × 2 channels
-        published_count = sum(1 for r in results if r["status"] == DistributionStatusEnum.PUBLISHED)
+        published_count = sum(
+            1 for r in results if r["status"] == DistributionStatusEnum.PUBLISHED
+        )
         assert published_count == 6
 
     @pytest.mark.asyncio
@@ -322,35 +335,53 @@ class TestBulkDistribution:
         """Should continue bulk distribution on partial failures"""
         # GIVEN: Multiple jobs, some will fail
         jobs = [
-            {"id": "job-1", "title": "Engineer 1", "description": "Desc 1", "company_id": "company-abc"},
-            {"id": "job-2", "title": "Engineer 2", "description": None, "company_id": "company-abc"},  # Will fail
-            {"id": "job-3", "title": "Engineer 3", "description": "Desc 3", "company_id": "company-abc"},
+            {
+                "id": "job-1",
+                "title": "Engineer 1",
+                "description": "Desc 1",
+                "company_id": "company-abc",
+            },
+            {
+                "id": "job-2",
+                "title": "Engineer 2",
+                "description": None,
+                "company_id": "company-abc",
+            },  # Will fail
+            {
+                "id": "job-3",
+                "title": "Engineer 3",
+                "description": "Desc 3",
+                "company_id": "company-abc",
+            },
         ]
 
         bulk_distribution = BulkDistributionCreate(
-            upload_id="upload-123",
-            channels=[DistributionChannelEnum.LINKEDIN]
+            upload_id="upload-123", channels=[DistributionChannelEnum.LINKEDIN]
         )
 
         # Mock LinkedIn client
         service._linkedin_client = Mock()
-        service._linkedin_client.post_job = AsyncMock(return_value={
-            "id": "linkedin-post",
-            "url": "https://linkedin.com/jobs/123",
-            "status": "published"
-        })
+        service._linkedin_client.post_job = AsyncMock(
+            return_value={
+                "id": "linkedin-post",
+                "url": "https://linkedin.com/jobs/123",
+                "status": "published",
+            }
+        )
 
         # WHEN: Bulk distributing with skip_on_error=True
         results = await service.bulk_distribute(
-            jobs=jobs,
-            distribution=bulk_distribution,
-            skip_on_error=True
+            jobs=jobs, distribution=bulk_distribution, skip_on_error=True
         )
 
         # THEN: Successful jobs are published, failed jobs are tracked
         assert len(results) == 3
-        published_count = sum(1 for r in results if r["status"] == DistributionStatusEnum.PUBLISHED)
-        failed_count = sum(1 for r in results if r["status"] == DistributionStatusEnum.FAILED)
+        published_count = sum(
+            1 for r in results if r["status"] == DistributionStatusEnum.PUBLISHED
+        )
+        failed_count = sum(
+            1 for r in results if r["status"] == DistributionStatusEnum.FAILED
+        )
 
         assert published_count == 2  # job-1 and job-3
         assert failed_count == 1  # job-2
@@ -360,30 +391,44 @@ class TestBulkDistribution:
         """Should stop bulk distribution on first error if skip_on_error=False"""
         # GIVEN: Multiple jobs with skip_on_error=False
         jobs = [
-            {"id": "job-1", "title": "Engineer 1", "description": "Desc 1", "company_id": "company-abc"},
-            {"id": "job-2", "title": "Engineer 2", "description": None, "company_id": "company-abc"},  # Will fail
-            {"id": "job-3", "title": "Engineer 3", "description": "Desc 3", "company_id": "company-abc"},
+            {
+                "id": "job-1",
+                "title": "Engineer 1",
+                "description": "Desc 1",
+                "company_id": "company-abc",
+            },
+            {
+                "id": "job-2",
+                "title": "Engineer 2",
+                "description": None,
+                "company_id": "company-abc",
+            },  # Will fail
+            {
+                "id": "job-3",
+                "title": "Engineer 3",
+                "description": "Desc 3",
+                "company_id": "company-abc",
+            },
         ]
 
         bulk_distribution = BulkDistributionCreate(
-            upload_id="upload-123",
-            channels=[DistributionChannelEnum.LINKEDIN]
+            upload_id="upload-123", channels=[DistributionChannelEnum.LINKEDIN]
         )
 
         service._linkedin_client = Mock()
-        service._linkedin_client.post_job = AsyncMock(return_value={
-            "id": "linkedin-post",
-            "url": "https://linkedin.com/jobs/123",
-            "status": "published"
-        })
+        service._linkedin_client.post_job = AsyncMock(
+            return_value={
+                "id": "linkedin-post",
+                "url": "https://linkedin.com/jobs/123",
+                "status": "published",
+            }
+        )
 
         # WHEN: Bulk distributing with skip_on_error=False
         # THEN: Should raise exception on first error
         with pytest.raises(ServiceError) as exc_info:
             await service.bulk_distribute(
-                jobs=jobs,
-                distribution=bulk_distribution,
-                skip_on_error=False
+                jobs=jobs, distribution=bulk_distribution, skip_on_error=False
             )
 
         assert "description" in str(exc_info.value).lower()
@@ -399,25 +444,29 @@ class TestRetryLogic:
         distribution_id = "dist-failed-123"
 
         # Mock getting failed distribution from DB
-        service._get_distribution = AsyncMock(return_value={
-            "id": distribution_id,
-            "job_id": sample_job_data["id"],
-            "channel": DistributionChannelEnum.LINKEDIN,
-            "status": DistributionStatusEnum.FAILED,
-            "retry_count": 1,
-            "max_retries": 3
-        })
+        service._get_distribution = AsyncMock(
+            return_value={
+                "id": distribution_id,
+                "job_id": sample_job_data["id"],
+                "channel": DistributionChannelEnum.LINKEDIN,
+                "status": DistributionStatusEnum.FAILED,
+                "retry_count": 1,
+                "max_retries": 3,
+            }
+        )
 
         # Mock getting job data
         service._get_job_data = AsyncMock(return_value=sample_job_data)
 
         # Mock successful retry
         service._linkedin_client = Mock()
-        service._linkedin_client.post_job = AsyncMock(return_value={
-            "id": "linkedin-post-retry",
-            "url": "https://linkedin.com/jobs/456",
-            "status": "published"
-        })
+        service._linkedin_client.post_job = AsyncMock(
+            return_value={
+                "id": "linkedin-post-retry",
+                "url": "https://linkedin.com/jobs/456",
+                "status": "published",
+            }
+        )
 
         # WHEN: Retrying distribution
         result = await service.retry_distribution(distribution_id)
@@ -433,14 +482,16 @@ class TestRetryLogic:
         # GIVEN: Distribution at max retries
         distribution_id = "dist-max-retries-123"
 
-        service._get_distribution = AsyncMock(return_value={
-            "id": distribution_id,
-            "job_id": sample_job_data["id"],
-            "channel": DistributionChannelEnum.INDEED,
-            "status": DistributionStatusEnum.FAILED,
-            "retry_count": 3,
-            "max_retries": 3
-        })
+        service._get_distribution = AsyncMock(
+            return_value={
+                "id": distribution_id,
+                "job_id": sample_job_data["id"],
+                "channel": DistributionChannelEnum.INDEED,
+                "status": DistributionStatusEnum.FAILED,
+                "retry_count": 3,
+                "max_retries": 3,
+            }
+        )
 
         # WHEN: Attempting to retry
         # THEN: Should raise exception
@@ -454,8 +505,7 @@ class TestRetryLogic:
         """Should implement exponential backoff for retries"""
         # GIVEN: Multiple retry attempts
         distribution_create = DistributionCreate(
-            job_id=sample_job_data["id"],
-            channel=DistributionChannelEnum.LINKEDIN
+            job_id=sample_job_data["id"], channel=DistributionChannelEnum.LINKEDIN
         )
 
         service._linkedin_client = Mock()
@@ -464,15 +514,17 @@ class TestRetryLogic:
             side_effect=[
                 Exception("Temporary error"),
                 Exception("Temporary error"),
-                {"id": "linkedin-post", "url": "https://linkedin.com/jobs/789", "status": "published"}
+                {
+                    "id": "linkedin-post",
+                    "url": "https://linkedin.com/jobs/789",
+                    "status": "published",
+                },
             ]
         )
 
         # WHEN: Publishing with auto-retry enabled
         result = await service.publish_with_retry(
-            job_data=sample_job_data,
-            distribution=distribution_create,
-            max_retries=3
+            job_data=sample_job_data, distribution=distribution_create, max_retries=3
         )
 
         # THEN: Eventually succeeds after retries
@@ -494,7 +546,7 @@ class TestDistributionTracking:
             distribution_id=distribution_id,
             views_count=150,
             applications_count=12,
-            clicks_count=45
+            clicks_count=45,
         )
 
         # THEN: Metrics are updated
@@ -509,32 +561,34 @@ class TestDistributionTracking:
         upload_id = "upload-dashboard-123"
 
         # Mock database query
-        service._get_distributions_by_upload = AsyncMock(return_value=[
-            {
-                "id": "dist-1",
-                "channel": DistributionChannelEnum.LINKEDIN,
-                "status": DistributionStatusEnum.PUBLISHED,
-                "views_count": 200,
-                "applications_count": 15,
-                "clicks_count": 50
-            },
-            {
-                "id": "dist-2",
-                "channel": DistributionChannelEnum.INDEED,
-                "status": DistributionStatusEnum.PUBLISHED,
-                "views_count": 180,
-                "applications_count": 10,
-                "clicks_count": 40
-            },
-            {
-                "id": "dist-3",
-                "channel": DistributionChannelEnum.GLASSDOOR,
-                "status": DistributionStatusEnum.FAILED,
-                "views_count": 0,
-                "applications_count": 0,
-                "clicks_count": 0
-            }
-        ])
+        service._get_distributions_by_upload = AsyncMock(
+            return_value=[
+                {
+                    "id": "dist-1",
+                    "channel": DistributionChannelEnum.LINKEDIN,
+                    "status": DistributionStatusEnum.PUBLISHED,
+                    "views_count": 200,
+                    "applications_count": 15,
+                    "clicks_count": 50,
+                },
+                {
+                    "id": "dist-2",
+                    "channel": DistributionChannelEnum.INDEED,
+                    "status": DistributionStatusEnum.PUBLISHED,
+                    "views_count": 180,
+                    "applications_count": 10,
+                    "clicks_count": 40,
+                },
+                {
+                    "id": "dist-3",
+                    "channel": DistributionChannelEnum.GLASSDOOR,
+                    "status": DistributionStatusEnum.FAILED,
+                    "views_count": 0,
+                    "applications_count": 0,
+                    "clicks_count": 0,
+                },
+            ]
+        )
 
         # WHEN: Getting dashboard
         dashboard = await service.get_distribution_dashboard(upload_id)
@@ -563,7 +617,7 @@ class TestDistributionTracking:
             company_id=company_id,
             status_filter=DistributionStatusEnum.PUBLISHED,
             page=1,
-            limit=20
+            limit=20,
         )
 
         # THEN: Only published distributions are returned
@@ -583,13 +637,12 @@ class TestScheduledDistribution:
         distribution_create = DistributionCreate(
             job_id=sample_job_data["id"],
             channel=DistributionChannelEnum.LINKEDIN,
-            scheduled_publish_at=scheduled_time
+            scheduled_publish_at=scheduled_time,
         )
 
         # WHEN: Creating scheduled distribution
         result = await service.create_scheduled_distribution(
-            job_data=sample_job_data,
-            distribution=distribution_create
+            job_data=sample_job_data, distribution=distribution_create
         )
 
         # THEN: Distribution is created with PENDING status
@@ -604,37 +657,43 @@ class TestScheduledDistribution:
         now = datetime.utcnow()
 
         # Mock scheduled distributions
-        service._get_pending_scheduled_distributions = AsyncMock(return_value=[
-            {
-                "id": "dist-sched-1",
-                "job_id": "job-1",
-                "channel": DistributionChannelEnum.LINKEDIN,
-                "scheduled_publish_at": now - timedelta(minutes=5),  # Past due
-                "status": DistributionStatusEnum.PENDING
-            },
-            {
-                "id": "dist-sched-2",
-                "job_id": "job-2",
-                "channel": DistributionChannelEnum.INDEED,
-                "scheduled_publish_at": now + timedelta(hours=1),  # Future
-                "status": DistributionStatusEnum.PENDING
-            }
-        ])
+        service._get_pending_scheduled_distributions = AsyncMock(
+            return_value=[
+                {
+                    "id": "dist-sched-1",
+                    "job_id": "job-1",
+                    "channel": DistributionChannelEnum.LINKEDIN,
+                    "scheduled_publish_at": now - timedelta(minutes=5),  # Past due
+                    "status": DistributionStatusEnum.PENDING,
+                },
+                {
+                    "id": "dist-sched-2",
+                    "job_id": "job-2",
+                    "channel": DistributionChannelEnum.INDEED,
+                    "scheduled_publish_at": now + timedelta(hours=1),  # Future
+                    "status": DistributionStatusEnum.PENDING,
+                },
+            ]
+        )
 
         # Mock getting job data
-        service._get_job_data = AsyncMock(return_value={
-            "id": "job-1",
-            "title": "Test Job",
-            "description": "Test Description",
-            "company_id": "company-123"
-        })
+        service._get_job_data = AsyncMock(
+            return_value={
+                "id": "job-1",
+                "title": "Test Job",
+                "description": "Test Description",
+                "company_id": "company-123",
+            }
+        )
 
         service._linkedin_client = Mock()
-        service._linkedin_client.post_job = AsyncMock(return_value={
-            "id": "linkedin-post",
-            "url": "https://linkedin.com/jobs/123",
-            "status": "published"
-        })
+        service._linkedin_client.post_job = AsyncMock(
+            return_value={
+                "id": "linkedin-post",
+                "url": "https://linkedin.com/jobs/123",
+                "status": "published",
+            }
+        )
 
         # WHEN: Processing scheduled distributions
         results = await service.process_scheduled_distributions()
@@ -657,22 +716,22 @@ class TestRateLimiting:
             job["id"] = f"job-{i}"
 
         bulk_distribution = BulkDistributionCreate(
-            upload_id="upload-rate-limit",
-            channels=[DistributionChannelEnum.LINKEDIN]
+            upload_id="upload-rate-limit", channels=[DistributionChannelEnum.LINKEDIN]
         )
 
         service._linkedin_client = Mock()
-        service._linkedin_client.post_job = AsyncMock(return_value={
-            "id": "linkedin-post",
-            "url": "https://linkedin.com/jobs/123",
-            "status": "published"
-        })
+        service._linkedin_client.post_job = AsyncMock(
+            return_value={
+                "id": "linkedin-post",
+                "url": "https://linkedin.com/jobs/123",
+                "status": "published",
+            }
+        )
 
         # WHEN: Bulk distributing many jobs
         start_time = datetime.utcnow()
         results = await service.bulk_distribute(
-            jobs=jobs,
-            distribution=bulk_distribution
+            jobs=jobs, distribution=bulk_distribution
         )
         end_time = datetime.utcnow()
 
@@ -696,17 +755,21 @@ class TestChannelConfiguration:
         invalid_job["title"] = long_title
 
         distribution_create = DistributionCreate(
-            job_id=invalid_job["id"],
-            channel=DistributionChannelEnum.LINKEDIN
+            job_id=invalid_job["id"], channel=DistributionChannelEnum.LINKEDIN
         )
 
         # WHEN: Publishing to LinkedIn
         result = await service.publish_to_channel(
-            job_data=invalid_job,
-            distribution=distribution_create
+            job_data=invalid_job, distribution=distribution_create
         )
 
         # THEN: Should either truncate or fail with validation error
-        assert result["status"] in [DistributionStatusEnum.PUBLISHED, DistributionStatusEnum.FAILED]
+        assert result["status"] in [
+            DistributionStatusEnum.PUBLISHED,
+            DistributionStatusEnum.FAILED,
+        ]
         if result["status"] == DistributionStatusEnum.FAILED:
-            assert "title" in result["error_message"].lower() or "character" in result["error_message"].lower()
+            assert (
+                "title" in result["error_message"].lower()
+                or "character" in result["error_message"].lower()
+            )

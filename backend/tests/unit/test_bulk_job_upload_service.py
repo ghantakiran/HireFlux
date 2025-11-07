@@ -64,7 +64,10 @@ def valid_upload_request(sample_csv_jobs):
     return BulkUploadCreate(
         filename="jobs_Q4_2025.csv",
         jobs_data=sample_csv_jobs,
-        distribution_channels=[DistributionChannelEnum.LINKEDIN, DistributionChannelEnum.INDEED],
+        distribution_channels=[
+            DistributionChannelEnum.LINKEDIN,
+            DistributionChannelEnum.INDEED,
+        ],
     )
 
 
@@ -72,7 +75,9 @@ class TestBulkJobUploadService:
     """Test suite for BulkJobUploadService"""
 
     @pytest.mark.asyncio
-    async def test_create_upload_session_success(self, service, mock_db, valid_upload_request):
+    async def test_create_upload_session_success(
+        self, service, mock_db, valid_upload_request
+    ):
         """Test creating a bulk upload session successfully"""
         # Arrange
         company_id = str(uuid.uuid4())
@@ -248,12 +253,13 @@ class TestBulkJobUploadService:
         company_id = str(uuid.uuid4())
 
         mock_uploads = [
-            Mock(id=str(uuid.uuid4()), company_id=company_id)
-            for _ in range(3)
+            Mock(id=str(uuid.uuid4()), company_id=company_id) for _ in range(3)
         ]
 
         mock_result = Mock()
-        mock_result.scalars = Mock(return_value=Mock(all=Mock(return_value=mock_uploads)))
+        mock_result.scalars = Mock(
+            return_value=Mock(all=Mock(return_value=mock_uploads))
+        )
         mock_db.execute = AsyncMock(return_value=mock_result)
 
         # Act

@@ -31,28 +31,17 @@ class IndeedJobAPI:
         return {
             "jobId": f"indeed-{job_data.get('title', 'job').replace(' ', '-').lower()}-456",
             "url": f"https://www.indeed.com/viewjob?jk=456",
-            "status": "active"
+            "status": "active",
         }
 
     async def update_job(self, job_id: str, job_data: Dict[str, Any]) -> Dict[str, Any]:
         """Update an existing Indeed job posting"""
-        return {
-            "jobId": job_id,
-            "status": "updated"
-        }
+        return {"jobId": job_id, "status": "updated"}
 
     async def close_job(self, job_id: str) -> Dict[str, Any]:
         """Close an Indeed job posting"""
-        return {
-            "jobId": job_id,
-            "status": "closed"
-        }
+        return {"jobId": job_id, "status": "closed"}
 
     async def get_job_performance(self, job_id: str) -> Dict[str, Any]:
         """Get performance metrics for an Indeed job"""
-        return {
-            "jobId": job_id,
-            "views": 0,
-            "applications": 0,
-            "clicks": 0
-        }
+        return {"jobId": job_id, "views": 0, "applications": 0, "clicks": 0}

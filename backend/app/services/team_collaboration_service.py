@@ -607,7 +607,9 @@ class TeamCollaborationService:
         Raises:
             ValueError: If member not found
         """
-        member = self.db.query(CompanyMember).filter(CompanyMember.id == member_id).first()
+        member = (
+            self.db.query(CompanyMember).filter(CompanyMember.id == member_id).first()
+        )
 
         if not member:
             raise ValueError("Member not found")
@@ -632,7 +634,9 @@ class TeamCollaborationService:
         Raises:
             ValueError: If member not found
         """
-        member = self.db.query(CompanyMember).filter(CompanyMember.id == member_id).first()
+        member = (
+            self.db.query(CompanyMember).filter(CompanyMember.id == member_id).first()
+        )
 
         if not member:
             raise ValueError("Member not found")
@@ -664,7 +668,9 @@ class TeamCollaborationService:
         Raises:
             ValueError: If member not found
         """
-        member = self.db.query(CompanyMember).filter(CompanyMember.id == member_id).first()
+        member = (
+            self.db.query(CompanyMember).filter(CompanyMember.id == member_id).first()
+        )
 
         if not member:
             raise ValueError("Member not found")

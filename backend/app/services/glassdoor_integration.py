@@ -32,28 +32,17 @@ class GlassdoorJobAPI:
         return {
             "jobListingId": f"glassdoor-{job_data.get('jobTitle', 'job').replace(' ', '-').lower()}-789",
             "jobUrl": f"https://www.glassdoor.com/job-listing/789",
-            "status": "ACTIVE"
+            "status": "ACTIVE",
         }
 
     async def update_job(self, job_id: str, job_data: Dict[str, Any]) -> Dict[str, Any]:
         """Update an existing Glassdoor job listing"""
-        return {
-            "jobListingId": job_id,
-            "status": "UPDATED"
-        }
+        return {"jobListingId": job_id, "status": "UPDATED"}
 
     async def expire_job(self, job_id: str) -> Dict[str, Any]:
         """Expire a Glassdoor job listing"""
-        return {
-            "jobListingId": job_id,
-            "status": "EXPIRED"
-        }
+        return {"jobListingId": job_id, "status": "EXPIRED"}
 
     async def get_job_stats(self, job_id: str) -> Dict[str, Any]:
         """Get statistics for a Glassdoor job listing"""
-        return {
-            "jobListingId": job_id,
-            "views": 0,
-            "applications": 0,
-            "clicks": 0
-        }
+        return {"jobListingId": job_id, "views": 0, "applications": 0, "clicks": 0}

@@ -366,7 +366,10 @@ class TestActivityTimeline:
                 description="Application submitted",
                 entity_id=uuid.uuid4(),
                 entity_type="application",
-                event_data={"status": "applied", "description": "Application submitted"},
+                event_data={
+                    "status": "applied",
+                    "description": "Application submitted",
+                },
                 metadata={},
             )
         ]

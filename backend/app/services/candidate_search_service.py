@@ -17,7 +17,7 @@ from app.db.models.candidate_profile import CandidateProfile
 from app.schemas.candidate_profile import (
     CandidateSearchFilters,
     CandidateSearchResult,
-    CandidateProfilePublic
+    CandidateProfilePublic,
 )
 
 
@@ -30,7 +30,9 @@ class CandidateSearchService:
     def __init__(self, db: Session):
         self.db = db
 
-    def search_candidates(self, filters: CandidateSearchFilters) -> CandidateSearchResult:
+    def search_candidates(
+        self, filters: CandidateSearchFilters
+    ) -> CandidateSearchResult:
         """
         Search candidates with advanced filtering.
 
@@ -42,13 +44,20 @@ class CandidateSearchService:
         """
         # Start with base query - only public profiles
         query = self.db.query(CandidateProfile).filter(
-            CandidateProfile.visibility == 'public'
+            CandidateProfile.visibility == "public"
         )
 
         # Apply filters
         query = self._apply_skills_filter(query, filters.skills)
-        query = self._apply_experience_filter(query, filters.experience_level, filters.min_years_experience, filters.max_years_experience)
-        query = self._apply_location_filter(query, filters.location, filters.remote_only, filters.location_type)
+        query = self._apply_experience_filter(
+            query,
+            filters.experience_level,
+            filters.min_years_experience,
+            filters.max_years_experience,
+        )
+        query = self._apply_location_filter(
+            query, filters.location, filters.remote_only, filters.location_type
+        )
         query = self._apply_salary_filter(query, filters.min_salary, filters.max_salary)
         query = self._apply_availability_filter(query, filters.availability_status)
         query = self._apply_preferred_roles_filter(query, filters.preferred_roles)
@@ -70,7 +79,9 @@ class CandidateSearchService:
         profiles = query.all()
 
         # Convert to Pydantic schemas
-        profile_schemas = [CandidateProfilePublic.from_orm(profile) for profile in profiles]
+        profile_schemas = [
+            CandidateProfilePublic.from_orm(profile) for profile in profiles
+        ]
 
         # Build result
         result = CandidateSearchResult(
@@ -78,7 +89,7 @@ class CandidateSearchService:
             total=total,
             page=filters.page,
             limit=filters.limit,
-            total_pages=total_pages
+            total_pages=total_pages,
         )
 
         return result
@@ -112,7 +123,7 @@ class CandidateSearchService:
         query,
         experience_levels: Optional[List[str]],
         min_years: Optional[int],
-        max_years: Optional[int]
+        max_years: Optional[int],
     ):
         """
         Filter by experience level and/or years of experience.
@@ -141,7 +152,7 @@ class CandidateSearchService:
         query,
         location: Optional[str],
         remote_only: Optional[bool],
-        location_type: Optional[str]
+        location_type: Optional[str],
     ):
         """
         Filter by location, remote preference, and location type.
@@ -168,10 +179,7 @@ class CandidateSearchService:
         return query
 
     def _apply_salary_filter(
-        self,
-        query,
-        min_salary: Optional[Decimal],
-        max_salary: Optional[Decimal]
+        self, query, min_salary: Optional[Decimal], max_salary: Optional[Decimal]
     ):
         """
         Filter by salary expectations (overlap logic).
@@ -198,9 +206,7 @@ class CandidateSearchService:
         return query
 
     def _apply_availability_filter(
-        self,
-        query,
-        availability_statuses: Optional[List[str]]
+        self, query, availability_statuses: Optional[List[str]]
     ):
         """
         Filter by availability status (OR logic).
@@ -215,9 +221,7 @@ class CandidateSearchService:
         return query
 
     def _apply_preferred_roles_filter(
-        self,
-        query,
-        preferred_roles: Optional[List[str]]
+        self, query, preferred_roles: Optional[List[str]]
     ):
         """
         Filter by preferred roles (OR logic - candidate prefers ANY of the specified roles).
@@ -232,7 +236,9 @@ class CandidateSearchService:
         for role in preferred_roles:
             role_pattern = f'%"{role.lower()}"%'
             role_conditions.append(
-                func.lower(func.cast(CandidateProfile.preferred_roles, Text)).like(role_pattern)
+                func.lower(func.cast(CandidateProfile.preferred_roles, Text)).like(
+                    role_pattern
+                )
             )
 
         query = query.filter(or_(*role_conditions))

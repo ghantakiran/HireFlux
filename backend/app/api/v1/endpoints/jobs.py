@@ -26,8 +26,7 @@ router = APIRouter()
 
 
 def get_user_company_member(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ) -> CompanyMember:
     """
     Get company member for current user.
@@ -36,15 +35,13 @@ def get_user_company_member(
         HTTPException: If user is not a company member
     """
     company_member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not company_member:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with any company"
+            detail="User is not associated with any company",
         )
 
     return company_member
@@ -60,7 +57,7 @@ def check_job_management_permissions(company_member: CompanyMember) -> bool:
     if company_member.role not in allowed_roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}",
         )
     return True
 
@@ -70,7 +67,7 @@ def check_job_management_permissions(company_member: CompanyMember) -> bool:
     response_model=JobResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create a new job posting",
-    description="Create a new job posting for your company. Requires hiring_manager, admin, or owner role."
+    description="Create a new job posting for your company. Requires hiring_manager, admin, or owner role.",
 )
 def create_job(
     job_data: JobCreate,
@@ -104,8 +101,7 @@ def create_job(
 
     try:
         job = job_service.create_job(
-            company_id=company_member.company_id,
-            job_data=job_data
+            company_id=company_member.company_id, job_data=job_data
         )
         return JobResponse.model_validate(job)
 
@@ -113,24 +109,22 @@ def create_job(
         # Check if it's a subscription limit error
         if "subscription limit" in str(e).lower() or "maximum" in str(e).lower():
             raise HTTPException(
-                status_code=status.HTTP_402_PAYMENT_REQUIRED,
-                detail=str(e)
+                status_code=status.HTTP_402_PAYMENT_REQUIRED, detail=str(e)
             )
         # Other errors
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get(
     "",
     response_model=JobListResponse,
     summary="List all jobs for your company",
-    description="Get a paginated list of all jobs posted by your company with optional filtering."
+    description="Get a paginated list of all jobs posted by your company with optional filtering.",
 )
 def list_jobs(
-    status_filter: Optional[str] = Query(None, alias="status", description="Filter by status: active, closed"),
+    status_filter: Optional[str] = Query(
+        None, alias="status", description="Filter by status: active, closed"
+    ),
     page: int = Query(1, ge=1, description="Page number"),
     limit: int = Query(10, ge=1, le=100, description="Items per page"),
     current_user: User = Depends(get_current_user),
@@ -155,7 +149,7 @@ def list_jobs(
         company_id=company_member.company_id,
         status=status_filter,
         page=page,
-        limit=limit
+        limit=limit,
     )
 
     total_pages = math.ceil(total / limit) if total > 0 else 0
@@ -165,7 +159,7 @@ def list_jobs(
         total=total,
         page=page,
         limit=limit,
-        total_pages=total_pages
+        total_pages=total_pages,
     )
 
 
@@ -173,7 +167,7 @@ def list_jobs(
     "/{job_id}",
     response_model=JobResponse,
     summary="Get a specific job",
-    description="Retrieve detailed information about a specific job posting."
+    description="Retrieve detailed information about a specific job posting.",
 )
 def get_job(
     job_id: UUID,
@@ -194,15 +188,14 @@ def get_job(
 
     if not job:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Job not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Job not found"
         )
 
     # Verify job belongs to user's company
     if job.company_id != company_member.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have access to this job"
+            detail="You do not have access to this job",
         )
 
     return JobResponse.model_validate(job)
@@ -212,7 +205,7 @@ def get_job(
     "/{job_id}",
     response_model=JobResponse,
     summary="Update a job posting",
-    description="Update an existing job posting. Requires hiring_manager, admin, or owner role."
+    description="Update an existing job posting. Requires hiring_manager, admin, or owner role.",
 )
 def update_job(
     job_id: UUID,
@@ -237,36 +230,29 @@ def update_job(
 
     if not job:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Job not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Job not found"
         )
 
     if job.company_id != company_member.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have access to this job"
+            detail="You do not have access to this job",
         )
 
     # Update job
     try:
-        updated_job = job_service.update_job(
-            job_id=job_id,
-            job_data=job_data
-        )
+        updated_job = job_service.update_job(job_id=job_id, job_data=job_data)
         return JobResponse.model_validate(updated_job)
 
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.patch(
     "/{job_id}/status",
     response_model=JobResponse,
     summary="Update job status",
-    description="Change the status of a job (active, paused, closed). Requires hiring_manager, admin, or owner role."
+    description="Change the status of a job (active, paused, closed). Requires hiring_manager, admin, or owner role.",
 )
 def update_job_status(
     job_id: UUID,
@@ -294,36 +280,31 @@ def update_job_status(
 
     if not job:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Job not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Job not found"
         )
 
     if job.company_id != company_member.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have access to this job"
+            detail="You do not have access to this job",
         )
 
     # Update status
     try:
         updated_job = job_service.update_job_status(
-            job_id=job_id,
-            status=status_data.status
+            job_id=job_id, status=status_data.status
         )
         return JobResponse.model_validate(updated_job)
 
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.delete(
     "/{job_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete a job posting",
-    description="Soft delete a job posting (sets is_active to False). Requires hiring_manager, admin, or owner role."
+    description="Soft delete a job posting (sets is_active to False). Requires hiring_manager, admin, or owner role.",
 )
 def delete_job(
     job_id: UUID,
@@ -348,14 +329,13 @@ def delete_job(
 
     if not job:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Job not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Job not found"
         )
 
     if job.company_id != company_member.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have access to this job"
+            detail="You do not have access to this job",
         )
 
     # Delete job
@@ -364,16 +344,13 @@ def delete_job(
         return None  # 204 No Content
 
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get(
     "/check/can-post",
     summary="Check if company can post more jobs",
-    description="Check if your company has available job slots based on subscription plan."
+    description="Check if your company has available job slots based on subscription plan.",
 )
 def check_can_post_job(
     current_user: User = Depends(get_current_user),
@@ -393,9 +370,8 @@ def check_can_post_job(
 
     # Check via service
     job_service = JobService(db)
-    can_post, message = job_service.check_can_post_job(company_id=company_member.company_id)
+    can_post, message = job_service.check_can_post_job(
+        company_id=company_member.company_id
+    )
 
-    return {
-        "can_post": can_post,
-        "message": message
-    }
+    return {"can_post": can_post, "message": message}

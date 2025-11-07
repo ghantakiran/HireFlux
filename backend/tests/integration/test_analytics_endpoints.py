@@ -32,7 +32,7 @@ class TestDashboardEndpoints:
         """Should return detailed analytics with time range"""
         response = client.get(
             "/api/v1/analytics/dashboard/detailed?time_range=LAST_30_DAYS",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -42,7 +42,9 @@ class TestDashboardEndpoints:
         assert "conversion_funnel" in data
         assert "trends" in data
 
-    def test_get_dashboard_overview_no_applications(self, client, auth_headers, test_user):
+    def test_get_dashboard_overview_no_applications(
+        self, client, auth_headers, test_user
+    ):
         """Should return dashboard with zero applications"""
         response = client.get("/api/v1/analytics/dashboard", headers=auth_headers)
 
@@ -53,7 +55,9 @@ class TestDashboardEndpoints:
 
     def test_get_dashboard_overview_unauthorized(self, client, unauthorized_headers):
         """Should reject unauthorized access"""
-        response = client.get("/api/v1/analytics/dashboard", headers=unauthorized_headers)
+        response = client.get(
+            "/api/v1/analytics/dashboard", headers=unauthorized_headers
+        )
 
         assert response.status_code == 401
 
@@ -83,7 +87,13 @@ class TestHealthScoreEndpoints:
         assert 0 <= data["score"] <= 100
 
         # Status should be one of the expected values
-        assert data["status"] in ["excellent", "good", "fair", "needs_improvement", "critical"]
+        assert data["status"] in [
+            "excellent",
+            "good",
+            "fair",
+            "needs_improvement",
+            "critical",
+        ]
 
         # Should have factors
         assert len(data["factors"]) > 0
@@ -96,8 +106,7 @@ class TestHealthScoreEndpoints:
         """Should return health score history"""
         # Query for last 30 days
         response = client.get(
-            "/api/v1/analytics/health-score/trend?days=30",
-            headers=auth_headers
+            "/api/v1/analytics/health-score/trend?days=30", headers=auth_headers
         )
 
         assert response.status_code == 200
@@ -111,11 +120,12 @@ class TestHealthScoreEndpoints:
         # Trend should be array of data points
         assert isinstance(data["trend"], list)
 
-    def test_get_health_score_custom_period(self, client, auth_headers, test_applications):
+    def test_get_health_score_custom_period(
+        self, client, auth_headers, test_applications
+    ):
         """Should support custom time periods"""
         response = client.get(
-            "/api/v1/analytics/health-score/trend?days=7",
-            headers=auth_headers
+            "/api/v1/analytics/health-score/trend?days=7", headers=auth_headers
         )
 
         assert response.status_code == 200
@@ -131,7 +141,7 @@ class TestPipelineStatsEndpoints:
         """Should return pipeline statistics"""
         response = client.get(
             "/api/v1/analytics/pipeline/stats?time_range=LAST_30_DAYS",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -149,7 +159,7 @@ class TestPipelineStatsEndpoints:
         """Should break down pipeline by status"""
         response = client.get(
             "/api/v1/analytics/pipeline/distribution?time_range=LAST_30_DAYS",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -166,7 +176,7 @@ class TestPipelineStatsEndpoints:
         """Should return conversion funnel data"""
         response = client.get(
             "/api/v1/analytics/pipeline/funnel?time_range=LAST_30_DAYS",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -186,8 +196,7 @@ class TestActivityTrendEndpoints:
     def test_get_activity_timeline(self, client, auth_headers, test_applications):
         """Should return activity timeline"""
         response = client.get(
-            "/api/v1/analytics/activity?skip=0&limit=20",
-            headers=auth_headers
+            "/api/v1/analytics/activity?skip=0&limit=20", headers=auth_headers
         )
 
         assert response.status_code == 200
@@ -203,7 +212,7 @@ class TestActivityTrendEndpoints:
         """Should return application trend over time"""
         response = client.get(
             "/api/v1/analytics/trends/applications?time_range=LAST_30_DAYS",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -215,11 +224,13 @@ class TestActivityTrendEndpoints:
             assert "date" in trend
             assert "applications" in trend
 
-    def test_get_time_series_applications(self, client, auth_headers, test_applications):
+    def test_get_time_series_applications(
+        self, client, auth_headers, test_applications
+    ):
         """Should return time series chart for applications"""
         response = client.get(
             "/api/v1/analytics/trends/timeseries/applications?time_range=LAST_30_DAYS",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -237,7 +248,7 @@ class TestSuccessMetricsEndpoints:
         """Should return comprehensive success metrics"""
         response = client.get(
             "/api/v1/analytics/metrics/success?time_range=LAST_30_DAYS",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 200
@@ -251,8 +262,7 @@ class TestSuccessMetricsEndpoints:
     def test_get_peer_comparison(self, client, auth_headers, test_applications):
         """Should compare with platform averages"""
         response = client.get(
-            "/api/v1/analytics/benchmarks/peer-comparison",
-            headers=auth_headers
+            "/api/v1/analytics/benchmarks/peer-comparison", headers=auth_headers
         )
 
         assert response.status_code == 200
@@ -310,16 +320,13 @@ class TestAnomalyDetectionEndpoints:
                 assert "recommendation" in anomaly
 
 
-
-
 class TestExportEndpoints:
     """Tests for data export functionality"""
 
     def test_export_dashboard_data(self, client, auth_headers, test_applications):
         """Should export complete dashboard data"""
         response = client.get(
-            "/api/v1/analytics/export?time_range=LAST_30_DAYS",
-            headers=auth_headers
+            "/api/v1/analytics/export?time_range=LAST_30_DAYS", headers=auth_headers
         )
 
         assert response.status_code == 200
@@ -333,12 +340,14 @@ class TestExportEndpoints:
         assert "activity_timeline" in data
         assert "anomaly_report" in data
 
-    def test_export_different_time_ranges(self, client, auth_headers, test_applications):
+    def test_export_different_time_ranges(
+        self, client, auth_headers, test_applications
+    ):
         """Should support different time ranges"""
         for time_range in ["LAST_7_DAYS", "LAST_30_DAYS", "LAST_90_DAYS"]:
             response = client.get(
                 f"/api/v1/analytics/export?time_range={time_range}",
-                headers=auth_headers
+                headers=auth_headers,
             )
 
             assert response.status_code == 200
@@ -351,7 +360,9 @@ class TestAdminEndpoints:
 
     def test_get_platform_stats(self, client, auth_headers, test_applications):
         """Should return platform-wide statistics"""
-        response = client.get("/api/v1/analytics/admin/platform-stats", headers=auth_headers)
+        response = client.get(
+            "/api/v1/analytics/admin/platform-stats", headers=auth_headers
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -385,7 +396,10 @@ class TestPerformanceMetrics:
         import concurrent.futures
 
         def make_request():
-            return client.get("/api/v1/analytics/pipeline/stats?time_range=LAST_30_DAYS", headers=auth_headers)
+            return client.get(
+                "/api/v1/analytics/pipeline/stats?time_range=LAST_30_DAYS",
+                headers=auth_headers,
+            )
 
         # Make 10 concurrent requests
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
@@ -403,7 +417,7 @@ class TestErrorHandling:
         """Should reject invalid metrics in time series"""
         response = client.get(
             "/api/v1/analytics/trends/timeseries/invalid_metric?time_range=LAST_30_DAYS",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 400
@@ -412,16 +426,13 @@ class TestErrorHandling:
         """Should reject invalid time ranges"""
         response = client.get(
             "/api/v1/analytics/trends/applications?time_range=INVALID",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert response.status_code == 422  # Validation error
 
     def test_nonexistent_endpoint(self, client, auth_headers):
         """Should return 404 for nonexistent endpoints"""
-        response = client.get(
-            "/api/v1/analytics/nonexistent",
-            headers=auth_headers
-        )
+        response = client.get("/api/v1/analytics/nonexistent", headers=auth_headers)
 
         assert response.status_code == 404

@@ -43,10 +43,7 @@ class JobService:
         # Check subscription limits
         active_jobs_count = (
             self.db.query(func.count(Job.id))
-            .filter(
-                Job.company_id == company_id,
-                Job.is_active == True
-            )
+            .filter(Job.company_id == company_id, Job.is_active == True)
             .scalar()
         ) or 0
 
@@ -70,7 +67,9 @@ class JobService:
             location=job_data.location,
             location_type=job_data.location_type.value,
             employment_type=job_data.employment_type.value,
-            experience_level=job_data.experience_level.value if job_data.experience_level else None,
+            experience_level=job_data.experience_level.value
+            if job_data.experience_level
+            else None,
             experience_min_years=job_data.experience_min_years,
             experience_max_years=job_data.experience_max_years,
             experience_requirement=job_data.experience_requirement,
@@ -109,7 +108,7 @@ class JobService:
         company_id: UUID,
         status: Optional[str] = None,
         page: int = 1,
-        limit: int = 10
+        limit: int = 10,
     ) -> Tuple[List[Job], int]:
         """
         List jobs for a company with pagination and filtering.
@@ -163,7 +162,10 @@ class JobService:
 
         for field, value in update_data.items():
             # Handle enum conversions
-            if field in ["location_type", "employment_type", "experience_level"] and value is not None:
+            if (
+                field in ["location_type", "employment_type", "experience_level"]
+                and value is not None
+            ):
                 setattr(job, field, value.value)
             else:
                 setattr(job, field, value)
@@ -248,10 +250,7 @@ class JobService:
         """
         return (
             self.db.query(func.count(Job.id))
-            .filter(
-                Job.company_id == company_id,
-                Job.is_active == True
-            )
+            .filter(Job.company_id == company_id, Job.is_active == True)
             .scalar()
         ) or 0
 
@@ -277,4 +276,7 @@ class JobService:
                 f"{company.max_active_jobs} active job(s). Please upgrade or close existing jobs."
             )
 
-        return True, f"You can post {company.max_active_jobs - active_jobs_count} more job(s)"
+        return (
+            True,
+            f"You can post {company.max_active_jobs - active_jobs_count} more job(s)",
+        )

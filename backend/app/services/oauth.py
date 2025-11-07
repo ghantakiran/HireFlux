@@ -162,7 +162,9 @@ class OAuthService:
 
                 email = user_data.get("email")
                 if not email:
-                    raise BadRequestError("Email permission not granted by LinkedIn user")
+                    raise BadRequestError(
+                        "Email permission not granted by LinkedIn user"
+                    )
 
                 return OAuthUserInfo(
                     email=email,

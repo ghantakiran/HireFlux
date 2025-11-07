@@ -35,7 +35,7 @@ class ApplicationService:
         sort_by: str = "fit_index",
         order: str = "desc",
         page: int = 1,
-        limit: int = 20
+        limit: int = 20,
     ) -> Tuple[List[Application], int]:
         """
         Get paginated list of applications for a job with filtering and sorting.
@@ -55,10 +55,7 @@ class ApplicationService:
         """
         query = (
             self.db.query(Application)
-            .options(
-                joinedload(Application.user),
-                joinedload(Application.job)
-            )
+            .options(joinedload(Application.user), joinedload(Application.job))
             .filter(Application.job_id == job_id)
         )
 
@@ -74,7 +71,7 @@ class ApplicationService:
             query = query.filter(
                 func.jsonb_contains(
                     Application.assigned_to,
-                    func.cast([str(assigned_to)], type_=Application.assigned_to.type)
+                    func.cast([str(assigned_to)], type_=Application.assigned_to.type),
                 )
             )
 
@@ -103,9 +100,7 @@ class ApplicationService:
         return applications, total
 
     def update_application_status(
-        self,
-        application_id: UUID,
-        status_data: ApplicationStatusUpdate
+        self, application_id: UUID, status_data: ApplicationStatusUpdate
     ) -> Application:
         """
         Update application status and record history.
@@ -120,9 +115,9 @@ class ApplicationService:
         Raises:
             Exception: If application not found or invalid transition
         """
-        application = self.db.query(Application).filter(
-            Application.id == application_id
-        ).first()
+        application = (
+            self.db.query(Application).filter(Application.id == application_id).first()
+        )
 
         if not application:
             raise Exception(f"Application {application_id} not found")
@@ -145,7 +140,7 @@ class ApplicationService:
             new_status=new_status,
             changed_by="user",  # Could be passed from auth context
             change_reason=status_data.note,
-            changed_at=datetime.utcnow()
+            changed_at=datetime.utcnow(),
         )
 
         self.db.add(status_history)
@@ -155,10 +150,7 @@ class ApplicationService:
         return application
 
     def add_application_note(
-        self,
-        application_id: UUID,
-        author_id: UUID,
-        note_data: ApplicationNoteCreate
+        self, application_id: UUID, author_id: UUID, note_data: ApplicationNoteCreate
     ) -> ApplicationNote:
         """
         Add internal note to application.
@@ -185,9 +177,7 @@ class ApplicationService:
         return note
 
     def get_application_notes(
-        self,
-        application_id: UUID,
-        author_id: Optional[UUID] = None
+        self, application_id: UUID, author_id: Optional[UUID] = None
     ) -> List[ApplicationNote]:
         """
         Get notes for an application.
@@ -208,10 +198,10 @@ class ApplicationService:
         if author_id:
             # Show team notes + this author's private notes
             query = query.filter(
-                (ApplicationNote.visibility == "team") |
-                (
-                    (ApplicationNote.visibility == "private") &
-                    (ApplicationNote.author_id == author_id)
+                (ApplicationNote.visibility == "team")
+                | (
+                    (ApplicationNote.visibility == "private")
+                    & (ApplicationNote.author_id == author_id)
                 )
             )
         else:
@@ -223,9 +213,7 @@ class ApplicationService:
         return notes
 
     def assign_reviewers(
-        self,
-        application_id: UUID,
-        assign_data: ApplicationAssignUpdate
+        self, application_id: UUID, assign_data: ApplicationAssignUpdate
     ) -> Application:
         """
         Assign or unassign team members to application.
@@ -237,9 +225,9 @@ class ApplicationService:
         Returns:
             Updated Application
         """
-        application = self.db.query(Application).filter(
-            Application.id == application_id
-        ).first()
+        application = (
+            self.db.query(Application).filter(Application.id == application_id).first()
+        )
 
         if not application:
             raise Exception(f"Application {application_id} not found")
@@ -253,10 +241,7 @@ class ApplicationService:
 
         return application
 
-    def bulk_update_applications(
-        self,
-        bulk_data: ApplicationBulkUpdate
-    ) -> int:
+    def bulk_update_applications(self, bulk_data: ApplicationBulkUpdate) -> int:
         """
         Bulk update multiple applications.
 
@@ -289,7 +274,7 @@ class ApplicationService:
                     new_status=ATSApplicationStatus.REJECTED.value,
                     changed_by="bulk_action",
                     change_reason="Bulk rejected",
-                    changed_at=datetime.utcnow()
+                    changed_at=datetime.utcnow(),
                 )
                 self.db.add(status_history)
 
@@ -305,7 +290,7 @@ class ApplicationService:
                     new_status=bulk_data.target_status.value,
                     changed_by="bulk_action",
                     change_reason=f"Bulk moved to {bulk_data.target_status.value}",
-                    changed_at=datetime.utcnow()
+                    changed_at=datetime.utcnow(),
                 )
                 self.db.add(status_history)
 

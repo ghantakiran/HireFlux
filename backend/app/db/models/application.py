@@ -1,5 +1,14 @@
 """Application tracking model"""
-from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, Text, Boolean, Integer, JSON
+from sqlalchemy import (
+    Column,
+    String,
+    TIMESTAMP,
+    ForeignKey,
+    Text,
+    Boolean,
+    Integer,
+    JSON,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -49,10 +58,10 @@ class Application(Base):
         Integer, nullable=True, index=True
     )  # AI-calculated fit score 0-100
     assigned_to = Column(
-        JSON, nullable=True, server_default='[]'
+        JSON, nullable=True, server_default="[]"
     )  # Array of user IDs (team members assigned to review)
     tags = Column(
-        JSON, nullable=True, server_default='[]'
+        JSON, nullable=True, server_default="[]"
     )  # Array of tags: "strong_candidate", "needs_review", etc.
 
     created_at = Column(TIMESTAMP, server_default=func.now())
@@ -91,7 +100,10 @@ class ApplicationNote(Base):
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     application_id = Column(
-        GUID(), ForeignKey("applications.id", ondelete="CASCADE"), nullable=False, index=True
+        GUID(),
+        ForeignKey("applications.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     author_id = Column(
         GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True

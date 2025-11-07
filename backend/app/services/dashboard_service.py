@@ -21,7 +21,7 @@ from app.schemas.dashboard import (
     RecentActivity,
     ActivityEvent,
     TeamActivity,
-    TeamMemberActivity
+    TeamMemberActivity,
 )
 
 
@@ -89,12 +89,14 @@ class DashboardService:
             ) or 0
 
             # Applications today
-            today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            today_start = datetime.utcnow().replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
             new_applications_today = (
                 self.db.query(func.count(Application.id))
                 .filter(
                     Application.job_id.in_(job_ids),
-                    Application.created_at >= today_start
+                    Application.created_at >= today_start,
                 )
                 .scalar()
             ) or 0
@@ -105,7 +107,7 @@ class DashboardService:
                 self.db.query(func.count(Application.id))
                 .filter(
                     Application.job_id.in_(job_ids),
-                    Application.created_at >= week_start
+                    Application.created_at >= week_start,
                 )
                 .scalar()
             ) or 0
@@ -115,8 +117,7 @@ class DashboardService:
         if job_ids:
             status_counts = (
                 self.db.query(
-                    Application.status,
-                    func.count(Application.id).label("count")
+                    Application.status, func.count(Application.id).label("count")
                 )
                 .filter(Application.job_id.in_(job_ids))
                 .group_by(Application.status)
@@ -132,7 +133,9 @@ class DashboardService:
         top_jobs = self._get_top_jobs(company_id, limit=5)
 
         # Quality metrics
-        avg_time_to_first_app = self._calculate_avg_time_to_first_application(company_id)
+        avg_time_to_first_app = self._calculate_avg_time_to_first_application(
+            company_id
+        )
 
         # Build stats object
         stats = DashboardStats(
@@ -150,11 +153,15 @@ class DashboardService:
             avg_time_to_first_application_hours=avg_time_to_first_app,
             avg_candidate_quality=None,  # TODO: Implement with match scores
             # Usage tracking
-            jobs_posted_this_month=subscription.jobs_posted_this_month if subscription else 0,
-            candidate_views_this_month=subscription.candidate_views_this_month if subscription else 0,
+            jobs_posted_this_month=subscription.jobs_posted_this_month
+            if subscription
+            else 0,
+            candidate_views_this_month=subscription.candidate_views_this_month
+            if subscription
+            else 0,
             # Plan limits
             max_active_jobs=company.max_active_jobs,
-            max_candidate_views=company.max_candidate_views
+            max_candidate_views=company.max_candidate_views,
         )
 
         return stats
@@ -163,7 +170,9 @@ class DashboardService:
         """Get top performing jobs by application volume"""
         # Get jobs with application counts
         week_ago = datetime.utcnow() - timedelta(days=7)
-        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_start = datetime.utcnow().replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
 
         jobs_with_counts = (
             self.db.query(
@@ -172,13 +181,10 @@ class DashboardService:
                 func.count(Application.id).label("total_applications"),
                 func.sum(
                     func.cast(Application.created_at >= today_start, sqlalchemy.Integer)
-                ).label("new_applications_24h")
+                ).label("new_applications_24h"),
             )
             .outerjoin(Application, Application.job_id == Job.id)
-            .filter(
-                Job.company_id == company_id,
-                Job.is_active == True
-            )
+            .filter(Job.company_id == company_id, Job.is_active == True)
             .group_by(Job.id, Job.title)
             .order_by(desc("total_applications"))
             .limit(limit)
@@ -193,13 +199,15 @@ class DashboardService:
                     job_title=job_title,
                     total_applications=total_apps or 0,
                     new_applications_24h=new_apps_24h or 0,
-                    avg_candidate_fit=None  # TODO: Calculate from match scores
+                    avg_candidate_fit=None,  # TODO: Calculate from match scores
                 )
             )
 
         return top_jobs
 
-    def _calculate_avg_time_to_first_application(self, company_id: UUID) -> Optional[float]:
+    def _calculate_avg_time_to_first_application(
+        self, company_id: UUID
+    ) -> Optional[float]:
         """Calculate average time from job posting to first application (in hours)"""
         # Get all jobs with their first application time
         jobs = self.db.query(Job).filter(Job.company_id == company_id).all()
@@ -250,7 +258,7 @@ class DashboardService:
                 rejected_count=0,
                 application_to_interview_rate=0.0,
                 interview_to_offer_rate=0.0,
-                offer_acceptance_rate=0.0
+                offer_acceptance_rate=0.0,
             )
 
         # Count applications by status
@@ -262,10 +270,7 @@ class DashboardService:
 
         interviewed_count = (
             self.db.query(func.count(Application.id))
-            .filter(
-                Application.job_id.in_(job_ids),
-                Application.status == "interview"
-            )
+            .filter(Application.job_id.in_(job_ids), Application.status == "interview")
             .scalar()
         ) or 0
 
@@ -273,32 +278,28 @@ class DashboardService:
             self.db.query(func.count(Application.id))
             .filter(
                 Application.job_id.in_(job_ids),
-                or_(Application.status == "offered", Application.status == "offer")
+                or_(Application.status == "offered", Application.status == "offer"),
             )
             .scalar()
         ) or 0
 
         hired_count = (
             self.db.query(func.count(Application.id))
-            .filter(
-                Application.job_id.in_(job_ids),
-                Application.status == "hired"
-            )
+            .filter(Application.job_id.in_(job_ids), Application.status == "hired")
             .scalar()
         ) or 0
 
         rejected_count = (
             self.db.query(func.count(Application.id))
-            .filter(
-                Application.job_id.in_(job_ids),
-                Application.status == "rejected"
-            )
+            .filter(Application.job_id.in_(job_ids), Application.status == "rejected")
             .scalar()
         ) or 0
 
         # Calculate conversion rates
         application_to_interview_rate = (
-            (interviewed_count / total_applicants * 100) if total_applicants > 0 else 0.0
+            (interviewed_count / total_applicants * 100)
+            if total_applicants > 0
+            else 0.0
         )
 
         interview_to_offer_rate = (
@@ -317,7 +318,7 @@ class DashboardService:
             rejected_count=rejected_count,
             application_to_interview_rate=round(application_to_interview_rate, 2),
             interview_to_offer_rate=round(interview_to_offer_rate, 2),
-            offer_acceptance_rate=round(offer_acceptance_rate, 2)
+            offer_acceptance_rate=round(offer_acceptance_rate, 2),
         )
 
     def get_recent_activity(self, company_id: UUID, limit: int = 20) -> RecentActivity:
@@ -340,8 +341,8 @@ class DashboardService:
                 CompanyMember,
                 and_(
                     CompanyMember.company_id == company_id,
-                    CompanyMember.role.in_(["owner", "admin", "hiring_manager"])
-                )
+                    CompanyMember.role.in_(["owner", "admin", "hiring_manager"]),
+                ),
             )
             .outerjoin(User, User.id == CompanyMember.user_id)
             .filter(Job.company_id == company_id)
@@ -360,12 +361,17 @@ class DashboardService:
                     actor_name=user.email if user else None,
                     job_title=job.title,
                     candidate_name=None,
-                    timestamp=job.created_at
+                    timestamp=job.created_at,
                 )
             )
 
         # Get application received events
-        job_ids = [job_id[0] for job_id in self.db.query(Job.id).filter(Job.company_id == company_id).all()]
+        job_ids = [
+            job_id[0]
+            for job_id in self.db.query(Job.id)
+            .filter(Job.company_id == company_id)
+            .all()
+        ]
 
         if job_ids:
             applications = (
@@ -388,7 +394,7 @@ class DashboardService:
                         actor_name=None,
                         job_title=job.title,
                         candidate_name=candidate.email,
-                        timestamp=application.created_at
+                        timestamp=application.created_at,
                     )
                 )
 
@@ -400,7 +406,9 @@ class DashboardService:
 
         return RecentActivity(
             events=events,
-            total_count=len(events)  # This is simplified; in production, would count total without limit
+            total_count=len(
+                events
+            ),  # This is simplified; in production, would count total without limit
         )
 
     def get_team_activity(self, company_id: UUID) -> TeamActivity:
@@ -441,19 +449,20 @@ class DashboardService:
                     member_role=member.role,
                     jobs_posted=jobs_posted,
                     candidates_reviewed=0,  # TODO: Track candidate views
-                    last_active_at=member.updated_at
+                    last_active_at=member.updated_at,
                 )
             )
 
         # Count active members this week
         week_ago = datetime.utcnow() - timedelta(days=7)
         active_members_this_week = sum(
-            1 for activity in member_activities
+            1
+            for activity in member_activities
             if activity.last_active_at and activity.last_active_at >= week_ago
         )
 
         return TeamActivity(
             total_members=total_members,
             active_members_this_week=active_members_this_week,
-            member_activities=member_activities
+            member_activities=member_activities,
         )

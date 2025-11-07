@@ -297,6 +297,7 @@ async def reset_password(token: str, new_password: str, db=Depends(get_db)):
 
 # ========== OAuth Endpoints ==========
 
+
 @router.get("/google/authorize")
 async def google_authorize():
     """Redirect to Google OAuth consent screen"""
@@ -304,7 +305,7 @@ async def google_authorize():
     if not settings.GOOGLE_CLIENT_ID:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Google OAuth is not configured"
+            detail="Google OAuth is not configured",
         )
 
     # Google OAuth URL
@@ -331,7 +332,7 @@ async def google_callback(code: str, db=Depends(get_db)):
     if not settings.GOOGLE_CLIENT_ID or not settings.GOOGLE_CLIENT_SECRET:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Google OAuth is not configured"
+            detail="Google OAuth is not configured",
         )
 
     # Exchange code for access token
@@ -354,7 +355,7 @@ async def google_callback(code: str, db=Depends(get_db)):
             if not access_token:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Failed to get access token from Google"
+                    detail="Failed to get access token from Google",
                 )
 
             # Get user info from Google
@@ -367,7 +368,7 @@ async def google_callback(code: str, db=Depends(get_db)):
         except httpx.HTTPError as e:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Failed to communicate with Google: {str(e)}"
+                detail=f"Failed to communicate with Google: {str(e)}",
             )
 
     # Extract user information
@@ -380,14 +381,15 @@ async def google_callback(code: str, db=Depends(get_db)):
     if not google_id or not email:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to get required user information from Google"
+            detail="Failed to get required user information from Google",
         )
 
     # Check if user exists by OAuth provider ID
-    user = db.query(User).filter(
-        User.oauth_provider == "google",
-        User.oauth_provider_id == google_id
-    ).first()
+    user = (
+        db.query(User)
+        .filter(User.oauth_provider == "google", User.oauth_provider_id == google_id)
+        .first()
+    )
 
     # If not found by OAuth ID, check by email
     if not user:
@@ -430,7 +432,9 @@ async def google_callback(code: str, db=Depends(get_db)):
     jwt_refresh_token = create_refresh_token(data={"sub": str(user.id)})
 
     # Redirect to frontend with tokens
-    frontend_url = settings.CORS_ORIGINS[0] if settings.CORS_ORIGINS else "http://localhost:3000"
+    frontend_url = (
+        settings.CORS_ORIGINS[0] if settings.CORS_ORIGINS else "http://localhost:3000"
+    )
     redirect_url = f"{frontend_url}/auth/callback?access_token={jwt_access_token}&refresh_token={jwt_refresh_token}&token_type=bearer"
 
     return RedirectResponse(url=redirect_url)
@@ -443,7 +447,7 @@ async def linkedin_authorize():
     if not settings.LINKEDIN_CLIENT_ID:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="LinkedIn OAuth is not configured"
+            detail="LinkedIn OAuth is not configured",
         )
 
     # LinkedIn OAuth URL
@@ -468,7 +472,7 @@ async def linkedin_callback(code: str, db=Depends(get_db)):
     if not settings.LINKEDIN_CLIENT_ID or not settings.LINKEDIN_CLIENT_SECRET:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="LinkedIn OAuth is not configured"
+            detail="LinkedIn OAuth is not configured",
         )
 
     # Exchange code for access token
@@ -492,7 +496,7 @@ async def linkedin_callback(code: str, db=Depends(get_db)):
             if not access_token:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Failed to get access token from LinkedIn"
+                    detail="Failed to get access token from LinkedIn",
                 )
 
             # Get user info from LinkedIn using OpenID Connect userinfo endpoint
@@ -507,7 +511,7 @@ async def linkedin_callback(code: str, db=Depends(get_db)):
         except httpx.HTTPError as e:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Failed to communicate with LinkedIn: {str(e)}"
+                detail=f"Failed to communicate with LinkedIn: {str(e)}",
             )
 
     # Extract user information
@@ -520,14 +524,17 @@ async def linkedin_callback(code: str, db=Depends(get_db)):
     if not linkedin_id or not email:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to get required user information from LinkedIn"
+            detail="Failed to get required user information from LinkedIn",
         )
 
     # Check if user exists by OAuth provider ID
-    user = db.query(User).filter(
-        User.oauth_provider == "linkedin",
-        User.oauth_provider_id == linkedin_id
-    ).first()
+    user = (
+        db.query(User)
+        .filter(
+            User.oauth_provider == "linkedin", User.oauth_provider_id == linkedin_id
+        )
+        .first()
+    )
 
     # If not found by OAuth ID, check by email
     if not user:
@@ -570,7 +577,9 @@ async def linkedin_callback(code: str, db=Depends(get_db)):
     jwt_refresh_token = create_refresh_token(data={"sub": str(user.id)})
 
     # Redirect to frontend with tokens
-    frontend_url = settings.CORS_ORIGINS[0] if settings.CORS_ORIGINS else "http://localhost:3000"
+    frontend_url = (
+        settings.CORS_ORIGINS[0] if settings.CORS_ORIGINS else "http://localhost:3000"
+    )
     redirect_url = f"{frontend_url}/auth/callback?access_token={jwt_access_token}&refresh_token={jwt_refresh_token}&token_type=bearer"
 
     return RedirectResponse(url=redirect_url)

@@ -26,6 +26,7 @@ from app.db.models.application import Application
 # Test Fixtures
 # ===========================================================================
 
+
 @pytest.fixture
 def sample_company_with_jobs(db_session: Session):
     """Create a company with jobs and applications for testing dashboard"""
@@ -34,7 +35,7 @@ def sample_company_with_jobs(db_session: Session):
         id=uuid4(),
         email="owner@techcorp.com",
         hashed_password="hashed_password",
-        user_type="employer"
+        user_type="employer",
     )
     db_session.add(owner_user)
     db_session.flush()
@@ -49,7 +50,7 @@ def sample_company_with_jobs(db_session: Session):
         subscription_tier="growth",
         subscription_status="active",
         max_active_jobs=10,
-        max_candidate_views=100
+        max_candidate_views=100,
     )
     db_session.add(company)
     db_session.flush()
@@ -61,7 +62,7 @@ def sample_company_with_jobs(db_session: Session):
         user_id=owner_user.id,
         role="owner",
         status="active",
-        joined_at=datetime.utcnow()
+        joined_at=datetime.utcnow(),
     )
     db_session.add(owner_member)
 
@@ -72,7 +73,7 @@ def sample_company_with_jobs(db_session: Session):
         plan_tier="growth",
         status="active",
         jobs_posted_this_month=3,
-        candidate_views_this_month=25
+        candidate_views_this_month=25,
     )
     db_session.add(subscription)
 
@@ -90,8 +91,8 @@ def sample_company_with_jobs(db_session: Session):
             employment_type="full-time",
             source="employer",
             is_active=True,
-            posted_date=datetime.utcnow() - timedelta(days=i+1),
-            created_at=datetime.utcnow() - timedelta(days=i+1)
+            posted_date=datetime.utcnow() - timedelta(days=i + 1),
+            created_at=datetime.utcnow() - timedelta(days=i + 1),
         )
         db_session.add(job)
         jobs.append(job)
@@ -105,7 +106,7 @@ def sample_company_with_jobs(db_session: Session):
             id=uuid4(),
             email=f"candidate{i+1}@example.com",
             hashed_password="hashed",
-            user_type="job_seeker"
+            user_type="job_seeker",
         )
         db_session.add(candidate)
         candidate_users.append(candidate)
@@ -129,7 +130,7 @@ def sample_company_with_jobs(db_session: Session):
             status=status,
             applied_at=datetime.utcnow() - timedelta(days=days_ago),
             created_at=datetime.utcnow() - timedelta(days=days_ago),
-            updated_at=datetime.utcnow() - timedelta(hours=i)
+            updated_at=datetime.utcnow() - timedelta(hours=i),
         )
         db_session.add(app)
         applications.append(app)
@@ -142,9 +143,9 @@ def sample_company_with_jobs(db_session: Session):
             user_id=candidate_users[i].id,
             job_id=jobs[1].id,
             status=status,
-            applied_at=datetime.utcnow() - timedelta(days=i+1),
-            created_at=datetime.utcnow() - timedelta(days=i+1),
-            updated_at=datetime.utcnow() - timedelta(hours=i+5)
+            applied_at=datetime.utcnow() - timedelta(days=i + 1),
+            created_at=datetime.utcnow() - timedelta(days=i + 1),
+            updated_at=datetime.utcnow() - timedelta(hours=i + 5),
         )
         db_session.add(app)
         applications.append(app)
@@ -156,9 +157,9 @@ def sample_company_with_jobs(db_session: Session):
             user_id=candidate_users[i].id,
             job_id=jobs[2].id,
             status="applied",
-            applied_at=datetime.utcnow() - timedelta(days=i+2),
-            created_at=datetime.utcnow() - timedelta(days=i+2),
-            updated_at=datetime.utcnow() - timedelta(hours=i+8)
+            applied_at=datetime.utcnow() - timedelta(days=i + 2),
+            created_at=datetime.utcnow() - timedelta(days=i + 2),
+            updated_at=datetime.utcnow() - timedelta(hours=i + 8),
         )
         db_session.add(app)
         applications.append(app)
@@ -196,7 +197,9 @@ def test_get_dashboard_stats_success(db_session: Session, sample_company_with_jo
     # Pipeline breakdown
     assert len(stats.applications_by_status) > 0
     status_counts = {item.status: item.count for item in stats.applications_by_status}
-    assert status_counts.get("applied", 0) == 4  # 2 + 1 + 2 = 5, but one was moved to interview
+    assert (
+        status_counts.get("applied", 0) == 4
+    )  # 2 + 1 + 2 = 5, but one was moved to interview
     assert status_counts.get("interview", 0) == 3
     assert status_counts.get("offered", 0) == 1
     assert status_counts.get("rejected", 0) == 1
@@ -225,7 +228,7 @@ def test_get_dashboard_stats_new_company_no_data(db_session: Session):
         domain="newstartup.com",
         subscription_tier="starter",
         max_active_jobs=1,
-        max_candidate_views=10
+        max_candidate_views=10,
     )
     db_session.add(company)
 
@@ -235,7 +238,7 @@ def test_get_dashboard_stats_new_company_no_data(db_session: Session):
         plan_tier="starter",
         status="trialing",
         jobs_posted_this_month=0,
-        candidate_views_this_month=0
+        candidate_views_this_month=0,
     )
     db_session.add(subscription)
     db_session.commit()
@@ -251,7 +254,9 @@ def test_get_dashboard_stats_new_company_no_data(db_session: Session):
     assert len(stats.top_jobs) == 0
 
 
-def test_get_dashboard_stats_top_jobs_by_volume(db_session: Session, sample_company_with_jobs):
+def test_get_dashboard_stats_top_jobs_by_volume(
+    db_session: Session, sample_company_with_jobs
+):
     """
     GIVEN: Company with multiple jobs with varying application counts
     WHEN: get_dashboard_stats() is called
@@ -275,7 +280,9 @@ def test_get_dashboard_stats_top_jobs_by_volume(db_session: Session, sample_comp
     assert stats.top_jobs[2].total_applications == 2
 
 
-def test_get_dashboard_stats_time_filters(db_session: Session, sample_company_with_jobs):
+def test_get_dashboard_stats_time_filters(
+    db_session: Session, sample_company_with_jobs
+):
     """
     GIVEN: Company with applications from different time periods
     WHEN: get_dashboard_stats() is called
@@ -300,7 +307,9 @@ def test_get_dashboard_stats_time_filters(db_session: Session, sample_company_wi
 # ===========================================================================
 
 
-def test_get_pipeline_metrics_conversion_rates(db_session: Session, sample_company_with_jobs):
+def test_get_pipeline_metrics_conversion_rates(
+    db_session: Session, sample_company_with_jobs
+):
     """
     GIVEN: Company with applications in various stages
     WHEN: get_pipeline_metrics() is called
@@ -336,11 +345,7 @@ def test_get_pipeline_metrics_no_applications(db_session: Session):
     service = DashboardService(db_session)
 
     # Create company with no applications
-    company = Company(
-        id=uuid4(),
-        name="New Company",
-        domain="newcompany.com"
-    )
+    company = Company(id=uuid4(), name="New Company", domain="newcompany.com")
     db_session.add(company)
     db_session.commit()
 
@@ -358,7 +363,9 @@ def test_get_pipeline_metrics_no_applications(db_session: Session):
 # ===========================================================================
 
 
-def test_get_recent_activity_includes_job_posts(db_session: Session, sample_company_with_jobs):
+def test_get_recent_activity_includes_job_posts(
+    db_session: Session, sample_company_with_jobs
+):
     """
     GIVEN: Company that posted jobs
     WHEN: get_recent_activity() is called
@@ -378,7 +385,9 @@ def test_get_recent_activity_includes_job_posts(db_session: Session, sample_comp
     assert len(job_posted_events) == 3
 
 
-def test_get_recent_activity_includes_applications(db_session: Session, sample_company_with_jobs):
+def test_get_recent_activity_includes_applications(
+    db_session: Session, sample_company_with_jobs
+):
     """
     GIVEN: Company with received applications
     WHEN: get_recent_activity() is called
@@ -394,7 +403,9 @@ def test_get_recent_activity_includes_applications(db_session: Session, sample_c
     assert len(app_events) == 10  # 10 total applications
 
 
-def test_get_recent_activity_sorted_by_timestamp(db_session: Session, sample_company_with_jobs):
+def test_get_recent_activity_sorted_by_timestamp(
+    db_session: Session, sample_company_with_jobs
+):
     """
     GIVEN: Company with multiple activity events
     WHEN: get_recent_activity() is called
@@ -410,7 +421,9 @@ def test_get_recent_activity_sorted_by_timestamp(db_session: Session, sample_com
         assert activity.events[i].timestamp >= activity.events[i + 1].timestamp
 
 
-def test_get_recent_activity_respects_limit(db_session: Session, sample_company_with_jobs):
+def test_get_recent_activity_respects_limit(
+    db_session: Session, sample_company_with_jobs
+):
     """
     GIVEN: Company with many activity events
     WHEN: get_recent_activity() is called with limit=5
@@ -450,7 +463,9 @@ def test_get_team_activity_single_member(db_session: Session, sample_company_wit
     assert owner_activity.jobs_posted == 3  # Posted 3 jobs
 
 
-def test_get_team_activity_multiple_members(db_session: Session, sample_company_with_jobs):
+def test_get_team_activity_multiple_members(
+    db_session: Session, sample_company_with_jobs
+):
     """
     GIVEN: Company with multiple team members
     WHEN: get_team_activity() is called
@@ -464,7 +479,7 @@ def test_get_team_activity_multiple_members(db_session: Session, sample_company_
         id=uuid4(),
         email="recruiter@techcorp.com",
         hashed_password="hashed",
-        user_type="employer"
+        user_type="employer",
     )
     db_session.add(recruiter_user)
     db_session.flush()
@@ -475,7 +490,7 @@ def test_get_team_activity_multiple_members(db_session: Session, sample_company_
         user_id=recruiter_user.id,
         role="recruiter",
         status="active",
-        joined_at=datetime.utcnow()
+        joined_at=datetime.utcnow(),
     )
     db_session.add(recruiter_member)
     db_session.commit()
@@ -495,7 +510,9 @@ def test_get_team_activity_multiple_members(db_session: Session, sample_company_
 # ===========================================================================
 
 
-def test_get_dashboard_stats_avg_time_to_first_application(db_session: Session, sample_company_with_jobs):
+def test_get_dashboard_stats_avg_time_to_first_application(
+    db_session: Session, sample_company_with_jobs
+):
     """
     GIVEN: Company with jobs that received applications
     WHEN: get_dashboard_stats() is called
@@ -529,7 +546,9 @@ def test_get_dashboard_stats_company_not_found(db_session: Session):
         service.get_dashboard_stats(non_existent_id)
 
 
-def test_get_dashboard_stats_only_includes_company_jobs(db_session: Session, sample_company_with_jobs):
+def test_get_dashboard_stats_only_includes_company_jobs(
+    db_session: Session, sample_company_with_jobs
+):
     """
     GIVEN: Multiple companies with jobs
     WHEN: get_dashboard_stats() is called for one company
@@ -545,7 +564,7 @@ def test_get_dashboard_stats_only_includes_company_jobs(db_session: Session, sam
         domain="other.com",
         subscription_tier="starter",
         max_active_jobs=1,
-        max_candidate_views=10
+        max_candidate_views=10,
     )
     db_session.add(company2)
 
@@ -555,7 +574,7 @@ def test_get_dashboard_stats_only_includes_company_jobs(db_session: Session, sam
         plan_tier="starter",
         status="active",
         jobs_posted_this_month=1,
-        candidate_views_this_month=5
+        candidate_views_this_month=5,
     )
     db_session.add(subscription2)
 
@@ -567,7 +586,7 @@ def test_get_dashboard_stats_only_includes_company_jobs(db_session: Session, sam
         description="Description",
         source="employer",
         is_active=True,
-        posted_date=datetime.utcnow()
+        posted_date=datetime.utcnow(),
     )
     db_session.add(job2)
     db_session.commit()
@@ -595,7 +614,7 @@ def test_get_dashboard_stats_excludes_inactive_jobs(db_session: Session):
         domain="company.com",
         subscription_tier="growth",
         max_active_jobs=10,
-        max_candidate_views=100
+        max_candidate_views=100,
     )
     db_session.add(company)
 
@@ -604,7 +623,7 @@ def test_get_dashboard_stats_excludes_inactive_jobs(db_session: Session):
         company_id=company.id,
         plan_tier="growth",
         status="active",
-        jobs_posted_this_month=5
+        jobs_posted_this_month=5,
     )
     db_session.add(subscription)
     db_session.flush()
@@ -618,7 +637,7 @@ def test_get_dashboard_stats_excludes_inactive_jobs(db_session: Session):
             company="Company",
             source="employer",
             is_active=True,
-            posted_date=datetime.utcnow()
+            posted_date=datetime.utcnow(),
         )
         db_session.add(job)
 
@@ -630,7 +649,7 @@ def test_get_dashboard_stats_excludes_inactive_jobs(db_session: Session):
             company="Company",
             source="employer",
             is_active=False,
-            posted_date=datetime.utcnow() - timedelta(days=30)
+            posted_date=datetime.utcnow() - timedelta(days=30),
         )
         db_session.add(job)
 
@@ -671,7 +690,7 @@ def test_feature_complete_dashboard_workflow(db_session: Session):
         domain="startupxyz.com",
         subscription_tier="professional",
         max_active_jobs=50,
-        max_candidate_views=500
+        max_candidate_views=500,
     )
     db_session.add(company)
 
@@ -681,7 +700,7 @@ def test_feature_complete_dashboard_workflow(db_session: Session):
         plan_tier="professional",
         status="active",
         jobs_posted_this_month=2,
-        candidate_views_this_month=15
+        candidate_views_this_month=15,
     )
     db_session.add(subscription)
 
@@ -689,7 +708,7 @@ def test_feature_complete_dashboard_workflow(db_session: Session):
         id=uuid4(),
         email="founder@startupxyz.com",
         hashed_password="hashed",
-        user_type="employer"
+        user_type="employer",
     )
     db_session.add(owner)
     db_session.flush()
@@ -700,7 +719,7 @@ def test_feature_complete_dashboard_workflow(db_session: Session):
         user_id=owner.id,
         role="owner",
         status="active",
-        joined_at=datetime.utcnow()
+        joined_at=datetime.utcnow(),
     )
     db_session.add(owner_member)
 
@@ -712,7 +731,7 @@ def test_feature_complete_dashboard_workflow(db_session: Session):
         company="StartupXYZ",
         source="employer",
         is_active=True,
-        posted_date=datetime.utcnow() - timedelta(days=3)
+        posted_date=datetime.utcnow() - timedelta(days=3),
     )
     job2 = Job(
         id=uuid4(),
@@ -721,7 +740,7 @@ def test_feature_complete_dashboard_workflow(db_session: Session):
         company="StartupXYZ",
         source="employer",
         is_active=True,
-        posted_date=datetime.utcnow() - timedelta(days=1)
+        posted_date=datetime.utcnow() - timedelta(days=1),
     )
     db_session.add_all([job1, job2])
     db_session.flush()
@@ -731,7 +750,7 @@ def test_feature_complete_dashboard_workflow(db_session: Session):
         id=uuid4(),
         email="candidate@example.com",
         hashed_password="hashed",
-        user_type="job_seeker"
+        user_type="job_seeker",
     )
     db_session.add(candidate)
     db_session.flush()
@@ -742,7 +761,7 @@ def test_feature_complete_dashboard_workflow(db_session: Session):
         job_id=job1.id,
         status="applied",
         applied_at=datetime.utcnow() - timedelta(hours=2),
-        created_at=datetime.utcnow() - timedelta(hours=2)
+        created_at=datetime.utcnow() - timedelta(hours=2),
     )
     app2 = Application(
         id=uuid4(),
@@ -750,7 +769,7 @@ def test_feature_complete_dashboard_workflow(db_session: Session):
         job_id=job2.id,
         status="interview",
         applied_at=datetime.utcnow() - timedelta(hours=1),
-        created_at=datetime.utcnow() - timedelta(hours=1)
+        created_at=datetime.utcnow() - timedelta(hours=1),
     )
     db_session.add_all([app1, app2])
     db_session.commit()

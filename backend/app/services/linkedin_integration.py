@@ -32,28 +32,17 @@ class LinkedInJobAPI:
         return {
             "id": f"linkedin-{job_data.get('title', 'job').replace(' ', '-').lower()}-123",
             "url": f"https://www.linkedin.com/jobs/view/123",
-            "status": "published"
+            "status": "published",
         }
 
     async def update_job(self, job_id: str, job_data: Dict[str, Any]) -> Dict[str, Any]:
         """Update an existing LinkedIn job posting"""
-        return {
-            "id": job_id,
-            "status": "updated"
-        }
+        return {"id": job_id, "status": "updated"}
 
     async def delete_job(self, job_id: str) -> Dict[str, Any]:
         """Delete a LinkedIn job posting"""
-        return {
-            "id": job_id,
-            "status": "deleted"
-        }
+        return {"id": job_id, "status": "deleted"}
 
     async def get_job_metrics(self, job_id: str) -> Dict[str, Any]:
         """Get metrics for a LinkedIn job posting"""
-        return {
-            "id": job_id,
-            "views": 0,
-            "applications": 0,
-            "clicks": 0
-        }
+        return {"id": job_id, "views": 0, "applications": 0, "clicks": 0}

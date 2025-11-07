@@ -164,9 +164,7 @@ class TestConfigurationManagement:
 class TestJobQueueing:
     """Test adding jobs to auto-apply queue"""
 
-    def test_queue_job_success(
-        self, auto_apply_service, mock_db, mock_user, mock_job
-    ):
+    def test_queue_job_success(self, auto_apply_service, mock_db, mock_user, mock_job):
         """Test queueing a job for auto-apply"""
         mock_db.query().filter().first.return_value = mock_job
         mock_db.add = Mock()
@@ -180,9 +178,7 @@ class TestJobQueueing:
         with patch.object(
             auto_apply_service, "_check_eligibility", return_value=(True, None)
         ):
-            with patch.object(
-                auto_apply_service, "_deduct_credit", return_value=True
-            ):
+            with patch.object(auto_apply_service, "_deduct_credit", return_value=True):
                 result = auto_apply_service.queue_job(mock_user.id, job_data)
 
                 assert mock_db.add.called
@@ -219,9 +215,7 @@ class TestJobQueueing:
         with patch.object(
             auto_apply_service, "_check_eligibility", return_value=(True, None)
         ):
-            with patch.object(
-                auto_apply_service, "_deduct_credit", return_value=False
-            ):
+            with patch.object(auto_apply_service, "_deduct_credit", return_value=False):
                 with pytest.raises(ValidationError, match="Insufficient credits"):
                     auto_apply_service.queue_job(mock_user.id, job_data)
 
@@ -406,9 +400,7 @@ class TestJobProcessing:
         mock_db.query().filter().first.return_value = auto_apply_job
         mock_db.commit = Mock()
 
-        with patch.object(
-            auto_apply_service, "_submit_application", return_value=True
-        ):
+        with patch.object(auto_apply_service, "_submit_application", return_value=True):
             result = auto_apply_service.process_job(str(auto_apply_job.id))
 
             assert auto_apply_job.status == AutoApplyStatus.APPLIED
@@ -458,9 +450,7 @@ class TestJobProcessing:
             "_submit_application",
             side_effect=Exception("Network error"),
         ):
-            with patch.object(
-                auto_apply_service, "_refund_credit", return_value=True
-            ):
+            with patch.object(auto_apply_service, "_refund_credit", return_value=True):
                 with pytest.raises(Exception):
                     auto_apply_service.process_job(str(auto_apply_job.id))
 
@@ -476,9 +466,7 @@ class TestCreditManagement:
             mock_credit_service = MockCredit.return_value
             mock_credit_service.deduct_credits.return_value = True
 
-            result = auto_apply_service._deduct_credit(
-                mock_user.id, str(uuid.uuid4())
-            )
+            result = auto_apply_service._deduct_credit(mock_user.id, str(uuid.uuid4()))
 
             assert result == True
             mock_credit_service.deduct_credits.assert_called_once()
@@ -491,9 +479,7 @@ class TestCreditManagement:
                 "Insufficient credits"
             )
 
-            result = auto_apply_service._deduct_credit(
-                mock_user.id, str(uuid.uuid4())
-            )
+            result = auto_apply_service._deduct_credit(mock_user.id, str(uuid.uuid4()))
 
             assert result == False
 
@@ -605,10 +591,21 @@ class TestStatistics:
     def test_get_stats_success(self, auto_apply_service, mock_db, mock_user):
         """Test getting user's auto-apply statistics"""
         # Mock count queries
-        mock_db.query().filter().count.side_effect = [5, 2, 10, 1, 2, 0]  # Various counts
+        mock_db.query().filter().count.side_effect = [
+            5,
+            2,
+            10,
+            1,
+            2,
+            0,
+        ]  # Various counts
 
-        with patch.object(auto_apply_service, "_calculate_success_rate", return_value=80.0):
-            with patch.object(auto_apply_service, "_get_avg_fit_score", return_value=82.5):
+        with patch.object(
+            auto_apply_service, "_calculate_success_rate", return_value=80.0
+        ):
+            with patch.object(
+                auto_apply_service, "_get_avg_fit_score", return_value=82.5
+            ):
                 result = auto_apply_service.get_stats(mock_user.id)
 
                 assert result["total_queued"] == 5

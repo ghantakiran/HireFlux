@@ -41,7 +41,7 @@ def company_create_data():
         industry="Technology",
         size="1-10",
         location="San Francisco, CA",
-        website="https://testcompany.com"
+        website="https://testcompany.com",
     )
 
 
@@ -49,6 +49,7 @@ def company_create_data():
 def sample_company(db_session, company_create_data):
     """Create a sample company in the database"""
     from app.services.employer_service import EmployerService
+
     service = EmployerService(db_session)
     company = service.create_company(company_create_data)
     return company

@@ -30,8 +30,7 @@ router = APIRouter()
 
 
 def get_user_company_member(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ) -> CompanyMember:
     """
     Get company member for current user.
@@ -40,15 +39,13 @@ def get_user_company_member(
         HTTPException: If user is not a company member
     """
     company_member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not company_member:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User is not associated with any company"
+            detail="User is not associated with any company",
         )
 
     return company_member
@@ -58,12 +55,16 @@ def get_user_company_member(
     "/jobs/{job_id}/applications",
     response_model=ATSApplicationListResponse,
     summary="List applications for a job",
-    description="Get paginated list of applications with AI ranking and filtering"
+    description="Get paginated list of applications with AI ranking and filtering",
 )
 def list_job_applications(
     job_id: UUID,
-    status_filter: Optional[str] = Query(None, alias="status", description="Filter by status"),
-    min_fit_index: Optional[int] = Query(None, ge=0, le=100, description="Minimum fit score"),
+    status_filter: Optional[str] = Query(
+        None, alias="status", description="Filter by status"
+    ),
+    min_fit_index: Optional[int] = Query(
+        None, ge=0, le=100, description="Minimum fit score"
+    ),
     sort_by: str = Query("fit_index", description="Sort field: fit_index, applied_at"),
     order: str = Query("desc", pattern="^(asc|desc)$", description="Sort order"),
     page: int = Query(1, ge=1, description="Page number"),
@@ -86,18 +87,18 @@ def list_job_applications(
     """
     # Verify job belongs to user's company
     from app.db.models.job import Job
+
     job = db.query(Job).filter(Job.id == job_id).first()
 
     if not job:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Job not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Job not found"
         )
 
     if job.company_id != company_member.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have access to this job"
+            detail="You do not have access to this job",
         )
 
     # Get applications via service
@@ -109,24 +110,26 @@ def list_job_applications(
         sort_by=sort_by,
         order=order,
         page=page,
-        limit=limit
+        limit=limit,
     )
 
     total_pages = math.ceil(total / limit) if total > 0 else 0
 
     return ATSApplicationListResponse(
-        applications=[ATSApplicationResponse.model_validate(app) for app in applications],
+        applications=[
+            ATSApplicationResponse.model_validate(app) for app in applications
+        ],
         total=total,
         page=page,
         limit=limit,
-        total_pages=total_pages
+        total_pages=total_pages,
     )
 
 
 @router.get(
     "/jobs/{job_id}/applications/ranked",
     summary="Get AI-ranked applications",
-    description="Get all applications ranked by AI fit score with detailed explanations"
+    description="Get all applications ranked by AI fit score with detailed explanations",
 )
 def get_ranked_applications(
     job_id: UUID,
@@ -146,31 +149,30 @@ def get_ranked_applications(
     """
     # Verify job belongs to user's company
     from app.db.models.job import Job
+
     job = db.query(Job).filter(Job.id == job_id).first()
 
     if not job:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Job not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Job not found"
         )
 
     if job.company_id != company_member.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have access to this job"
+            detail="You do not have access to this job",
         )
 
     # Rank candidates via service
     ranking_service = CandidateRankingService(db)
     ranked_results = ranking_service.rank_candidates_for_job(
-        job_id=job_id,
-        update_applications=True  # Update fit_index on applications
+        job_id=job_id, update_applications=True  # Update fit_index on applications
     )
 
     return {
         "job_id": str(job_id),
         "total_candidates": len(ranked_results),
-        "ranked_candidates": ranked_results
+        "ranked_candidates": ranked_results,
     }
 
 
@@ -178,7 +180,7 @@ def get_ranked_applications(
     "/applications/{application_id}/status",
     response_model=ATSApplicationResponse,
     summary="Update application status",
-    description="Move application through pipeline stages (reviewing, phone_screen, etc.)"
+    description="Move application through pipeline stages (reviewing, phone_screen, etc.)",
 )
 def update_application_status(
     application_id: UUID,
@@ -206,11 +208,12 @@ def update_application_status(
     if company_member.role not in allowed_roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}",
         )
 
     # Verify application belongs to user's company
     from app.db.models.application import Application
+
     application = (
         db.query(Application)
         .join(Application.job)
@@ -220,30 +223,25 @@ def update_application_status(
 
     if not application:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Application not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Application not found"
         )
 
     if application.job.company_id != company_member.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have access to this application"
+            detail="You do not have access to this application",
         )
 
     # Update status via service
     try:
         app_service = ApplicationService(db)
         updated_app = app_service.update_application_status(
-            application_id=application_id,
-            status_data=status_data
+            application_id=application_id, status_data=status_data
         )
         return ATSApplicationResponse.model_validate(updated_app)
 
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post(
@@ -251,7 +249,7 @@ def update_application_status(
     response_model=ApplicationNoteResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Add internal note to application",
-    description="Add private or team-visible note on an application"
+    description="Add private or team-visible note on an application",
 )
 def add_application_note(
     application_id: UUID,
@@ -271,6 +269,7 @@ def add_application_note(
     """
     # Verify application belongs to user's company
     from app.db.models.application import Application
+
     application = (
         db.query(Application)
         .join(Application.job)
@@ -280,22 +279,19 @@ def add_application_note(
 
     if not application:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Application not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Application not found"
         )
 
     if application.job.company_id != company_member.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have access to this application"
+            detail="You do not have access to this application",
         )
 
     # Add note via service
     app_service = ApplicationService(db)
     note = app_service.add_application_note(
-        application_id=application_id,
-        author_id=current_user.id,
-        note_data=note_data
+        application_id=application_id, author_id=current_user.id, note_data=note_data
     )
 
     return ApplicationNoteResponse.model_validate(note)
@@ -305,7 +301,7 @@ def add_application_note(
     "/applications/{application_id}/notes",
     response_model=list[ApplicationNoteResponse],
     summary="Get application notes",
-    description="Get all notes for an application (team notes + your private notes)"
+    description="Get all notes for an application (team notes + your private notes)",
 )
 def get_application_notes(
     application_id: UUID,
@@ -322,6 +318,7 @@ def get_application_notes(
     """
     # Verify application belongs to user's company
     from app.db.models.application import Application
+
     application = (
         db.query(Application)
         .join(Application.job)
@@ -331,21 +328,19 @@ def get_application_notes(
 
     if not application:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Application not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Application not found"
         )
 
     if application.job.company_id != company_member.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have access to this application"
+            detail="You do not have access to this application",
         )
 
     # Get notes via service
     app_service = ApplicationService(db)
     notes = app_service.get_application_notes(
-        application_id=application_id,
-        author_id=current_user.id
+        application_id=application_id, author_id=current_user.id
     )
 
     return [ApplicationNoteResponse.model_validate(note) for note in notes]
@@ -355,7 +350,7 @@ def get_application_notes(
     "/applications/{application_id}/assign",
     response_model=ATSApplicationResponse,
     summary="Assign team members to application",
-    description="Assign or unassign team members to review an application"
+    description="Assign or unassign team members to review an application",
 )
 def assign_application_reviewers(
     application_id: UUID,
@@ -375,11 +370,12 @@ def assign_application_reviewers(
     if company_member.role not in allowed_roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}",
         )
 
     # Verify application belongs to user's company
     from app.db.models.application import Application
+
     application = (
         db.query(Application)
         .join(Application.job)
@@ -389,36 +385,31 @@ def assign_application_reviewers(
 
     if not application:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Application not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Application not found"
         )
 
     if application.job.company_id != company_member.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have access to this application"
+            detail="You do not have access to this application",
         )
 
     # Assign reviewers via service
     try:
         app_service = ApplicationService(db)
         updated_app = app_service.assign_reviewers(
-            application_id=application_id,
-            assign_data=assign_data
+            application_id=application_id, assign_data=assign_data
         )
         return ATSApplicationResponse.model_validate(updated_app)
 
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post(
     "/applications/bulk-update",
     summary="Bulk update applications",
-    description="Perform bulk actions on multiple applications"
+    description="Perform bulk actions on multiple applications",
 )
 def bulk_update_applications(
     bulk_data: ApplicationBulkUpdate,
@@ -440,11 +431,12 @@ def bulk_update_applications(
     if company_member.role not in allowed_roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}"
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}",
         )
 
     # Verify all applications belong to user's company
     from app.db.models.application import Application
+
     applications = (
         db.query(Application)
         .join(Application.job)
@@ -454,15 +446,14 @@ def bulk_update_applications(
 
     if not applications:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No applications found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="No applications found"
         )
 
     # Verify all belong to company
     if not all(app.job.company_id == company_member.company_id for app in applications):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Some applications do not belong to your company"
+            detail="Some applications do not belong to your company",
         )
 
     # Perform bulk update via service
@@ -473,21 +464,18 @@ def bulk_update_applications(
         return {
             "success": True,
             "updated_count": updated_count,
-            "message": f"Successfully updated {updated_count} application(s)"
+            "message": f"Successfully updated {updated_count} application(s)",
         }
 
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post(
     "/applications/{application_id}/calculate-fit",
     response_model=FitIndexResponse,
     summary="Calculate AI fit score for application",
-    description="Recalculate and return detailed AI fit scoring for a candidate"
+    description="Recalculate and return detailed AI fit scoring for a candidate",
 )
 def calculate_application_fit(
     application_id: UUID,
@@ -507,6 +495,7 @@ def calculate_application_fit(
     """
     # Verify application belongs to user's company
     from app.db.models.application import Application
+
     application = (
         db.query(Application)
         .join(Application.job)
@@ -516,21 +505,19 @@ def calculate_application_fit(
 
     if not application:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Application not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Application not found"
         )
 
     if application.job.company_id != company_member.company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have access to this application"
+            detail="You do not have access to this application",
         )
 
     # Calculate fit via ranking service
     ranking_service = CandidateRankingService(db)
     fit_result = ranking_service.calculate_fit_index(
-        candidate_user_id=application.user_id,
-        job_id=application.job_id
+        candidate_user_id=application.user_id, job_id=application.job_id
     )
 
     # Update application fit_index

@@ -103,62 +103,41 @@ Stripe webhooks are handled at:
     contact={
         "name": "HireFlux Support",
         "email": "support@hireflux.com",
-        "url": "https://hireflux.com/support"
+        "url": "https://hireflux.com/support",
     },
-    license_info={
-        "name": "Proprietary",
-        "url": "https://hireflux.com/terms"
-    },
+    license_info={"name": "Proprietary", "url": "https://hireflux.com/terms"},
     openapi_tags=[
-        {
-            "name": "Health",
-            "description": "Health check and system status endpoints"
-        },
+        {"name": "Health", "description": "Health check and system status endpoints"},
         {
             "name": "Authentication",
-            "description": "User authentication, registration, and OAuth flows"
+            "description": "User authentication, registration, and OAuth flows",
         },
         {
             "name": "Resumes",
-            "description": "Resume creation, management, and versioning"
+            "description": "Resume creation, management, and versioning",
         },
         {
             "name": "Cover Letters",
-            "description": "AI-powered cover letter generation and management"
+            "description": "AI-powered cover letter generation and management",
         },
-        {
-            "name": "Jobs",
-            "description": "Job search, matching, and recommendations"
-        },
+        {"name": "Jobs", "description": "Job search, matching, and recommendations"},
         {
             "name": "Applications",
-            "description": "Job application tracking and management"
+            "description": "Job application tracking and management",
         },
-        {
-            "name": "Auto-Apply",
-            "description": "Automated job application submission"
-        },
+        {"name": "Auto-Apply", "description": "Automated job application submission"},
         {
             "name": "Billing",
-            "description": "Subscriptions, payments, and credit management"
+            "description": "Subscriptions, payments, and credit management",
         },
-        {
-            "name": "Analytics",
-            "description": "User analytics and insights"
-        },
-        {
-            "name": "Interview",
-            "description": "Interview preparation and coaching"
-        },
-        {
-            "name": "Notifications",
-            "description": "User notifications and alerts"
-        },
+        {"name": "Analytics", "description": "User analytics and insights"},
+        {"name": "Interview", "description": "Interview preparation and coaching"},
+        {"name": "Notifications", "description": "User notifications and alerts"},
         {
             "name": "Employers",
-            "description": "Employer/company registration, management, and team collaboration"
+            "description": "Employer/company registration, management, and team collaboration",
         },
-    ]
+    ],
 )
 
 # CORS Middleware

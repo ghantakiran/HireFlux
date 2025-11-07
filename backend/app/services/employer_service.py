@@ -58,7 +58,7 @@ class EmployerService:
             IntegrityError: If domain already exists
         """
         # Extract domain from email (e.g., "founder@testcompany.com" -> "testcompany.com")
-        domain = data.email.split('@')[1] if '@' in data.email else None
+        domain = data.email.split("@")[1] if "@" in data.email else None
 
         # Hash password
         hashed_password = pwd_context.hash(data.password)
@@ -70,7 +70,7 @@ class EmployerService:
             hashed_password=hashed_password,
             user_type="employer",
             is_active=True,
-            is_verified=False  # Will need email verification
+            is_verified=False,  # Will need email verification
         )
         self.db.add(user)
         self.db.flush()  # Get user.id
@@ -91,7 +91,7 @@ class EmployerService:
             # Starter plan limits
             max_active_jobs=1,
             max_candidate_views=10,
-            max_team_members=1
+            max_team_members=1,
         )
         self.db.add(company)
         self.db.flush()  # Get company.id
@@ -103,7 +103,7 @@ class EmployerService:
             user_id=user.id,
             role="owner",
             status="active",
-            joined_at=datetime.utcnow()
+            joined_at=datetime.utcnow(),
         )
         self.db.add(member)
 
@@ -116,7 +116,7 @@ class EmployerService:
             current_period_start=datetime.utcnow(),
             current_period_end=datetime.utcnow() + timedelta(days=14),
             jobs_posted_this_month=0,
-            candidate_views_this_month=0
+            candidate_views_this_month=0,
         )
         self.db.add(subscription)
 
@@ -140,10 +140,7 @@ class EmployerService:
         """
         company = (
             self.db.query(Company)
-            .options(
-                joinedload(Company.members),
-                joinedload(Company.subscription)
-            )
+            .options(joinedload(Company.members), joinedload(Company.subscription))
             .filter(Company.id == company_id)
             .first()
         )
@@ -183,7 +180,7 @@ class EmployerService:
         self,
         company_id: UUID,
         member_data: CompanyMemberCreate,
-        invited_by_user_id: UUID
+        invited_by_user_id: UUID,
     ) -> CompanyMember:
         """
         Invite new team member to company
@@ -224,7 +221,7 @@ class EmployerService:
             status="invited",
             invited_by=invited_by_user_id,
             invited_at=datetime.utcnow(),
-            joined_at=None  # Will be set when invitation accepted
+            joined_at=None,  # Will be set when invitation accepted
         )
         self.db.add(member)
         self.db.commit()
@@ -246,8 +243,7 @@ class EmployerService:
         member = (
             self.db.query(CompanyMember)
             .filter(
-                CompanyMember.id == member_id,
-                CompanyMember.company_id == company_id
+                CompanyMember.id == member_id, CompanyMember.company_id == company_id
             )
             .first()
         )

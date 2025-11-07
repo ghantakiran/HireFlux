@@ -55,19 +55,17 @@ def get_current_company_member(
     if current_user.user_type != "employer":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can access team management"
+            detail="Only employers can access team management",
         )
 
     member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not member:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No company membership found for this user"
+            detail="No company membership found for this user",
         )
 
     return member
@@ -95,7 +93,7 @@ async def check_member_permission(
     if not has_permission:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"You don't have permission to {action}"
+            detail=f"You don't have permission to {action}",
         )
 
 
@@ -104,7 +102,11 @@ async def check_member_permission(
 # ============================================================================
 
 
-@router.post("/invite", response_model=TeamInvitationResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/invite",
+    response_model=TeamInvitationResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def invite_team_member(
     invitation_data: TeamInvitationCreate,
     member: CompanyMember = Depends(get_current_company_member),
@@ -146,14 +148,11 @@ async def invite_team_member(
         return invitation
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to send invitation: {str(e)}"
+            detail=f"Failed to send invitation: {str(e)}",
         )
 
 
@@ -175,7 +174,9 @@ async def list_pending_invitations(
     return invitations
 
 
-@router.post("/invitations/{invitation_id}/resend", response_model=TeamInvitationResponse)
+@router.post(
+    "/invitations/{invitation_id}/resend", response_model=TeamInvitationResponse
+)
 async def resend_invitation(
     invitation_id: UUID,
     member: CompanyMember = Depends(get_current_company_member),
@@ -199,10 +200,7 @@ async def resend_invitation(
         return invitation
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.delete("/invitations/{invitation_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -227,10 +225,7 @@ async def revoke_invitation(
         )
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.post("/accept/{token}", response_model=dict)
@@ -269,14 +264,11 @@ async def accept_invitation(
                 "company_id": str(new_member.company_id),
                 "role": new_member.role,
                 "member_id": str(new_member.id),
-            }
+            },
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 # ============================================================================
@@ -349,7 +341,7 @@ async def update_member_role(
     if member_id == member.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You cannot change your own role"
+            detail="You cannot change your own role",
         )
 
     service = TeamCollaborationService(db)
@@ -368,16 +360,13 @@ async def update_member_role(
             metadata={
                 "target_member_id": str(member_id),
                 "new_role": update_data.role,
-            }
+            },
         )
 
         return updated_member
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post("/members/{member_id}/suspend", response_model=TeamMemberResponse)
@@ -405,16 +394,13 @@ async def suspend_member(
         await service.log_team_activity(
             member_id=member.id,
             action="member_suspended",
-            metadata={"target_member_id": str(member_id)}
+            metadata={"target_member_id": str(member_id)},
         )
 
         return suspended_member
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.post("/members/{member_id}/reactivate", response_model=TeamMemberResponse)
@@ -442,16 +428,13 @@ async def reactivate_member(
         await service.log_team_activity(
             member_id=member.id,
             action="member_reactivated",
-            metadata={"target_member_id": str(member_id)}
+            metadata={"target_member_id": str(member_id)},
         )
 
         return reactivated_member
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.delete("/members/{member_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -476,7 +459,7 @@ async def remove_member(
         await service.log_team_activity(
             member_id=member.id,
             action="member_removed",
-            metadata={"target_member_id": str(member_id)}
+            metadata={"target_member_id": str(member_id)},
         )
 
         await service.remove_member(
@@ -485,10 +468,7 @@ async def remove_member(
         )
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 # ============================================================================
@@ -521,7 +501,7 @@ async def get_team_activity(
     if days > 90:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot query more than 90 days of activity"
+            detail="Cannot query more than 90 days of activity",
         )
 
     service = TeamCollaborationService(db)
@@ -553,7 +533,7 @@ async def get_member_activity(
     if days > 90:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot query more than 90 days of activity"
+            detail="Cannot query more than 90 days of activity",
         )
 
     service = TeamCollaborationService(db)

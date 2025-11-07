@@ -120,8 +120,12 @@ class FitIndexResponse(BaseModel):
     """AI candidate fit scoring details"""
 
     fit_index: int = Field(..., ge=0, le=100, description="Overall fit score 0-100")
-    explanations: List[str] = Field(default_factory=list, description="Factor explanations")
-    strengths: List[str] = Field(default_factory=list, description="Top candidate strengths")
+    explanations: List[str] = Field(
+        default_factory=list, description="Factor explanations"
+    )
+    strengths: List[str] = Field(
+        default_factory=list, description="Top candidate strengths"
+    )
     concerns: List[str] = Field(default_factory=list, description="Potential concerns")
 
     model_config = {
@@ -131,17 +135,17 @@ class FitIndexResponse(BaseModel):
                 "explanations": [
                     "Skills match: 95%",
                     "Experience level: Excellent",
-                    "Location: Local for hybrid role"
+                    "Location: Local for hybrid role",
                 ],
                 "strengths": [
                     "95% skills match (React, TypeScript, Node.js)",
                     "5 years experience (Matches Senior level requirement)",
-                    "Salary expectation $140K (Within your $130-150K range)"
+                    "Salary expectation $140K (Within your $130-150K range)",
                 ],
                 "concerns": [
                     "Start date: 60 days (You prefer 30 days)",
-                    "No experience with AWS (Listed as nice to have)"
-                ]
+                    "No experience with AWS (Listed as nice to have)",
+                ],
             }
         }
     }
@@ -170,9 +174,9 @@ class ATSApplicationResponse(ApplicationResponse):
                 "tags": ["strong_candidate", "react_expert"],
                 "applied_at": "2025-11-01T10:30:00Z",
                 "created_at": "2025-11-01T10:30:00Z",
-                "updated_at": "2025-11-01T10:30:00Z"
+                "updated_at": "2025-11-01T10:30:00Z",
             }
-        }
+        },
     }
 
 
@@ -192,7 +196,7 @@ class ATSApplicationListResponse(BaseModel):
                 "total": 50,
                 "page": 1,
                 "limit": 20,
-                "total_pages": 3
+                "total_pages": 3,
             }
         }
     }
@@ -208,7 +212,7 @@ class ApplicationNoteCreate(BaseModel):
         "json_schema_extra": {
             "example": {
                 "content": "Strong technical skills, but needs to improve communication during interview",
-                "visibility": "team"
+                "visibility": "team",
             }
         }
     }
@@ -238,9 +242,9 @@ class ApplicationNoteResponse(BaseModel):
                 "content": "Great candidate, moving to phone screen",
                 "visibility": "team",
                 "created_at": "2025-11-01T10:30:00Z",
-                "updated_at": "2025-11-01T10:30:00Z"
+                "updated_at": "2025-11-01T10:30:00Z",
             }
-        }
+        },
     }
 
 
@@ -248,13 +252,15 @@ class ApplicationStatusUpdate(BaseModel):
     """Update application status"""
 
     status: ATSApplicationStatus
-    note: Optional[str] = Field(None, max_length=500, description="Optional reason for status change")
+    note: Optional[str] = Field(
+        None, max_length=500, description="Optional reason for status change"
+    )
 
     model_config = {
         "json_schema_extra": {
             "example": {
                 "status": "phone_screen",
-                "note": "Moving to phone screen after reviewing portfolio"
+                "note": "Moving to phone screen after reviewing portfolio",
             }
         }
     }
@@ -263,14 +269,16 @@ class ApplicationStatusUpdate(BaseModel):
 class ApplicationAssignUpdate(BaseModel):
     """Assign/unassign team members to application"""
 
-    assigned_to: List[UUID] = Field(..., description="User IDs of team members to assign")
+    assigned_to: List[UUID] = Field(
+        ..., description="User IDs of team members to assign"
+    )
 
     model_config = {
         "json_schema_extra": {
             "example": {
                 "assigned_to": [
                     "123e4567-e89b-12d3-a456-426614174000",
-                    "987fbc97-4bed-5078-9f07-9141ba07c9f3"
+                    "987fbc97-4bed-5078-9f07-9141ba07c9f3",
                 ]
             }
         }
@@ -289,10 +297,10 @@ class ApplicationBulkUpdate(BaseModel):
             "example": {
                 "application_ids": [
                     "123e4567-e89b-12d3-a456-426614174000",
-                    "987fbc97-4bed-5078-9f07-9141ba07c9f3"
+                    "987fbc97-4bed-5078-9f07-9141ba07c9f3",
                 ],
                 "action": "move_to_stage",
-                "target_status": "phone_screen"
+                "target_status": "phone_screen",
             }
         }
     }

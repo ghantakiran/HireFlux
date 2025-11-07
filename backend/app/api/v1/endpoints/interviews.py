@@ -69,19 +69,17 @@ def get_current_company_member(
     if current_user.user_type != "employer":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only employers can access interview scheduling"
+            detail="Only employers can access interview scheduling",
         )
 
     member = (
-        db.query(CompanyMember)
-        .filter(CompanyMember.user_id == current_user.id)
-        .first()
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
     )
 
     if not member:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No company membership found for this user"
+            detail="No company membership found for this user",
         )
 
     return member
@@ -111,7 +109,7 @@ async def check_member_permission(
     if not has_permission:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"You don't have permission to {action}"
+            detail=f"You don't have permission to {action}",
         )
 
 
@@ -134,26 +132,22 @@ async def validate_application_access(
     Raises:
         HTTPException: If application not found or not owned by company
     """
-    application = (
-        db.query(Application)
-        .filter(Application.id == application_id)
-        .first()
-    )
+    application = db.query(Application).filter(Application.id == application_id).first()
 
     if not application:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Application not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Application not found"
         )
 
     # Verify application belongs to company's job
     from app.db.models.job import Job
+
     job = db.query(Job).filter(Job.id == application.job_id).first()
 
     if not job or job.company_id != company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have access to this application"
+            detail="You don't have access to this application",
         )
 
     return application
@@ -164,7 +158,9 @@ async def validate_application_access(
 # ============================================================================
 
 
-@router.post("", response_model=InterviewScheduleResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "", response_model=InterviewScheduleResponse, status_code=status.HTTP_201_CREATED
+)
 async def schedule_interview(
     interview_data: InterviewScheduleCreate,
     member: CompanyMember = Depends(get_current_company_member),
@@ -217,24 +213,25 @@ async def schedule_interview(
         return interview
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to schedule interview: {str(e)}"
+            detail=f"Failed to schedule interview: {str(e)}",
         )
 
 
 @router.get("", response_model=InterviewListResponse)
 async def list_interviews(
-    status_filter: Optional[str] = Query(None, description="Filter by status (scheduled, completed, cancelled)"),
+    status_filter: Optional[str] = Query(
+        None, description="Filter by status (scheduled, completed, cancelled)"
+    ),
     interview_type: Optional[str] = Query(None, description="Filter by interview type"),
     start_date: Optional[datetime] = Query(None, description="Filter by start date"),
     end_date: Optional[datetime] = Query(None, description="Filter by end date"),
-    interviewer_id: Optional[UUID] = Query(None, description="Filter by interviewer ID"),
+    interviewer_id: Optional[UUID] = Query(
+        None, description="Filter by interviewer ID"
+    ),
     member: CompanyMember = Depends(get_current_company_member),
     db: Session = Depends(get_db),
 ):
@@ -276,13 +273,15 @@ async def list_interviews(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to list interviews: {str(e)}"
+            detail=f"Failed to list interviews: {str(e)}",
         )
 
 
 @router.get("/upcoming", response_model=List[InterviewScheduleResponse])
 async def get_upcoming_interviews(
-    days: int = Query(7, ge=1, le=90, description="Number of days to look ahead (default: 7, max: 90)"),
+    days: int = Query(
+        7, ge=1, le=90, description="Number of days to look ahead (default: 7, max: 90)"
+    ),
     member: CompanyMember = Depends(get_current_company_member),
     db: Session = Depends(get_db),
 ):
@@ -312,7 +311,7 @@ async def get_upcoming_interviews(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get upcoming interviews: {str(e)}"
+            detail=f"Failed to get upcoming interviews: {str(e)}",
         )
 
 
@@ -345,10 +344,7 @@ async def get_interview(
         return interview
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.patch("/{interview_id}", response_model=InterviewScheduleResponse)
@@ -380,10 +376,7 @@ async def update_interview(
         return interview
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.post("/{interview_id}/reschedule", response_model=InterviewScheduleResponse)
@@ -420,10 +413,7 @@ async def reschedule_interview(
         return interview
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.delete("/{interview_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -457,10 +447,7 @@ async def cancel_interview(
         )
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 # ============================================================================
@@ -500,13 +487,13 @@ async def assign_interviewers(
         return interview
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.delete("/{interview_id}/interviewers/{interviewer_id}", response_model=InterviewScheduleResponse)
+@router.delete(
+    "/{interview_id}/interviewers/{interviewer_id}",
+    response_model=InterviewScheduleResponse,
+)
 async def remove_interviewer(
     interview_id: UUID,
     interviewer_id: UUID,
@@ -537,10 +524,7 @@ async def remove_interviewer(
         return interview
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 # ============================================================================
@@ -590,13 +574,13 @@ async def request_candidate_availability(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/applications/{application_id}/availability", response_model=CandidateAvailabilityResponse)
+@router.get(
+    "/applications/{application_id}/availability",
+    response_model=CandidateAvailabilityResponse,
+)
 async def get_candidate_availability(
     application_id: UUID,
     member: CompanyMember = Depends(get_current_company_member),
@@ -632,10 +616,7 @@ async def get_candidate_availability(
         return availability
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 # Note: Candidate availability submission endpoint will be in candidate-facing API
@@ -647,7 +628,11 @@ async def get_candidate_availability(
 # ============================================================================
 
 
-@router.post("/{interview_id}/feedback", response_model=InterviewFeedbackResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{interview_id}/feedback",
+    response_model=InterviewFeedbackResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def submit_interview_feedback(
     interview_id: UUID,
     feedback_data: InterviewFeedbackCreate,
@@ -694,10 +679,7 @@ async def submit_interview_feedback(
         return feedback
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get("/{interview_id}/feedback", response_model=List[InterviewFeedbackResponse])
@@ -731,13 +713,13 @@ async def get_interview_feedback(
         return feedback_list
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.get("/applications/{application_id}/feedback/aggregated", response_model=AggregatedFeedbackResponse)
+@router.get(
+    "/applications/{application_id}/feedback/aggregated",
+    response_model=AggregatedFeedbackResponse,
+)
 async def get_aggregated_feedback(
     application_id: UUID,
     member: CompanyMember = Depends(get_current_company_member),
@@ -774,10 +756,7 @@ async def get_aggregated_feedback(
         return aggregated
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 # ============================================================================
@@ -817,10 +796,7 @@ async def sync_to_calendar(
         return result
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.post("/{interview_id}/calendar/invite", response_model=dict)
@@ -858,7 +834,4 @@ async def send_calendar_invite(
         }
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

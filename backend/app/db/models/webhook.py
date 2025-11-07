@@ -162,9 +162,15 @@ class InterviewSchedule(Base):
     interviewer_emails = Column(JSON, nullable=True)  # List of interviewer emails
 
     # Sprint 13-14: Enhanced interview scheduling
-    interviewer_ids = Column(JSON, nullable=True)  # Array of company_member IDs assigned as interviewers
-    meeting_platform = Column(String(50), nullable=True)  # 'zoom', 'google_meet', 'microsoft_teams', 'in_person'
-    calendar_event_id = Column(String(255), nullable=True)  # Google Calendar / Outlook event ID
+    interviewer_ids = Column(
+        JSON, nullable=True
+    )  # Array of company_member IDs assigned as interviewers
+    meeting_platform = Column(
+        String(50), nullable=True
+    )  # 'zoom', 'google_meet', 'microsoft_teams', 'in_person'
+    calendar_event_id = Column(
+        String(255), nullable=True
+    )  # Google Calendar / Outlook event ID
     reminders_config = Column(JSON, nullable=True)  # {"24h": true, "1h": true}
 
     # Status
@@ -209,7 +215,9 @@ class InterviewSchedule(Base):
     application = relationship("Application", back_populates="interview_schedules")
     user = relationship("User", back_populates="interview_schedules")
     webhook_event = relationship("WebhookEvent")
-    interview_feedback = relationship("InterviewFeedback", back_populates="interview", cascade="all, delete-orphan")
+    interview_feedback = relationship(
+        "InterviewFeedback", back_populates="interview", cascade="all, delete-orphan"
+    )
 
 
 class WebhookSubscription(Base):
@@ -278,10 +286,18 @@ class InterviewFeedback(Base):
     )
 
     # Ratings (1-5 scale)
-    overall_rating = Column(Integer, nullable=True)  # CHECK (overall_rating BETWEEN 1 AND 5)
-    technical_rating = Column(Integer, nullable=True)  # CHECK (technical_rating BETWEEN 1 AND 5)
-    communication_rating = Column(Integer, nullable=True)  # CHECK (communication_rating BETWEEN 1 AND 5)
-    culture_fit_rating = Column(Integer, nullable=True)  # CHECK (culture_fit_rating BETWEEN 1 AND 5)
+    overall_rating = Column(
+        Integer, nullable=True
+    )  # CHECK (overall_rating BETWEEN 1 AND 5)
+    technical_rating = Column(
+        Integer, nullable=True
+    )  # CHECK (technical_rating BETWEEN 1 AND 5)
+    communication_rating = Column(
+        Integer, nullable=True
+    )  # CHECK (communication_rating BETWEEN 1 AND 5)
+    culture_fit_rating = Column(
+        Integer, nullable=True
+    )  # CHECK (culture_fit_rating BETWEEN 1 AND 5)
 
     # Detailed feedback
     strengths = Column(JSON, nullable=True)  # Array of strengths
@@ -334,7 +350,9 @@ class CandidateAvailability(Base):
     timezone = Column(String(50), nullable=False)
 
     # Preferences
-    preferred_platform = Column(String(50), nullable=True)  # 'zoom', 'google_meet', etc.
+    preferred_platform = Column(
+        String(50), nullable=True
+    )  # 'zoom', 'google_meet', etc.
     notes = Column(Text, nullable=True)
 
     # Expiration

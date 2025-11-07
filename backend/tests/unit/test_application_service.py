@@ -144,9 +144,7 @@ def test_get_applications_for_job_success(
     service = ApplicationService(db_session)
 
     applications, total = service.get_applications_for_job(
-        job_id=sample_job.id,
-        page=1,
-        limit=10
+        job_id=sample_job.id, page=1, limit=10
     )
 
     assert total == 1
@@ -192,10 +190,7 @@ def test_get_applications_with_fit_index_filter(
 
     # Filter by min fit_index = 80
     applications, total = service.get_applications_for_job(
-        job_id=sample_job.id,
-        min_fit_index=80,
-        page=1,
-        limit=10
+        job_id=sample_job.id, min_fit_index=80, page=1, limit=10
     )
 
     assert total == 2
@@ -237,10 +232,7 @@ def test_get_applications_with_status_filter(
 
     # Filter by status = "reviewing"
     applications, total = service.get_applications_for_job(
-        job_id=sample_job.id,
-        status="reviewing",
-        page=1,
-        limit=10
+        job_id=sample_job.id, status="reviewing", page=1, limit=10
     )
 
     assert total == 2
@@ -285,11 +277,7 @@ def test_get_applications_sorted_by_fit_index(
 
     # Get sorted applications
     applications, total = service.get_applications_for_job(
-        job_id=sample_job.id,
-        sort_by="fit_index",
-        order="desc",
-        page=1,
-        limit=10
+        job_id=sample_job.id, sort_by="fit_index", order="desc", page=1, limit=10
     )
 
     assert total == 3
@@ -303,9 +291,7 @@ def test_get_applications_sorted_by_fit_index(
 # ============================================================================
 
 
-def test_update_application_status_success(
-    db_session: Session, sample_application
-):
+def test_update_application_status_success(db_session: Session, sample_application):
     """
     GIVEN: An application in "reviewing" status
     WHEN: update_application_status() is called with new status
@@ -315,12 +301,11 @@ def test_update_application_status_success(
 
     status_data = ApplicationStatusUpdate(
         status=ATSApplicationStatus.PHONE_SCREEN,
-        note="Strong technical skills, moving forward"
+        note="Strong technical skills, moving forward",
     )
 
     updated_app = service.update_application_status(
-        application_id=sample_application.id,
-        status_data=status_data
+        application_id=sample_application.id, status_data=status_data
     )
 
     assert updated_app.status == "phone_screen"
@@ -342,14 +327,11 @@ def test_update_application_status_invalid_transition(
     sample_application.status = "rejected"
     db_session.commit()
 
-    status_data = ApplicationStatusUpdate(
-        status=ATSApplicationStatus.PHONE_SCREEN
-    )
+    status_data = ApplicationStatusUpdate(status=ATSApplicationStatus.PHONE_SCREEN)
 
     with pytest.raises(Exception) as exc_info:
         service.update_application_status(
-            application_id=sample_application.id,
-            status_data=status_data
+            application_id=sample_application.id, status_data=status_data
         )
 
     assert "Cannot change status of rejected application" in str(exc_info.value)
@@ -372,13 +354,13 @@ def test_add_application_note_success(
 
     note_data = ApplicationNoteCreate(
         content="Candidate has strong React skills but needs backend experience",
-        visibility="team"
+        visibility="team",
     )
 
     note = service.add_application_note(
         application_id=sample_application.id,
         author_id=sample_employer_user.id,
-        note_data=note_data
+        note_data=note_data,
     )
 
     assert note.id is not None
@@ -399,14 +381,13 @@ def test_add_private_note(
     service = ApplicationService(db_session)
 
     note_data = ApplicationNoteCreate(
-        content="Salary expectations too high, may not proceed",
-        visibility="private"
+        content="Salary expectations too high, may not proceed", visibility="private"
     )
 
     note = service.add_application_note(
         application_id=sample_application.id,
         author_id=sample_employer_user.id,
-        note_data=note_data
+        note_data=note_data,
     )
 
     assert note.visibility == "private"
@@ -426,13 +407,13 @@ def test_get_application_notes(
     note1 = service.add_application_note(
         application_id=sample_application.id,
         author_id=sample_employer_user.id,
-        note_data=ApplicationNoteCreate(content="First note", visibility="team")
+        note_data=ApplicationNoteCreate(content="First note", visibility="team"),
     )
 
     note2 = service.add_application_note(
         application_id=sample_application.id,
         author_id=sample_employer_user.id,
-        note_data=ApplicationNoteCreate(content="Second note", visibility="team")
+        note_data=ApplicationNoteCreate(content="Second note", visibility="team"),
     )
 
     notes = service.get_application_notes(application_id=sample_application.id)
@@ -458,13 +439,10 @@ def test_assign_reviewers_to_application(
     """
     service = ApplicationService(db_session)
 
-    assign_data = ApplicationAssignUpdate(
-        assigned_to=[sample_employer_user.id]
-    )
+    assign_data = ApplicationAssignUpdate(assigned_to=[sample_employer_user.id])
 
     updated_app = service.assign_reviewers(
-        application_id=sample_application.id,
-        assign_data=assign_data
+        application_id=sample_application.id, assign_data=assign_data
     )
 
     assert len(updated_app.assigned_to) == 1
@@ -489,8 +467,7 @@ def test_unassign_reviewers(
     assign_data = ApplicationAssignUpdate(assigned_to=[])
 
     updated_app = service.assign_reviewers(
-        application_id=sample_application.id,
-        assign_data=assign_data
+        application_id=sample_application.id, assign_data=assign_data
     )
 
     assert len(updated_app.assigned_to) == 0
@@ -530,7 +507,7 @@ def test_bulk_reject_applications(
     bulk_data = ApplicationBulkUpdate(
         application_ids=[app1.id, app2.id],
         action="reject",
-        target_status=ATSApplicationStatus.REJECTED
+        target_status=ATSApplicationStatus.REJECTED,
     )
 
     updated_count = service.bulk_update_applications(bulk_data=bulk_data)
@@ -544,9 +521,7 @@ def test_bulk_reject_applications(
     assert app2.status == "rejected"
 
 
-def test_bulk_move_to_stage(
-    db_session: Session, sample_job, sample_candidate_user
-):
+def test_bulk_move_to_stage(db_session: Session, sample_job, sample_candidate_user):
     """
     GIVEN: Multiple applications in "reviewing" status
     WHEN: bulk_update() is called to move to "phone_screen"
@@ -573,7 +548,7 @@ def test_bulk_move_to_stage(
     bulk_data = ApplicationBulkUpdate(
         application_ids=[app1.id, app2.id],
         action="move_to_stage",
-        target_status=ATSApplicationStatus.PHONE_SCREEN
+        target_status=ATSApplicationStatus.PHONE_SCREEN,
     )
 
     updated_count = service.bulk_update_applications(bulk_data=bulk_data)
@@ -619,7 +594,7 @@ def test_complete_ats_workflow(
         status="new",
         fit_index=92,
         applied_at=datetime.utcnow(),
-        tags=[]
+        tags=[],
     )
     app_medium_fit = Application(
         user_id=sample_candidate_user.id,
@@ -627,7 +602,7 @@ def test_complete_ats_workflow(
         status="new",
         fit_index=75,
         applied_at=datetime.utcnow(),
-        tags=[]
+        tags=[],
     )
     app_low_fit = Application(
         user_id=sample_candidate_user.id,
@@ -635,7 +610,7 @@ def test_complete_ats_workflow(
         status="new",
         fit_index=55,
         applied_at=datetime.utcnow(),
-        tags=[]
+        tags=[],
     )
     db_session.add_all([app_high_fit, app_medium_fit, app_low_fit])
     db_session.commit()
@@ -647,7 +622,7 @@ def test_complete_ats_workflow(
         sort_by="fit_index",
         order="desc",
         page=1,
-        limit=10
+        limit=10,
     )
 
     # THEN: Only high fit candidate is returned
@@ -659,8 +634,8 @@ def test_complete_ats_workflow(
         application_id=high_fit_apps[0].id,
         status_data=ApplicationStatusUpdate(
             status=ATSApplicationStatus.REVIEWING,
-            note="Excellent fit, reviewing portfolio"
-        )
+            note="Excellent fit, reviewing portfolio",
+        ),
     )
     assert updated_app.status == "reviewing"
 
@@ -670,17 +645,15 @@ def test_complete_ats_workflow(
         author_id=sample_employer_user.id,
         note_data=ApplicationNoteCreate(
             content="Strong React skills, 5 years exp, great portfolio",
-            visibility="team"
-        )
+            visibility="team",
+        ),
     )
     assert note.id is not None
 
     # AND: Assign to hiring manager
     assigned_app = service.assign_reviewers(
         application_id=updated_app.id,
-        assign_data=ApplicationAssignUpdate(
-            assigned_to=[sample_employer_user.id]
-        )
+        assign_data=ApplicationAssignUpdate(assigned_to=[sample_employer_user.id]),
     )
     assert len(assigned_app.assigned_to) == 1
 
@@ -688,9 +661,8 @@ def test_complete_ats_workflow(
     phone_screen_app = service.update_application_status(
         application_id=assigned_app.id,
         status_data=ApplicationStatusUpdate(
-            status=ATSApplicationStatus.PHONE_SCREEN,
-            note="Moving to phone screen"
-        )
+            status=ATSApplicationStatus.PHONE_SCREEN, note="Moving to phone screen"
+        ),
     )
     assert phone_screen_app.status == "phone_screen"
 
@@ -699,7 +671,7 @@ def test_complete_ats_workflow(
         bulk_data=ApplicationBulkUpdate(
             application_ids=[app_low_fit.id],
             action="reject",
-            target_status=ATSApplicationStatus.REJECTED
+            target_status=ATSApplicationStatus.REJECTED,
         )
     )
     assert bulk_reject_count == 1

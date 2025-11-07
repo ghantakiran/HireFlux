@@ -74,10 +74,16 @@ class EndpointMonitor:
         return {
             "requests": total_requests,
             "errors": total_errors,
-            "error_rate": (total_errors / total_requests * 100) if total_requests > 0 else 0.0,
+            "error_rate": (total_errors / total_requests * 100)
+            if total_requests > 0
+            else 0.0,
             "avg_response_time": sum(times) / len(times),
-            "p95_response_time": times_sorted[int(len(times_sorted) * 0.95)] if times_sorted else 0.0,
-            "p99_response_time": times_sorted[int(len(times_sorted) * 0.99)] if times_sorted else 0.0,
+            "p95_response_time": times_sorted[int(len(times_sorted) * 0.95)]
+            if times_sorted
+            else 0.0,
+            "p99_response_time": times_sorted[int(len(times_sorted) * 0.99)]
+            if times_sorted
+            else 0.0,
             "min_response_time": min(times),
             "max_response_time": max(times),
         }
@@ -97,12 +103,14 @@ class EndpointMonitor:
 
         cpu_percent = psutil.cpu_percent(interval=0.1)
         memory = psutil.virtual_memory()
-        disk = psutil.disk_usage('/')
+        disk = psutil.disk_usage("/")
 
         uptime = datetime.utcnow() - self.start_time
 
         return {
-            "status": "healthy" if cpu_percent < 90 and memory.percent < 90 else "degraded",
+            "status": "healthy"
+            if cpu_percent < 90 and memory.percent < 90
+            else "degraded",
             "uptime_seconds": int(uptime.total_seconds()),
             "cpu_percent": cpu_percent,
             "memory_percent": memory.percent,
