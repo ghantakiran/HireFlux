@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_current_user, get_db
 from app.db.models.user import User
+from app.db.models.webhook import WebhookEvent
 from app.schemas.webhook import (
     ApplicationStatusHistoryResponse,
     ApplicationStatusStatistics,
@@ -238,7 +239,7 @@ def list_webhook_events(
     webhook_service = WebhookService(db)
 
     # Query events
-    query = db.query(webhook_service.db.query(WebhookEvent))
+    query = db.query(WebhookEvent)
 
     if source:
         query = query.filter(WebhookEvent.source == source)
