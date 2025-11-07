@@ -49,7 +49,7 @@ def upgrade() -> None:
     op.create_table(
         'interview_schedules',
         sa.Column('id', GUID(), primary_key=True),
-        sa.Column('application_id', GUID(), sa.ForeignKey('job_applications.id', ondelete='CASCADE'), nullable=False, index=True),
+        sa.Column('application_id', GUID(), sa.ForeignKey('applications.id', ondelete='CASCADE'), nullable=False, index=True),
         sa.Column('user_id', GUID(), sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True),
 
         # Interview details
@@ -199,7 +199,7 @@ def upgrade() -> None:
         sa.Column('id', GUID(), primary_key=True),
         sa.Column('interview_id', GUID(), sa.ForeignKey('interview_schedules.id', ondelete='CASCADE'), nullable=False),
         sa.Column('interviewer_id', GUID(), sa.ForeignKey('company_members.id', ondelete='SET NULL'), nullable=True),
-        sa.Column('application_id', GUID(), sa.ForeignKey('job_applications.id', ondelete='CASCADE'), nullable=False),
+        sa.Column('application_id', GUID(), sa.ForeignKey('applications.id', ondelete='CASCADE'), nullable=False),
 
         # Rating dimensions (1-5 scale)
         sa.Column('overall_rating', sa.Integer(), nullable=True),
@@ -231,7 +231,7 @@ def upgrade() -> None:
     op.create_table(
         'candidate_availability',
         sa.Column('id', GUID(), primary_key=True),
-        sa.Column('application_id', GUID(), sa.ForeignKey('job_applications.id', ondelete='CASCADE'), nullable=False),
+        sa.Column('application_id', GUID(), sa.ForeignKey('applications.id', ondelete='CASCADE'), nullable=False),
         sa.Column('candidate_id', GUID(), sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False),
 
         # Availability data
