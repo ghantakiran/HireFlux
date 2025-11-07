@@ -42,7 +42,75 @@ def upgrade() -> None:
     """
 
     # ========================================================================
-    # PART 1: Enhance existing tables
+    # PART 1: Create interview_schedules table (missing from previous migrations)
+    # ========================================================================
+
+    # Create interview_schedules table with Sprint 13-14 enhancements
+    op.create_table(
+        'interview_schedules',
+        sa.Column('id', GUID(), primary_key=True),
+        sa.Column('application_id', GUID(), sa.ForeignKey('job_applications.id', ondelete='CASCADE'), nullable=False, index=True),
+        sa.Column('user_id', GUID(), sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True),
+
+        # Interview details
+        sa.Column('interview_type', sa.String(50), nullable=False),
+        sa.Column('interview_round', sa.Integer(), server_default='1'),
+
+        # Scheduling
+        sa.Column('scheduled_at', sa.DateTime(), nullable=True, index=True),
+        sa.Column('duration_minutes', sa.Integer(), nullable=True),
+        sa.Column('timezone', sa.String(50), nullable=True),
+
+        # Location/link
+        sa.Column('location', sa.Text(), nullable=True),
+        sa.Column('meeting_link', sa.Text(), nullable=True),
+        sa.Column('dial_in_info', sa.Text(), nullable=True),
+
+        # Participants
+        sa.Column('interviewer_names', JSONB, nullable=True),
+        sa.Column('interviewer_emails', JSONB, nullable=True),
+
+        # Sprint 13-14: Enhanced interview scheduling
+        sa.Column('interviewer_ids', JSONB, nullable=True),
+        sa.Column('meeting_platform', sa.String(50), nullable=True),
+        sa.Column('calendar_event_id', sa.String(255), nullable=True),
+        sa.Column('reminders_config', JSONB, nullable=True),
+
+        # Status
+        sa.Column('status', sa.String(50), server_default='scheduled', nullable=False, index=True),
+        sa.Column('confirmation_status', sa.String(50), server_default='pending', nullable=False),
+
+        # Reminders
+        sa.Column('reminder_sent', sa.Boolean(), server_default='false'),
+        sa.Column('reminder_sent_at', sa.DateTime(), nullable=True),
+
+        # External references
+        sa.Column('external_event_id', sa.String(255), nullable=True),
+        sa.Column('calendar_invite_sent', sa.Boolean(), server_default='false'),
+        sa.Column('webhook_event_id', GUID(), sa.ForeignKey('webhook_events.id', ondelete='SET NULL'), nullable=True),
+
+        # Outcome
+        sa.Column('completed_at', sa.DateTime(), nullable=True),
+        sa.Column('outcome', sa.String(50), nullable=True),
+        sa.Column('feedback', sa.Text(), nullable=True),
+
+        # Metadata
+        sa.Column('extra_data', JSONB, nullable=True),
+        sa.Column('notes', sa.Text(), nullable=True),
+
+        # Timestamps
+        sa.Column('created_at', sa.DateTime(), server_default=func.now(), nullable=False),
+        sa.Column('updated_at', sa.DateTime(), server_default=func.now(), onupdate=func.now(), nullable=False),
+    )
+
+    # Indexes for interview_schedules
+    op.create_index('idx_interview_schedules_application_id', 'interview_schedules', ['application_id'])
+    op.create_index('idx_interview_schedules_user_id', 'interview_schedules', ['user_id'])
+    op.create_index('idx_interview_schedules_scheduled_at', 'interview_schedules', ['scheduled_at'])
+    op.create_index('idx_interview_schedules_status', 'interview_schedules', ['status'])
+
+    # ========================================================================
+    # PART 2: Enhance existing tables
     # ========================================================================
 
     # Enhance company_members table (Sprint 13-14)
@@ -55,30 +123,8 @@ def upgrade() -> None:
         sa.Column('notification_preferences', JSONB, nullable=True, server_default='{}')
     )
 
-    # Enhance interview_schedules table (Sprint 13-14)
-    op.add_column(
-        'interview_schedules',
-        sa.Column('interviewer_ids', JSONB, nullable=True)
-    )
-    op.add_column(
-        'interview_schedules',
-        sa.Column('meeting_platform', sa.String(50), nullable=True)
-    )
-    op.add_column(
-        'interview_schedules',
-        sa.Column('calendar_event_id', sa.String(255), nullable=True)
-    )
-    op.add_column(
-        'interview_schedules',
-        sa.Column('calendar_invite_sent', sa.Boolean(), server_default='false')
-    )
-    op.add_column(
-        'interview_schedules',
-        sa.Column('reminders_config', JSONB, nullable=True)
-    )
-
     # ========================================================================
-    # PART 2: Team Collaboration Tables
+    # PART 3: Team Collaboration Tables
     # ========================================================================
 
     # Create team_invitations table
@@ -144,7 +190,7 @@ def upgrade() -> None:
     op.create_index('idx_team_mentions_read', 'team_mentions', ['read'])
 
     # ========================================================================
-    # PART 3: Interview Scheduling Tables
+    # PART 4: Interview Scheduling Tables (Feedback & Availability)
     # ========================================================================
 
     # Create interview_feedback table
@@ -211,7 +257,7 @@ def downgrade() -> None:
     """
     Downgrade from Sprint 13-14 schema.
 
-    Removes all Sprint 13-14 features and reverts enhanced columns.
+    Removes all Sprint 13-14 features and drops interview_schedules table.
     """
 
     # ========================================================================
@@ -253,16 +299,16 @@ def downgrade() -> None:
     op.drop_index('idx_team_invitations_company_id', 'team_invitations')
     op.drop_table('team_invitations')
 
+    # Drop interview_schedules table (created in this migration)
+    op.drop_index('idx_interview_schedules_status', 'interview_schedules')
+    op.drop_index('idx_interview_schedules_scheduled_at', 'interview_schedules')
+    op.drop_index('idx_interview_schedules_user_id', 'interview_schedules')
+    op.drop_index('idx_interview_schedules_application_id', 'interview_schedules')
+    op.drop_table('interview_schedules')
+
     # ========================================================================
     # PART 2: Remove enhanced columns from existing tables
     # ========================================================================
-
-    # Remove columns from interview_schedules
-    op.drop_column('interview_schedules', 'reminders_config')
-    op.drop_column('interview_schedules', 'calendar_invite_sent')
-    op.drop_column('interview_schedules', 'calendar_event_id')
-    op.drop_column('interview_schedules', 'meeting_platform')
-    op.drop_column('interview_schedules', 'interviewer_ids')
 
     # Remove columns from company_members
     op.drop_column('company_members', 'notification_preferences')
