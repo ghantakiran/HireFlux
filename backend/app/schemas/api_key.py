@@ -317,3 +317,257 @@ class WebhookTestRequest(BaseModel):
         if v not in valid_events:
             raise ValueError(f"Invalid event: {v}. Must be one of {valid_events}")
         return v
+
+
+# ============================================================================
+# White-Label Branding Schemas - Sprint 17-18 Phase 3
+# ============================================================================
+
+
+class WhiteLabelBrandingUpdate(BaseModel):
+    """Update schema for white-label branding configuration"""
+
+    company_display_name: Optional[str] = Field(None, max_length=255)
+
+    # Logos
+    logo_url: Optional[str] = Field(None, max_length=500)
+    logo_dark_url: Optional[str] = Field(None, max_length=500)
+    logo_icon_url: Optional[str] = Field(None, max_length=500)
+    logo_email_url: Optional[str] = Field(None, max_length=500)
+
+    # Colors
+    primary_color: Optional[str] = Field(None, min_length=7, max_length=7)
+    secondary_color: Optional[str] = Field(None, min_length=7, max_length=7)
+    accent_color: Optional[str] = Field(None, min_length=7, max_length=7)
+    text_color: Optional[str] = Field(None, min_length=7, max_length=7)
+    background_color: Optional[str] = Field(None, min_length=7, max_length=7)
+
+    # Typography
+    font_family: Optional[str] = Field(None, max_length=100)
+    heading_font_family: Optional[str] = Field(None, max_length=100)
+
+    # Email branding
+    email_from_name: Optional[str] = Field(None, max_length=255)
+    email_from_address: Optional[str] = Field(None, max_length=255)
+    email_reply_to: Optional[str] = Field(None, max_length=255)
+    email_footer_text: Optional[str] = None
+    email_header_html: Optional[str] = None
+
+    # Career page
+    career_page_enabled: Optional[bool] = None
+    career_page_slug: Optional[str] = Field(None, max_length=100)
+    career_page_title: Optional[str] = Field(None, max_length=255)
+    career_page_description: Optional[str] = None
+    career_page_header_html: Optional[str] = None
+    career_page_footer_html: Optional[str] = None
+
+    # Social links
+    social_links: Optional[Dict[str, str]] = None
+
+    # Custom CSS
+    custom_css: Optional[str] = Field(None, max_length=50000)
+
+    # Feature flags
+    hide_hireflux_branding: Optional[bool] = None
+    use_custom_application_form: Optional[bool] = None
+
+    @validator("primary_color", "secondary_color", "accent_color", "text_color", "background_color")
+    def validate_hex_color(cls, v):
+        """Validate hex color format"""
+        if v is not None:
+            if not v.startswith("#") or len(v) != 7:
+                raise ValueError("Color must be in hex format (#RRGGBB)")
+            try:
+                int(v[1:], 16)
+            except ValueError:
+                raise ValueError("Invalid hex color value")
+        return v
+
+    @validator("career_page_slug")
+    def validate_slug(cls, v):
+        """Validate URL slug format"""
+        if v is not None:
+            if not v.replace("-", "").replace("_", "").isalnum():
+                raise ValueError("Slug must contain only alphanumeric characters, hyphens, and underscores")
+        return v
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "company_display_name": "Acme Corporation",
+                "primary_color": "#FF0000",
+                "secondary_color": "#00FF00",
+                "email_from_name": "Acme Careers",
+                "career_page_slug": "acme-corp",
+                "hide_hireflux_branding": True,
+            }
+        }
+
+
+class WhiteLabelBrandingResponse(BaseModel):
+    """Response schema for white-label branding configuration"""
+
+    id: UUID
+    company_id: UUID
+    is_enabled: bool
+    enabled_at: Optional[datetime]
+
+    company_display_name: Optional[str]
+
+    # Logos
+    logo_url: Optional[str]
+    logo_dark_url: Optional[str]
+    logo_icon_url: Optional[str]
+    logo_email_url: Optional[str]
+
+    # Colors
+    primary_color: str
+    secondary_color: str
+    accent_color: str
+    text_color: str
+    background_color: str
+
+    # Typography
+    font_family: str
+    heading_font_family: Optional[str]
+
+    # Custom domain
+    custom_domain: Optional[str]
+    custom_domain_verified: bool
+    custom_domain_ssl_enabled: bool
+
+    # Email branding
+    email_from_name: Optional[str]
+    email_from_address: Optional[str]
+    email_reply_to: Optional[str]
+    email_footer_text: Optional[str]
+    email_header_html: Optional[str]
+
+    # Career page
+    career_page_enabled: bool
+    career_page_slug: Optional[str]
+    career_page_title: Optional[str]
+    career_page_description: Optional[str]
+    career_page_header_html: Optional[str]
+    career_page_footer_html: Optional[str]
+
+    # Social links
+    social_links: Dict[str, str]
+
+    # Custom CSS
+    custom_css: Optional[str]
+
+    # Feature flags
+    hide_hireflux_branding: bool
+    use_custom_application_form: bool
+
+    # Metadata
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class CustomApplicationFieldCreate(BaseModel):
+    """Request schema for creating custom application field"""
+
+    field_name: str = Field(..., min_length=1, max_length=100)
+    field_label: str = Field(..., min_length=1, max_length=255)
+    field_type: str = Field(..., description="Field type: text, textarea, select, checkbox, file")
+    field_options: Optional[List[str]] = Field(None, description="Options for select/radio fields")
+    is_required: bool = Field(default=False)
+    help_text: Optional[str] = None
+
+    @validator("field_type")
+    def validate_field_type(cls, v):
+        """Validate field type"""
+        valid_types = {"text", "textarea", "select", "checkbox", "file"}
+        if v not in valid_types:
+            raise ValueError(f"Invalid field type: {v}. Must be one of {valid_types}")
+        return v
+
+    @validator("field_options")
+    def validate_options(cls, v, values):
+        """Validate options for select fields"""
+        if values.get("field_type") == "select" and (v is None or len(v) == 0):
+            raise ValueError("Select fields must have at least one option")
+        return v
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "field_name": "diversity_statement",
+                "field_label": "Diversity Statement",
+                "field_type": "textarea",
+                "is_required": False,
+                "help_text": "Tell us about your commitment to diversity and inclusion",
+            }
+        }
+
+
+class CustomApplicationFieldUpdate(BaseModel):
+    """Update schema for custom application field"""
+
+    field_label: Optional[str] = Field(None, min_length=1, max_length=255)
+    field_options: Optional[List[str]] = None
+    is_required: Optional[bool] = None
+    help_text: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class CustomApplicationFieldResponse(BaseModel):
+    """Response schema for custom application field"""
+
+    id: UUID
+    company_id: UUID
+    field_name: str
+    field_label: str
+    field_type: str
+    field_options: Optional[List[str]]
+    is_required: bool
+    display_order: int
+    help_text: Optional[str]
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class DomainVerificationResponse(BaseModel):
+    """Response schema for domain verification"""
+
+    domain: str
+    verification_token: str
+    verification_method: str
+    dns_records: List[Dict[str, str]]
+    status: str
+    verified_at: Optional[datetime]
+    error_message: Optional[str]
+
+    class Config:
+        from_attributes = True
+
+
+class DomainSetupRequest(BaseModel):
+    """Request schema for setting up custom domain"""
+
+    domain: str = Field(..., min_length=3, max_length=255)
+
+    @validator("domain")
+    def validate_domain(cls, v):
+        """Validate domain format"""
+        # Basic domain validation (can be enhanced)
+        if not v or " " in v:
+            raise ValueError("Invalid domain format")
+        if v.endswith(".hireflux.com"):
+            raise ValueError("Cannot use HireFlux subdomain for white-label")
+        return v.lower()
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "domain": "careers.acme.com"
+            }
+        }

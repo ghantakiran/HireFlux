@@ -304,3 +304,169 @@ class WebhookDelivery(Base):
 
     def __repr__(self):
         return f"<WebhookDelivery {self.event_type} - {self.status} (attempt {self.attempt_number})>"
+
+
+class WhiteLabelBranding(Base):
+    """White-label branding configuration for Enterprise customers - Sprint 17-18 Phase 3"""
+
+    __tablename__ = "white_label_branding"
+
+    id = Column(GUID(), primary_key=True, default=uuid4)
+    company_id = Column(
+        GUID(), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False, unique=True
+    )
+
+    # Feature enablement (Enterprise plan required)
+    is_enabled = Column(Boolean, nullable=False, default=False)
+    enabled_at = Column(DateTime, nullable=True)
+
+    # Brand identity
+    company_display_name = Column(
+        String(255), nullable=True, comment="Custom display name (can differ from company.name)"
+    )
+
+    # Logos (multiple sizes)
+    logo_url = Column(String(500), nullable=True, comment="Primary logo (light background)")
+    logo_dark_url = Column(String(500), nullable=True, comment="Logo for dark backgrounds")
+    logo_icon_url = Column(String(500), nullable=True, comment="Icon/favicon (512x512)")
+    logo_email_url = Column(String(500), nullable=True, comment="Email header logo (600x200)")
+
+    # Color scheme (hex colors)
+    primary_color = Column(String(7), nullable=False, default="#3B82F6")
+    secondary_color = Column(String(7), nullable=False, default="#10B981")
+    accent_color = Column(String(7), nullable=False, default="#F59E0B")
+    text_color = Column(String(7), nullable=False, default="#1F2937")
+    background_color = Column(String(7), nullable=False, default="#FFFFFF")
+
+    # Typography
+    font_family = Column(String(100), nullable=False, default="Inter")
+    heading_font_family = Column(String(100), nullable=True)
+
+    # Custom domain
+    custom_domain = Column(String(255), nullable=True, comment="e.g., careers.company.com")
+    custom_domain_verified = Column(Boolean, nullable=False, default=False)
+    custom_domain_verification_token = Column(String(255), nullable=True)
+    custom_domain_ssl_enabled = Column(Boolean, nullable=False, default=False)
+
+    # Email branding
+    email_from_name = Column(String(255), nullable=True)
+    email_from_address = Column(String(255), nullable=True)
+    email_reply_to = Column(String(255), nullable=True)
+    email_footer_text = Column(Text, nullable=True)
+    email_header_html = Column(Text, nullable=True)
+
+    # Career page customization
+    career_page_enabled = Column(Boolean, nullable=False, default=True)
+    career_page_slug = Column(String(100), nullable=True)
+    career_page_title = Column(String(255), nullable=True)
+    career_page_description = Column(Text, nullable=True)
+    career_page_header_html = Column(Text, nullable=True)
+    career_page_footer_html = Column(Text, nullable=True)
+
+    # Social media links
+    social_links = Column(JSONB, default=dict, comment='{"linkedin": "url", "twitter": "url"}')
+
+    # Custom CSS
+    custom_css = Column(Text, nullable=True)
+
+    # Feature flags
+    hide_hireflux_branding = Column(Boolean, nullable=False, default=False)
+    use_custom_application_form = Column(Boolean, nullable=False, default=False)
+
+    # Metadata
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    company = relationship("Company")
+    custom_fields = relationship(
+        "WhiteLabelApplicationField",
+        back_populates="branding",
+        cascade="all, delete-orphan",
+    )
+
+    def __repr__(self):
+        status = "enabled" if self.is_enabled else "disabled"
+        return f"<WhiteLabelBranding {self.company_id} - {status}>"
+
+
+class WhiteLabelApplicationField(Base):
+    """Custom application form fields for white-label career pages"""
+
+    __tablename__ = "white_label_application_fields"
+
+    id = Column(GUID(), primary_key=True, default=uuid4)
+    company_id = Column(
+        GUID(), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False
+    )
+
+    # Field configuration
+    field_name = Column(String(100), nullable=False, comment='e.g., "diversity_statement"')
+    field_label = Column(String(255), nullable=False, comment='e.g., "Diversity Statement"')
+    field_type = Column(
+        String(50),
+        nullable=False,
+        comment='"text", "textarea", "select", "checkbox", "file"',
+    )
+    field_options = Column(
+        JSONB, nullable=True, comment='For select/radio: ["Option 1", "Option 2"]'
+    )
+
+    is_required = Column(Boolean, nullable=False, default=False)
+    display_order = Column(Integer, nullable=False, default=0)
+
+    help_text = Column(Text, nullable=True, comment="Instruction text for applicants")
+
+    # Status
+    is_active = Column(Boolean, nullable=False, default=True)
+
+    # Metadata
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships
+    company = relationship("Company")
+    branding = relationship("WhiteLabelBranding", back_populates="custom_fields")
+
+    def __repr__(self):
+        return f"<WhiteLabelApplicationField {self.field_label} ({self.field_type})>"
+
+
+class WhiteLabelDomainVerification(Base):
+    """Domain verification records for custom domain setup"""
+
+    __tablename__ = "white_label_domain_verification"
+
+    id = Column(GUID(), primary_key=True, default=uuid4)
+    company_id = Column(
+        GUID(), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False
+    )
+
+    # Domain information
+    domain = Column(String(255), nullable=False)
+    verification_method = Column(
+        String(50), nullable=True, comment='"dns_txt", "dns_cname", "file_upload"'
+    )
+    verification_token = Column(String(255), nullable=False)
+
+    # Verification status
+    status = Column(
+        String(50),
+        nullable=False,
+        default="pending",
+        comment='"pending", "verified", "failed"',
+    )
+    verified_at = Column(DateTime, nullable=True)
+    last_check_at = Column(DateTime, nullable=True)
+
+    # DNS configuration
+    dns_records = Column(JSONB, nullable=True, comment="Required DNS records to add")
+    error_message = Column(Text, nullable=True)
+
+    # Metadata
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships
+    company = relationship("Company")
+
+    def __repr__(self):
+        return f"<WhiteLabelDomainVerification {self.domain} - {self.status}>"
