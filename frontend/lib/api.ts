@@ -843,4 +843,108 @@ export const apiKeyApi = {
     apiClient.get(`/employer/api-keys/${keyId}/usage`, { params }),
 };
 
+// White-Label Branding API (Sprint 17-18 Phase 3)
+export const whiteLabelApi = {
+  // Get white-label branding configuration
+  getConfig: () =>
+    apiClient.get<ApiResponse>('/employer/white-label/config'),
+
+  // Update white-label branding configuration
+  updateConfig: (data: {
+    company_display_name?: string;
+    primary_color?: string;
+    secondary_color?: string;
+    accent_color?: string;
+    text_color?: string;
+    background_color?: string;
+    button_color?: string;
+    link_color?: string;
+    font_family?: string;
+    hide_hireflux_branding?: boolean;
+    custom_css?: string;
+    email_from_name?: string;
+    email_reply_to?: string;
+    email_header_text?: string;
+    email_footer_text?: string;
+    career_page_title?: string;
+    career_page_description?: string;
+    career_page_banner_text?: string;
+  }) => apiClient.put<ApiResponse>('/employer/white-label/config', data),
+
+  // Enable white-label features (requires Enterprise plan)
+  enable: () =>
+    apiClient.post<ApiResponse>('/employer/white-label/enable'),
+
+  // Disable white-label features
+  disable: () =>
+    apiClient.post<ApiResponse>('/employer/white-label/disable'),
+
+  // Upload logo (primary, dark, icon, email)
+  uploadLogo: (logoType: 'primary' | 'dark' | 'icon' | 'email', file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post<ApiResponse>(
+      `/employer/white-label/logos/${logoType}`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
+  },
+
+  // Delete logo
+  deleteLogo: (logoType: 'primary' | 'dark' | 'icon' | 'email') =>
+    apiClient.delete<ApiResponse>(`/employer/white-label/logos/${logoType}`),
+
+  // Set custom domain
+  setCustomDomain: (domain: string) =>
+    apiClient.post<ApiResponse>('/employer/white-label/domain', { domain }),
+
+  // Verify custom domain
+  verifyCustomDomain: () =>
+    apiClient.post<ApiResponse>('/employer/white-label/domain/verify'),
+
+  // Get domain verification status
+  getDomainVerification: () =>
+    apiClient.get<ApiResponse>('/employer/white-label/domain/verification'),
+
+  // Delete custom domain
+  deleteCustomDomain: () =>
+    apiClient.delete<ApiResponse>('/employer/white-label/domain'),
+
+  // Manage custom application fields
+  getCustomFields: () =>
+    apiClient.get<ApiResponse>('/employer/white-label/custom-fields'),
+
+  createCustomField: (data: {
+    field_name: string;
+    field_label: string;
+    field_type: 'text' | 'textarea' | 'select' | 'checkbox' | 'file';
+    field_options?: string[];
+    is_required?: boolean;
+    help_text?: string;
+  }) => apiClient.post<ApiResponse>('/employer/white-label/custom-fields', data),
+
+  updateCustomField: (
+    fieldId: string,
+    data: {
+      field_label?: string;
+      field_options?: string[];
+      is_required?: boolean;
+      help_text?: string;
+      display_order?: number;
+    }
+  ) => apiClient.patch<ApiResponse>(`/employer/white-label/custom-fields/${fieldId}`, data),
+
+  deleteCustomField: (fieldId: string) =>
+    apiClient.delete<ApiResponse>(`/employer/white-label/custom-fields/${fieldId}`),
+
+  // Preview branded pages
+  previewCareerPage: () =>
+    apiClient.get<ApiResponse>('/employer/white-label/preview/career-page'),
+
+  previewEmail: (templateType: 'application_received' | 'interview_scheduled' | 'status_update') =>
+    apiClient.get<ApiResponse>(`/employer/white-label/preview/email/${templateType}`),
+};
+
 export default apiClient;
