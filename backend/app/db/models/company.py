@@ -82,6 +82,17 @@ class Company(Base):
         "JobDistribution", back_populates="company", cascade="all, delete-orphan"
     )
 
+    # Sprint 15-16: Analytics relationships
+    analytics_snapshots = relationship(
+        "AnalyticsSnapshot", back_populates="company", cascade="all, delete-orphan"
+    )
+    analytics_config = relationship(
+        "CompanyAnalyticsConfig",
+        back_populates="company",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+
     def __repr__(self):
         return f"<Company {self.name}>"
 

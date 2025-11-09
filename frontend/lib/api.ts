@@ -761,4 +761,86 @@ export const interviewSchedulingApi = {
     apiClient.post<ApiResponse>(`/employer/interviews/${interviewId}/calendar/invite`),
 };
 
+// Employer Analytics API (Sprint 15-16)
+export const employerAnalyticsApi = {
+  // Get analytics overview with summary metrics
+  getOverview: (companyId: string, params?: {
+    start_date?: string;
+    end_date?: string;
+  }) => apiClient.get<ApiResponse>(`/employer/companies/${companyId}/analytics/overview`, { params }),
+
+  // Get pipeline funnel visualization data
+  getFunnel: (companyId: string, params?: {
+    job_id?: string;
+  }) => apiClient.get<ApiResponse>(`/employer/companies/${companyId}/analytics/funnel`, { params }),
+
+  // Get sourcing metrics (application sources)
+  getSources: (companyId: string, params?: {
+    start_date?: string;
+    end_date?: string;
+  }) => apiClient.get<ApiResponse>(`/employer/companies/${companyId}/analytics/sources`, { params }),
+
+  // Get time metrics (time-to-hire, time-to-offer)
+  getTimeMetrics: (companyId: string, params?: {
+    start_date?: string;
+    end_date?: string;
+  }) => apiClient.get<ApiResponse>(`/employer/companies/${companyId}/analytics/time-metrics`, { params }),
+
+  // Get quality metrics (fit index, retention)
+  getQuality: (companyId: string) =>
+    apiClient.get<ApiResponse>(`/employer/companies/${companyId}/analytics/quality`),
+
+  // Get cost metrics (owner/admin only)
+  getCosts: (companyId: string, params?: {
+    start_date?: string;
+    end_date?: string;
+  }) => apiClient.get<ApiResponse>(`/employer/companies/${companyId}/analytics/costs`, { params }),
+};
+
+// API Key Management API (Sprint 17-18)
+export const apiKeyApi = {
+  // List all API keys for the company
+  list: (params?: { page?: number; page_size?: number }) =>
+    apiClient.get('/employer/api-keys/', { params }),
+
+  // Get a specific API key by ID
+  get: (keyId: string) =>
+    apiClient.get(`/employer/api-keys/${keyId}`),
+
+  // Create a new API key
+  create: (data: {
+    name: string;
+    permissions?: {
+      jobs?: string[];
+      candidates?: string[];
+      applications?: string[];
+      webhooks?: string[];
+      analytics?: string[];
+    };
+    rate_limit_tier?: 'standard' | 'elevated' | 'enterprise';
+    expires_at?: string;
+  }) => apiClient.post('/employer/api-keys/', data),
+
+  // Update an API key
+  update: (keyId: string, data: {
+    name?: string;
+    permissions?: {
+      jobs?: string[];
+      candidates?: string[];
+      applications?: string[];
+      webhooks?: string[];
+      analytics?: string[];
+    };
+    rate_limit_tier?: 'standard' | 'elevated' | 'enterprise';
+  }) => apiClient.patch(`/employer/api-keys/${keyId}`, data),
+
+  // Revoke an API key
+  revoke: (keyId: string) =>
+    apiClient.delete(`/employer/api-keys/${keyId}`),
+
+  // Get usage statistics for an API key
+  getUsage: (keyId: string, params?: { days?: number }) =>
+    apiClient.get(`/employer/api-keys/${keyId}/usage`, { params }),
+};
+
 export default apiClient;

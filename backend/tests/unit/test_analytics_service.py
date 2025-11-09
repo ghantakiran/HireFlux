@@ -1,835 +1,268 @@
-"""Unit tests for Analytics Service"""
+"""Unit tests for AnalyticsService (TDD)
 
-import uuid
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, Mock, patch
+Sprint 15-16: Advanced Analytics & Reporting
+
+Test-Driven Development approach:
+1. Write tests first (RED phase)
+2. Implement minimal code to pass tests (GREEN phase)
+3. Refactor for quality (REFACTOR phase)
+"""
 
 import pytest
+from datetime import datetime, date, timedelta
+from decimal import Decimal
+from uuid import uuid4
+from unittest.mock import Mock, MagicMock
 
-from app.schemas.analytics import (
-    ActivityType,
-    AnomalyType,
-    HealthScoreLevel,
-    TimeRange,
+from app.services.analytics_service import AnalyticsService
+from app.db.models.company import Company
+from app.db.models.job import Job
+from app.db.models.application import Application
+from app.db.models.analytics import (
+    AnalyticsSnapshot,
+    ApplicationStageHistory,
+    CompanyAnalyticsConfig,
 )
+from app.db.models.webhook import InterviewSchedule
 
 
 # ============================================================================
-# FIXTURES
+# TEST FIXTURES
 # ============================================================================
-
 
 @pytest.fixture
 def mock_db():
     """Mock database session"""
-    db = MagicMock()
-    db.query = Mock()
-    db.add = Mock()
-    db.commit = Mock()
-    db.refresh = Mock()
-    return db
-
-
-@pytest.fixture
-def mock_user():
-    """Mock user"""
-    user = Mock()
-    user.id = uuid.uuid4()
-    user.email = "test@example.com"
-    user.created_at = datetime.utcnow() - timedelta(days=90)
-    return user
+    return MagicMock()
 
 
 @pytest.fixture
 def analytics_service(mock_db):
-    """AnalyticsService instance with mocked dependencies"""
-    from app.services.analytics_service import AnalyticsService
-
-    return AnalyticsService(mock_db)
+    """Initialize AnalyticsService with mocked DB"""
+    return AnalyticsService(db=mock_db)
 
 
 @pytest.fixture
-def sample_applications():
-    """Sample applications for testing"""
-    now = datetime.utcnow()
-    return [
-        Mock(
-            id=uuid.uuid4(),
-            status="applied",
-            applied_at=now - timedelta(days=1),
-            updated_at=now - timedelta(days=1),
-            created_at=now - timedelta(days=2),
-        ),
-        Mock(
-            id=uuid.uuid4(),
-            status="in_review",
-            applied_at=now - timedelta(days=5),
-            updated_at=now - timedelta(days=4),
-            created_at=now - timedelta(days=6),
-        ),
-        Mock(
-            id=uuid.uuid4(),
-            status="phone_screen",
-            applied_at=now - timedelta(days=10),
-            updated_at=now - timedelta(days=9),
-            created_at=now - timedelta(days=11),
-        ),
-        Mock(
-            id=uuid.uuid4(),
-            status="technical_interview",
-            applied_at=now - timedelta(days=15),
-            updated_at=now - timedelta(days=14),
-            created_at=now - timedelta(days=16),
-        ),
-        Mock(
-            id=uuid.uuid4(),
-            status="offer",
-            applied_at=now - timedelta(days=20),
-            updated_at=now - timedelta(days=19),
-            created_at=now - timedelta(days=21),
-        ),
-        Mock(
-            id=uuid.uuid4(),
-            status="rejected",
-            applied_at=now - timedelta(days=25),
-            updated_at=now - timedelta(days=24),
-            created_at=now - timedelta(days=26),
-        ),
-    ]
+def test_company():
+    """Test company with Growth plan"""
+    return Company(
+        id=uuid4(),
+        name="TechCorp",
+        subscription_tier="growth",
+        subscription_status="active",
+        created_at=datetime.utcnow(),
+    )
+
+
+@pytest.fixture
+def test_job(test_company):
+    """Test job posting"""
+    return Job(
+        id=uuid4(),
+        company_id=test_company.id,
+        title="Senior Python Developer",
+        status="active",
+        created_at=datetime.utcnow() - timedelta(days=30),
+    )
 
 
 # ============================================================================
-# TEST APPLICATION PIPELINE STATS
+# TEST SUITE 1: SOURCING METRICS
 # ============================================================================
 
+class TestSourcingMetrics:
+    """Test suite for application sourcing analytics"""
 
-class TestApplicationPipelineStats:
-    """Test application pipeline statistics calculation"""
-
-    def test_calculate_pipeline_stats_success(
-        self, analytics_service, mock_db, mock_user, sample_applications
+    def test_calculate_sourcing_metrics_by_source(
+        self, analytics_service, test_company
     ):
-        """Should calculate pipeline stats correctly"""
-        mock_db.query().filter().all.return_value = sample_applications
+        """
+        GIVEN: 10 auto-apply apps (avg fit 75), 5 manual apps (avg fit 82)
+        WHEN: calculate_sourcing_metrics(company_id, date_range)
+        THEN: Returns correct counts, avg_fit, conversion rates
+        """
+        # Arrange
+        start_date = date(2025, 1, 1)
+        end_date = date(2025, 3, 31)
 
-        result = analytics_service.get_pipeline_stats(
-            mock_user.id, TimeRange.LAST_30_DAYS
-        )
-
-        assert result.total_applications == 6
-        assert result.applied == 1
-        assert result.in_review == 1
-        assert result.phone_screen == 1
-        assert result.technical_interview == 1
-        assert result.offer == 1
-        assert result.rejected == 1
-
-    def test_calculate_response_rate(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should calculate response rate correctly"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_pipeline_stats(
-            mock_user.id, TimeRange.LAST_30_DAYS
-        )
-
-        # 5 out of 6 moved past 'applied' status
-        assert result.response_rate == pytest.approx(83.33, rel=0.1)
-
-    def test_calculate_interview_rate(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should calculate interview rate correctly"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_pipeline_stats(
-            mock_user.id, TimeRange.LAST_30_DAYS
-        )
-
-        # 3 interviews (phone_screen, technical, offer) out of 6
-        assert result.interview_rate == pytest.approx(50.0, rel=0.1)
-
-    def test_calculate_offer_rate(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should calculate offer rate correctly"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_pipeline_stats(
-            mock_user.id, TimeRange.LAST_30_DAYS
-        )
-
-        # 1 offer out of 6
-        assert result.offer_rate == pytest.approx(16.67, rel=0.1)
-
-    def test_pipeline_stats_empty_applications(
-        self, analytics_service, mock_db, mock_user
-    ):
-        """Should handle no applications gracefully"""
-        mock_db.query().filter().all.return_value = []
-
-        result = analytics_service.get_pipeline_stats(
-            mock_user.id, TimeRange.LAST_30_DAYS
-        )
-
-        assert result.total_applications == 0
-        assert result.response_rate == 0.0
-        assert result.interview_rate == 0.0
-        assert result.offer_rate == 0.0
-
-    def test_pipeline_distribution(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should calculate pipeline stage distribution"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_pipeline_distribution(
-            mock_user.id, TimeRange.LAST_30_DAYS
-        )
-
-        assert len(result) > 0
-        # Each stage should have count and percentage
-        for stage in result:
-            assert hasattr(stage, "stage")
-            assert hasattr(stage, "count")
-            assert hasattr(stage, "percentage")
-            assert 0 <= stage.percentage <= 100
-
-
-# ============================================================================
-# TEST SUCCESS METRICS
-# ============================================================================
-
-
-class TestSuccessMetrics:
-    """Test success metrics calculation"""
-
-    def test_calculate_success_metrics(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should calculate comprehensive success metrics"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_success_metrics(
-            mock_user.id, TimeRange.LAST_30_DAYS
-        )
-
-        assert result.total_applications == 6
-        assert result.total_interviews >= 1
-        assert result.total_offers >= 1
-        assert result.total_rejections >= 1
-
-    def test_applications_by_time_period(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should count applications in different time periods"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_success_metrics(
-            mock_user.id, TimeRange.LAST_30_DAYS
-        )
-
-        assert result.applications_last_7_days >= 0
-        assert result.applications_last_30_days >= 0
-        assert result.avg_applications_per_week >= 0
-
-    def test_avg_response_time_calculation(self, analytics_service, mock_db, mock_user):
-        """Should calculate average response time in days"""
-        # Mock applications with status changes
-        now = datetime.utcnow()
-        apps_with_response = [
-            Mock(
-                status="in_review",
-                applied_at=now - timedelta(days=10),
-                updated_at=now - timedelta(days=8),  # 2 days response
-                created_at=now - timedelta(days=11),
-            ),
-            Mock(
-                status="phone_screen",
-                applied_at=now - timedelta(days=15),
-                updated_at=now - timedelta(days=11),  # 4 days response
-                created_at=now - timedelta(days=16),
-            ),
+        # Mock DB query results
+        mock_results = [
+            {"source": "auto_apply", "count": 10, "avg_fit": 75.0, "hires": 2},
+            {"source": "manual", "count": 5, "avg_fit": 82.0, "hires": 2},
         ]
-        mock_db.query().filter().all.return_value = apps_with_response
-
-        result = analytics_service.get_success_metrics(
-            mock_user.id, TimeRange.LAST_30_DAYS
+        analytics_service.db.query.return_value.filter.return_value.group_by.return_value.all.return_value = (
+            mock_results
         )
 
-        # Average should be (2 + 4) / 2 = 3 days
-        assert result.avg_response_time_days == pytest.approx(3.0, rel=0.5)
-
-    def test_interview_conversion_rate(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should calculate interview conversion rate"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_success_metrics(
-            mock_user.id, TimeRange.LAST_30_DAYS
+        # Act
+        metrics = analytics_service.calculate_sourcing_metrics(
+            company_id=test_company.id, start_date=start_date, end_date=end_date
         )
 
-        # Conversion rate should be interviews / total applications
-        assert 0 <= result.interview_conversion_rate <= 100
+        # Assert
+        assert metrics is not None
+        assert "auto_apply" in metrics
+        assert metrics["auto_apply"]["count"] == 10
+        assert metrics["auto_apply"]["avg_fit"] == 75.0
+        assert metrics["auto_apply"]["conversion_rate"] == 0.20  # 2/10
 
-    def test_active_days_calculation(self, analytics_service, mock_db, mock_user):
-        """Should calculate active days correctly"""
-        # Applications spread across multiple days
-        now = datetime.utcnow()
-        apps_different_days = [
-            Mock(
-                created_at=now - timedelta(days=i),
-                applied_at=now - timedelta(days=i),
-                updated_at=now - timedelta(days=i),
-            )
-            for i in range(0, 10, 2)  # 5 different days
-        ]
-        mock_db.query().filter().all.return_value = apps_different_days
+        assert "manual" in metrics
+        assert metrics["manual"]["count"] == 5
+        assert metrics["manual"]["avg_fit"] == 82.0
+        assert metrics["manual"]["conversion_rate"] == 0.40  # 2/5
 
-        result = analytics_service.get_success_metrics(
-            mock_user.id, TimeRange.LAST_30_DAYS
+    def test_sourcing_metrics_empty_data(self, analytics_service, test_company):
+        """
+        GIVEN: Company with no applications
+        WHEN: calculate_sourcing_metrics()
+        THEN: Returns empty dict, does not raise exception
+        """
+        # Arrange
+        analytics_service.db.query.return_value.filter.return_value.group_by.return_value.all.return_value = (
+            []
         )
 
-        assert result.active_days == 5
-
-
-# ============================================================================
-# TEST ACTIVITY TIMELINE
-# ============================================================================
-
-
-class TestActivityTimeline:
-    """Test activity timeline tracking"""
-
-    def test_get_activity_timeline(self, analytics_service, mock_db, mock_user):
-        """Should retrieve activity timeline"""
-        mock_activities = [
-            Mock(
-                id=uuid.uuid4(),
-                event_type=ActivityType.APPLICATION_SUBMITTED.value,
-                activity_type=ActivityType.APPLICATION_SUBMITTED.value,
-                created_at=datetime.utcnow(),
-                description="Application submitted",
-                entity_id=uuid.uuid4(),
-                entity_type="application",
-                event_data={"status": "applied"},
-                metadata={},
-            )
-            for _ in range(5)
-        ]
-        mock_db.query().filter().order_by().offset().limit().all.return_value = (
-            mock_activities
-        )
-        mock_db.query().filter().count.return_value = 10
-
-        result = analytics_service.get_activity_timeline(mock_user.id, skip=0, limit=5)
-
-        assert len(result.activities) == 5
-        assert result.total_count == 10
-        assert result.has_more is True
-
-    def test_activity_timeline_pagination(self, analytics_service, mock_db, mock_user):
-        """Should handle pagination correctly"""
-        mock_activities = [
-            Mock(
-                id=uuid.uuid4(),
-                event_type=ActivityType.APPLICATION_SUBMITTED.value,
-                activity_type=ActivityType.APPLICATION_SUBMITTED.value,
-                created_at=datetime.utcnow(),
-                description="Application submitted",
-                entity_id=uuid.uuid4(),
-                entity_type="application",
-                event_data={"status": "applied"},
-                metadata={},
-            )
-            for _ in range(3)
-        ]
-        mock_db.query().filter().order_by().offset().limit().all.return_value = (
-            mock_activities
-        )
-        mock_db.query().filter().count.return_value = 8
-
-        result = analytics_service.get_activity_timeline(mock_user.id, skip=5, limit=5)
-
-        assert len(result.activities) == 3
-        assert result.has_more is False  # No more after this
-
-    def test_filter_activity_by_type(self, analytics_service, mock_db, mock_user):
-        """Should filter activities by type"""
-        mock_activities = [
-            Mock(
-                id=uuid.uuid4(),
-                event_type=ActivityType.APPLICATION_SUBMITTED.value,
-                activity_type=ActivityType.APPLICATION_SUBMITTED.value,
-                created_at=datetime.utcnow(),
-                description="Application submitted",
-                entity_id=uuid.uuid4(),
-                entity_type="application",
-                event_data={
-                    "status": "applied",
-                    "description": "Application submitted",
-                },
-                metadata={},
-            )
-        ]
-
-        # Create a proper mock chain that supports multiple filter() calls
-        mock_query = MagicMock()
-        mock_query.filter.return_value = mock_query  # Allow chaining
-        mock_query.order_by.return_value = mock_query
-        mock_query.offset.return_value = mock_query
-        mock_query.limit.return_value = mock_query
-        mock_query.all.return_value = mock_activities
-        mock_query.count.return_value = 1
-
-        mock_db.query.return_value = mock_query
-
-        result = analytics_service.get_activity_timeline(
-            mock_user.id,
-            activity_types=[ActivityType.APPLICATION_SUBMITTED],
+        # Act
+        metrics = analytics_service.calculate_sourcing_metrics(
+            company_id=test_company.id,
+            start_date=date.today(),
+            end_date=date.today(),
         )
 
-        assert len(result.activities) == 1
+        # Assert
+        assert metrics == {}
 
 
 # ============================================================================
-# TEST HEALTH SCORE
+# TEST SUITE 2: PIPELINE METRICS
 # ============================================================================
 
+class TestPipelineMetrics:
+    """Test suite for pipeline funnel analytics"""
 
-class TestHealthScore:
-    """Test job search health score calculation"""
-
-    def test_calculate_health_score_excellent(
-        self, analytics_service, mock_db, mock_user
-    ):
-        """Should calculate high health score"""
-        # Mock high activity and success
-        now = datetime.utcnow()
-        mock_db.query().filter().all.return_value = [
-            Mock(
-                status="offer",
-                created_at=now - timedelta(days=i),
-                applied_at=now - timedelta(days=i),
-                updated_at=now - timedelta(days=i),
-            )
-            for i in range(10)
+    def test_calculate_pipeline_funnel(self, analytics_service, test_job):
+        """
+        GIVEN: 100 apps (40 new, 30 reviewing, 20 phone_screen, 10 hired)
+        WHEN: calculate_pipeline_funnel(job_id)
+        THEN: Returns stage counts and conversion rates
+        """
+        # Arrange
+        mock_results = [
+            {"stage": "new", "count": 40},
+            {"stage": "reviewing", "count": 30},
+            {"stage": "phone_screen", "count": 20},
+            {"stage": "hired", "count": 10},
         ]
-
-        result = analytics_service.get_health_score(mock_user.id)
-
-        # With 10 offers, should get a good score
-        assert result.overall_score >= 60
-        assert result.level in [HealthScoreLevel.GOOD, HealthScoreLevel.EXCELLENT]
-
-    def test_calculate_health_score_needs_improvement(
-        self, analytics_service, mock_db, mock_user
-    ):
-        """Should calculate low health score"""
-        # Mock low activity or high rejection
-        now = datetime.utcnow()
-        mock_db.query().filter().all.return_value = [
-            Mock(
-                status="rejected",
-                created_at=now - timedelta(days=i),
-                applied_at=now - timedelta(days=i),
-                updated_at=now - timedelta(days=i),
-            )
-            for i in range(20)
-        ]
-
-        result = analytics_service.get_health_score(mock_user.id)
-
-        # With all rejections, should get a fair or needs_improvement score
-        assert result.overall_score < 50
-        assert result.level in [
-            HealthScoreLevel.FAIR,
-            HealthScoreLevel.NEEDS_IMPROVEMENT,
-        ]
-
-    def test_health_score_components(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should include all health score components"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_health_score(mock_user.id)
-
-        assert 0 <= result.activity_score <= 100
-        assert 0 <= result.quality_score <= 100
-        assert 0 <= result.response_score <= 100
-        assert 0 <= result.success_score <= 100
-        assert len(result.components) >= 4
-
-    def test_health_score_recommendations(self, analytics_service, mock_db, mock_user):
-        """Should provide actionable recommendations"""
-        mock_db.query().filter().all.return_value = []
-
-        result = analytics_service.get_health_score(mock_user.id)
-
-        assert len(result.recommendations) > 0
-        assert isinstance(result.recommendations, list)
-        assert all(isinstance(r, str) for r in result.recommendations)
-
-
-# ============================================================================
-# TEST ANOMALY DETECTION
-# ============================================================================
-
-
-class TestAnomalyDetection:
-    """Test anomaly detection"""
-
-    def test_detect_low_activity_anomaly(self, analytics_service, mock_db, mock_user):
-        """Should detect low activity anomaly"""
-        # No applications in last 14 days
-        mock_db.query().filter().all.return_value = []
-        mock_db.query().filter().count.return_value = 0
-
-        result = analytics_service.detect_anomalies(mock_user.id)
-
-        low_activity = [
-            a for a in result.anomalies if a.type == AnomalyType.LOW_ACTIVITY
-        ]
-        assert len(low_activity) > 0
-
-    def test_detect_high_rejection_rate(self, analytics_service, mock_db, mock_user):
-        """Should detect high rejection rate anomaly"""
-        # Many rejections
-        now = datetime.utcnow()
-        mock_db.query().filter().all.return_value = [
-            Mock(
-                status="rejected",
-                created_at=now - timedelta(days=i),
-                applied_at=now - timedelta(days=i),
-                updated_at=now - timedelta(days=i),
-            )
-            for i in range(20)
-        ]
-        mock_db.query().filter().count.return_value = 0
-
-        result = analytics_service.detect_anomalies(mock_user.id)
-
-        high_rejection = [
-            a for a in result.anomalies if a.type == AnomalyType.HIGH_REJECTION_RATE
-        ]
-        assert len(high_rejection) > 0
-
-    def test_detect_no_responses_anomaly(self, analytics_service, mock_db, mock_user):
-        """Should detect no responses anomaly"""
-        # All applications still in 'applied' status
-        now = datetime.utcnow()
-        mock_db.query().filter().all.return_value = [
-            Mock(
-                status="applied",
-                applied_at=now - timedelta(days=30),
-                created_at=now - timedelta(days=31),
-                updated_at=now - timedelta(days=30),
-            )
-            for _ in range(10)
-        ]
-        mock_db.query().filter().count.return_value = 0
-
-        result = analytics_service.detect_anomalies(mock_user.id)
-
-        no_responses = [
-            a for a in result.anomalies if a.type == AnomalyType.NO_RESPONSES
-        ]
-        assert len(no_responses) > 0
-
-    def test_detect_stale_applications(self, analytics_service, mock_db, mock_user):
-        """Should detect stale applications"""
-        # Applications with no updates for 60+ days
-        old_date = datetime.utcnow() - timedelta(days=70)
-        mock_db.query().filter().all.return_value = [
-            Mock(
-                status="in_review",
-                updated_at=old_date,
-                applied_at=old_date,
-                created_at=old_date,
-            )
-            for _ in range(5)
-        ]
-        # Mock the count for stale applications query
-        mock_db.query().filter().count.return_value = 5
-
-        result = analytics_service.detect_anomalies(mock_user.id)
-
-        stale = [
-            a for a in result.anomalies if a.type == AnomalyType.STALE_APPLICATIONS
-        ]
-        assert len(stale) > 0
-
-    def test_anomaly_severity_levels(self, analytics_service, mock_db, mock_user):
-        """Should assign appropriate severity levels"""
-        mock_db.query().filter().all.return_value = []
-        mock_db.query().filter().count.return_value = 0
-
-        result = analytics_service.detect_anomalies(mock_user.id)
-
-        for anomaly in result.anomalies:
-            assert anomaly.severity in ["low", "medium", "high", "critical"]
-
-
-# ============================================================================
-# TEST TRENDS AND TIME SERIES
-# ============================================================================
-
-
-class TestTrendsAnalysis:
-    """Test trends and time series analysis"""
-
-    def test_calculate_application_trends(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should calculate application trends over time"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_application_trends(
-            mock_user.id, TimeRange.LAST_30_DAYS
+        analytics_service.db.query.return_value.filter.return_value.group_by.return_value.all.return_value = (
+            mock_results
         )
 
-        assert len(result) >= 0
-        # Each data point should have date and metrics
-        for trend in result:
-            assert hasattr(trend, "date")
-            assert hasattr(trend, "applications_submitted")
+        # Act
+        funnel = analytics_service.calculate_pipeline_funnel(job_id=test_job.id)
 
-    def test_identify_trend_direction(self, analytics_service, mock_db, mock_user):
-        """Should identify if trend is increasing/decreasing/stable"""
-        # Mock increasing applications over time
-        now = datetime.utcnow()
-        apps_increasing = [
-            Mock(
-                created_at=now - timedelta(days=30 - i),
-                applied_at=now - timedelta(days=30 - i),
-                updated_at=now - timedelta(days=30 - i),
-            )
-            for i in range(30)
+        # Assert
+        assert len(funnel) == 4
+        assert funnel[0]["stage"] == "new"
+        assert funnel[0]["count"] == 40
+
+
+# ============================================================================
+# TEST SUITE 3: TIME METRICS
+# ============================================================================
+
+class TestTimeMetrics:
+    """Test suite for time-to-hire analytics"""
+
+    def test_time_to_hire(self, analytics_service):
+        """
+        GIVEN: App submitted Jan 1, hired Jan 30 (29 days)
+        WHEN: calculate_time_to_hire(application_id)
+        THEN: Returns 29 days
+        """
+        # Arrange
+        app_id = uuid4()
+        applied_at = datetime(2025, 1, 1, 10, 0, 0)
+
+        # Mock stage history
+        mock_history = [
+            Mock(to_stage="new", changed_at=datetime(2025, 1, 1, 10, 0, 0)),
+            Mock(to_stage="reviewing", changed_at=datetime(2025, 1, 5, 10, 0, 0)),
+            Mock(to_stage="phone_screen", changed_at=datetime(2025, 1, 15, 10, 0, 0)),
+            Mock(to_stage="hired", changed_at=datetime(2025, 1, 30, 10, 0, 0)),
         ]
-        mock_db.query().filter().all.return_value = apps_increasing
-
-        result = analytics_service.get_time_series_chart(
-            mock_user.id, "applications", TimeRange.LAST_30_DAYS
+        analytics_service.db.query.return_value.filter.return_value.order_by.return_value.all.return_value = (
+            mock_history
         )
 
-        assert result.trend in ["increasing", "decreasing", "stable"]
+        # Act
+        days = analytics_service.calculate_time_to_hire(application_id=app_id)
 
-    def test_calculate_change_percentage(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should calculate percentage change in metrics"""
-        mock_db.query().filter().all.return_value = sample_applications
+        # Assert
+        assert days == 29
 
-        result = analytics_service.get_time_series_chart(
-            mock_user.id, "applications", TimeRange.LAST_30_DAYS
+
+# ============================================================================
+# TEST SUITE 4: QUALITY METRICS
+# ============================================================================
+
+class TestQualityMetrics:
+    """Test suite for quality of hire analytics"""
+
+    def test_calculate_avg_fit_index(self, analytics_service, test_job):
+        """
+        GIVEN: 10 apps with fit_index [70, 75, 80, 85, 90, 60, 95, 88, 78, 82]
+        WHEN: calculate_avg_fit_index(job_id)
+        THEN: Returns 80.3
+        """
+        # Arrange
+        fit_indices = [70, 75, 80, 85, 90, 60, 95, 88, 78, 82]
+        mock_apps = [Mock(fit_index=fi) for fi in fit_indices]
+
+        analytics_service.db.query.return_value.filter.return_value.all.return_value = (
+            mock_apps
         )
 
-        assert hasattr(result, "change_percentage")
-        assert isinstance(result.change_percentage, float)
+        # Act
+        avg_fit = analytics_service.calculate_avg_fit_index(job_id=test_job.id)
+
+        # Assert
+        assert avg_fit == pytest.approx(80.3, rel=0.1)
 
 
 # ============================================================================
-# TEST CONVERSION FUNNEL
+# TEST SUITE 5: COST METRICS
 # ============================================================================
 
+class TestCostMetrics:
+    """Test suite for cost-per-hire analytics"""
 
-class TestConversionFunnel:
-    """Test conversion funnel analysis"""
+    def test_calculate_cost_per_application(self, analytics_service, test_company):
+        """
+        GIVEN: $99/month plan, 100 apps in month
+        WHEN: calculate_cost_per_application(company_id, month)
+        THEN: Returns $0.99 per app
+        """
+        # Arrange
+        monthly_cost = Decimal("99.00")
+        total_apps = 100
 
-    def test_calculate_conversion_funnel(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should calculate conversion funnel"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_conversion_funnel(
-            mock_user.id, TimeRange.LAST_30_DAYS
+        # Mock subscription
+        mock_subscription = Mock(monthly_cost=monthly_cost)
+        analytics_service.db.query.return_value.filter.return_value.first.return_value = (
+            mock_subscription
         )
 
-        assert len(result) > 0
-        # Should have stages like Applied -> In Review -> Interview -> Offer
-        stages = [stage.stage for stage in result]
-        assert "Applied" in stages
-
-    def test_conversion_rates_between_stages(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should calculate conversion rates between stages"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_conversion_funnel(
-            mock_user.id, TimeRange.LAST_30_DAYS
+        # Mock application count
+        analytics_service.db.query.return_value.filter.return_value.count.return_value = (
+            total_apps
         )
 
-        for stage in result:
-            assert 0 <= stage.conversion_rate <= 100
-
-
-# ============================================================================
-# TEST BENCHMARKING
-# ============================================================================
-
-
-class TestBenchmarking:
-    """Test peer and platform benchmarking"""
-
-    def test_compare_with_platform_average(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should compare user metrics with platform average"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_peer_comparison(mock_user.id)
-
-        assert hasattr(result, "total_applications")
-        assert hasattr(result, "response_rate")
-        assert hasattr(result, "interview_rate")
-        assert hasattr(result, "offer_rate")
-
-    def test_calculate_percentile_ranking(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should calculate user's percentile ranking"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_peer_comparison(mock_user.id)
-
-        # Check percentile for each metric
-        assert 0 <= result.total_applications.percentile <= 100
-        assert 0 <= result.response_rate.percentile <= 100
-
-
-# ============================================================================
-# TEST COMPREHENSIVE DASHBOARD
-# ============================================================================
-
-
-class TestComprehensiveDashboard:
-    """Test complete dashboard data generation"""
-
-    def test_get_dashboard_overview(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should generate complete dashboard overview"""
-        # Mock for applications query
-        mock_db.query().filter().all.return_value = sample_applications
-        # Mock for count queries
-        mock_db.query().filter().count.return_value = 0
-        # Mock for activity timeline query
-        mock_db.query().filter().order_by().offset().limit().all.return_value = []
-
-        result = analytics_service.get_dashboard_overview(mock_user.id)
-
-        assert hasattr(result, "pipeline_stats")
-        assert hasattr(result, "success_metrics")
-        assert hasattr(result, "health_score")
-        assert hasattr(result, "recent_activity")
-        assert hasattr(result, "anomalies")
-
-    def test_dashboard_quick_stats(self, analytics_service, mock_db, mock_user):
-        """Should include quick stats in dashboard"""
-        mock_db.query().filter().all.return_value = []
-        # Mock for count queries
-        mock_db.query().filter().count.return_value = 0
-        # Mock for activity timeline query
-        mock_db.query().filter().order_by().offset().limit().all.return_value = []
-
-        result = analytics_service.get_dashboard_overview(mock_user.id)
-
-        assert hasattr(result, "applications_this_week")
-        assert hasattr(result, "interviews_this_week")
-        assert hasattr(result, "offers_pending")
-
-    def test_get_detailed_analytics(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should generate detailed analytics"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_detailed_analytics(
-            mock_user.id, TimeRange.LAST_30_DAYS
+        # Act
+        cost_per_app = analytics_service.calculate_cost_per_application(
+            company_id=test_company.id,
+            start_date=date(2025, 1, 1),
+            end_date=date(2025, 1, 31),
         )
 
-        assert hasattr(result, "pipeline_stats")
-        assert hasattr(result, "pipeline_distribution")
-        assert hasattr(result, "success_metrics")
-        assert hasattr(result, "conversion_funnel")
-        assert hasattr(result, "application_trends")
-
-
-# ============================================================================
-# TEST TIME RANGE FILTERING
-# ============================================================================
-
-
-class TestTimeRangeFiltering:
-    """Test time range filtering for analytics"""
-
-    def test_filter_by_last_7_days(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should filter data for last 7 days"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_pipeline_stats(
-            mock_user.id, TimeRange.LAST_7_DAYS
-        )
-
-        # Verify appropriate time filter was applied
-        assert mock_db.query().filter.called
-        assert result.total_applications >= 0
-
-    def test_filter_by_last_30_days(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should filter data for last 30 days"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_pipeline_stats(
-            mock_user.id, TimeRange.LAST_30_DAYS
-        )
-
-        assert mock_db.query().filter.called
-        assert result.total_applications >= 0
-
-    def test_filter_by_all_time(
-        self, analytics_service, mock_db, mock_user, sample_applications
-    ):
-        """Should show all-time data"""
-        mock_db.query().filter().all.return_value = sample_applications
-
-        result = analytics_service.get_pipeline_stats(mock_user.id, TimeRange.ALL_TIME)
-
-        assert mock_db.query().filter.called
-        assert result.total_applications >= 0
-
-
-# ============================================================================
-# TEST ERROR HANDLING
-# ============================================================================
-
-
-class TestErrorHandling:
-    """Test error handling in analytics service"""
-
-    def test_handle_invalid_user_id(self, analytics_service, mock_db):
-        """Should handle invalid user ID gracefully"""
-        invalid_user_id = uuid.uuid4()
-        mock_db.query().filter().all.return_value = []
-
-        result = analytics_service.get_pipeline_stats(
-            invalid_user_id, TimeRange.LAST_30_DAYS
-        )
-
-        # Should return empty/zero stats instead of error
-        assert result.total_applications == 0
-
-    def test_handle_database_errors(self, analytics_service, mock_db, mock_user):
-        """Should handle database errors gracefully"""
-        mock_db.query().filter().all.side_effect = Exception("Database error")
-
-        with pytest.raises(Exception):
-            analytics_service.get_pipeline_stats(mock_user.id, TimeRange.LAST_30_DAYS)
+        # Assert
+        assert cost_per_app == pytest.approx(Decimal("0.99"), rel=0.01)

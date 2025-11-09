@@ -24,6 +24,9 @@ from app.api.v1.endpoints import (
     bulk_job_posting,
     team,  # Sprint 13-14: Team collaboration
     interviews,  # Sprint 13-14: Interview scheduling
+    employer_analytics,  # Sprint 15-16: Advanced analytics
+    api_keys,  # Sprint 17-18: API key management
+    webhook_delivery,  # Sprint 17-18: Webhook delivery system
 )
 
 api_router = APIRouter()
@@ -55,6 +58,15 @@ api_router.include_router(
 api_router.include_router(
     interviews.router, prefix="/employer"
 )  # Interview scheduling (Sprint 13-14)
+api_router.include_router(
+    employer_analytics.router, prefix="/employer", tags=["Employer Analytics"]
+)  # Advanced analytics (Sprint 15-16)
+api_router.include_router(
+    api_keys.router, prefix="/employer/api-keys", tags=["API Keys"]
+)  # API key management (Sprint 17-18)
+api_router.include_router(
+    webhook_delivery.router, prefix="/employer/webhooks", tags=["Webhook Delivery"]
+)  # Webhook delivery system (Sprint 17-18)
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users

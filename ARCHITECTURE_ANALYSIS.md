@@ -1034,11 +1034,11 @@ Employer Service
 - [ ] Week 21-22: CSV bulk upload + AI normalization
 - [ ] Week 23-24: Multi-board distribution (LinkedIn, Indeed)
 
-**Sprint 13-14: Team Collaboration (Weeks 25-28)**
-- [ ] Week 25: Team member management (invite, roles)
-- [ ] Week 26: RBAC (6 roles, permission matrix)
-- [ ] Week 27: Interview scheduling
-- [ ] Week 28: Activity feed + @mentions
+**Sprint 13-14: Team Collaboration (Weeks 25-28)** ✅ COMPLETE
+- [x] Week 25: Team member management (invite, roles)
+- [x] Week 26: RBAC (6 roles, permission matrix)
+- [x] Week 27: Interview scheduling
+- [x] Week 28: Activity feed + @mentions
 
 **Sprint 15-16: Analytics & Reporting (Weeks 29-32)**
 - [ ] Week 29-30: Employer analytics (sourcing, pipeline)

@@ -9,6 +9,7 @@ from sqlalchemy import (
     Boolean,
     Integer,
     JSON,
+    Numeric,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -65,6 +66,14 @@ class Application(Base):
         JSON, nullable=True, server_default="[]"
     )  # Array of tags: "strong_candidate", "needs_review", etc.
 
+    # Sprint 15-16: Analytics fields
+    source = Column(
+        String(50), nullable=True, index=True
+    )  # 'auto_apply', 'manual', 'referral', 'job_board'
+    cost_attribution = Column(
+        Numeric(10, 2), nullable=True
+    )  # Portion of subscription cost attributed to this application
+
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
@@ -91,6 +100,13 @@ class Application(Base):
         "ApplicationNote",
         back_populates="application",
         cascade="all, delete-orphan",
+    )
+    # Sprint 15-16: Analytics stage tracking
+    stage_history = relationship(
+        "ApplicationStageHistory",
+        back_populates="application",
+        cascade="all, delete-orphan",
+        order_by="ApplicationStageHistory.changed_at",
     )
 
 

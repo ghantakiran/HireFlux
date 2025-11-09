@@ -45,6 +45,17 @@ from app.db.models.bulk_job_posting import (
     DistributionStatus,
     DistributionChannel,
 )
+from app.db.models.analytics import (
+    AnalyticsSnapshot,
+    ApplicationStageHistory,
+    CompanyAnalyticsConfig,
+)
+from app.db.models.api_key import (
+    APIKey,
+    APIKeyUsage,
+    Webhook,
+    WebhookDelivery,
+)
 
 __all__ = [
     "Base",
@@ -85,4 +96,11 @@ __all__ = [
     "BulkUploadStatus",
     "DistributionStatus",
     "DistributionChannel",
+    "AnalyticsSnapshot",
+    "ApplicationStageHistory",
+    "CompanyAnalyticsConfig",
+    "APIKey",
+    "APIKeyUsage",
+    "Webhook",
+    "WebhookDelivery",
 ]
