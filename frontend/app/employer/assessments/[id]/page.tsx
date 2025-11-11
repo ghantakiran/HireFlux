@@ -202,7 +202,7 @@ export default function AssessmentDetailPage() {
       }
 
       // API call to add question
-      const response = await assessmentApi.addQuestionToAssessment(assessmentId, questionData);
+      const response = await assessmentApi.addQuestion(assessmentId, questionData);
 
       if (response.data.success) {
         const newQuestion = response.data.data;
@@ -231,7 +231,7 @@ export default function AssessmentDetailPage() {
 
   const handleDeleteQuestion = async (questionId: string) => {
     try {
-      const response = await assessmentApi.deleteQuestionFromAssessment(assessmentId, questionId);
+      const response = await assessmentApi.deleteQuestion(questionId);
 
       if (response.data.success) {
         const updatedQuestions = assessment?.questions?.filter(q => q.id !== questionId) || [];
