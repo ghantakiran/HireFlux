@@ -28,6 +28,7 @@ from app.api.v1.endpoints import (
     api_keys,  # Sprint 17-18: API key management
     webhook_delivery,  # Sprint 17-18: Webhook delivery system
     white_label,  # Sprint 17-18: White-label branding
+    assessments,  # Sprint 17-18 Phase 4: Skills Assessment Platform
 )
 
 api_router = APIRouter()
@@ -71,6 +72,9 @@ api_router.include_router(
 api_router.include_router(
     white_label.router, prefix="/employer/white-label", tags=["White-Label Branding"]
 )  # White-label branding (Sprint 17-18 Phase 3)
+api_router.include_router(
+    assessments.router, prefix="/assessments", tags=["Assessments"]
+)  # Skills Assessment Platform (Sprint 17-18 Phase 4)
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users

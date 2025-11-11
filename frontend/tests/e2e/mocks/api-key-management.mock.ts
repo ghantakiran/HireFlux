@@ -77,8 +77,8 @@ export function createMockAPIKeyList(count: number) {
   ];
 
   return Array.from({ length: count }, (_, i) => {
-    const tier = tiers[i % tiers.length];
-    const rateLimits = {
+    const tier = tiers[i % tiers.length] as 'standard' | 'elevated' | 'enterprise';
+    const rateLimits: Record<'standard' | 'elevated' | 'enterprise', { per_minute: number; per_hour: number }> = {
       standard: { per_minute: 60, per_hour: 3000 },
       elevated: { per_minute: 120, per_hour: 6000 },
       enterprise: { per_minute: 300, per_hour: 15000 },

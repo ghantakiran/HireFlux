@@ -843,6 +843,178 @@ export const apiKeyApi = {
     apiClient.get(`/employer/api-keys/${keyId}/usage`, { params }),
 };
 
+// Assessment API (Sprint 17-18 Phase 4)
+export const assessmentApi = {
+  // Assessment Management (Employer)
+  createAssessment: (data: {
+    title: string;
+    description?: string;
+    assessment_type: 'pre_screening' | 'technical' | 'personality' | 'skills_test' | 'custom';
+    time_limit_minutes?: number;
+    passing_score_percentage?: number;
+    max_attempts?: number;
+    randomize_questions?: boolean;
+    randomize_options?: boolean;
+    show_results_to_candidate?: boolean;
+    show_correct_answers?: boolean;
+    enable_proctoring?: boolean;
+    allow_tab_switching?: boolean;
+    max_tab_switches?: number;
+    require_webcam?: boolean;
+  }) => apiClient.post<ApiResponse>('/assessments/', data),
+
+  listAssessments: (params?: {
+    status?: 'draft' | 'published' | 'archived';
+    assessment_type?: string;
+    page?: number;
+    limit?: number;
+  }) => apiClient.get<ApiResponse>('/assessments/', { params }),
+
+  getAssessment: (assessmentId: string) =>
+    apiClient.get<ApiResponse>(`/assessments/${assessmentId}`),
+
+  updateAssessment: (assessmentId: string, data: Partial<any>) =>
+    apiClient.put<ApiResponse>(`/assessments/${assessmentId}`, data),
+
+  deleteAssessment: (assessmentId: string) =>
+    apiClient.delete<ApiResponse>(`/assessments/${assessmentId}`),
+
+  publishAssessment: (assessmentId: string) =>
+    apiClient.post<ApiResponse>(`/assessments/${assessmentId}/publish`),
+
+  cloneAssessment: (assessmentId: string, data: { new_title: string }) =>
+    apiClient.post<ApiResponse>(`/assessments/${assessmentId}/clone`, data),
+
+  getStatistics: (assessmentId: string) =>
+    apiClient.get<ApiResponse>(`/assessments/${assessmentId}/statistics`),
+
+  // Question Management
+  addQuestion: (assessmentId: string, data: {
+    question_type: 'mcq_single' | 'mcq_multiple' | 'coding' | 'text' | 'file_upload';
+    question_text: string;
+    points: number;
+    difficulty?: 'easy' | 'medium' | 'hard';
+    category?: string;
+    tags?: string[];
+    options?: Array<{ text: string; is_correct: boolean }>;
+    coding_language?: string;
+    test_cases?: Array<{ input: string; expected_output: string; is_hidden: boolean }>;
+    file_types_allowed?: string[];
+    max_file_size_mb?: number;
+  }) => apiClient.post<ApiResponse>(`/assessments/${assessmentId}/questions`, data),
+
+  listQuestions: (assessmentId: string) =>
+    apiClient.get<ApiResponse>(`/assessments/${assessmentId}/questions`),
+
+  updateQuestion: (questionId: string, data: Partial<any>) =>
+    apiClient.put<ApiResponse>(`/assessments/questions/${questionId}`, data),
+
+  deleteQuestion: (questionId: string) =>
+    apiClient.delete<ApiResponse>(`/assessments/questions/${questionId}`),
+
+  reorderQuestions: (data: { question_orders: Array<{ question_id: string; display_order: number }> }) =>
+    apiClient.post<ApiResponse>('/assessments/questions/reorder', data),
+
+  bulkImportQuestions: (assessmentId: string, data: { question_bank_ids: string[] }) =>
+    apiClient.post<ApiResponse>(`/assessments/${assessmentId}/questions/bulk-import`, data),
+
+  // Question Bank
+  createQuestionBankItem: (data: {
+    question_type: 'mcq_single' | 'mcq_multiple' | 'coding' | 'text' | 'file_upload';
+    question_text: string;
+    points: number;
+    difficulty?: 'easy' | 'medium' | 'hard';
+    category?: string;
+    tags?: string[];
+    is_public?: boolean;
+    options?: Array<{ text: string; is_correct: boolean }>;
+    coding_language?: string;
+    test_cases?: Array<{ input: string; expected_output: string; is_hidden: boolean }>;
+  }) => apiClient.post<ApiResponse>('/assessments/question-bank', data),
+
+  searchQuestionBank: (params?: {
+    question_type?: string;
+    difficulty?: string;
+    category?: string;
+    tags?: string[];
+    is_public?: boolean;
+    page?: number;
+    limit?: number;
+  }) => apiClient.get<ApiResponse>('/assessments/question-bank', { params }),
+
+  getQuestionBankItem: (questionId: string) =>
+    apiClient.get<ApiResponse>(`/assessments/question-bank/${questionId}`),
+
+  updateQuestionBankItem: (questionId: string, data: Partial<any>) =>
+    apiClient.put<ApiResponse>(`/assessments/question-bank/${questionId}`, data),
+
+  deleteQuestionBankItem: (questionId: string) =>
+    apiClient.delete<ApiResponse>(`/assessments/question-bank/${questionId}`),
+
+  // Candidate Assessment Taking
+  startAssessment: (assessmentId: string, applicationId?: string) =>
+    apiClient.post<ApiResponse>(`/assessments/${assessmentId}/start`, { application_id: applicationId }),
+
+  getAttempt: (attemptId: string) =>
+    apiClient.get<ApiResponse>(`/assessments/attempts/${attemptId}`),
+
+  getAttemptQuestions: (attemptId: string) =>
+    apiClient.get<ApiResponse>(`/assessments/attempts/${attemptId}/questions`),
+
+  submitResponse: (attemptId: string, data: {
+    question_id: string;
+    response_data: {
+      selected_option_ids?: string[];
+      text_response?: string;
+      code_response?: string;
+      file_upload_url?: string;
+    };
+  }) => apiClient.post<ApiResponse>(`/assessments/attempts/${attemptId}/responses`, data),
+
+  submitAssessment: (attemptId: string) =>
+    apiClient.post<ApiResponse>(`/assessments/attempts/${attemptId}/submit`),
+
+  recordTabSwitch: (attemptId: string) =>
+    apiClient.post<ApiResponse>(`/assessments/attempts/${attemptId}/tab-switch`),
+
+  resumeAssessment: (assessmentId: string) =>
+    apiClient.get<ApiResponse>(`/assessments/assessments/${assessmentId}/resume`),
+
+  getMyAttempts: (params?: { status?: string; page?: number; limit?: number }) =>
+    apiClient.get<ApiResponse>('/assessments/my-attempts', { params }),
+
+  // Grading & Review
+  manualGradeResponse: (responseId: string, data: {
+    points_awarded: number;
+    feedback?: string;
+  }) => apiClient.post<ApiResponse>(`/assessments/responses/${responseId}/grade`, data),
+
+  autoGradeAttempt: (attemptId: string) =>
+    apiClient.post<ApiResponse>(`/assessments/attempts/${attemptId}/grade`),
+
+  getUngradedResponses: (assessmentId: string) =>
+    apiClient.get<ApiResponse>(`/assessments/assessments/${assessmentId}/ungraded`),
+
+  bulkGradeResponses: (data: {
+    grades: Array<{ response_id: string; points_awarded: number; feedback?: string }>;
+  }) => apiClient.post<ApiResponse>('/assessments/attempts/bulk-grade', data),
+
+  // Job Assessment Requirements
+  linkAssessmentToJob: (jobId: string, data: {
+    assessment_id: string;
+    is_required?: boolean;
+    must_pass_to_proceed?: boolean;
+    order?: number;
+    deadline_hours_after_application?: number;
+    send_reminder_hours_before_deadline?: number;
+    show_before_application?: boolean;
+    trigger_point?: 'before_application' | 'after_application' | 'before_interview';
+  }) => apiClient.post<ApiResponse>(`/assessments/jobs/${jobId}/assessments`, data),
+
+  getJobAssessments: (jobId: string) =>
+    apiClient.get<ApiResponse>(`/assessments/jobs/${jobId}/assessments`),
+};
+
 // White-Label Branding API (Sprint 17-18 Phase 3)
 export const whiteLabelApi = {
   // Get white-label branding configuration

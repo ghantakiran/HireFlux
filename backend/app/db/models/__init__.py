@@ -56,6 +56,14 @@ from app.db.models.api_key import (
     Webhook,
     WebhookDelivery,
 )
+from app.db.models.assessment import (
+    Assessment,
+    AssessmentQuestion,
+    AssessmentAttempt,
+    AssessmentResponse,
+    QuestionBankItem,
+    JobAssessmentRequirement,
+)
 
 __all__ = [
     "Base",
@@ -103,4 +111,10 @@ __all__ = [
     "APIKeyUsage",
     "Webhook",
     "WebhookDelivery",
+    "Assessment",
+    "AssessmentQuestion",
+    "AssessmentAttempt",
+    "AssessmentResponse",
+    "QuestionBankItem",
+    "JobAssessmentRequirement",
 ]

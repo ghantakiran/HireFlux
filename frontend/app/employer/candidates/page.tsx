@@ -196,7 +196,6 @@ export default function CandidateSearchPage() {
                   value={filters.skills}
                   onChange={(skills) => setFilters({ ...filters, skills })}
                   placeholder="Add skills..."
-                  suggestions={SKILLS_OPTIONS}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   Candidates must have ALL selected skills
@@ -212,8 +211,8 @@ export default function CandidateSearchPage() {
                       <Checkbox
                         id={`exp-${level}`}
                         checked={filters.experience_level.includes(level)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
+                        onChange={(e) => {
+                          if (e.target.checked) {
                             setFilters({
                               ...filters,
                               experience_level: [...filters.experience_level, level],
@@ -275,7 +274,7 @@ export default function CandidateSearchPage() {
                 <Checkbox
                   id="remote_only"
                   checked={filters.remote_only}
-                  onCheckedChange={(checked) => setFilters({ ...filters, remote_only: checked as boolean })}
+                  onChange={(e) => setFilters({ ...filters, remote_only: e.target.checked })}
                 />
                 <Label htmlFor="remote_only">Remote only</Label>
               </div>
@@ -335,8 +334,8 @@ export default function CandidateSearchPage() {
                       <Checkbox
                         id={`avail-${status}`}
                         checked={filters.availability_status.includes(status)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
+                        onChange={(e) => {
+                          if (e.target.checked) {
                             setFilters({
                               ...filters,
                               availability_status: [...filters.availability_status, status],

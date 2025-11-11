@@ -31,7 +31,7 @@ import { AnalyticsEmptyState } from './components/AnalyticsEmptyState';
 // TODO: These will come from auth context in production
 const MOCK_COMPANY_ID = '550e8400-e29b-41d4-a716-446655440000';
 const MOCK_USER_ROLE = 'admin'; // owner, admin, hiring_manager, recruiter, interviewer, viewer
-const MOCK_COMPANY_PLAN = 'growth'; // starter, growth, professional, enterprise
+const MOCK_COMPANY_PLAN: 'starter' | 'growth' | 'professional' | 'enterprise' = 'growth';
 
 export default function AnalyticsPage() {
   // Date range state (default to last 30 days)

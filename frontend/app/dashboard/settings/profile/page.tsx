@@ -448,7 +448,7 @@ export default function ProfileSettingsPage() {
               <Checkbox
                 id="open_to_remote"
                 checked={profile.open_to_remote || false}
-                onCheckedChange={(checked) => setProfile({ ...profile, open_to_remote: checked as boolean })}
+                onChange={(e) => setProfile({ ...profile, open_to_remote: e.target.checked })}
               />
               <Label htmlFor="open_to_remote">Open to Remote</Label>
             </div>

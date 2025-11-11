@@ -37,6 +37,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.48.0",
+    "recharts": "^3.4.1",
     "sharp": "^0.33.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^2.0.0",

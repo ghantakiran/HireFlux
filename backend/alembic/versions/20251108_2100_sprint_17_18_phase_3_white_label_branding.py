@@ -1,7 +1,7 @@
 """Sprint 17-18 Phase 3: White-Label & Branding
 
-Revision ID: 20251108_2100_sprint_17_18_phase_3_white_label_branding
-Revises: 20251108_1837_sprint_17_18_api_key_management_and_
+Revision ID: wl_branding_20251108
+Revises: 8539e112fb57
 Create Date: 2025-11-08 21:00:00.000000
 
 Description:
@@ -25,8 +25,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '20251108_2100_sprint_17_18_phase_3_white_label_branding'
-down_revision = '20251108_1837_sprint_17_18_api_key_management_and_'
+revision = 'wl_branding_20251108'
+down_revision = '8539e112fb57'
 branch_labels = None
 depends_on = None
 
@@ -118,6 +118,7 @@ def upgrade() -> None:
         # Primary Key
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True, server_default=sa.text('gen_random_uuid()')),
         sa.Column('company_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('companies.id', ondelete='CASCADE'), nullable=False),
+        sa.Column('branding_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('white_label_branding.id', ondelete='CASCADE'), nullable=True),
 
         # Field Configuration
         sa.Column('field_name', sa.String(100), nullable=False),

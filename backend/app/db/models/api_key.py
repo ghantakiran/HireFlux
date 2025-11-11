@@ -399,6 +399,9 @@ class WhiteLabelApplicationField(Base):
     company_id = Column(
         GUID(), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False
     )
+    branding_id = Column(
+        GUID(), ForeignKey("white_label_branding.id", ondelete="CASCADE"), nullable=True
+    )
 
     # Field configuration
     field_name = Column(String(100), nullable=False, comment='e.g., "diversity_statement"')

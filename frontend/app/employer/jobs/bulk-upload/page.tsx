@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import { bulkJobPostingApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert-dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -318,7 +318,7 @@ export default function BulkJobUploadPage() {
                   >
                     <Checkbox
                       checked={selectedChannels.includes(channel)}
-                      onCheckedChange={() => toggleChannel(channel)}
+                      onChange={() => toggleChannel(channel)}
                     />
                     <span className="font-medium">{channel}</span>
                   </label>

@@ -152,7 +152,7 @@ test.describe('Job Matching and Application Flow', () => {
     await page.getByLabel(/Minimum Fit Index/i).fill('75');
 
     // Set monthly limit
-    await page.getByLabel(/Monthly Application Limit/i }).fill('20');
+    await page.getByLabel(/Monthly Application Limit/i).fill('20');
 
     // Save settings
     await page.getByRole('button', { name: /Save Settings/i }).click();

@@ -149,3 +149,73 @@ class ServiceError(APIException):
             code="SERVICE_ERROR",
             status_code=500,
         )
+
+
+# ============================================================================
+# Assessment-specific exceptions (Sprint 17-18 Phase 4)
+# ============================================================================
+
+class AssessmentNotFoundError(APIException):
+    """Assessment Not Found Error"""
+
+    def __init__(self, message: str = "Assessment not found"):
+        super().__init__(
+            message=message,
+            code="ASSESSMENT_NOT_FOUND",
+            status_code=404,
+        )
+
+
+class QuestionNotFoundError(APIException):
+    """Question Not Found Error"""
+
+    def __init__(self, message: str = "Question not found"):
+        super().__init__(
+            message=message,
+            code="QUESTION_NOT_FOUND",
+            status_code=404,
+        )
+
+
+class AttemptNotFoundError(APIException):
+    """Assessment Attempt Not Found Error"""
+
+    def __init__(self, message: str = "Assessment attempt not found"):
+        super().__init__(
+            message=message,
+            code="ATTEMPT_NOT_FOUND",
+            status_code=404,
+        )
+
+
+class InvalidQuestionTypeError(APIException):
+    """Invalid Question Type Error"""
+
+    def __init__(self, message: str = "Invalid question type"):
+        super().__init__(
+            message=message,
+            code="INVALID_QUESTION_TYPE",
+            status_code=400,
+        )
+
+
+class AssessmentAlreadySubmittedError(APIException):
+    """Assessment Already Submitted Error"""
+
+    def __init__(self, message: str = "Assessment already submitted"):
+        super().__init__(
+            message=message,
+            code="ASSESSMENT_ALREADY_SUBMITTED",
+            status_code=400,
+        )
+
+
+class TimeLimitExceededError(APIException):
+    """Time Limit Exceeded Error"""
+
+    def __init__(self, message: str = "Assessment time limit exceeded"):
+        super().__init__(
+            message=message,
+            code="TIME_LIMIT_EXCEEDED",
+            status_code=400,
+        )

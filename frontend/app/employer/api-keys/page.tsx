@@ -402,8 +402,8 @@ export default function APIKeysPage() {
                     <Checkbox
                       id="jobs-read"
                       checked={formData.permissions.jobs.includes('read')}
-                      onCheckedChange={(checked) =>
-                        handlePermissionToggle('jobs', 'read', !!checked)
+                      onChange={(e) =>
+                        handlePermissionToggle('jobs', 'read', e.target.checked)
                       }
                     />
                     <label htmlFor="jobs-read" className="text-sm">
@@ -414,8 +414,8 @@ export default function APIKeysPage() {
                     <Checkbox
                       id="jobs-write"
                       checked={formData.permissions.jobs.includes('write')}
-                      onCheckedChange={(checked) =>
-                        handlePermissionToggle('jobs', 'write', !!checked)
+                      onChange={(e) =>
+                        handlePermissionToggle('jobs', 'write', e.target.checked)
                       }
                     />
                     <label htmlFor="jobs-write" className="text-sm">
@@ -426,8 +426,8 @@ export default function APIKeysPage() {
                     <Checkbox
                       id="jobs-delete"
                       checked={formData.permissions.jobs.includes('delete')}
-                      onCheckedChange={(checked) =>
-                        handlePermissionToggle('jobs', 'delete', !!checked)
+                      onChange={(e) =>
+                        handlePermissionToggle('jobs', 'delete', e.target.checked)
                       }
                     />
                     <label htmlFor="jobs-delete" className="text-sm">
@@ -445,8 +445,8 @@ export default function APIKeysPage() {
                     <Checkbox
                       id="candidates-read"
                       checked={formData.permissions.candidates.includes('read')}
-                      onCheckedChange={(checked) =>
-                        handlePermissionToggle('candidates', 'read', !!checked)
+                      onChange={(e) =>
+                        handlePermissionToggle('candidates', 'read', e.target.checked)
                       }
                     />
                     <label htmlFor="candidates-read" className="text-sm">
@@ -457,8 +457,8 @@ export default function APIKeysPage() {
                     <Checkbox
                       id="candidates-write"
                       checked={formData.permissions.candidates.includes('write')}
-                      onCheckedChange={(checked) =>
-                        handlePermissionToggle('candidates', 'write', !!checked)
+                      onChange={(e) =>
+                        handlePermissionToggle('candidates', 'write', e.target.checked)
                       }
                     />
                     <label htmlFor="candidates-write" className="text-sm">
@@ -476,8 +476,8 @@ export default function APIKeysPage() {
                     <Checkbox
                       id="applications-read"
                       checked={formData.permissions.applications.includes('read')}
-                      onCheckedChange={(checked) =>
-                        handlePermissionToggle('applications', 'read', !!checked)
+                      onChange={(e) =>
+                        handlePermissionToggle('applications', 'read', e.target.checked)
                       }
                     />
                     <label htmlFor="applications-read" className="text-sm">
@@ -488,8 +488,8 @@ export default function APIKeysPage() {
                     <Checkbox
                       id="applications-write"
                       checked={formData.permissions.applications.includes('write')}
-                      onCheckedChange={(checked) =>
-                        handlePermissionToggle('applications', 'write', !!checked)
+                      onChange={(e) =>
+                        handlePermissionToggle('applications', 'write', e.target.checked)
                       }
                     />
                     <label htmlFor="applications-write" className="text-sm">

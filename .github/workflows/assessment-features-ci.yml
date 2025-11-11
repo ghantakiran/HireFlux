@@ -1,0 +1,516 @@
+name: Assessment Features CI/CD
+#
+# Sprint 17-18 Phase 4: Skills Assessment Platform
+# TDD/BDD Continuous Testing Workflow
+#
+# This workflow ensures all assessment features follow Test-Driven Development
+# and Behavior-Driven Development practices with comprehensive E2E testing.
+#
+# Triggers:
+# - Push to main/develop (assessment-related paths)
+# - Pull requests (assessment-related paths)
+# - Manual workflow dispatch
+#
+# Test Coverage:
+# - Backend Unit Tests (Assessment Services, Question Bank, Coding Execution)
+# - Frontend Unit Tests (Assessment Components)
+# - E2E Tests (32 BDD scenarios covering 7 features)
+# - Integration Tests (API endpoints)
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/app/services/assessment_service.py'
+      - 'backend/app/services/question_bank_service.py'
+      - 'backend/app/services/coding_execution_service.py'
+      - 'backend/app/api/v1/endpoints/assessments.py'
+      - 'backend/app/schemas/assessment.py'
+      - 'backend/app/db/models/assessment.py'
+      - 'backend/tests/unit/test_assessment_service.py'
+      - 'frontend/app/employer/assessments/**'
+      - 'frontend/lib/api.ts'
+      - 'frontend/tests/e2e/assessment-features.spec.ts'
+      - '.github/workflows/assessment-features-ci.yml'
+
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'backend/app/services/assessment_service.py'
+      - 'backend/app/services/question_bank_service.py'
+      - 'backend/app/services/coding_execution_service.py'
+      - 'backend/app/api/v1/endpoints/assessments.py'
+      - 'backend/app/schemas/assessment.py'
+      - 'backend/app/db/models/assessment.py'
+      - 'backend/tests/unit/test_assessment_service.py'
+      - 'frontend/app/employer/assessments/**'
+      - 'frontend/lib/api.ts'
+      - 'frontend/tests/e2e/assessment-features.spec.ts'
+      - '.github/workflows/assessment-features-ci.yml'
+
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - backend-only
+          - frontend-only
+          - e2e-only
+
+env:
+  PYTHON_VERSION: '3.12'
+  NODE_VERSION: '18'
+  POSTGRES_VERSION: '15'
+  REDIS_VERSION: '7'
+
+jobs:
+  # ============================================================================
+  # JOB 1: Backend Unit Tests (TDD)
+  # ============================================================================
+  backend-unit-tests:
+    name: Backend Unit Tests - Assessment Services
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: ./backend
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: hireflux_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-asyncio
+
+      - name: Run database migrations
+        run: |
+          alembic upgrade head
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hireflux_test
+
+      - name: Run Assessment Service tests (TDD)
+        run: |
+          pytest tests/unit/test_assessment_service.py -v --tb=short --cov=app/services/assessment_service --cov-report=xml --cov-report=term
+        env:
+          PYTHONPATH: ${{ github.workspace }}/backend
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hireflux_test
+          REDIS_URL: redis://localhost:6379/0
+          SECRET_KEY: test-secret-key-for-ci
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Run Question Bank Service tests (TDD)
+        run: |
+          pytest tests/unit/ -k question_bank -v --tb=short --cov=app/services/question_bank_service --cov-report=xml --cov-report=term
+        env:
+          PYTHONPATH: ${{ github.workspace }}/backend
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hireflux_test
+          REDIS_URL: redis://localhost:6379/0
+
+      - name: Run Coding Execution Service tests (TDD)
+        run: |
+          pytest tests/unit/ -k coding_execution -v --tb=short --cov=app/services/coding_execution_service --cov-report=xml --cov-report=term
+        env:
+          PYTHONPATH: ${{ github.workspace }}/backend
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hireflux_test
+          REDIS_URL: redis://localhost:6379/0
+
+      - name: Upload backend coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./backend/coverage.xml
+          flags: backend-assessment
+          name: backend-assessment-coverage
+
+  # ============================================================================
+  # JOB 2: Frontend Unit Tests (TDD)
+  # ============================================================================
+  frontend-unit-tests:
+    name: Frontend Unit Tests - Assessment Components
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run type checking
+        run: npm run type-check
+
+      - name: Run assessment component tests (TDD)
+        run: npm test -- --testPathPattern=assessment --coverage --watchAll=false
+
+      - name: Upload frontend coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./frontend/coverage/coverage-final.json
+          flags: frontend-assessment
+          name: frontend-assessment-coverage
+
+  # ============================================================================
+  # JOB 3: Assessment E2E Tests (BDD) - Chromium
+  # ============================================================================
+  assessment-e2e-chromium:
+    name: Assessment E2E Tests (BDD) - Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [backend-unit-tests, frontend-unit-tests]
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: hireflux_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright (Chromium only)
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio httpx
+
+      - name: Run database migrations
+        working-directory: backend
+        run: alembic upgrade head
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hireflux_e2e
+
+      - name: Seed test data
+        working-directory: backend
+        run: |
+          python -c "from tests.fixtures.seed_data import seed_assessment_test_data; seed_assessment_test_data()"
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hireflux_e2e
+
+      - name: Start backend server
+        working-directory: backend
+        run: |
+          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          sleep 10
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hireflux_e2e
+          REDIS_URL: redis://localhost:6379/0
+          SECRET_KEY: test-secret-key-for-e2e
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000
+
+      - name: Start frontend server
+        working-directory: frontend
+        run: |
+          npm start &
+          sleep 10
+
+      - name: Run Assessment E2E Tests (BDD)
+        working-directory: frontend
+        run: |
+          npx playwright test tests/e2e/assessment-features.spec.ts --project=chromium --reporter=list,html
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report-assessment-chromium
+          path: frontend/playwright-report/
+          retention-days: 30
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-assessment-chromium
+          path: frontend/test-results/
+          retention-days: 30
+
+  # ============================================================================
+  # JOB 4: Assessment E2E Tests (BDD) - Firefox
+  # ============================================================================
+  assessment-e2e-firefox:
+    name: Assessment E2E Tests (BDD) - Firefox
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [backend-unit-tests, frontend-unit-tests]
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: hireflux_e2e_firefox
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright (Firefox only)
+        working-directory: frontend
+        run: npx playwright install --with-deps firefox
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run database migrations
+        working-directory: backend
+        run: alembic upgrade head
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hireflux_e2e_firefox
+
+      - name: Start backend server
+        working-directory: backend
+        run: |
+          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          sleep 10
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/hireflux_e2e_firefox
+          REDIS_URL: redis://localhost:6379/0
+          SECRET_KEY: test-secret-key-for-e2e
+
+      - name: Build and start frontend
+        working-directory: frontend
+        run: |
+          npm run build
+          npm start &
+          sleep 10
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000
+
+      - name: Run Assessment E2E Tests (BDD) - Firefox
+        working-directory: frontend
+        run: |
+          npx playwright test tests/e2e/assessment-features.spec.ts --project=firefox --reporter=list
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-assessment-firefox
+          path: frontend/test-results/
+          retention-days: 30
+
+  # ============================================================================
+  # JOB 5: Integration Test Summary & Reporting
+  # ============================================================================
+  test-summary:
+    name: Test Summary & Quality Gates
+    runs-on: ubuntu-latest
+    needs: [backend-unit-tests, frontend-unit-tests, assessment-e2e-chromium, assessment-e2e-firefox]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Generate test summary
+        run: |
+          echo "# 🧪 Sprint 17-18 Phase 4: Assessment Features Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend Unit Tests | ${{ needs.backend-unit-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend Unit Tests | ${{ needs.frontend-unit-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests (Chromium) | ${{ needs.assessment-e2e-chromium.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests (Firefox) | ${{ needs.assessment-e2e-firefox.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## BDD Test Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Assessment Builder (3 scenarios)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Question Management MCQ (4 scenarios)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Question Management Coding (2 scenarios)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Question Bank (4 scenarios)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Candidate Assessment Taking (6 scenarios)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Anti-Cheating Detection (5 scenarios)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Grading Interface (5 scenarios)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Assessment Analytics (3 scenarios)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Total**: 32 BDD Scenarios" >> $GITHUB_STEP_SUMMARY
+
+      - name: Quality Gate - Check all tests passed
+        if: |
+          needs.backend-unit-tests.result != 'success' ||
+          needs.frontend-unit-tests.result != 'success' ||
+          needs.assessment-e2e-chromium.result != 'success' ||
+          needs.assessment-e2e-firefox.result != 'success'
+        run: |
+          echo "❌ Quality Gate Failed: Not all tests passed"
+          exit 1
+
+      - name: Quality Gate - Success
+        if: |
+          needs.backend-unit-tests.result == 'success' &&
+          needs.frontend-unit-tests.result == 'success' &&
+          needs.assessment-e2e-chromium.result == 'success' &&
+          needs.assessment-e2e-firefox.result == 'success'
+        run: |
+          echo "✅ Quality Gate Passed: All tests successful"
+          echo "🎉 Ready for deployment!"
+
+  # ============================================================================
+  # JOB 6: Slack Notification (Optional)
+  # ============================================================================
+  notify:
+    name: Notify Team
+    runs-on: ubuntu-latest
+    needs: [test-summary]
+    if: always() && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Send Slack notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Sprint 17-18 Phase 4: Assessment Features CI/CD
+            Status: ${{ needs.test-summary.result == 'success' && '✅ All tests passed' || '❌ Tests failed' }}
+            Branch: ${{ github.ref }}
+            Commit: ${{ github.sha }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        if: secrets.SLACK_WEBHOOK != ''

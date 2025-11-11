@@ -6,7 +6,7 @@ Sprint 15-16: Advanced Analytics & Reporting
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -223,7 +223,7 @@ class AnalyticsOverviewResponse(BaseModel):
     avg_fit_index: Optional[float]
     
     # Top performers
-    top_performing_jobs: List[Dict[str, any]] = Field(default_factory=list, description="Jobs with highest conversion rates")
+    top_performing_jobs: List[Dict[str, Any]] = Field(default_factory=list, description="Jobs with highest conversion rates")
     
     # Pipeline conversion
     pipeline_conversion: Dict[str, float] = Field(default_factory=dict, description="Conversion rates between stages")

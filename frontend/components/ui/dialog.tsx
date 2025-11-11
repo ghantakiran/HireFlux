@@ -32,6 +32,13 @@ interface DialogFooterProps {
   children: React.ReactNode;
 }
 
+interface DialogTriggerProps {
+  asChild?: boolean;
+  className?: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+}
+
 export function Dialog({ open, onOpenChange, children }: DialogProps) {
   React.useEffect(() => {
     if (open) {
@@ -100,5 +107,23 @@ export function DialogFooter({ className, children }: DialogFooterProps) {
     >
       {children}
     </div>
+  );
+}
+
+export function DialogTrigger({ asChild, className, children, onClick }: DialogTriggerProps) {
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children, {
+      onClick: (e: React.MouseEvent) => {
+        onClick?.();
+        // @ts-ignore - preserve original onClick if exists
+        children.props.onClick?.(e);
+      },
+    } as any);
+  }
+
+  return (
+    <button type="button" className={className} onClick={onClick}>
+      {children}
+    </button>
   );
 }

@@ -116,7 +116,7 @@ export default function WhiteLabelSettingsPage() {
     queryKey: ['whiteLabelConfig'],
     queryFn: async () => {
       const response = await whiteLabelApi.getConfig();
-      const configData = response.data as WhiteLabelConfig;
+      const configData = response.data as unknown as WhiteLabelConfig;
       setFormData(configData);
       return configData;
     },
@@ -128,7 +128,7 @@ export default function WhiteLabelSettingsPage() {
     queryFn: async () => {
       if (!config?.custom_domain) return null;
       const response = await whiteLabelApi.getDomainVerification();
-      return response.data as DomainVerification;
+      return response.data as unknown as DomainVerification;
     },
     enabled: !!config?.custom_domain,
   });
