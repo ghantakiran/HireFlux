@@ -451,10 +451,9 @@ class TestAnswerSubmission:
         # Arrange
         mcq_multiple = Mock()
         mcq_multiple.question_type = "mcq_multiple"
-        mcq_multiple.options = [
-            "A", "B", "C", "D"]
-            mcq_multiple.correct_answers = [0, 2]  # A and C are correct
-        
+        mcq_multiple.options = ["A", "B", "C", "D"]
+        mcq_multiple.correct_answers = [0, 2]  # A and C are correct
+        mcq_multiple.points = 20
         attempt_id = sample_attempt.id
         question_id = uuid4()
         answer_data = {"selected_options": [0, 2]}  # Correct
@@ -510,7 +509,7 @@ class TestAnswerSubmission:
         answer_data = {
             "code": "def reverse_string(s):\n    return s[::-1]",
             "language": "python"
-        
+        }
         db_session.query().filter().first.side_effect = [sample_attempt, sample_coding_question]
 
         # Act
@@ -908,11 +907,10 @@ class TestAutoGrading:
         # Arrange
         response = Mock()
         response.selected_options = {"selected": [2]}  # Correct
-        sample_mcq_question.mcq_options = {
-            "options": ["2", "3", "4", "5"],
-            "correct_answer": 2
-        
-        sample_mcq_question.points = 10
+        # sample_mcq_question fixture already has:
+        # options = ["2", "3", "4", "5"]
+        # correct_answers = [2]  # Index 2 = "4"
+        # points = 10
 
         # Act
         points = candidate_assessment_service._auto_grade_mcq(response, sample_mcq_question)
@@ -932,11 +930,8 @@ class TestAutoGrading:
         # Arrange
         response = Mock()
         response.selected_options = {"selected": [1]}  # Incorrect
-        sample_mcq_question.mcq_options = {
-            "options": ["2", "3", "4", "5"],
-            "correct_answer": 2
-        
-        sample_mcq_question.points = 10
+        # sample_mcq_question fixture already has correct_answers = [2]
+        # So selecting [1] is incorrect
 
         # Act
         points = candidate_assessment_service._auto_grade_mcq(response, sample_mcq_question)
@@ -956,10 +951,8 @@ class TestAutoGrading:
         # Arrange
         question = Mock()
         question.question_type = "mcq_multiple"
-        question.mcq_options = {
-            "A", "B", "C", "D"]
-            mcq_multiple.correct_answers = [0, 2]  # A and C
-        
+        question.options = ["A", "B", "C", "D"]
+        question.correct_answers = [0, 2]  # A and C
         question.points = 20
 
         response = Mock()
@@ -983,10 +976,8 @@ class TestAutoGrading:
         # Arrange
         question = Mock()
         question.question_type = "mcq_multiple"
-        question.mcq_options = {
-            "A", "B", "C", "D"]
-            mcq_multiple.correct_answers = [0, 2]  # A and C
-        
+        question.options = ["A", "B", "C", "D"]
+        question.correct_answers = [0, 2]  # A and C
         question.points = 20
 
         response = Mock()
