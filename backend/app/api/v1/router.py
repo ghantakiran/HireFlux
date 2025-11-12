@@ -28,7 +28,8 @@ from app.api.v1.endpoints import (
     api_keys,  # Sprint 17-18: API key management
     webhook_delivery,  # Sprint 17-18: Webhook delivery system
     white_label,  # Sprint 17-18: White-label branding
-    assessments,  # Sprint 17-18 Phase 4: Skills Assessment Platform
+    assessments,  # Sprint 17-18 Phase 4: Skills Assessment Platform (Employer)
+    candidate_assessments,  # Sprint 19-20 Week 37: Candidate Assessment Taking
 )
 
 api_router = APIRouter()
@@ -75,6 +76,9 @@ api_router.include_router(
 api_router.include_router(
     assessments.router, prefix="/assessments", tags=["Assessments"]
 )  # Skills Assessment Platform (Sprint 17-18 Phase 4)
+api_router.include_router(
+    candidate_assessments.router, prefix="/candidate-assessments", tags=["Candidate Assessments"]
+)  # Candidate Assessment Taking Flow (Sprint 19-20 Week 37)
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users
