@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { candidateAssessmentApi, ApiResponse } from '@/lib/api';
+import { AssessmentTimer } from '@/components/assessment/AssessmentTimer';
 
 interface Question {
   id: string;
@@ -87,6 +88,7 @@ export default function TakeAssessmentPage() {
   const [accessError, setAccessError] = useState<string | null>(null);
 
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [showTimeWarning, setShowTimeWarning] = useState(false);
 
   useEffect(() => {
     // Fetch assessment data from API using access token
@@ -184,26 +186,7 @@ export default function TakeAssessmentPage() {
     }
   }, [isLoading, assessment, accessError]);
 
-  useEffect(() => {
-    if (hasStarted && timeRemaining > 0) {
-      timerIntervalRef.current = setInterval(() => {
-        setTimeRemaining((prev) => {
-          if (prev <= 1) {
-            // Time expired
-            handleTimeExpired();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      return () => {
-        if (timerIntervalRef.current) {
-          clearInterval(timerIntervalRef.current);
-        }
-      };
-    }
-  }, [hasStarted, timeRemaining]);
+  // Removed timer interval - now handled by AssessmentTimer component
 
   const handleStartAssessment = async () => {
     if (!assessment) return;
@@ -245,14 +228,20 @@ export default function TakeAssessmentPage() {
   };
 
   const handleTimeExpired = () => {
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-    }
     setShowTimeExpiredDialog(true);
     // Auto-submit after a delay
     setTimeout(() => {
       handleSubmitAssessment(true);
     }, 3000);
+  };
+
+  const handleTimeWarning = (minutesLeft: number) => {
+    setShowTimeWarning(true);
+    toast.warning(`${minutesLeft} minute${minutesLeft > 1 ? 's' : ''} remaining!`, {
+      duration: 5000,
+    });
+    // Auto-hide warning after 10 seconds
+    setTimeout(() => setShowTimeWarning(false), 10000);
   };
 
   const currentQuestion = assessment?.questions[currentQuestionIndex];
@@ -398,22 +387,7 @@ export default function TakeAssessmentPage() {
     }
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const getTimerClass = () => {
-    if (timeRemaining <= 300) {
-      // 5 minutes or less
-      return 'text-red-600 warning';
-    } else if (timeRemaining <= 600) {
-      // 10 minutes or less
-      return 'text-yellow-600';
-    }
-    return 'text-gray-900';
-  };
+  // Removed formatTime and getTimerClass - now handled by AssessmentTimer component
 
   const getAnsweredCount = () => {
     return answers.size;
@@ -497,11 +471,13 @@ export default function TakeAssessmentPage() {
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold text-gray-900">{assessment.title}</h1>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                <span className={`font-semibold ${getTimerClass()}`} data-testid="timer">
-                  Time Remaining: {formatTime(timeRemaining)}
-                </span>
+              <div className="flex items-center gap-2" data-testid="timer">
+                <span className="text-sm text-gray-600 mr-1">Time Remaining:</span>
+                <AssessmentTimer
+                  timeRemaining={timeRemaining}
+                  onTimeExpired={handleTimeExpired}
+                  onWarning={handleTimeWarning}
+                />
               </div>
               <Button
                 onClick={() => setShowSubmitDialog(true)}
@@ -515,12 +491,12 @@ export default function TakeAssessmentPage() {
         </div>
       </div>
 
-      {/* Time Warning */}
-      {timeRemaining <= 300 && timeRemaining > 0 && (
-        <div className="bg-red-50 border-b border-red-200">
-          <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-red-800">
+      {/* Time Warning Banner */}
+      {showTimeWarning && timeRemaining > 0 && (
+        <div className="bg-yellow-50 border-b border-yellow-200">
+          <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-yellow-800">
             <AlertTriangle className="w-4 h-4" />
-            <span className="font-medium">5 minutes remaining!</span>
+            <span className="font-medium">Time is running out!</span>
           </div>
         </div>
       )}
