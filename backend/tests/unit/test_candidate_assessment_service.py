@@ -122,11 +122,9 @@ def sample_mcq_question():
         question_type="mcq_single",
         question_text="What is 2 + 2?",
         points=10,
-        order_index=1,
-        mcq_options={
-            "options": ["2", "3", "4", "5"],
-            "correct_answer": 2  # Index 2 = "4"
-        },
+        display_order=1,
+        options=["2", "3", "4", "5"],
+        correct_answers=[2],  # Index 2 = "4"
     )
 
 
@@ -139,10 +137,10 @@ def sample_coding_question():
         question_type="coding",
         question_text="Write a function to reverse a string",
         points=30,
-        order_index=2,
+        display_order=2,
         coding_language="python",
-        coding_starter_code="def reverse_string(s):\n    pass",
-        coding_test_cases=[
+        starter_code="def reverse_string(s):\n    pass",
+        test_cases=[
             {"input": "hello", "expected_output": "olleh"},
             {"input": "world", "expected_output": "dlrow"},
         ],
@@ -453,10 +451,10 @@ class TestAnswerSubmission:
         # Arrange
         mcq_multiple = Mock()
         mcq_multiple.question_type = "mcq_multiple"
-        mcq_multiple.mcq_options = {
-            "options": ["A", "B", "C", "D"],
-            "correct_answers": [0, 2]  # A and C are correct
-        }
+        mcq_multiple.options = [
+            "A", "B", "C", "D"]
+            mcq_multiple.correct_answers = [0, 2]  # A and C are correct
+        
         attempt_id = sample_attempt.id
         question_id = uuid4()
         answer_data = {"selected_options": [0, 2]}  # Correct
@@ -512,7 +510,7 @@ class TestAnswerSubmission:
         answer_data = {
             "code": "def reverse_string(s):\n    return s[::-1]",
             "language": "python"
-        }
+        
         db_session.query().filter().first.side_effect = [sample_attempt, sample_coding_question]
 
         # Act
@@ -544,7 +542,7 @@ class TestAnswerSubmission:
             "file_name": "resume.pdf",
             "file_size": 204800,  # 200KB
             "file_type": "application/pdf"
-        }
+        
         db_session.query().filter().first.side_effect = [sample_attempt, file_question]
 
         # Act
@@ -732,7 +730,7 @@ class TestCodeExecution:
             "test_cases_total": 2,
             "execution_time_ms": 45,
             "output": "All test cases passed"
-        }
+        
 
         db_session.query().filter().first.side_effect = [sample_attempt, sample_coding_question]
 
@@ -767,7 +765,7 @@ class TestCodeExecution:
             "error_message": "AttributeError: 'str' object has no attribute 'nonexistent'",
             "test_cases_passed": 0,
             "test_cases_total": 2
-        }
+        
 
         db_session.query().filter().first.side_effect = [sample_attempt, sample_coding_question]
 
@@ -798,7 +796,7 @@ class TestCodeExecution:
         mock_coding_execution_service.execute_code.return_value = {
             "status": "timeout",
             "error_message": "Execution exceeded time limit of 5 seconds"
-        }
+        
 
         db_session.query().filter().first.side_effect = [sample_attempt, sample_coding_question]
 
@@ -831,7 +829,7 @@ class TestCodeExecution:
             "test_cases_total": 2,
             "execution_time_ms": 45,
             "output": "All test cases passed"
-        }
+        
 
         existing_response = Mock()
         db_session.query().filter().first.side_effect = [sample_attempt, sample_coding_question]
@@ -913,7 +911,7 @@ class TestAutoGrading:
         sample_mcq_question.mcq_options = {
             "options": ["2", "3", "4", "5"],
             "correct_answer": 2
-        }
+        
         sample_mcq_question.points = 10
 
         # Act
@@ -937,7 +935,7 @@ class TestAutoGrading:
         sample_mcq_question.mcq_options = {
             "options": ["2", "3", "4", "5"],
             "correct_answer": 2
-        }
+        
         sample_mcq_question.points = 10
 
         # Act
@@ -959,9 +957,9 @@ class TestAutoGrading:
         question = Mock()
         question.question_type = "mcq_multiple"
         question.mcq_options = {
-            "options": ["A", "B", "C", "D"],
-            "correct_answers": [0, 2]  # A and C
-        }
+            "A", "B", "C", "D"]
+            mcq_multiple.correct_answers = [0, 2]  # A and C
+        
         question.points = 20
 
         response = Mock()
@@ -986,9 +984,9 @@ class TestAutoGrading:
         question = Mock()
         question.question_type = "mcq_multiple"
         question.mcq_options = {
-            "options": ["A", "B", "C", "D"],
-            "correct_answers": [0, 2]  # A and C
-        }
+            "A", "B", "C", "D"]
+            mcq_multiple.correct_answers = [0, 2]  # A and C
+        
         question.points = 20
 
         response = Mock()
