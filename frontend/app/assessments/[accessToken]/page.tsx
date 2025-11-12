@@ -36,6 +36,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { candidateAssessmentApi, ApiResponse } from '@/lib/api';
 
 interface Question {
   id: string;
@@ -71,6 +72,7 @@ export default function TakeAssessmentPage() {
   const accessToken = params.accessToken as string;
 
   const [assessment, setAssessment] = useState<Assessment | null>(null);
+  const [attemptId, setAttemptId] = useState<string | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<string, Answer>>(new Map());
@@ -81,12 +83,61 @@ export default function TakeAssessmentPage() {
   const [isRunningCode, setIsRunningCode] = useState(false);
   const [codeOutput, setCodeOutput] = useState<string>('');
   const [testResults, setTestResults] = useState<Array<{ passed: boolean; message: string }>>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [accessError, setAccessError] = useState<string | null>(null);
 
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // TODO: Fetch assessment data from API using access token
-    const mockAssessment: Assessment = {
+    // Fetch assessment data from API using access token
+    const fetchAssessmentAccess = async () => {
+      try {
+        setIsLoading(true);
+        const response = await candidateAssessmentApi.accessAssessment(accessToken);
+
+        if (response.data.success) {
+          const accessData = response.data.data;
+
+          // Set assessment data
+          setAssessment({
+            id: accessData.assessment_id,
+            title: accessData.assessment_title,
+            description: accessData.assessment_description || '',
+            time_limit_minutes: accessData.time_limit_minutes || 60,
+            questions: [], // Will be loaded when starting assessment
+          });
+
+          // Check if already in progress
+          if (accessData.status === 'in_progress' && accessData.attempt_id) {
+            setAttemptId(accessData.attempt_id);
+            setHasStarted(true);
+            if (accessData.time_remaining_minutes) {
+              setTimeRemaining(accessData.time_remaining_minutes * 60);
+            }
+            // TODO: Load existing attempt data and answers
+          } else if (accessData.status === 'completed') {
+            // Redirect to results if already completed
+            router.push(`/assessments/${accessToken}/results`);
+          } else if (accessData.status === 'expired') {
+            setAccessError('This assessment has expired.');
+          }
+        }
+      } catch (error: any) {
+        console.error('Failed to access assessment:', error);
+        setAccessError(error.response?.data?.detail || 'Failed to load assessment');
+        toast.error('Failed to load assessment');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAssessmentAccess();
+  }, [accessToken, router]);
+
+  // FALLBACK: Mock data for development if API fails
+  useEffect(() => {
+    if (!isLoading && !assessment && !accessError) {
+      const mockAssessment: Assessment = {
       id: 'assessment-123',
       title: 'Senior Backend Engineer Screening',
       description: 'Technical assessment for backend positions',
@@ -129,8 +180,9 @@ export default function TakeAssessmentPage() {
         },
       ],
     };
-    setAssessment(mockAssessment);
-  }, [accessToken]);
+      setAssessment(mockAssessment);
+    }
+  }, [isLoading, assessment, accessError]);
 
   useEffect(() => {
     if (hasStarted && timeRemaining > 0) {
@@ -153,10 +205,43 @@ export default function TakeAssessmentPage() {
     }
   }, [hasStarted, timeRemaining]);
 
-  const handleStartAssessment = () => {
+  const handleStartAssessment = async () => {
     if (!assessment) return;
-    setHasStarted(true);
-    setTimeRemaining(assessment.time_limit_minutes * 60); // Convert to seconds
+
+    try {
+      const response = await candidateAssessmentApi.startAssessment(assessment.id, {
+        ip_address: window.location.hostname,
+        user_agent: navigator.userAgent,
+      });
+
+      if (response.data.success) {
+        const attemptData = response.data.data;
+
+        setAttemptId(attemptData.attempt_id);
+        setHasStarted(true);
+        setTimeRemaining((attemptData.time_limit_minutes || assessment.time_limit_minutes) * 60);
+
+        // Update assessment with questions
+        setAssessment({
+          ...assessment,
+          questions: attemptData.questions.map((q: any) => ({
+            id: q.id,
+            question_text: q.question_text,
+            question_type: q.question_type,
+            options: q.options,
+            points: q.points,
+            difficulty: 'medium' as const, // Default, could come from API
+            test_cases: q.test_cases,
+            starter_code: q.starter_code,
+          })),
+        });
+
+        toast.success('Assessment started successfully');
+      }
+    } catch (error: any) {
+      console.error('Failed to start assessment:', error);
+      toast.error('Failed to start assessment');
+    }
   };
 
   const handleTimeExpired = () => {
@@ -172,13 +257,26 @@ export default function TakeAssessmentPage() {
 
   const currentQuestion = assessment?.questions[currentQuestionIndex];
 
-  const handleAnswerChange = (questionId: string, answer: Partial<Answer>) => {
+  const handleAnswerChange = async (questionId: string, answer: Partial<Answer>) => {
     setAnswers((prev) => {
       const newAnswers = new Map(prev);
       const existing = newAnswers.get(questionId) || { question_id: questionId };
       newAnswers.set(questionId, { ...existing, ...answer });
       return newAnswers;
     });
+
+    // Auto-save answer to backend
+    if (attemptId) {
+      try {
+        await candidateAssessmentApi.submitAnswer(attemptId, {
+          question_id: questionId,
+          answer_data: answer,
+        });
+      } catch (error) {
+        console.error('Failed to auto-save answer:', error);
+        // Don't show error toast for auto-save failures
+      }
+    }
   };
 
   const handleMCQOptionChange = (option: string, isMultiple: boolean) => {
@@ -208,29 +306,49 @@ export default function TakeAssessmentPage() {
   };
 
   const handleRunCode = async () => {
-    if (!currentQuestion) return;
+    if (!currentQuestion || !attemptId) return;
+
+    const answer = answers.get(currentQuestion.id);
+    if (!answer?.code) {
+      toast.error('Please write some code first');
+      return;
+    }
 
     setIsRunningCode(true);
     setCodeOutput('');
     setTestResults([]);
 
     try {
-      const answer = answers.get(currentQuestion.id);
-      // TODO: Call code execution API
-      // Mock execution for now
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await candidateAssessmentApi.executeCode(attemptId, {
+        question_id: currentQuestion.id,
+        code: answer.code,
+        language: 'python', // TODO: Get language from question or user selection
+        save_to_response: true,
+      });
 
-      const mockResults = currentQuestion.test_cases?.map((tc, idx) => ({
-        passed: true,
-        message: `Test Case ${idx + 1}: Passed`,
-      })) || [];
+      if (response.data.success) {
+        const result = response.data.data;
 
-      setTestResults(mockResults);
-      setCodeOutput(`All test cases passed!\n${currentQuestion.points}/${currentQuestion.points} points`);
-      toast.success('Code executed successfully');
-    } catch (error) {
+        if (result.status === 'success') {
+          const testResults = [];
+          for (let i = 0; i < result.test_cases_total; i++) {
+            testResults.push({
+              passed: i < result.test_cases_passed,
+              message: `Test Case ${i + 1}: ${i < result.test_cases_passed ? 'Passed' : 'Failed'}`,
+            });
+          }
+          setTestResults(testResults);
+          setCodeOutput(result.output || `${result.test_cases_passed}/${result.test_cases_total} test cases passed`);
+          toast.success('Code executed successfully');
+        } else {
+          setCodeOutput(result.error_message || result.output || 'Execution failed');
+          toast.error('Code execution failed');
+        }
+      }
+    } catch (error: any) {
+      console.error('Code execution failed:', error);
       toast.error('Code execution failed');
-      setCodeOutput('Error: Failed to execute code');
+      setCodeOutput(`Error: ${error.response?.data?.detail || 'Failed to execute code'}`);
     } finally {
       setIsRunningCode(false);
     }
@@ -251,22 +369,30 @@ export default function TakeAssessmentPage() {
   };
 
   const handleSubmitAssessment = async (autoSubmit = false) => {
-    if (!assessment) return;
+    if (!attemptId) return;
 
     setIsSubmitting(true);
     try {
-      // TODO: Submit assessment to API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await candidateAssessmentApi.submitAssessment(attemptId);
 
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
+      if (response.data.success) {
+        if (timerIntervalRef.current) {
+          clearInterval(timerIntervalRef.current);
+        }
+
+        const result = response.data.data;
+        toast.success(
+          autoSubmit
+            ? 'Assessment auto-submitted due to time expiry'
+            : 'Assessment submitted successfully'
+        );
+
+        // Redirect to results page
+        router.push(`/assessments/${accessToken}/results`);
       }
-
-      toast.success('Assessment Submitted Successfully');
-      router.push(`/assessments/${accessToken}/results`);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Failed to submit assessment:', error);
       toast.error('Failed to submit assessment');
-      console.error(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -292,6 +418,26 @@ export default function TakeAssessmentPage() {
   const getAnsweredCount = () => {
     return answers.size;
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500">Loading assessment...</p>
+      </div>
+    );
+  }
+
+  if (accessError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Access Error</h2>
+          <p className="text-gray-600">{accessError}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!assessment) {
     return (

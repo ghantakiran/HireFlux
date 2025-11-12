@@ -1015,6 +1015,52 @@ export const assessmentApi = {
     apiClient.get<ApiResponse>(`/assessments/jobs/${jobId}/assessments`),
 };
 
+// Candidate Assessment Taking API (Sprint 19-20 Week 37/38)
+export const candidateAssessmentApi = {
+  // Access assessment via token
+  accessAssessment: (accessToken: string) =>
+    apiClient.get<ApiResponse>(`/candidate-assessments/access/${accessToken}`),
+
+  // Start assessment attempt
+  startAssessment: (assessmentId: string, data?: {
+    ip_address?: string;
+    user_agent?: string;
+  }) => apiClient.post<ApiResponse>(`/candidate-assessments/${assessmentId}/start`, data || {}),
+
+  // Submit answer to a question
+  submitAnswer: (attemptId: string, data: {
+    question_id: string;
+    answer_data: Record<string, any>;
+    time_spent_seconds?: number;
+  }) => apiClient.post<ApiResponse>(`/candidate-assessments/attempts/${attemptId}/responses`, data),
+
+  // Execute code for coding challenge
+  executeCode: (attemptId: string, data: {
+    question_id: string;
+    code: string;
+    language: string;
+    save_to_response?: boolean;
+  }) => apiClient.post<ApiResponse>(`/candidate-assessments/attempts/${attemptId}/execute-code`, data),
+
+  // Track anti-cheating event
+  trackEvent: (attemptId: string, data: {
+    event_type: 'tab_switch' | 'copy_paste' | 'ip_change' | 'full_screen_exit' | 'suspicious_behavior';
+    details?: Record<string, any>;
+  }) => apiClient.post<ApiResponse>(`/candidate-assessments/attempts/${attemptId}/track-event`, data),
+
+  // Submit final assessment
+  submitAssessment: (attemptId: string) =>
+    apiClient.post<ApiResponse>(`/candidate-assessments/attempts/${attemptId}/submit`),
+
+  // Get assessment results
+  getResults: (attemptId: string) =>
+    apiClient.get<ApiResponse>(`/candidate-assessments/attempts/${attemptId}/results`),
+
+  // Get attempt progress
+  getProgress: (attemptId: string) =>
+    apiClient.get<ApiResponse>(`/candidate-assessments/attempts/${attemptId}/progress`),
+};
+
 // White-Label Branding API (Sprint 17-18 Phase 3)
 export const whiteLabelApi = {
   // Get white-label branding configuration

@@ -25,6 +25,8 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { candidateAssessmentApi, ApiResponse } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface QuestionResult {
   id: string;
@@ -63,13 +65,48 @@ export default function AssessmentResultsPage() {
   const [results, setResults] = useState<AssessmentResults | null>(null);
   const [loading, setLoading] = useState(true);
   const [showBreakdown, setShowBreakdown] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Fetch results from API using access token
-    setLoading(false);
+    const fetchResults = async () => {
+      try {
+        setLoading(true);
 
-    // Mock data for development
-    const mockResults: AssessmentResults = {
+        // First, get the attempt ID from the access token
+        const accessResponse = await candidateAssessmentApi.accessAssessment(accessToken);
+        if (!accessResponse.data.success) {
+          throw new Error('Failed to access assessment');
+        }
+
+        const accessData = accessResponse.data.data;
+        if (!accessData.attempt_id) {
+          throw new Error('No attempt found for this assessment');
+        }
+
+        // Now fetch the results using the attempt ID
+        const resultsResponse = await candidateAssessmentApi.getResults(accessData.attempt_id);
+        if (resultsResponse.data.success) {
+          const data = resultsResponse.data.data;
+          setResults(data);
+        } else {
+          throw new Error('Failed to load results');
+        }
+      } catch (error: any) {
+        console.error('Failed to load results:', error);
+        setError(error.response?.data?.detail || error.message || 'Failed to load results');
+        toast.error('Failed to load assessment results');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResults();
+  }, [accessToken]);
+
+  // FALLBACK: Mock data for development if API fails
+  useEffect(() => {
+    if (!loading && !results && !error) {
+      const mockResults: AssessmentResults = {
       assessment_id: 'assessment-123',
       assessment_title: 'Senior Backend Engineer Screening',
       candidate_name: 'John Doe',
@@ -169,8 +206,9 @@ export default function AssessmentResultsPage() {
         },
       ],
     };
-    setResults(mockResults);
-  }, [accessToken]);
+      setResults(mockResults);
+    }
+  }, [loading, results, error]);
 
   if (loading) {
     return (
