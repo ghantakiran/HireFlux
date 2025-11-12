@@ -219,3 +219,47 @@ class TimeLimitExceededError(APIException):
             code="TIME_LIMIT_EXCEEDED",
             status_code=400,
         )
+
+
+class InvalidAccessTokenError(APIException):
+    """Invalid Access Token Error"""
+
+    def __init__(self, message: str = "Invalid or expired access token"):
+        super().__init__(
+            message=message,
+            code="INVALID_ACCESS_TOKEN",
+            status_code=401,
+        )
+
+
+class TooManyAttemptsError(APIException):
+    """Too Many Assessment Attempts Error"""
+
+    def __init__(self, message: str = "Maximum assessment attempts exceeded"):
+        super().__init__(
+            message=message,
+            code="TOO_MANY_ATTEMPTS",
+            status_code=400,
+        )
+
+
+class InvalidLanguageError(APIException):
+    """Invalid Programming Language Error"""
+
+    def __init__(self, message: str = "Unsupported programming language"):
+        super().__init__(
+            message=message,
+            code="INVALID_LANGUAGE",
+            status_code=400,
+        )
+
+
+class AssessmentNotCompletedError(APIException):
+    """Assessment Not Completed Error"""
+
+    def __init__(self, message: str = "Assessment has not been completed"):
+        super().__init__(
+            message=message,
+            code="ASSESSMENT_NOT_COMPLETED",
+            status_code=400,
+        )
