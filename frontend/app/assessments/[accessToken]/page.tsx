@@ -38,6 +38,8 @@ import {
 import { toast } from 'sonner';
 import { candidateAssessmentApi, ApiResponse } from '@/lib/api';
 import { AssessmentTimer } from '@/components/assessment/AssessmentTimer';
+import { useTabSwitchTracking } from '@/components/assessment/useTabSwitchTracking';
+import { AssessmentProgress, QuestionNavigator } from '@/components/assessment/AssessmentProgress';
 
 interface Question {
   id: string;
@@ -89,6 +91,7 @@ export default function TakeAssessmentPage() {
 
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [showTimeWarning, setShowTimeWarning] = useState(false);
+  const [showSuspiciousActivityWarning, setShowSuspiciousActivityWarning] = useState(false);
 
   useEffect(() => {
     // Fetch assessment data from API using access token
@@ -187,6 +190,27 @@ export default function TakeAssessmentPage() {
   }, [isLoading, assessment, accessError]);
 
   // Removed timer interval - now handled by AssessmentTimer component
+
+  // Tab-switch tracking (anti-cheating)
+  const { tabSwitchCount, fullScreenExitCount } = useTabSwitchTracking({
+    attemptId,
+    enabled: hasStarted && !isSubmitting,
+    onTabSwitch: () => {
+      console.log('Tab switch detected');
+    },
+    onFullScreenExit: () => {
+      console.log('Full-screen exit detected');
+    },
+    onSuspiciousBehavior: (eventType) => {
+      console.warn('Suspicious behavior detected:', eventType);
+      setShowSuspiciousActivityWarning(true);
+      toast.error('Suspicious activity detected. This has been logged.', {
+        duration: 10000,
+      });
+      // Auto-hide warning after 15 seconds
+      setTimeout(() => setShowSuspiciousActivityWarning(false), 15000);
+    },
+  });
 
   const handleStartAssessment = async () => {
     if (!assessment) return;
@@ -393,6 +417,19 @@ export default function TakeAssessmentPage() {
     return answers.size;
   };
 
+  const getAnsweredQuestionIndices = (): Set<number> => {
+    const indices = new Set<number>();
+    if (!assessment) return indices;
+
+    assessment.questions.forEach((q, index) => {
+      if (answers.has(q.id)) {
+        indices.add(index);
+      }
+    });
+
+    return indices;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -501,12 +538,47 @@ export default function TakeAssessmentPage() {
         </div>
       )}
 
+      {/* Suspicious Activity Warning Banner */}
+      {showSuspiciousActivityWarning && (
+        <div className="bg-red-50 border-b border-red-200">
+          <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-red-800">
+            <AlertTriangle className="w-4 h-4" />
+            <span className="font-medium">
+              Suspicious activity detected and logged. Please remain on this tab.
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {currentQuestion && (
-          <div className="bg-white rounded-lg shadow-sm p-8">
-            {/* Question Header */}
-            <div className="flex items-center justify-between mb-6">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="flex gap-6">
+          {/* Sidebar - Question Navigator */}
+          <aside className="w-64 flex-shrink-0">
+            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
+              <QuestionNavigator
+                totalQuestions={assessment.questions.length}
+                currentQuestionIndex={currentQuestionIndex}
+                answeredQuestions={getAnsweredQuestionIndices()}
+                onQuestionSelect={(index) => setCurrentQuestionIndex(index)}
+              />
+            </div>
+          </aside>
+
+          {/* Main Question Area */}
+          <main className="flex-1">
+            {currentQuestion && (
+              <div className="bg-white rounded-lg shadow-sm p-8">
+                {/* Progress Indicator */}
+                <AssessmentProgress
+                  totalQuestions={assessment.questions.length}
+                  answeredQuestions={getAnsweredCount()}
+                  currentQuestionIndex={currentQuestionIndex}
+                  className="mb-6"
+                />
+
+                {/* Question Header */}
+                <div className="flex items-center justify-between mb-6">
               <div>
                 <p className="text-sm text-gray-500 mb-1">
                   Question {currentQuestionIndex + 1} of {assessment.questions.length}
@@ -688,23 +760,9 @@ export default function TakeAssessmentPage() {
                 Previous
               </Button>
 
-              <div className="flex gap-2">
-                {assessment.questions.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentQuestionIndex(idx)}
-                    className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
-                      idx === currentQuestionIndex
-                        ? 'bg-blue-600 text-white'
-                        : answers.has(assessment.questions[idx].id)
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-600'
-                    }`}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
-              </div>
+              <span className="text-sm text-gray-600">
+                Use sidebar to jump to any question
+              </span>
 
               <Button
                 onClick={() => handleNavigateQuestion('next')}
@@ -718,6 +776,8 @@ export default function TakeAssessmentPage() {
             </div>
           </div>
         )}
+          </main>
+        </div>
       </div>
 
       {/* Submit Confirmation Dialog */}
