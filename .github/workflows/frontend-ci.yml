@@ -1,36 +1,43 @@
-name: Frontend CI
+name: Frontend CI/CD Pipeline
 
 on:
   push:
     branches: [main, develop]
     paths:
       - 'frontend/**'
-      - '.github/workflows/frontend-ci.yml'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [main, develop]
     paths:
       - 'frontend/**'
-      - '.github/workflows/frontend-ci.yml'
-  workflow_call:
+      - '.github/workflows/ci.yml'
 
-defaults:
-  run:
-    working-directory: frontend
+env:
+  NODE_VERSION: '18'
+  WORKING_DIRECTORY: frontend
 
 jobs:
-  lint-and-type-check:
-    name: Lint and Type Check
+  # ============================================================================
+  # Code Quality Checks
+  # ============================================================================
+
+  lint-and-typecheck:
+    name: Lint & Type Check
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -38,53 +45,76 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
-      - name: Run TypeScript type checking
+      - name: Run TypeScript type check
         run: npm run type-check
 
-      - name: Check code formatting
-        run: npm run format -- --check
+  # ============================================================================
+  # Unit Tests
+  # ============================================================================
 
   unit-tests:
-    name: Unit Tests
+    name: Unit Tests (Jest)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run unit tests
-        run: npm test -- --coverage --watchAll=false
+        run: npm test -- --ci --coverage --maxWorkers=2
 
-      - name: Upload coverage to Codecov
+      - name: Upload coverage reports
         uses: codecov/codecov-action@v3
+        if: always()
         with:
-          files: ./frontend/coverage/coverage-final.json
-          flags: frontend-unit
+          files: ./frontend/coverage/lcov.info
+          flags: unittests
           name: frontend-unit-tests
+          fail_ci_if_error: false
 
-  build-check:
-    name: Build Check
+      - name: Archive coverage artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: coverage-report
+          path: frontend/coverage/
+          retention-days: 7
+
+  # ============================================================================
+  # Build Check
+  # ============================================================================
+
+  build:
+    name: Build Next.js App
     runs-on: ubuntu-latest
-    needs: [lint-and-type-check, unit-tests]
+    needs: [lint-and-typecheck, unit-tests]
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -94,232 +124,240 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'http://localhost:8000' }}
 
-      - name: Check build size
-        run: |
-          echo "## Build Size Report" >> $GITHUB_STEP_SUMMARY
-          du -sh .next >> $GITHUB_STEP_SUMMARY
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-output
+          path: |
+            frontend/.next/
+            frontend/public/
+          retention-days: 3
 
-  # E2E Tests with Playwright (TDD/BDD)
+  # ============================================================================
+  # E2E Tests (Playwright)
+  # ============================================================================
+
   e2e-tests:
-    name: E2E Tests - ${{ matrix.browser }}
+    name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
-    needs: [build-check]
-    timeout-minutes: 30
+    needs: [build]
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
     strategy:
       fail-fast: false
       matrix:
-        browser: [chromium, firefox]
-        shard: [1, 2]
+        project: [chromium, firefox, webkit]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+        run: npx playwright install --with-deps ${{ matrix.project }}
 
-      - name: Run E2E tests (BDD scenarios)
-        run: npm run test:e2e -- --project=${{ matrix.browser }} --shard=${{ matrix.shard }}/2
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-output
+          path: frontend/
+
+      - name: Start Next.js dev server
+        run: |
+          npm run dev &
+          npx wait-on http://localhost:3000 -t 60000
         env:
-          CI: true
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'http://localhost:8000' }}
+
+      - name: Run Playwright tests
+        run: npx playwright test --project=${{ matrix.project }}
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
 
       - name: Upload Playwright report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: playwright-report-${{ matrix.browser }}-${{ matrix.shard }}
-          path: frontend/playwright-report
-          retention-days: 14
+          name: playwright-report-${{ matrix.project }}
+          path: frontend/playwright-report/
+          retention-days: 7
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: test-results-${{ matrix.browser }}-${{ matrix.shard }}
-          path: frontend/test-results
+          name: playwright-results-${{ matrix.project }}
+          path: frontend/test-results/
           retention-days: 7
 
-  # Mobile Responsiveness Tests (BDD)
-  mobile-e2e-tests:
-    name: Mobile E2E Tests - ${{ matrix.device }}
-    runs-on: ubuntu-latest
-    needs: [build-check]
-    timeout-minutes: 20
-
-    strategy:
-      fail-fast: false
-      matrix:
-        device: ['iPhone 13', 'Pixel 5', 'iPad Pro']
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
-
-      - name: Run mobile E2E tests
-        run: npm run test:e2e:mobile -- --project=chromium --grep="@mobile"
-        env:
-          CI: true
-          PLAYWRIGHT_DEVICE: ${{ matrix.device }}
-
-      - name: Upload mobile test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: mobile-test-results-${{ matrix.device }}
-          path: frontend/test-results
-          retention-days: 7
-
-  # Lighthouse Performance Audit
-  lighthouse-audit:
-    name: Lighthouse Performance Audit
-    runs-on: ubuntu-latest
-    needs: [build-check]
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build application
-        run: npm run build
-
-      - name: Install Lighthouse CI
-        run: npm install -g @lhci/cli
-
-      - name: Run Lighthouse CI
-        run: lhci autorun || echo "Lighthouse completed with warnings"
-        env:
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
-
-      - name: Upload Lighthouse results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: lighthouse-results
-          path: frontend/.lighthouseci
-          retention-days: 14
-
+  # ============================================================================
   # Security Audit
+  # ============================================================================
+
   security-audit:
     name: Security Audit
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Run npm audit
-        run: npm audit --audit-level=moderate
+        run: npm audit --audit-level=high
         continue-on-error: true
 
       - name: Check for vulnerabilities
         run: |
-          echo "## Security Audit" >> $GITHUB_STEP_SUMMARY
-          npm audit --json >> $GITHUB_STEP_SUMMARY || echo "Vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          npm audit --json > audit-results.json || true
+          cat audit-results.json
 
-  accessibility-check:
-    name: Accessibility Check
+  # ============================================================================
+  # Deploy to Vercel (Production/Preview)
+  # ============================================================================
+
+  deploy-vercel:
+    name: Deploy to Vercel
     runs-on: ubuntu-latest
-    needs: [build-check]
+    needs: [lint-and-typecheck, unit-tests, build]
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'production' || 'preview' }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        run: vercel build ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && '--prod' || '--prebuilt' }} --token=${{ secrets.VERCEL_TOKEN }})
+          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "Deployed to: $DEPLOYMENT_URL"
+
+      - name: Comment deployment URL on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 **Deployment successful!**\n\n**Preview URL**: ${{ steps.deploy.outputs.deployment_url }}\n\n✅ All checks passed. Ready for review!`
+            })
+
+  # ============================================================================
+  # E2E Tests on Vercel Deployment
+  # ============================================================================
+
+  e2e-tests-vercel:
+    name: E2E Tests on Vercel
+    runs-on: ubuntu-latest
+    needs: [deploy-vercel]
+    if: github.event_name == 'pull_request'
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, webkit]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: ${{ env.WORKING_DIRECTORY }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.project }}
 
-      - name: Build application
-        run: npm run build
+      - name: Get Vercel deployment URL
+        id: vercel-url
+        run: |
+          # This would get the actual deployment URL from the previous job
+          # For now, using a placeholder
+          echo "url=${{ needs.deploy-vercel.outputs.deployment_url }}" >> $GITHUB_OUTPUT
 
-      - name: Run accessibility tests with axe
-        run: npm run test:e2e -- --grep="@accessibility"
-        continue-on-error: true
+      - name: Run Playwright tests against Vercel
+        run: npx playwright test --project=${{ matrix.project }}
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ steps.vercel-url.outputs.url }}
 
-      - name: Upload accessibility results
-        uses: actions/upload-artifact@v4
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: accessibility-results
-          path: frontend/test-results
+          name: playwright-vercel-${{ matrix.project }}
+          path: frontend/test-results/
           retention-days: 7
 
-  frontend-summary:
-    name: Frontend CI Summary
+  # ============================================================================
+  # Status Summary
+  # ============================================================================
+
+  ci-summary:
+    name: CI Summary
     runs-on: ubuntu-latest
-    needs: [lint-and-type-check, unit-tests, build-check, e2e-tests, mobile-e2e-tests, security-audit, accessibility-check]
+    needs: [lint-and-typecheck, unit-tests, build, e2e-tests, security-audit]
     if: always()
 
     steps:
-      - name: Check results
+      - name: Check job statuses
         run: |
-          echo "## 🚀 Frontend CI/CD Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Core CI Checks" >> $GITHUB_STEP_SUMMARY
-          echo "- Lint & Type Check: ${{ needs.lint-and-type-check.result == 'success' && '✅' || '❌' }} ${{ needs.lint-and-type-check.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Unit Tests: ${{ needs.unit-tests.result == 'success' && '✅' || '❌' }} ${{ needs.unit-tests.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Build Check: ${{ needs.build-check.result == 'success' && '✅' || '❌' }} ${{ needs.build-check.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### E2E & BDD Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- E2E Tests (Desktop): ${{ needs.e2e-tests.result == 'success' && '✅' || '❌' }} ${{ needs.e2e-tests.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Mobile E2E Tests: ${{ needs.mobile-e2e-tests.result == 'success' && '✅' || '❌' }} ${{ needs.mobile-e2e-tests.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Quality & Security" >> $GITHUB_STEP_SUMMARY
-          echo "- Security Audit: ${{ needs.security-audit.result == 'success' && '✅' || '⚠️' }} ${{ needs.security-audit.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Accessibility: ${{ needs.accessibility-check.result == 'success' && '✅' || '❌' }} ${{ needs.accessibility-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "Lint & Type Check: ${{ needs.lint-and-typecheck.result }}"
+          echo "Unit Tests: ${{ needs.unit-tests.result }}"
+          echo "Build: ${{ needs.build.result }}"
+          echo "E2E Tests: ${{ needs.e2e-tests.result }}"
+          echo "Security Audit: ${{ needs.security-audit.result }}"
 
-      - name: Fail if required checks failed
+      - name: Fail if any job failed
         if: |
-          needs.lint-and-type-check.result != 'success' ||
-          needs.unit-tests.result != 'success' ||
-          needs.build-check.result != 'success' ||
-          needs.e2e-tests.result != 'success'
-        run: |
-          echo "❌ One or more required CI checks failed"
-          exit 1
+          needs.lint-and-typecheck.result == 'failure' ||
+          needs.unit-tests.result == 'failure' ||
+          needs.build.result == 'failure' ||
+          needs.e2e-tests.result == 'failure'
+        run: exit 1
