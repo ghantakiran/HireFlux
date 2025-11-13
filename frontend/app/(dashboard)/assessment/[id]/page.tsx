@@ -239,8 +239,8 @@ export default function AssessmentPage() {
               <p className="text-sm text-gray-600">{assessment.description}</p>
             </div>
             <AssessmentTimer
-              duration={assessment.duration * 60}
-              onExpire={handleTimerExpire}
+              timeRemaining={assessment.duration * 60}
+              onTimeExpired={handleTimerExpire}
             />
           </div>
 
