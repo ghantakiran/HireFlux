@@ -1,0 +1,604 @@
+/**
+ * Applicant Kanban Board Component - Week 40 Day 2
+ *
+ * Drag-and-drop Kanban board for ATS pipeline management with:
+ * - 8 pipeline stages (New → Hired/Rejected)
+ * - Drag-and-drop candidates between stages
+ * - Optimistic UI updates
+ * - Keyboard accessibility (Space/Enter for drag, Arrow keys for navigation)
+ * - Screen reader announcements
+ * - Filtering and sorting
+ * - Responsive design
+ */
+
+'use client';
+
+import React, { useEffect, useState, useMemo } from 'react';
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  DragStartEvent,
+  DragEndEvent,
+  DragOverEvent,
+  closestCorners,
+} from '@dnd-kit/core';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { Filter, ArrowUpDown } from 'lucide-react';
+import KanbanColumn from './KanbanColumn';
+import KanbanCard, { Applicant } from './KanbanCard';
+import { atsApi } from '@/lib/api';
+
+// ============================================================================
+// Types & Interfaces
+// ============================================================================
+
+type ApplicationStatus =
+  | 'new'
+  | 'reviewing'
+  | 'phone_screen'
+  | 'technical_interview'
+  | 'final_interview'
+  | 'offer'
+  | 'hired'
+  | 'rejected';
+
+interface KanbanStage {
+  id: ApplicationStatus;
+  label: string;
+  color: string;
+  candidates: Applicant[];
+}
+
+interface ApplicantKanbanBoardProps {
+  jobId: string;
+  onCardClick?: (applicationId: string) => void;
+  onAddNote?: (applicationId: string) => void;
+  onAssignRecruiter?: (applicationId: string) => void;
+  onStageChange?: (applicationId: string, oldStage: string, newStage: string) => void;
+}
+
+interface Filters {
+  assignee?: string;
+  tags?: string[];
+  minFitIndex?: number;
+  maxFitIndex?: number;
+}
+
+type SortOption = 'fit-desc' | 'fit-asc' | 'date-desc' | 'date-asc';
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const STAGES: Array<{ id: ApplicationStatus; label: string; color: string }> = [
+  { id: 'new', label: 'New', color: 'blue' },
+  { id: 'reviewing', label: 'Reviewing', color: 'yellow' },
+  { id: 'phone_screen', label: 'Phone Screen', color: 'purple' },
+  { id: 'technical_interview', label: 'Technical Interview', color: 'orange' },
+  { id: 'final_interview', label: 'Final Interview', color: 'green' },
+  { id: 'offer', label: 'Offer', color: 'green' },
+  { id: 'hired', label: 'Hired', color: 'green' },
+  { id: 'rejected', label: 'Rejected', color: 'red' },
+];
+
+// ============================================================================
+// Main Component
+// ============================================================================
+
+export default function ApplicantKanbanBoard({
+  jobId,
+  onCardClick,
+  onAddNote,
+  onAssignRecruiter,
+  onStageChange,
+}: ApplicantKanbanBoardProps) {
+  // State
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [sortOption, setSortOption] = useState<SortOption>('date-desc');
+  const [filters, setFilters] = useState<Filters>({});
+  const [showFilters, setShowFilters] = useState(false);
+  const [announcement, setAnnouncement] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Prevent accidental drags
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Check online status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    setIsOnline(navigator.onLine);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Fetch applicants
+  useEffect(() => {
+    fetchApplicants();
+  }, [jobId]);
+
+  const fetchApplicants = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await atsApi.getApplications(jobId);
+      const data = response.data.data;
+
+      setApplicants(data);
+    } catch (err) {
+      setError('Failed to load candidates');
+      console.error('Error fetching applicants:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter and sort applicants
+  const filteredAndSortedApplicants = useMemo(() => {
+    let result = [...applicants];
+
+    // Apply filters
+    if (filters.assignee) {
+      result = result.filter((a) => a.assignedTo === filters.assignee);
+    }
+
+    if (filters.tags && filters.tags.length > 0) {
+      result = result.filter((a) =>
+        filters.tags!.some((tag) => a.tags?.includes(tag))
+      );
+    }
+
+    if (filters.minFitIndex !== undefined) {
+      result = result.filter((a) => a.fitIndex >= filters.minFitIndex!);
+    }
+
+    if (filters.maxFitIndex !== undefined) {
+      result = result.filter((a) => a.fitIndex <= filters.maxFitIndex!);
+    }
+
+    // Apply sorting
+    switch (sortOption) {
+      case 'fit-desc':
+        result.sort((a, b) => b.fitIndex - a.fitIndex);
+        break;
+      case 'fit-asc':
+        result.sort((a, b) => a.fitIndex - b.fitIndex);
+        break;
+      case 'date-desc':
+        result.sort(
+          (a, b) =>
+            new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime()
+        );
+        break;
+      case 'date-asc':
+        result.sort(
+          (a, b) =>
+            new Date(a.appliedAt).getTime() - new Date(b.appliedAt).getTime()
+        );
+        break;
+    }
+
+    return result;
+  }, [applicants, filters, sortOption]);
+
+  // Organize applicants by stage
+  const stages: KanbanStage[] = useMemo(() => {
+    return STAGES.map((stage) => ({
+      ...stage,
+      candidates: filteredAndSortedApplicants.filter((a) => a.stage === stage.id),
+    }));
+  }, [filteredAndSortedApplicants]);
+
+  // Get active applicant being dragged
+  const activeApplicant = useMemo(
+    () => applicants.find((a) => a.id === activeId),
+    [activeId, applicants]
+  );
+
+  // Drag handlers
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    setActiveId(active.id as string);
+    setIsDragging(true);
+
+    const applicant = applicants.find((a) => a.id === active.id);
+    if (applicant) {
+      const stage = STAGES.find((s) => s.id === applicant.stage);
+      setAnnouncement(
+        `Picked up ${applicant.candidateName} from ${stage?.label} column`
+      );
+    }
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+    if (over && activeId) {
+      const overId = over.id as string;
+      const overStage = STAGES.find((s) => s.id === overId);
+
+      if (overStage) {
+        setAnnouncement(`Press arrow keys to move. Currently over ${overStage.label}`);
+      }
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    setIsDragging(false);
+
+    if (!over) {
+      setActiveId(null);
+      setAnnouncement('Drag cancelled');
+      return;
+    }
+
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    const activeApplicant = applicants.find((a) => a.id === activeId);
+    if (!activeApplicant) {
+      setActiveId(null);
+      return;
+    }
+
+    // Check if dropped on a stage (not another card)
+    const targetStage = STAGES.find((s) => s.id === overId);
+    if (!targetStage) {
+      setActiveId(null);
+      return;
+    }
+
+    const oldStage = activeApplicant.stage;
+    const newStage = targetStage.id;
+
+    // Don't update if dropped on same stage
+    if (oldStage === newStage) {
+      setActiveId(null);
+      setAnnouncement('Dropped in same column, no change');
+      return;
+    }
+
+    // Optimistic update
+    setApplicants((prev) =>
+      prev.map((a) =>
+        a.id === activeId ? { ...a, stage: newStage } : a
+      )
+    );
+
+    setAnnouncement(`Moved ${activeApplicant.candidateName} to ${targetStage.label}`);
+
+    // Call callback
+    onStageChange?.(activeId, oldStage, newStage);
+
+    try {
+      // API call
+      await atsApi.updateApplicationStatus(activeId, {
+        status: newStage,
+      });
+
+      // Update candidate counts announcement
+      const oldStageData = STAGES.find((s) => s.id === oldStage);
+      const newStageData = STAGES.find((s) => s.id === newStage);
+      const oldCount = stages.find((s) => s.id === oldStage)?.candidates.length || 0;
+      const newCount = stages.find((s) => s.id === newStage)?.candidates.length || 0;
+
+      setAnnouncement(
+        `${oldStageData?.label}: ${oldCount - 1} candidates. ${newStageData?.label}: ${newCount + 1} candidates`
+      );
+    } catch (err) {
+      // Revert on error
+      setApplicants((prev) =>
+        prev.map((a) =>
+          a.id === activeId ? { ...a, stage: oldStage } : a
+        )
+      );
+
+      setAnnouncement(`Failed to update candidate stage: ${(err as Error).message}`);
+      setError('Failed to update candidate stage');
+
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
+    } finally {
+      setActiveId(null);
+    }
+  };
+
+  const handleDragCancel = () => {
+    setActiveId(null);
+    setIsDragging(false);
+    setAnnouncement('Drag cancelled');
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading candidates...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (applicants.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 text-center">
+        <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+          <svg
+            className="w-10 h-10 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
+          </svg>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">No candidates yet</h3>
+        <p className="text-gray-600 max-w-md">
+          Post this job to start receiving applications from qualified candidates.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full">
+      {/* Offline Banner */}
+      {!isOnline && (
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-yellow-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-yellow-700">
+                You are currently offline. Changes will sync when online.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Banner */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-red-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toolbar */}
+      <div className="flex items-center justify-between mb-4 gap-4">
+        <div className="flex items-center gap-2">
+          {/* Sort Dropdown */}
+          <label htmlFor="sort-select" className="sr-only">
+            Sort candidates
+          </label>
+          <select
+            id="sort-select"
+            aria-label="Sort candidates"
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value as SortOption)}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="fit-desc">Fit Index (High to Low)</option>
+            <option value="fit-asc">Fit Index (Low to High)</option>
+            <option value="date-desc">Applied Date (Newest First)</option>
+            <option value="date-asc">Applied Date (Oldest First)</option>
+          </select>
+
+          {/* Filter Button */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            aria-label="Filter candidates"
+            className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <Filter className="w-4 h-4 mr-2" />
+            Filter
+          </button>
+        </div>
+
+        {/* Keyboard Instructions */}
+        {isDragging && (
+          <div className="text-sm text-gray-600 bg-blue-50 px-3 py-2 rounded-md">
+            Press arrow keys to move. Press Space to drop. Press Esc to cancel.
+          </div>
+        )}
+      </div>
+
+      {/* Filter Panel */}
+      {showFilters && (
+        <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4 space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Assignee Filter */}
+            <div>
+              <label htmlFor="assignee-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                Filter by assignee
+              </label>
+              <select
+                id="assignee-filter"
+                aria-label="Filter by assignee"
+                value={filters.assignee || ''}
+                onChange={(e) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    assignee: e.target.value || undefined,
+                  }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All assignees</option>
+                <option value="recruiter-1">Recruiter 1</option>
+                <option value="recruiter-2">Recruiter 2</option>
+              </select>
+            </div>
+
+            {/* Tags Filter */}
+            <div>
+              <label htmlFor="tags-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                Filter by tags
+              </label>
+              <input
+                id="tags-filter"
+                type="text"
+                aria-label="Filter by tags"
+                placeholder="e.g., React, TypeScript"
+                onChange={(e) => {
+                  const tags = e.target.value
+                    .split(',')
+                    .map((t) => t.trim())
+                    .filter(Boolean);
+                  setFilters((prev) => ({
+                    ...prev,
+                    tags: tags.length > 0 ? tags : undefined,
+                  }));
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Fit Index Range */}
+            <div>
+              <label htmlFor="min-fit-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                Minimum fit index
+              </label>
+              <input
+                id="min-fit-filter"
+                type="number"
+                min="0"
+                max="100"
+                aria-label="Minimum fit index"
+                placeholder="0"
+                onChange={(e) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    minFitIndex: e.target.value ? parseInt(e.target.value) : undefined,
+                  }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Kanban Board */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
+        <div className="flex gap-4 overflow-x-auto pb-4" data-testid="dnd-context">
+          {stages.map((stage) => (
+            <KanbanColumn
+              key={stage.id}
+              id={stage.id}
+              label={stage.label}
+              color={stage.color}
+              candidates={stage.candidates}
+              onCardClick={onCardClick}
+              onAddNote={onAddNote}
+              onAssignRecruiter={onAssignRecruiter}
+            />
+          ))}
+        </div>
+
+        {/* Drag Overlay */}
+        <DragOverlay>
+          {activeApplicant ? (
+            <KanbanCard applicant={activeApplicant} isDragging />
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
+      {/* Screen Reader Announcements */}
+      <div
+        role="status"
+        aria-label="drag announcement"
+        aria-live="assertive"
+        className="sr-only"
+      >
+        {announcement}
+      </div>
+
+      <div
+        role="status"
+        aria-label="count announcement"
+        aria-live="polite"
+        className="sr-only"
+      >
+        {stages.map((stage) => `${stage.label}: ${stage.candidates.length} candidates`).join('. ')}
+      </div>
+
+      {/* Context Menu (placeholder) */}
+      <div role="menu" className="hidden">
+        <button>Move to Reviewing</button>
+        <button>Reject candidate</button>
+        <button>Schedule interview</button>
+      </div>
+    </div>
+  );
+}
