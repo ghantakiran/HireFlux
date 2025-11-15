@@ -297,37 +297,50 @@ export default function AssessmentPage() {
             {/* Question Content */}
             {currentQuestion.type === 'mcq' && (
               <MCQQuestion
-                question={currentQuestion.question}
-                options={currentQuestion.options || []}
-                multipleChoice={currentQuestion.multipleChoice || false}
-                selectedOptions={answers[currentQuestion.id]?.selected_options || []}
-                onChange={(selected) =>
-                  handleAnswerChange(currentQuestion.id, { selected_options: selected })
+                question={{
+                  id: currentQuestion.id,
+                  question_text: currentQuestion.question,
+                  question_type: currentQuestion.multipleChoice ? 'mcq_multiple' : 'mcq_single',
+                  options: currentQuestion.options,
+                  points: 1 // Default points value
+                }}
+                value={{ selected_options: answers[currentQuestion.id]?.selected_options || [] }}
+                onAnswerChange={(answer) =>
+                  handleAnswerChange(currentQuestion.id, answer)
                 }
               />
             )}
 
             {currentQuestion.type === 'text' && (
               <TextQuestion
-                question={currentQuestion.question}
-                value={answers[currentQuestion.id]?.text_response || ''}
-                onChange={(text) =>
-                  handleAnswerChange(currentQuestion.id, { text_response: text })
+                question={{
+                  id: currentQuestion.id,
+                  question_text: currentQuestion.question,
+                  question_type: 'text_long',
+                  points: 1
+                }}
+                value={{ text_response: answers[currentQuestion.id]?.text_response || '' }}
+                onAnswerChange={(answer) =>
+                  handleAnswerChange(currentQuestion.id, answer)
                 }
               />
             )}
 
             {currentQuestion.type === 'coding' && (
               <CodingQuestion
-                question={currentQuestion.question}
-                initialCode={
-                  answers[currentQuestion.id]?.code_response || currentQuestion.codeTemplate || ''
+                question={{
+                  id: currentQuestion.id,
+                  question_text: currentQuestion.question,
+                  question_type: 'coding',
+                  points: 1,
+                  programming_language: (currentQuestion.language || 'javascript') as 'javascript' | 'python' | 'java' | 'cpp' | 'typescript',
+                  starter_code: currentQuestion.codeTemplate,
+                  test_cases: currentQuestion.testCases
+                }}
+                value={{ code_response: answers[currentQuestion.id]?.code_response || currentQuestion.codeTemplate || '' }}
+                onAnswerChange={(answer) =>
+                  handleAnswerChange(currentQuestion.id, answer)
                 }
-                language={currentQuestion.language || 'javascript'}
-                onCodeChange={(code) =>
-                  handleAnswerChange(currentQuestion.id, { code_response: code })
-                }
-                testCases={currentQuestion.testCases}
               />
             )}
 
