@@ -185,7 +185,7 @@ export const useATSStore = create<ATSStore>((set, get) => ({
     set({ loading: true, error: null, currentJobId: jobId });
 
     try {
-      const response = await atsApi.getApplications(jobId);
+      const response = await atsApi.getJobApplications(jobId);
       const applications = response.data.data;
 
       set({ applications, loading: false });
