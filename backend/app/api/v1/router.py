@@ -30,6 +30,8 @@ from app.api.v1.endpoints import (
     white_label,  # Sprint 17-18: White-label branding
     assessments,  # Sprint 17-18 Phase 4: Skills Assessment Platform (Employer)
     candidate_assessments,  # Sprint 19-20 Week 37: Candidate Assessment Taking
+    email_verification,  # Sprint 19-20 Week 39: Email Verification (Issue #20)
+    job_templates,  # Sprint 19-20 Week 40: Job Templates Library (Issue #24)
 )
 
 api_router = APIRouter()
@@ -79,6 +81,12 @@ api_router.include_router(
 api_router.include_router(
     candidate_assessments.router, prefix="/candidate-assessments", tags=["Candidate Assessments"]
 )  # Candidate Assessment Taking Flow (Sprint 19-20 Week 37)
+api_router.include_router(
+    email_verification.router
+)  # Email Verification (Sprint 19-20 Week 39 - Issue #20)
+api_router.include_router(
+    job_templates.router
+)  # Job Templates Library (Sprint 19-20 Week 40 - Issue #24)
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users
