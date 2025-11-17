@@ -10,10 +10,7 @@
  * - Loading states
  * - Responsive design
  *
- * API Integration:
- * - GET /api/v1/employer/jobs?page=1&limit=20&status=active
- * - PATCH /api/v1/employer/jobs/{id}/status
- * - DELETE /api/v1/employer/jobs/{id}
+ * API Integration: Uses lib/api/jobs.ts
  */
 
 'use client';
@@ -64,35 +61,19 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-// Types
-interface Job {
-  id: string;
-  title: string;
-  department: string;
-  location: string;
-  location_type: string;
-  employment_type: string;
-  experience_level?: string;
-  salary_min?: number;
-  salary_max?: number;
-  is_active: boolean;
-  applications_count: number;
-  views_count: number;
-  avg_fit_index?: number;
-  created_at: string;
-  updated_at: string;
-  posted_date?: string;
-}
+// Import API client and types
+import {
+  listJobs,
+  deleteJob as apiDeleteJob,
+  updateJobStatus as apiUpdateJobStatus,
+  type Job,
+  type JobStatus,
+  formatSalaryRange,
+  getStatusBadgeColor,
+  getStatusLabel,
+} from '@/lib/api/jobs';
 
-interface JobListResponse {
-  jobs: Job[];
-  total: number;
-  page: number;
-  limit: number;
-  total_pages: number;
-}
-
-type JobStatus = 'all' | 'active' | 'draft' | 'paused' | 'closed';
+type FilterStatus = 'all' | JobStatus;
 
 export default function EmployerJobsPage() {
   const router = useRouter();
@@ -105,7 +86,7 @@ export default function EmployerJobsPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Filters
-  const [statusFilter, setStatusFilter] = useState<JobStatus>('all');
+  const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -128,74 +109,37 @@ export default function EmployerJobsPage() {
         return;
       }
 
-      // Build query params
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-      });
+      // Build filters
+      const filters: any = {
+        page,
+        limit,
+      };
 
-      if (statusFilter !== 'all') {
-        params.append('status', statusFilter);
+      if (statusFilter && statusFilter !== 'all') {
+        filters.status = statusFilter;
       }
 
-      if (departmentFilter !== 'all') {
-        params.append('department', departmentFilter);
-      }
+      // Call API client
+      const data = await listJobs(filters);
 
-      if (searchQuery.trim()) {
-        params.append('search', searchQuery.trim());
-      }
-
-      const response = await fetch(`/api/v1/employer/jobs?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch jobs');
-      }
-
-      const data = await response.json();
-
-      // Handle both possible response formats
-      if (data.success) {
-        setJobs(data.data.jobs || data.data);
-        setTotal(data.data.total || 0);
-        setTotalPages(data.data.total_pages || Math.ceil((data.data.total || 0) / limit));
-      } else {
-        setJobs(data.jobs || []);
-        setTotal(data.total || 0);
-        setTotalPages(data.total_pages || Math.ceil((data.total || 0) / limit));
-      }
+      setJobs(data.jobs);
+      setTotal(data.total);
+      setTotalPages(data.total_pages);
     } catch (err) {
       console.error('Jobs fetch error:', err);
       setError(err instanceof Error ? err.message : 'Failed to load jobs');
+      if (err instanceof Error && err.message.includes('authentication')) {
+        router.push('/employer/login');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   // Update job status
-  const updateJobStatus = async (jobId: string, newStatus: 'active' | 'paused' | 'closed') => {
+  const updateStatus = async (jobId: string, newStatus: JobStatus) => {
     try {
-      const token = localStorage.getItem('access_token');
-      if (!token) return;
-
-      const response = await fetch(`/api/v1/employer/jobs/${jobId}/status`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update job status`);
-      }
-
+      await apiUpdateJobStatus(jobId, newStatus as any);
       // Refresh job list
       fetchJobs();
     } catch (err) {
@@ -205,25 +149,11 @@ export default function EmployerJobsPage() {
   };
 
   // Delete job
-  const deleteJob = async () => {
+  const deleteJobHandler = async () => {
     if (!jobToDelete) return;
 
     try {
-      const token = localStorage.getItem('access_token');
-      if (!token) return;
-
-      const response = await fetch(`/api/v1/employer/jobs/${jobToDelete.id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to delete job');
-      }
-
+      await apiDeleteJob(jobToDelete.id);
       // Refresh job list
       fetchJobs();
       setDeleteDialogOpen(false);
@@ -251,25 +181,12 @@ export default function EmployerJobsPage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Get status badge color
-  const getStatusColor = (job: Job) => {
-    if (!job.is_active) return 'bg-gray-100 text-gray-700';
-    // Could check for draft, paused states here
-    return 'bg-green-100 text-green-700';
-  };
-
-  // Get status text
-  const getStatusText = (job: Job) => {
-    if (!job.is_active) return 'Closed';
-    return 'Active';
-  };
-
-  // Format salary
-  const formatSalary = (min?: number, max?: number) => {
-    if (!min && !max) return 'Not specified';
-    if (min && max) return `$${(min / 1000).toFixed(0)}K - $${(max / 1000).toFixed(0)}K`;
-    if (min) return `$${(min / 1000).toFixed(0)}K+`;
-    return `Up to $${(max! / 1000).toFixed(0)}K`;
+  // Helper to get job status from Job object
+  const getJobStatus = (job: Job): string => {
+    // The API returns status in the 'status' field or we can infer from is_active
+    // For now, infer from is_active until backend adds status field
+    if (!job.is_active) return 'closed';
+    return 'active';  // Simplified - backend should return actual status
   };
 
   // Format date
@@ -375,7 +292,7 @@ export default function EmployerJobsPage() {
               <Select
                 value={statusFilter}
                 onValueChange={(value) => {
-                  setStatusFilter(value as JobStatus);
+                  setStatusFilter(value as FilterStatus);
                   setPage(1);
                 }}
               >
@@ -384,8 +301,8 @@ export default function EmployerJobsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="paused">Paused</SelectItem>
                   <SelectItem value="closed">Closed</SelectItem>
                 </SelectContent>
@@ -470,11 +387,11 @@ export default function EmployerJobsPage() {
                             {job.title}
                           </h3>
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                              job
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(
+                              getJobStatus(job)
                             )}`}
                           >
-                            {getStatusText(job)}
+                            {getStatusLabel(getJobStatus(job))}
                           </span>
                         </div>
 
@@ -494,7 +411,7 @@ export default function EmployerJobsPage() {
                         {/* Salary */}
                         {(job.salary_min || job.salary_max) && (
                           <p className="text-sm text-gray-700 mb-3">
-                            {formatSalary(job.salary_min, job.salary_max)}
+                            {formatSalaryRange(job.salary_min, job.salary_max)}
                           </p>
                         )}
 
@@ -560,21 +477,21 @@ export default function EmployerJobsPage() {
                           <DropdownMenuSeparator />
                           {job.is_active ? (
                             <DropdownMenuItem
-                              onClick={() => updateJobStatus(job.id, 'paused')}
+                              onClick={() => updateStatus(job.id, 'paused' as JobStatus)}
                             >
                               <Pause className="w-4 h-4 mr-2" />
                               Pause Job
                             </DropdownMenuItem>
                           ) : (
                             <DropdownMenuItem
-                              onClick={() => updateJobStatus(job.id, 'active')}
+                              onClick={() => updateStatus(job.id, 'active' as JobStatus)}
                             >
                               <Play className="w-4 h-4 mr-2" />
                               Resume Job
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem
-                            onClick={() => updateJobStatus(job.id, 'closed')}
+                            onClick={() => updateStatus(job.id, 'closed' as JobStatus)}
                             className="text-orange-600"
                           >
                             <XCircle className="w-4 h-4 mr-2" />
@@ -587,7 +504,6 @@ export default function EmployerJobsPage() {
                               setDeleteDialogOpen(true);
                             }}
                             className="text-red-600"
-                            disabled={job.applications_count > 0}
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
                             Delete Job
@@ -661,7 +577,7 @@ export default function EmployerJobsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={deleteJob}
+              onClick={deleteJobHandler}
               className="bg-red-600 hover:bg-red-700"
             >
               Delete
