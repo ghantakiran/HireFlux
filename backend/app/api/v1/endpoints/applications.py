@@ -21,6 +21,7 @@ from app.schemas.application import (
     ATSApplicationListResponse,
     ApplicationStatusUpdate,
     ApplicationNoteCreate,
+    ApplicationNoteUpdate,
     ApplicationNoteResponse,
     ApplicationAssignUpdate,
     ApplicationBulkUpdate,
@@ -296,7 +297,17 @@ def add_application_note(
         application_id=application_id, author_id=current_user.id, note_data=note_data
     )
 
-    return ApplicationNoteResponse.model_validate(note)
+    # Extract @mentions from note content (Issue #27)
+    mentioned_users = app_service.extract_mentions(note.content)
+
+    # Convert to response with mentioned_users
+    response = ApplicationNoteResponse.model_validate(note)
+    response.mentioned_users = mentioned_users
+
+    # TODO: Send notifications to mentioned users (future enhancement)
+    # For now, just return the note with extracted mentions
+
+    return response
 
 
 @router.get(
@@ -346,6 +357,105 @@ def get_application_notes(
     )
 
     return [ApplicationNoteResponse.model_validate(note) for note in notes]
+
+
+@router.put(
+    "/notes/{note_id}",
+    response_model=ApplicationNoteResponse,
+    summary="Update application note",
+    description="Update note content (only within 5-minute edit window, only by author)",
+)
+def update_application_note(
+    note_id: UUID,
+    note_data: ApplicationNoteUpdate,
+    current_user: User = Depends(get_current_user),
+    company_member: CompanyMember = Depends(get_user_company_member),
+    db: Session = Depends(get_db),
+):
+    """
+    Update an existing application note (Issue #27).
+
+    **Permissions**: Only note author can update their own notes
+    **Time Limit**: Can only update within 5 minutes of creation
+
+    **Raises**:
+    - 403: Not the note author
+    - 404: Note not found
+    - 400: Outside 5-minute edit window
+    """
+    app_service = ApplicationService(db)
+
+    try:
+        updated_note = app_service.update_application_note(
+            note_id=note_id, author_id=current_user.id, note_data=note_data
+        )
+        return ApplicationNoteResponse.model_validate(updated_note)
+    except Exception as e:
+        error_msg = str(e).lower()
+        if "not found" in error_msg:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
+            )
+        elif "only edit your own" in error_msg:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail=str(e)
+            )
+        elif "edit window" in error_msg:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+            )
+
+
+@router.delete(
+    "/notes/{note_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete application note",
+    description="Delete note (only within 5-minute edit window, only by author)",
+)
+def delete_application_note(
+    note_id: UUID,
+    current_user: User = Depends(get_current_user),
+    company_member: CompanyMember = Depends(get_user_company_member),
+    db: Session = Depends(get_db),
+):
+    """
+    Delete an existing application note (Issue #27).
+
+    **Permissions**: Only note author can delete their own notes
+    **Time Limit**: Can only delete within 5 minutes of creation
+
+    **Raises**:
+    - 403: Not the note author
+    - 404: Note not found
+    - 400: Outside 5-minute edit window
+    """
+    app_service = ApplicationService(db)
+
+    try:
+        app_service.delete_application_note(note_id=note_id, author_id=current_user.id)
+        return None  # 204 No Content
+    except Exception as e:
+        error_msg = str(e).lower()
+        if "not found" in error_msg:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
+            )
+        elif "only delete your own" in error_msg:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail=str(e)
+            )
+        elif "edit window" in error_msg:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+            )
 
 
 @router.patch(

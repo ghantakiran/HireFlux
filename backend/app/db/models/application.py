@@ -134,6 +134,11 @@ class ApplicationNote(Base):
         String(50), nullable=False, server_default="team"
     )  # 'private' (author only) or 'team' (all team members)
 
+    # Note type (Issue #27 requirement)
+    note_type = Column(
+        String(50), nullable=False, server_default="internal", index=True
+    )  # 'internal', 'feedback', 'interview_notes'
+
     # Timestamps
     created_at = Column(TIMESTAMP, server_default=func.now(), index=True)
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

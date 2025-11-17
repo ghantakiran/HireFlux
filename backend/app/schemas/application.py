@@ -208,12 +208,32 @@ class ApplicationNoteCreate(BaseModel):
 
     content: str = Field(..., min_length=1, max_length=5000)
     visibility: str = Field(default="team", pattern="^(private|team)$")
+    note_type: str = Field(
+        default="internal",
+        pattern="^(internal|feedback|interview_notes)$",
+        description="Type of note: internal, feedback, or interview_notes",
+    )
 
     model_config = {
         "json_schema_extra": {
             "example": {
                 "content": "Strong technical skills, but needs to improve communication during interview",
                 "visibility": "team",
+                "note_type": "feedback",
+            }
+        }
+    }
+
+
+class ApplicationNoteUpdate(BaseModel):
+    """Update existing application note (within 5-minute window)"""
+
+    content: str = Field(..., min_length=1, max_length=5000)
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "content": "Updated note content - fixed typo",
             }
         }
     }
@@ -227,11 +247,15 @@ class ApplicationNoteResponse(BaseModel):
     author_id: UUID
     content: str
     visibility: str
+    note_type: Optional[str] = "internal"  # Type: internal, feedback, interview_notes
     created_at: datetime
     updated_at: datetime
 
     # Nested author info
     author: Optional[dict] = None  # User details
+
+    # Metadata
+    mentioned_users: Optional[List[str]] = []  # List of @mentioned usernames
 
     model_config = {
         "from_attributes": True,
@@ -240,10 +264,12 @@ class ApplicationNoteResponse(BaseModel):
                 "id": "123e4567-e89b-12d3-a456-426614174000",
                 "application_id": "987fbc97-4bed-5078-9f07-9141ba07c9f3",
                 "author_id": "456e7890-e12b-34d5-a678-426614174001",
-                "content": "Great candidate, moving to phone screen",
+                "content": "Great candidate, moving to phone screen @john_recruiter",
                 "visibility": "team",
+                "note_type": "feedback",
                 "created_at": "2025-11-01T10:30:00Z",
                 "updated_at": "2025-11-01T10:30:00Z",
+                "mentioned_users": ["john_recruiter"],
             }
         },
     }

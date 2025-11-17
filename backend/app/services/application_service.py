@@ -3,7 +3,8 @@
 Provides application management, notes, assignments, and bulk operations.
 """
 
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 from uuid import UUID
 
@@ -14,6 +15,7 @@ from app.db.models.application import Application, ApplicationNote
 from app.db.models.webhook import ApplicationStatusHistory
 from app.schemas.application import (
     ApplicationNoteCreate,
+    ApplicationNoteUpdate,
     ApplicationStatusUpdate,
     ApplicationAssignUpdate,
     ApplicationBulkUpdate,
@@ -169,6 +171,7 @@ class ApplicationService:
             author_id=author_id,
             content=note_data.content,
             visibility=note_data.visibility,
+            note_type=note_data.note_type,  # Issue #27: Add note_type field
         )
 
         self.db.add(note)
@@ -308,3 +311,140 @@ class ApplicationService:
         self.db.commit()
 
         return updated_count
+
+    def update_application_note(
+        self, note_id: UUID, author_id: UUID, note_data: ApplicationNoteUpdate
+    ) -> ApplicationNote:
+        """
+        Update an existing application note (Issue #27).
+
+        Only the author can update their note, and only within 5 minutes of creation.
+
+        Args:
+            note_id: Note UUID to update
+            author_id: User ID attempting the update (must be author)
+            note_data: Updated note content
+
+        Returns:
+            Updated ApplicationNote
+
+        Raises:
+            Exception: If note not found, not author, or outside 5-minute edit window
+        """
+        note = self.db.query(ApplicationNote).filter(ApplicationNote.id == note_id).first()
+
+        if not note:
+            raise Exception(f"Note {note_id} not found")
+
+        # Check authorization: only author can edit
+        if note.author_id != author_id:
+            raise Exception("You can only edit your own notes")
+
+        # Check 5-minute time limit
+        if not self._is_within_edit_window(note.created_at):
+            raise Exception("Cannot edit note - 5-minute edit window has expired")
+
+        # Update content and timestamp
+        note.content = note_data.content
+        note.updated_at = datetime.utcnow()
+
+        self.db.commit()
+        self.db.refresh(note)
+
+        return note
+
+    def delete_application_note(self, note_id: UUID, author_id: UUID) -> None:
+        """
+        Delete an existing application note (Issue #27).
+
+        Only the author can delete their note, and only within 5 minutes of creation.
+
+        Args:
+            note_id: Note UUID to delete
+            author_id: User ID attempting the deletion (must be author)
+
+        Raises:
+            Exception: If note not found, not author, or outside 5-minute edit window
+        """
+        note = self.db.query(ApplicationNote).filter(ApplicationNote.id == note_id).first()
+
+        if not note:
+            raise Exception(f"Note {note_id} not found")
+
+        # Check authorization: only author can delete
+        if note.author_id != author_id:
+            raise Exception("You can only delete your own notes")
+
+        # Check 5-minute time limit
+        if not self._is_within_edit_window(note.created_at):
+            raise Exception("Cannot delete note - 5-minute edit window has expired")
+
+        # Delete note
+        self.db.delete(note)
+        self.db.commit()
+
+    def extract_mentions(self, content: str) -> List[str]:
+        """
+        Extract @mentions from note content (Issue #27).
+
+        Parses content for @username patterns and returns unique list of mentioned usernames.
+        Excludes email addresses (e.g., user@example.com should not be extracted).
+
+        Args:
+            content: Note content to parse
+
+        Returns:
+            List of unique usernames that were @mentioned
+
+        Examples:
+            >>> extract_mentions("Great candidate! @john_recruiter please review")
+            ['john_recruiter']
+
+            >>> extract_mentions("@sarah @david thoughts?")
+            ['sarah', 'david']
+
+            >>> extract_mentions("No mentions here")
+            []
+        """
+        # Regex pattern: Match @username (letters, numbers, underscores)
+        # Negative lookbehind to exclude email addresses (not preceded by alphanumeric)
+        # Pattern: @followed by word characters (letters, numbers, underscores)
+        pattern = r'(?<![a-zA-Z0-9])@([a-zA-Z0-9_]+)'
+
+        matches = re.findall(pattern, content)
+
+        # Return unique list (preserve order of first appearance)
+        seen = set()
+        unique_mentions = []
+        for match in matches:
+            if match not in seen:
+                seen.add(match)
+                unique_mentions.append(match)
+
+        return unique_mentions
+
+    def _is_within_edit_window(self, created_at: datetime) -> bool:
+        """
+        Check if a note is still within the 5-minute edit window (Issue #27).
+
+        Args:
+            created_at: Timestamp when note was created
+
+        Returns:
+            True if within 5 minutes, False otherwise
+
+        Examples:
+            >>> _is_within_edit_window(datetime.utcnow() - timedelta(minutes=2))
+            True
+
+            >>> _is_within_edit_window(datetime.utcnow() - timedelta(minutes=10))
+            False
+
+            >>> _is_within_edit_window(datetime.utcnow() - timedelta(minutes=5))
+            False  # Exactly at boundary is outside window
+        """
+        now = datetime.utcnow()
+        time_elapsed = now - created_at
+        edit_window = timedelta(minutes=5)
+
+        return time_elapsed < edit_window  # Strict less-than (not <=)
