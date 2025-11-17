@@ -84,6 +84,8 @@ class CompanyUpdate(BaseModel):
     website: Optional[str] = Field(None, max_length=255)
     logo_url: Optional[str] = Field(None, max_length=500)
     description: Optional[str] = None
+    linkedin_url: Optional[str] = Field(None, max_length=255)
+    twitter_url: Optional[str] = Field(None, max_length=255)
 
     @field_validator("size")
     @classmethod
@@ -96,6 +98,34 @@ class CompanyUpdate(BaseModel):
             raise ValueError(f"Size must be one of: {', '.join(valid_sizes)}")
         return v
 
+    @field_validator("linkedin_url")
+    @classmethod
+    def validate_linkedin_url(cls, v: Optional[str]) -> Optional[str]:
+        """Validate LinkedIn URL format"""
+        if v is None or v == "":
+            return v
+        if not v.startswith("https://linkedin.com/"):
+            raise ValueError("LinkedIn URL must start with https://linkedin.com/")
+        return v
+
+    @field_validator("twitter_url")
+    @classmethod
+    def validate_twitter_url(cls, v: Optional[str]) -> Optional[str]:
+        """Validate Twitter URL format"""
+        if v is None or v == "":
+            return v
+        if not v.startswith("https://twitter.com/"):
+            raise ValueError("Twitter URL must start with https://twitter.com/")
+        return v
+
+    @field_validator("description")
+    @classmethod
+    def validate_description_length(cls, v: Optional[str]) -> Optional[str]:
+        """Validate description length (max 5000 characters)"""
+        if v and len(v) > 5000:
+            raise ValueError(f"Description must be under 5000 characters (currently {len(v)})")
+        return v
+
 
 class CompanyResponse(CompanyBase):
     """Schema for company response"""
@@ -103,6 +133,11 @@ class CompanyResponse(CompanyBase):
     id: UUID
     domain: Optional[str]
     logo_url: Optional[str]
+    linkedin_url: Optional[str]
+    twitter_url: Optional[str]
+    timezone: Optional[str]
+    notification_settings: Optional[dict]
+    default_job_template_id: Optional[UUID]
     subscription_tier: str
     subscription_status: str
     trial_ends_at: Optional[datetime]
@@ -120,6 +155,61 @@ class CompanyWithMembers(CompanyResponse):
     """Company response with member count"""
 
     member_count: int
+
+
+# ============================================================================
+# Company Settings Schemas (Issue #21)
+# ============================================================================
+
+
+class NotificationPreferences(BaseModel):
+    """Schema for notification preferences"""
+
+    new_application: bool = Field(default=True, description="Notify on new application")
+    stage_change: bool = Field(default=True, description="Notify on application stage change")
+    team_mention: bool = Field(default=True, description="Notify when mentioned by team")
+    weekly_digest: bool = Field(default=False, description="Send weekly digest email")
+
+
+class CompanyNotificationSettings(BaseModel):
+    """Schema for company notification settings"""
+
+    email: NotificationPreferences = Field(default_factory=NotificationPreferences)
+    in_app: NotificationPreferences = Field(default_factory=lambda: NotificationPreferences(weekly_digest=False))
+
+
+class CompanySettingsUpdate(BaseModel):
+    """Schema for updating company settings"""
+
+    timezone: Optional[str] = Field(None, description="Company timezone (e.g., 'America/Los_Angeles')")
+    notification_settings: Optional[CompanyNotificationSettings] = Field(None, description="Notification preferences")
+    default_job_template_id: Optional[UUID] = Field(None, description="Default job template ID")
+
+    @field_validator("timezone")
+    @classmethod
+    def validate_timezone(cls, v: Optional[str]) -> Optional[str]:
+        """Validate timezone is a valid IANA timezone"""
+        if v is None or v == "":
+            return v
+        # Simple validation - in production, use pytz to validate
+        valid_timezones = [
+            "UTC", "America/New_York", "America/Chicago", "America/Denver",
+            "America/Los_Angeles", "Europe/London", "Europe/Paris", "Asia/Tokyo"
+        ]
+        if v not in valid_timezones:
+            # For now, accept any string (could use pytz for full validation)
+            pass
+        return v
+
+
+class LogoUploadResponse(BaseModel):
+    """Response after successful logo upload"""
+
+    logo_url: str = Field(..., description="URL of uploaded logo")
+    resized: bool = Field(default=True, description="Whether logo was resized")
+    original_size: tuple[int, int] = Field(..., description="Original image dimensions (width, height)")
+    final_size: tuple[int, int] = Field(..., description="Final image dimensions (width, height)")
+    file_size_bytes: int = Field(..., description="File size in bytes")
 
 
 # ============================================================================

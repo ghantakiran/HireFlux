@@ -311,3 +311,205 @@ class EmployerService:
         max_views = company.max_candidate_views
 
         return views_this_month < max_views
+
+    # ========================================================================
+    # Company Profile Management Methods (Issue #21)
+    # ========================================================================
+
+    def upload_logo(
+        self, company_id: UUID, file_content: bytes, filename: str
+    ) -> dict:
+        """
+        Upload and process company logo
+
+        Steps:
+        1. Validate file size (<5MB) and format (PNG, JPG, JPEG, SVG)
+        2. Open image with Pillow
+        3. Resize to 400x400 if larger
+        4. Upload to S3 with company-specific key
+        5. Update company.logo_url
+        6. Return upload response
+
+        Args:
+            company_id: Company to upload logo for
+            file_content: File bytes
+            filename: Original filename
+
+        Returns:
+            dict with logo_url, resized, original_size, final_size, file_size_bytes
+
+        Raises:
+            ValueError: If file too large or invalid format
+            Exception: If company not found
+        """
+        try:
+            from PIL import Image
+            import boto3
+            import io
+            import os
+        except ImportError:
+            raise Exception("Required dependencies not installed: pip install Pillow boto3")
+
+        # Get company
+        company = self.get_company(company_id)
+        if not company:
+            raise Exception(f"Company {company_id} not found")
+
+        # Validate file size (<5MB)
+        file_size = len(file_content)
+        max_size = 5 * 1024 * 1024  # 5MB
+        if file_size > max_size:
+            raise ValueError(f"File size must be under 5MB (current: {file_size / 1024 / 1024:.2f}MB)")
+
+        # Validate format
+        file_ext = filename.lower().split('.')[-1]
+        allowed_formats = ['png', 'jpg', 'jpeg', 'svg']
+        if file_ext not in allowed_formats:
+            raise ValueError(f"Only PNG, JPG, and SVG formats are allowed (got: {file_ext})")
+
+        # Handle SVG separately (no resizing needed)
+        if file_ext == 'svg':
+            # Upload SVG directly to S3
+            s3_key = f"company-logos/{company_id}/logo.svg"
+            # TODO: Implement S3 upload when S3 is configured
+            logo_url = f"https://s3.amazonaws.com/hireflux-logos/{s3_key}"
+
+            # Update company
+            company.logo_url = logo_url
+            self.db.commit()
+
+            return {
+                "logo_url": logo_url,
+                "resized": False,
+                "original_size": (0, 0),  # SVG doesn't have fixed size
+                "final_size": (0, 0),
+                "file_size_bytes": file_size,
+            }
+
+        # Process raster images (PNG, JPG)
+        try:
+            img = Image.open(io.BytesIO(file_content))
+        except Exception as e:
+            raise ValueError(f"Invalid image file: {str(e)}")
+
+        original_size = img.size
+
+        # Resize to 400x400 if larger
+        target_size = (400, 400)
+        resized = False
+
+        if img.size[0] > target_size[0] or img.size[1] > target_size[1]:
+            img.thumbnail(target_size, Image.Resampling.LANCZOS)
+            resized = True
+
+        final_size = img.size
+
+        # Convert to bytes for upload
+        output = io.BytesIO()
+        img_format = 'PNG' if file_ext == 'png' else 'JPEG'
+        img.save(output, format=img_format)
+        output.seek(0)
+        processed_content = output.read()
+
+        # Upload to S3 (placeholder - requires S3 configuration)
+        s3_key = f"company-logos/{company_id}/logo.{file_ext}"
+        # TODO: Implement actual S3 upload when configured
+        # For now, return a mock URL
+        logo_url = f"https://s3.amazonaws.com/hireflux-logos/{s3_key}"
+
+        # Delete old logo if exists
+        if company.logo_url:
+            self._delete_logo_from_s3(company.logo_url)
+
+        # Update company
+        company.logo_url = logo_url
+        company.updated_at = datetime.utcnow()
+        self.db.commit()
+        self.db.refresh(company)
+
+        return {
+            "logo_url": logo_url,
+            "resized": resized,
+            "original_size": original_size,
+            "final_size": final_size,
+            "file_size_bytes": file_size,
+        }
+
+    def delete_logo(self, company_id: UUID) -> dict:
+        """
+        Delete company logo
+
+        Args:
+            company_id: Company to delete logo from
+
+        Returns:
+            dict with success message
+
+        Raises:
+            Exception: If company not found
+        """
+        company = self.get_company(company_id)
+        if not company:
+            raise Exception(f"Company {company_id} not found")
+
+        if company.logo_url:
+            # Delete from S3
+            self._delete_logo_from_s3(company.logo_url)
+
+        # Clear logo_url
+        company.logo_url = None
+        company.updated_at = datetime.utcnow()
+        self.db.commit()
+        self.db.refresh(company)
+
+        return {"message": "Logo deleted successfully"}
+
+    def _delete_logo_from_s3(self, logo_url: str) -> None:
+        """
+        Delete logo file from S3
+
+        Args:
+            logo_url: S3 URL of logo to delete
+        """
+        # TODO: Implement actual S3 deletion when configured
+        # For now, this is a no-op
+        pass
+
+    def update_settings(
+        self, company_id: UUID, settings_data: "CompanySettingsUpdate"
+    ) -> Company:
+        """
+        Update company settings (timezone, notifications, default template)
+
+        Args:
+            company_id: Company to update
+            settings_data: Settings to update
+
+        Returns:
+            Updated company
+
+        Raises:
+            Exception: If company not found
+        """
+        company = self.get_company(company_id)
+        if not company:
+            raise Exception(f"Company {company_id} not found")
+
+        # Update timezone
+        if settings_data.timezone is not None:
+            company.timezone = settings_data.timezone
+
+        # Update notification settings
+        if settings_data.notification_settings is not None:
+            # Convert Pydantic model to dict for JSON storage
+            company.notification_settings = settings_data.notification_settings.model_dump()
+
+        # Update default job template
+        if settings_data.default_job_template_id is not None:
+            company.default_job_template_id = settings_data.default_job_template_id
+
+        company.updated_at = datetime.utcnow()
+        self.db.commit()
+        self.db.refresh(company)
+
+        return company

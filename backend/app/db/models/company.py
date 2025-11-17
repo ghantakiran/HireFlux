@@ -41,6 +41,17 @@ class Company(Base):
     logo_url = Column(String(500), nullable=True)
     description = Column(Text, nullable=True)
 
+    # Social links (Issue #21)
+    linkedin_url = Column(String(255), nullable=True)
+    twitter_url = Column(String(255), nullable=True)
+
+    # Settings (Issue #21)
+    timezone = Column(String(50), nullable=True, default="UTC")
+    notification_settings = Column(
+        JSON, nullable=True
+    )  # {"email": {...}, "in_app": {...}}
+    default_job_template_id = Column(GUID(), nullable=True)
+
     # Subscription & billing
     subscription_tier = Column(
         String(50), default="starter"
@@ -91,6 +102,11 @@ class Company(Base):
         back_populates="company",
         uselist=False,
         cascade="all, delete-orphan",
+    )
+
+    # Job templates
+    job_templates = relationship(
+        "JobTemplate", back_populates="company", cascade="all, delete-orphan"
     )
 
     def __repr__(self):

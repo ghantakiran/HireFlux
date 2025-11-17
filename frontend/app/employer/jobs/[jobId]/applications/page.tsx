@@ -73,14 +73,15 @@ export default function ATSPage({ params }: ATSPageProps) {
         assignee: assigneeParam || undefined,
       });
     }
-  }, []); // Run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount - intentionally ignoring setView/setFilters as they are stable
 
   // Fetch applications
   useEffect(() => {
     if (jobId) {
       fetchApplications(jobId);
     }
-  }, [jobId]);
+  }, [jobId, fetchApplications]);
 
   // Sync URL with view changes
   useEffect(() => {
@@ -116,7 +117,7 @@ export default function ATSPage({ params }: ATSPageProps) {
     if (newUrl !== `${pathname}?${searchParams.toString()}`) {
       router.push(newUrl);
     }
-  }, [view, filters]);
+  }, [view, filters, searchParams, pathname, router]);
 
   // Handle view toggle
   const handleToggleView = (newView: 'list' | 'kanban') => {
@@ -141,8 +142,12 @@ export default function ATSPage({ params }: ATSPageProps) {
   };
 
   // Handle sort change from List view
-  const handleSortChange = (sortBy: string) => {
-    setSortBy(sortBy as any); // Type cast to SortOption
+  const handleSortChange = (newSortBy: string) => {
+    // Validate that it's a valid SortOption before setting
+    const validSortOptions = ['fit-desc', 'fit-asc', 'date-desc', 'date-asc'];
+    if (validSortOptions.includes(newSortBy)) {
+      setSortBy(newSortBy as 'fit-desc' | 'fit-asc' | 'date-desc' | 'date-asc');
+    }
   };
 
   // Handle card click from Kanban view

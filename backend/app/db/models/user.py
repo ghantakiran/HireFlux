@@ -20,6 +20,16 @@ class User(Base):
     oauth_provider = Column(String(50), nullable=True)  # 'google', 'linkedin'
     oauth_id = Column(String(255), nullable=True)
     email_verified = Column(Boolean, default=False)
+
+    # User type (Issue #18)
+    user_type = Column(
+        String(50),
+        nullable=False,
+        default='job_seeker',
+        server_default='job_seeker',
+        index=True
+    )  # 'job_seeker' or 'employer'
+
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 

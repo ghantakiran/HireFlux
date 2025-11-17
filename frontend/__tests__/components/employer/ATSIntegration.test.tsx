@@ -33,9 +33,11 @@ jest.mock('next/navigation', () => ({
 // Mock API
 jest.mock('@/lib/api', () => ({
   atsApi: {
-    getApplications: jest.fn(),
+    getJobApplications: jest.fn(),
     updateApplicationStatus: jest.fn(),
     bulkUpdateApplications: jest.fn(),
+    calculateFit: jest.fn(),
+    getApplicationDetails: jest.fn(),
   },
 }));
 
@@ -79,12 +81,23 @@ const mockApplications = [
 describe('ATS Integration - View Toggle', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Reset Zustand store to prevent test interference
+    const { useATSStore } = require('@/hooks/useATSStore');
+    useATSStore.getState()._resetStore();
+
     (useRouter as jest.Mock).mockReturnValue({
       push: jest.fn(),
       replace: jest.fn(),
     });
     (useSearchParams as jest.Mock).mockReturnValue(new URLSearchParams());
     (usePathname as jest.Mock).mockReturnValue('/employer/jobs/job-1/applications');
+
+    // Mock API responses for this test suite
+    const { atsApi } = require('@/lib/api');
+    atsApi.getJobApplications.mockResolvedValue({
+      data: { data: mockApplications, total: mockApplications.length },
+    });
   });
 
   test('should render view toggle button', () => {
@@ -190,6 +203,11 @@ describe('ATS Integration - View Toggle', () => {
 describe('ATS Integration - Shared State', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Reset Zustand store to prevent test interference
+    const { useATSStore } = require('@/hooks/useATSStore');
+    useATSStore.getState()._resetStore();
+
     (useRouter as jest.Mock).mockReturnValue({
       push: jest.fn(),
       replace: jest.fn(),
@@ -198,7 +216,7 @@ describe('ATS Integration - Shared State', () => {
     (usePathname as jest.Mock).mockReturnValue('/employer/jobs/job-1/applications');
 
     const { atsApi } = require('@/lib/api');
-    atsApi.getApplications.mockResolvedValue({
+    atsApi.getJobApplications.mockResolvedValue({
       data: { data: mockApplications, total: mockApplications.length },
     });
   });
@@ -208,7 +226,7 @@ describe('ATS Integration - Shared State', () => {
     render(<ATSPage params={{ jobId: 'job-1' }} />);
 
     await waitFor(() => {
-      expect(atsApi.getApplications).toHaveBeenCalledWith('job-1');
+      expect(atsApi.getJobApplications).toHaveBeenCalledWith('job-1');
     });
   });
 
@@ -359,7 +377,7 @@ describe('ATS Integration - Shared State', () => {
 
   test('should handle loading state in both views', async () => {
     const { atsApi } = require('@/lib/api');
-    atsApi.getApplications.mockImplementation(
+    atsApi.getJobApplications.mockImplementation(
       () => new Promise(resolve => setTimeout(() => resolve({ data: { data: mockApplications } }), 1000))
     );
 
@@ -376,7 +394,7 @@ describe('ATS Integration - Shared State', () => {
 
   test('should handle error state in both views', async () => {
     const { atsApi } = require('@/lib/api');
-    atsApi.getApplications.mockRejectedValue(new Error('Network error'));
+    atsApi.getJobApplications.mockRejectedValue(new Error('Network error'));
 
     render(<ATSPage params={{ jobId: 'job-1' }} />);
 
@@ -390,7 +408,7 @@ describe('ATS Integration - Shared State', () => {
 
   test('should show empty state when no applications', async () => {
     const { atsApi } = require('@/lib/api');
-    atsApi.getApplications.mockResolvedValue({
+    atsApi.getJobApplications.mockResolvedValue({
       data: { data: [], total: 0 },
     });
 
@@ -434,7 +452,7 @@ describe('ATS Integration - Shared State', () => {
 
     // Data should refresh
     await waitFor(() => {
-      expect(atsApi.getApplications).toHaveBeenCalledTimes(2); // Initial + refresh
+      expect(atsApi.getJobApplications).toHaveBeenCalledTimes(2); // Initial + refresh
     });
   });
 });
@@ -442,8 +460,20 @@ describe('ATS Integration - Shared State', () => {
 describe('ATS Integration - Modal Integration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Reset Zustand store to prevent test interference
+    const { useATSStore } = require('@/hooks/useATSStore');
+    useATSStore.getState()._resetStore();
+
+    (useRouter as jest.Mock).mockReturnValue({
+      push: jest.fn(),
+      replace: jest.fn(),
+    });
+    (useSearchParams as jest.Mock).mockReturnValue(new URLSearchParams());
+    (usePathname as jest.Mock).mockReturnValue('/employer/jobs/job-1/applications');
+
     const { atsApi } = require('@/lib/api');
-    atsApi.getApplications.mockResolvedValue({
+    atsApi.getJobApplications.mockResolvedValue({
       data: { data: mockApplications, total: mockApplications.length },
     });
   });
@@ -616,8 +646,20 @@ describe('ATS Integration - Modal Integration', () => {
 describe('ATS Integration - URL State', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Reset Zustand store to prevent test interference
+    const { useATSStore } = require('@/hooks/useATSStore');
+    useATSStore.getState()._resetStore();
+
+    (useRouter as jest.Mock).mockReturnValue({
+      push: jest.fn(),
+      replace: jest.fn(),
+    });
+    (useSearchParams as jest.Mock).mockReturnValue(new URLSearchParams());
+    (usePathname as jest.Mock).mockReturnValue('/employer/jobs/job-1/applications');
+
     const { atsApi } = require('@/lib/api');
-    atsApi.getApplications.mockResolvedValue({
+    atsApi.getJobApplications.mockResolvedValue({
       data: { data: mockApplications, total: mockApplications.length },
     });
   });

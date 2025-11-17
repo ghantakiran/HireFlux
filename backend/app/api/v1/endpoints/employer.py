@@ -3,7 +3,7 @@
 API endpoints for employer registration, company management, and team collaboration.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -12,6 +12,8 @@ from app.schemas.company import (
     CompanyCreate,
     CompanyResponse,
     CompanyUpdate,
+    CompanySettingsUpdate,
+    LogoUploadResponse,
     CompanyMemberCreate,
     CompanyMemberResponse,
     EmployerRegistrationResponse,
@@ -621,4 +623,268 @@ def get_team_activity(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch team activity: {str(e)}",
+        )
+
+
+# ============================================================================
+# Company Profile Management Endpoints (Issue #21)
+# ============================================================================
+
+
+@router.post("/me/logo", response_model=dict, status_code=status.HTTP_200_OK)
+async def upload_company_logo(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Upload company logo.
+
+    **Requirements:**
+    - Max file size: 5MB
+    - Formats: PNG, JPG, JPEG, SVG
+    - Auto-resize: Images resized to 400x400px
+
+    **Process:**
+    1. Validates file size and format
+    2. Resizes image to 400x400px (if larger)
+    3. Uploads to S3
+    4. Updates company.logo_url
+    5. Deletes old logo if exists
+
+    **Returns:**
+    - logo_url: S3 URL of uploaded logo
+    - resized: Whether image was resized
+    - original_size: Original dimensions (width, height)
+    - final_size: Final dimensions (width, height)
+    - file_size_bytes: File size
+
+    **Authentication Required:** Employer user
+
+    **Permissions:** owner, admin
+    """
+
+    # Get company member
+    company_member = (
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
+    )
+
+    if not company_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with any company",
+        )
+
+    # Check permissions (only owner and admin can upload logo)
+    allowed_roles = ["owner", "admin"]
+    if company_member.role not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}",
+        )
+
+    try:
+        # Read file content
+        file_content = await file.read()
+        filename = file.filename or "logo.png"
+
+        # Upload logo
+        employer_service = EmployerService(db)
+        result = employer_service.upload_logo(
+            company_member.company_id, file_content, filename
+        )
+
+        return {"success": True, "data": result}
+
+    except ValueError as e:
+        # Validation errors (file size, format)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload logo: {str(e)}",
+        )
+
+
+@router.delete("/me/logo", response_model=dict, status_code=status.HTTP_200_OK)
+def delete_company_logo(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Delete company logo.
+
+    **Process:**
+    1. Deletes logo from S3
+    2. Sets company.logo_url to null
+
+    **Returns:**
+    - Success message
+
+    **Authentication Required:** Employer user
+
+    **Permissions:** owner, admin
+    """
+    # Get company member
+    company_member = (
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
+    )
+
+    if not company_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with any company",
+        )
+
+    # Check permissions
+    allowed_roles = ["owner", "admin"]
+    if company_member.role not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}",
+        )
+
+    try:
+        employer_service = EmployerService(db)
+        result = employer_service.delete_logo(company_member.company_id)
+
+        return {"success": True, "data": result}
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete logo: {str(e)}",
+        )
+
+
+@router.get("/me/settings", response_model=dict)
+def get_company_settings(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get company settings (timezone, notification preferences, default template).
+
+    **Returns:**
+    - timezone: Company timezone (e.g., 'America/Los_Angeles')
+    - notification_settings: Email and in-app notification preferences
+    - default_job_template_id: Default job template UUID
+
+    **Authentication Required:** Employer user
+
+    **Permissions:** any company member
+    """
+    company_member = (
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
+    )
+
+    if not company_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with any company",
+        )
+
+    try:
+        employer_service = EmployerService(db)
+        company = employer_service.get_company(company_member.company_id)
+
+        if not company:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Company not found",
+            )
+
+        return {
+            "success": True,
+            "data": {
+                "timezone": company.timezone,
+                "notification_settings": company.notification_settings,
+                "default_job_template_id": str(company.default_job_template_id)
+                if company.default_job_template_id
+                else None,
+            },
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch settings: {str(e)}",
+        )
+
+
+@router.put("/me/settings", response_model=dict, status_code=status.HTTP_200_OK)
+def update_company_settings(
+    settings_data: CompanySettingsUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Update company settings.
+
+    **Fields:**
+    - timezone: IANA timezone string (e.g., 'America/Los_Angeles', 'Europe/London')
+    - notification_settings: Email and in-app notification preferences
+    - default_job_template_id: UUID of default job template
+
+    **Notification Preferences:**
+    - email.new_application: Email on new application
+    - email.stage_change: Email on application stage change
+    - email.team_mention: Email when mentioned by team
+    - email.weekly_digest: Weekly digest email
+    - in_app.new_application: In-app notification on new application
+    - in_app.team_activity: In-app notification on team activity
+
+    **Returns:**
+    - Updated company with new settings
+
+    **Authentication Required:** Employer user
+
+    **Permissions:** owner, admin
+    """
+
+    # Get company member
+    company_member = (
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
+    )
+
+    if not company_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with any company",
+        )
+
+    # Check permissions
+    allowed_roles = ["owner", "admin"]
+    if company_member.role not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Insufficient permissions. Required roles: {', '.join(allowed_roles)}",
+        )
+
+    try:
+        employer_service = EmployerService(db)
+        company = employer_service.update_settings(
+            company_member.company_id, settings_data
+        )
+
+        return {
+            "success": True,
+            "message": "Settings updated successfully",
+            "data": {
+                "timezone": company.timezone,
+                "notification_settings": company.notification_settings,
+                "default_job_template_id": str(company.default_job_template_id)
+                if company.default_job_template_id
+                else None,
+            },
+        }
+
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update settings: {str(e)}",
         )

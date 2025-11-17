@@ -82,7 +82,7 @@ export function TextQuestion({
       handleChange(e.target.value),
     placeholder: 'Type your answer here...',
     'aria-labelledby': questionId,
-    'aria-invalid': hasError ? 'true' : undefined,
+    'aria-invalid': hasError ? true : undefined,
     'aria-describedby': hasError ? errorId : undefined,
   };
 

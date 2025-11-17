@@ -189,7 +189,7 @@ class AssessmentAttempt(Base):
     # Primary Key & Foreign Keys
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
     assessment_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
-    application_id: Mapped[Optional[UUID]] = mapped_column(PGUUID(as_uuid=True), ForeignKey("job_applications.id", ondelete="CASCADE"))
+    application_id: Mapped[Optional[UUID]] = mapped_column(PGUUID(as_uuid=True), ForeignKey("applications.id", ondelete="CASCADE"))
     candidate_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     # Attempt Metadata
@@ -393,7 +393,7 @@ class JobAssessmentRequirement(Base):
 
     # Primary Key & Foreign Keys
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    job_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("jobs_native.id", ondelete="CASCADE"), nullable=False)
+    job_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False)
     assessment_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
 
     # Requirement Configuration

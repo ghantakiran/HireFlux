@@ -12,6 +12,7 @@ from app.db.models.user import User, Profile
 from app.db.models.resume import Resume, ResumeVersion
 from app.db.models.cover_letter import CoverLetter
 from app.db.models.job import Job, JobSource, MatchScore
+from app.db.models.job_template import JobTemplate
 from app.db.models.application import Application, ApplicationNote
 from app.db.models.billing import (
     CreditWallet,
@@ -75,6 +76,7 @@ __all__ = [
     "Job",
     "JobSource",
     "MatchScore",
+    "JobTemplate",
     "Application",
     "ApplicationNote",
     "CreditWallet",

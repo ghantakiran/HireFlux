@@ -31,6 +31,7 @@ import { Filter, ArrowUpDown } from 'lucide-react';
 import KanbanColumn from './KanbanColumn';
 import KanbanCard, { Applicant } from './KanbanCard';
 import { atsApi } from '@/lib/api';
+import { useATSStore } from '@/hooks/useATSStore';
 
 // ============================================================================
 // Types & Interfaces
@@ -96,17 +97,26 @@ export default function ApplicantKanbanBoard({
   onAssignRecruiter,
   onStageChange,
 }: ApplicantKanbanBoardProps) {
-  // State
-  const [applicants, setApplicants] = useState<Applicant[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Get shared state from store
+  const {
+    applications: applicants,
+    filteredApplications,
+    loading,
+    error: storeError,
+    filters,
+    sortBy,
+    updateApplication,
+    setFilters,
+    setSortBy,
+  } = useATSStore();
+
+  // UI-specific state (not shared)
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [sortOption, setSortOption] = useState<SortOption>('date-desc');
-  const [filters, setFilters] = useState<Filters>({});
-  const [showFilters, setShowFilters] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [error, setError] = useState<string | null>(storeError);
 
   // Drag and drop sensors
   const sensors = useSensors(
@@ -136,83 +146,20 @@ export default function ApplicantKanbanBoard({
     };
   }, []);
 
-  // Fetch applicants
+  // Sync store error to local error state
   useEffect(() => {
-    fetchApplicants();
-  }, [jobId]);
-
-  const fetchApplicants = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await atsApi.getApplications(jobId);
-      const data = response.data.data;
-
-      setApplicants(data);
-    } catch (err) {
-      setError('Failed to load candidates');
-      console.error('Error fetching applicants:', err);
-    } finally {
-      setLoading(false);
+    if (storeError) {
+      setError(storeError);
     }
-  };
+  }, [storeError]);
 
-  // Filter and sort applicants
-  const filteredAndSortedApplicants = useMemo(() => {
-    let result = [...applicants];
-
-    // Apply filters
-    if (filters.assignee) {
-      result = result.filter((a) => a.assignedTo === filters.assignee);
-    }
-
-    if (filters.tags && filters.tags.length > 0) {
-      result = result.filter((a) =>
-        filters.tags!.some((tag) => a.tags?.includes(tag))
-      );
-    }
-
-    if (filters.minFitIndex !== undefined) {
-      result = result.filter((a) => a.fitIndex >= filters.minFitIndex!);
-    }
-
-    if (filters.maxFitIndex !== undefined) {
-      result = result.filter((a) => a.fitIndex <= filters.maxFitIndex!);
-    }
-
-    // Apply sorting
-    switch (sortOption) {
-      case 'fit-desc':
-        result.sort((a, b) => b.fitIndex - a.fitIndex);
-        break;
-      case 'fit-asc':
-        result.sort((a, b) => a.fitIndex - b.fitIndex);
-        break;
-      case 'date-desc':
-        result.sort(
-          (a, b) =>
-            new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime()
-        );
-        break;
-      case 'date-asc':
-        result.sort(
-          (a, b) =>
-            new Date(a.appliedAt).getTime() - new Date(b.appliedAt).getTime()
-        );
-        break;
-    }
-
-    return result;
-  }, [applicants, filters, sortOption]);
-
-  // Organize applicants by stage
+  // Organize applicants by stage (using store's filtered data)
   const stages: KanbanStage[] = useMemo(() => {
     return STAGES.map((stage) => ({
       ...stage,
-      candidates: filteredAndSortedApplicants.filter((a) => a.stage === stage.id),
+      candidates: filteredApplications.filter((a) => a.stage === stage.id),
     }));
-  }, [filteredAndSortedApplicants]);
+  }, [filteredApplications]);
 
   // Get active applicant being dragged
   const activeApplicant = useMemo(
@@ -284,12 +231,8 @@ export default function ApplicantKanbanBoard({
       return;
     }
 
-    // Optimistic update
-    setApplicants((prev) =>
-      prev.map((a) =>
-        a.id === activeId ? { ...a, stage: newStage } : a
-      )
-    );
+    // Optimistic update via store
+    updateApplication(activeId, { stage: newStage });
 
     setAnnouncement(`Moved ${activeApplicant.candidateName} to ${targetStage.label}`);
 
@@ -312,12 +255,8 @@ export default function ApplicantKanbanBoard({
         `${oldStageData?.label}: ${oldCount - 1} candidates. ${newStageData?.label}: ${newCount + 1} candidates`
       );
     } catch (err) {
-      // Revert on error
-      setApplicants((prev) =>
-        prev.map((a) =>
-          a.id === activeId ? { ...a, stage: oldStage } : a
-        )
-      );
+      // Revert on error via store
+      updateApplication(activeId, { stage: oldStage });
 
       setAnnouncement(`Failed to update candidate stage: ${(err as Error).message}`);
       setError('Failed to update candidate stage');
@@ -437,8 +376,8 @@ export default function ApplicantKanbanBoard({
           <select
             id="sort-select"
             aria-label="Sort candidates"
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value as SortOption)}
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortOption)}
             className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="fit-desc">Fit Index (High to Low)</option>
@@ -480,10 +419,10 @@ export default function ApplicantKanbanBoard({
                 aria-label="Filter by assignee"
                 value={filters.assignee || ''}
                 onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
+                  setFilters({
+                    ...filters,
                     assignee: e.target.value || undefined,
-                  }))
+                  })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -508,10 +447,10 @@ export default function ApplicantKanbanBoard({
                     .split(',')
                     .map((t) => t.trim())
                     .filter(Boolean);
-                  setFilters((prev) => ({
-                    ...prev,
+                  setFilters({
+                    ...filters,
                     tags: tags.length > 0 ? tags : undefined,
-                  }));
+                  });
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -530,10 +469,10 @@ export default function ApplicantKanbanBoard({
                 aria-label="Minimum fit index"
                 placeholder="0"
                 onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
+                  setFilters({
+                    ...filters,
                     minFitIndex: e.target.value ? parseInt(e.target.value) : undefined,
-                  }))
+                  })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />

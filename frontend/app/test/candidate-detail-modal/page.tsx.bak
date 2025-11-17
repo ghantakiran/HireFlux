@@ -160,7 +160,6 @@ export default function CandidateDetailModalTestPage() {
 
       return {
         data: {
-          success: true,
           data:
             mockData[applicationId] || mockData[MOCK_APPLICATION_IDS.highFit],
         },
@@ -213,15 +212,10 @@ export default function CandidateDetailModalTestPage() {
 
       return {
         data: {
-          success: true,
           data:
             mockNotes[applicationId] ||
             mockNotes[MOCK_APPLICATION_IDS.withNotes],
         },
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-        config: {} as any,
       };
     };
 
@@ -238,7 +232,7 @@ export default function CandidateDetailModalTestPage() {
       const delay = mockMode === 'slow' ? 1500 : 300;
       await new Promise((resolve) => setTimeout(resolve, delay));
 
-      return { data: { success: true, data: null }, status: 200, statusText: 'OK', headers: {}, config: {} as any };
+      return { data: { success: true } };
     };
 
     // Mock addApplicationNote
@@ -254,7 +248,7 @@ export default function CandidateDetailModalTestPage() {
       const delay = mockMode === 'slow' ? 1500 : 300;
       await new Promise((resolve) => setTimeout(resolve, delay));
 
-      return { data: { success: true, data: null }, status: 200, statusText: 'OK', headers: {}, config: {} as any };
+      return { data: { success: true } };
     };
 
     // Cleanup (restore original methods)

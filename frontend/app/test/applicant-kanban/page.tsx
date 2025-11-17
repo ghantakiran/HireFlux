@@ -131,8 +131,8 @@ export default function ApplicantKanbanTestPage() {
   // Mock API implementation
   useEffect(() => {
     // Runtime mocking of atsApi methods
-    (atsApi.getApplications as any) = async (jobId: string) => {
-      addLog(`API Call: getApplications(${jobId})`);
+    (atsApi.getJobApplications as any) = async (jobId: string) => {
+      addLog(`API Call: getJobApplications(${jobId})`);
 
       if (mockMode === 'error') {
         throw new Error('Mock API Error: Failed to fetch candidates');

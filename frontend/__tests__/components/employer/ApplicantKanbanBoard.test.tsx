@@ -150,7 +150,7 @@ const mockApiResponse = {
 describe('ApplicantKanbanBoard Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (atsApi.getApplications as jest.Mock).mockResolvedValue(mockApiResponse);
+    (atsApi.getJobApplications as jest.Mock).mockResolvedValue(mockApiResponse);
     (atsApi.updateApplicationStatus as jest.Mock).mockResolvedValue({ data: { success: true } });
   });
 
@@ -209,7 +209,7 @@ describe('ApplicantKanbanBoard Component', () => {
     });
 
     test('should show empty state when no candidates', async () => {
-      (atsApi.getApplications as jest.Mock).mockResolvedValue({
+      (atsApi.getJobApplications as jest.Mock).mockResolvedValue({
         data: { data: [], total: 0 },
       });
 
@@ -1009,7 +1009,7 @@ describe('ApplicantKanbanBoard Component', () => {
   // =================================================================
   describe('Edge Cases', () => {
     test('should handle 0 candidates gracefully', async () => {
-      (atsApi.getApplications as jest.Mock).mockResolvedValue({
+      (atsApi.getJobApplications as jest.Mock).mockResolvedValue({
         data: { data: [], total: 0 },
       });
 
@@ -1035,7 +1035,7 @@ describe('ApplicantKanbanBoard Component', () => {
         candidateEmail: `candidate${i}@example.com`,
       }));
 
-      (atsApi.getApplications as jest.Mock).mockResolvedValue({
+      (atsApi.getJobApplications as jest.Mock).mockResolvedValue({
         data: { data: manyCandidates, total: manyCandidates.length },
       });
 

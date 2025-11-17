@@ -269,4 +269,20 @@ export const useATSStore = create<ATSStore>((set, get) => ({
 
     set({ filteredApplications: filtered });
   },
+
+  // Test helper - reset store to initial state
+  _resetStore: () => {
+    set({
+      applications: [],
+      filteredApplications: [],
+      view: loadViewPreference(),
+      loading: false,
+      error: null,
+      filters: {},
+      sortBy: 'date-desc',
+      selectedIds: [],
+      selectedApplicationId: null,
+      currentJobId: null,
+    });
+  },
 }));

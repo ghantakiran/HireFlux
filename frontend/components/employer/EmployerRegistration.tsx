@@ -31,6 +31,11 @@ import {
   EyeOff,
   Upload
 } from 'lucide-react';
+import {
+  sendVerificationCode,
+  verifyCode,
+  resendVerificationCode,
+} from '@/lib/api/emailVerification';
 
 // Types
 interface EmployerRegistrationProps {
@@ -292,71 +297,105 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
   // Step navigation
   const handleNext = async () => {
     setErrors({});
+    setIsLoading(true);
 
-    switch (currentStep) {
-      case 1: // Email entry
-        if (!validateEmail(email)) return;
-        // TODO: Send verification code to email
-        setCurrentStep(2);
-        break;
+    try {
+      switch (currentStep) {
+        case 1: // Email entry
+          if (!validateEmail(email)) {
+            setIsLoading(false);
+            return;
+          }
 
-      case 2: // Email verification
-        const code = verificationCode.join('');
-        if (code.length !== 6) {
-          setErrors({ verification: 'Please enter the complete 6-digit code' });
-          return;
-        }
-        // TODO: Verify code with backend
-        setCurrentStep(3);
-        break;
+          try {
+            await sendVerificationCode(email);
+            setCurrentStep(2);
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to send verification code';
+            setErrors({ email: errorMessage });
+          }
+          break;
 
-      case 3: // Password creation
-        if (!validatePassword(password)) return;
-        if (password !== confirmPassword) {
-          setErrors({ confirmPassword: 'Passwords do not match' });
-          return;
-        }
-        setCurrentStep(4);
-        break;
+        case 2: // Email verification
+          const code = verificationCode.join('');
+          if (code.length !== 6) {
+            setErrors({ verification: 'Please enter the complete 6-digit code' });
+            setIsLoading(false);
+            return;
+          }
 
-      case 4: // Company details
-        if (!companyName) {
-          setErrors({ companyName: 'Company name is required' });
-          return;
-        }
-        if (!industry) {
-          setErrors({ industry: 'Please select an industry' });
-          return;
-        }
-        if (!companySize) {
-          setErrors({ companySize: 'Please select company size' });
-          return;
-        }
-        if (!location) {
-          setErrors({ location: 'Location is required' });
-          return;
-        }
-        if (website && !validateWebsite(website)) return;
-        setCurrentStep(5);
-        break;
+          try {
+            await verifyCode(email, code);
+            setCurrentStep(3);
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Invalid verification code';
+            setErrors({ verification: errorMessage });
+          }
+          break;
 
-      case 5: // Plan selection
-        // Check if payment is needed
-        if (selectedPlan !== 'starter') {
-          setCurrentStep(6);
-        } else {
-          // Complete registration for free plan
+        case 3: // Password creation
+          if (!validatePassword(password)) {
+            setIsLoading(false);
+            return;
+          }
+          if (password !== confirmPassword) {
+            setErrors({ confirmPassword: 'Passwords do not match' });
+            setIsLoading(false);
+            return;
+          }
+          setCurrentStep(4);
+          break;
+
+        case 4: // Company details
+          if (!companyName) {
+            setErrors({ companyName: 'Company name is required' });
+            setIsLoading(false);
+            return;
+          }
+          if (!industry) {
+            setErrors({ industry: 'Please select an industry' });
+            setIsLoading(false);
+            return;
+          }
+          if (!companySize) {
+            setErrors({ companySize: 'Please select company size' });
+            setIsLoading(false);
+            return;
+          }
+          if (!location) {
+            setErrors({ location: 'Location is required' });
+            setIsLoading(false);
+            return;
+          }
+          if (website && !validateWebsite(website)) {
+            setIsLoading(false);
+            return;
+          }
+          setCurrentStep(5);
+          break;
+
+        case 5: // Plan selection
+          // Check if payment is needed
+          if (selectedPlan !== 'starter') {
+            setCurrentStep(6);
+          } else {
+            // Complete registration for free plan
+            await handleComplete();
+            return; // handleComplete handles loading state
+          }
+          break;
+
+        case 6: // Payment
+          if (!cardNumber || !expiryDate || !cvv || !billingAddress) {
+            setErrors({ payment: 'Please fill in all payment details' });
+            setIsLoading(false);
+            return;
+          }
           await handleComplete();
-        }
-        break;
-
-      case 6: // Payment
-        if (!cardNumber || !expiryDate || !cvv || !billingAddress) {
-          setErrors({ payment: 'Please fill in all payment details' });
-          return;
-        }
-        await handleComplete();
-        break;
+          return; // handleComplete handles loading state
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -420,8 +459,22 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
   };
 
   const handleResendCode = async () => {
-    // TODO: Resend verification code
-    console.log('Resending verification code to', email);
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      await resendVerificationCode(email);
+      // Clear existing code inputs
+      setVerificationCode(['', '', '', '', '', '']);
+      // Show success message
+      setErrors({ verification: '' }); // Clear any errors
+      // Could show a success toast here
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to resend code';
+      setErrors({ verification: errorMessage });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Render functions for each step
@@ -490,7 +543,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
           {verificationCode.map((digit, index) => (
             <Input
               key={index}
-              ref={(el) => (codeInputRefs.current[index] = el)}
+              ref={(el) => { codeInputRefs.current[index] = el; }}
               type="text"
               inputMode="numeric"
               maxLength={1}
@@ -499,6 +552,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
               onKeyDown={(e) => handleCodeKeyDown(index, e)}
               className="w-12 h-12 text-center text-lg font-semibold"
               aria-label={`Digit ${index + 1}`}
+              data-testid={`code-input-${index}`}
             />
           ))}
         </div>
