@@ -15,6 +15,7 @@ from app.db.session import get_db
 from app.db.models.user import User
 from app.db.models.company import CompanyMember
 from app.services.job_service import JobService
+from app.services.job_ai_service import JobAIService
 from app.schemas.job import (
     JobCreate,
     JobUpdate,
@@ -22,6 +23,15 @@ from app.schemas.job import (
     JobListResponse,
     JobStatusUpdate,
 )
+from app.schemas.job_ai import (
+    JobAIGenerationRequest,
+    JobAIGenerationResponse,
+    JobSkillsSuggestionRequest,
+    JobSkillsSuggestionResponse,
+    JobSalarySuggestionRequest,
+    JobSalarySuggestionResponse,
+)
+from app.core.exceptions import ServiceError
 
 
 router = APIRouter()
@@ -377,3 +387,196 @@ def check_can_post_job(
     )
 
     return {"can_post": can_post, "message": message}
+
+
+# ========================================================================
+# AI Assistance Endpoints
+# ========================================================================
+
+
+@router.post(
+    "/generate-description",
+    response_model=JobAIGenerationResponse,
+    summary="Generate job description with AI",
+    description="Generate full job description from title + key points using AI. Performance requirement: <6s (p95)",
+)
+def generate_job_description(
+    request: JobAIGenerationRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Generate full job description from title + key points using AI.
+
+    **Input**: Title + 3-10 bullet points
+    **Output**: Full description, requirements, responsibilities, skills
+
+    **Performance requirement**: <6s (p95)
+
+    **Permissions**: All employer users can use AI generation
+
+    Example input:
+    ```json
+    {
+        "title": "Senior Software Engineer",
+        "key_points": [
+            "Build scalable backend systems",
+            "Lead technical design",
+            "Mentor junior engineers"
+        ],
+        "experience_level": "senior",
+        "location": "San Francisco, CA"
+    }
+    ```
+    """
+    try:
+        # Verify user is employer (allow all employer roles)
+        if current_user.user_type != "employer":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only employers can use AI job description generation",
+            )
+
+        # Generate description
+        ai_service = JobAIService(db)
+        result = ai_service.generate_job_description(
+            request=request, user_id=str(current_user.id)
+        )
+
+        return result
+
+    except HTTPException:
+        raise
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid input: {str(e)}",
+        )
+    except ServiceError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"AI generation failed: {str(e)}",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error: {str(e)}",
+        )
+
+
+@router.post(
+    "/suggest-skills",
+    response_model=JobSkillsSuggestionResponse,
+    summary="Suggest skills with AI",
+    description="Suggest relevant skills for job posting using AI. Performance requirement: <3s",
+)
+def suggest_skills(
+    request: JobSkillsSuggestionRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Suggest relevant skills for job posting using AI.
+
+    **Performance requirement**: <3s
+
+    **Permissions**: All employer users can use skills suggestion
+
+    Returns 8-15 skills categorized as technical and soft skills.
+
+    Example input:
+    ```json
+    {
+        "title": "Data Scientist",
+        "description": "Build ML models...",
+        "existing_skills": ["Python", "SQL"]
+    }
+    ```
+    """
+    try:
+        # Verify user is employer
+        if current_user.user_type != "employer":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only employers can use AI skills suggestion",
+            )
+
+        # Suggest skills
+        ai_service = JobAIService(db)
+        result = ai_service.suggest_skills(
+            request=request, user_id=str(current_user.id)
+        )
+
+        return result
+
+    except HTTPException:
+        raise
+    except ServiceError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"AI suggestion failed: {str(e)}",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error: {str(e)}",
+        )
+
+
+@router.post(
+    "/suggest-salary",
+    response_model=JobSalarySuggestionResponse,
+    summary="Suggest salary range with AI",
+    description="Suggest salary range based on role, level, and location using AI. Performance requirement: <2s",
+)
+def suggest_salary_range(
+    request: JobSalarySuggestionRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Suggest salary range based on role, level, and location using AI.
+
+    **Performance requirement**: <2s
+
+    **Permissions**: All employer users can use salary suggestion
+
+    Returns competitive salary range with market data.
+
+    Example input:
+    ```json
+    {
+        "title": "Senior Software Engineer",
+        "experience_level": "senior",
+        "location": "San Francisco, CA"
+    }
+    ```
+    """
+    try:
+        # Verify user is employer
+        if current_user.user_type != "employer":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only employers can use AI salary suggestion",
+            )
+
+        # Suggest salary
+        ai_service = JobAIService(db)
+        result = ai_service.suggest_salary_range(
+            request=request, user_id=str(current_user.id)
+        )
+
+        return result
+
+    except HTTPException:
+        raise
+    except ServiceError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"AI suggestion failed: {str(e)}",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error: {str(e)}",
+        )
