@@ -1,0 +1,240 @@
+/**
+ * NoteItem Component (Issue #27)
+ *
+ * Displays individual note with:
+ * - Author info & timestamps
+ * - Note content with @mention highlighting
+ * - Visibility & type badges
+ * - Edit button (if within 5 min and author)
+ * - Delete button (if within 5 min and author)
+ * - Countdown timer for edit window
+ */
+
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { Edit2, Trash2, Clock, Lock, Users } from 'lucide-react';
+import {
+  ApplicationNote,
+  isWithinEditWindow,
+  getRemainingEditTime,
+  formatRemainingTime,
+  getNoteTypeBadgeColor,
+  getNoteTypeLabel,
+  deleteApplicationNote,
+  NoteError,
+} from '@/lib/api/applicationNotes';
+import EditNoteModal from './EditNoteModal';
+
+interface NoteItemProps {
+  note: ApplicationNote;
+  currentUserId: string;
+  onNoteUpdated: (note: ApplicationNote) => void;
+  onNoteDeleted: (noteId: string) => void;
+}
+
+export default function NoteItem({
+  note,
+  currentUserId,
+  onNoteUpdated,
+  onNoteDeleted,
+}: NoteItemProps) {
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [remainingTime, setRemainingTime] = useState(
+    getRemainingEditTime(note.created_at)
+  );
+
+  const isAuthor = note.author_id === currentUserId;
+  const canEdit = isAuthor && isWithinEditWindow(note.created_at);
+
+  // Update countdown timer every second
+  useEffect(() => {
+    if (!canEdit) return;
+
+    const interval = setInterval(() => {
+      const remaining = getRemainingEditTime(note.created_at);
+      setRemainingTime(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [note.created_at, canEdit]);
+
+  // Handle delete
+  const handleDelete = async () => {
+    if (!canEdit) {
+      setDeleteError('Edit window has expired');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this note? This action cannot be undone.'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeleting(true);
+      setDeleteError(null);
+      await deleteApplicationNote(note.id);
+      onNoteDeleted(note.id);
+    } catch (err) {
+      const error = err as NoteError;
+      setDeleteError(error.detail || 'Failed to delete note');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  // Get badge colors
+  const typeBadgeColor = getNoteTypeBadgeColor(note.note_type);
+  const typeColors = {
+    gray: 'bg-gray-100 text-gray-700',
+    blue: 'bg-blue-100 text-blue-700',
+    green: 'bg-green-100 text-green-700',
+  };
+
+  // Highlight @mentions in content
+  const highlightedContent = note.content.replace(
+    /(?<![a-zA-Z0-9])(@[a-zA-Z0-9_]+)/g,
+    '<span class="text-blue-600 font-medium">$1</span>'
+  );
+
+  // Format timestamp
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 1000 / 60);
+
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    return date.toLocaleDateString();
+  };
+
+  return (
+    <>
+      <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex items-center space-x-2">
+            {/* Author avatar */}
+            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+              <span className="text-xs font-medium text-gray-600">
+                {note.author?.name?.charAt(0).toUpperCase() || 'U'}
+              </span>
+            </div>
+
+            {/* Author info */}
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                {note.author?.name || 'Unknown User'}
+              </p>
+              <p className="text-xs text-gray-500">
+                {formatDate(note.created_at)}
+                {note.updated_at !== note.created_at && (
+                  <span className="ml-1">(edited)</span>
+                )}
+              </p>
+            </div>
+          </div>
+
+          {/* Actions (only show if can edit) */}
+          {canEdit && (
+            <div className="flex items-center space-x-2">
+              {/* Countdown timer */}
+              {remainingTime > 0 && (
+                <div className="flex items-center space-x-1 text-xs text-gray-500">
+                  <Clock className="w-3 h-3" />
+                  <span>{formatRemainingTime(remainingTime)}</span>
+                </div>
+              )}
+
+              {/* Edit button */}
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                title="Edit note"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+
+              {/* Delete button */}
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
+                title="Delete note"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* Non-author message */}
+          {!isAuthor && isWithinEditWindow(note.created_at) && (
+            <div className="text-xs text-gray-400 italic">
+              Only author can edit
+            </div>
+          )}
+        </div>
+
+        {/* Badges */}
+        <div className="flex flex-wrap gap-2 mb-2">
+          {/* Visibility badge */}
+          {note.visibility === 'private' ? (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+              <Lock className="w-3 h-3 mr-1" />
+              Private
+            </span>
+          ) : (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+              <Users className="w-3 h-3 mr-1" />
+              Team
+            </span>
+          )}
+
+          {/* Type badge */}
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+              typeColors[typeBadgeColor]
+            }`}
+          >
+            {getNoteTypeLabel(note.note_type)}
+          </span>
+        </div>
+
+        {/* Content */}
+        <div
+          className="text-sm text-gray-700 whitespace-pre-wrap break-words"
+          dangerouslySetInnerHTML={{ __html: highlightedContent }}
+        />
+
+        {/* Delete error */}
+        {deleteError && (
+          <div className="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded p-2">
+            {deleteError}
+          </div>
+        )}
+      </div>
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <EditNoteModal
+          note={note}
+          onClose={() => setShowEditModal(false)}
+          onNoteUpdated={(updatedNote) => {
+            onNoteUpdated(updatedNote);
+            setShowEditModal(false);
+          }}
+        />
+      )}
+    </>
+  );
+}
