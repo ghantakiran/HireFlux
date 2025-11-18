@@ -11,16 +11,23 @@
  * - Draft auto-save
  * - Preview before publishing
  *
- * API Integration:
- * - POST /api/v1/employer/jobs
- * - POST /api/v1/ai/generate-job-description (AI generation)
- * - GET /api/v1/employer/job-templates
+ * API Integration: Uses lib/api/jobs.ts
  */
 
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  createJob,
+  generateJobDescription,
+  suggestSkills,
+  suggestSalaryRange,
+  type JobCreateRequest,
+  type ExperienceLevel,
+  type LocationType,
+  type EmploymentType,
+} from '@/lib/api/jobs';
 import {
   Save,
   Eye,
@@ -183,29 +190,14 @@ export default function NewJobPage() {
         return;
       }
 
-      const request: AIGenerationRequest = {
+      // Use API client for job description generation
+      const data = await generateJobDescription({
         title: formData.title,
         key_points: aiKeyPoints.filter(kp => kp.trim() !== ''),
-        experience_level: formData.experience_level,
+        experience_level: formData.experience_level as ExperienceLevel,
         location: formData.location,
-        tone: aiTone,
-      };
-
-      // Note: This endpoint may need to be created on backend
-      const response = await fetch('/api/v1/ai/generate-job-description', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
+        employment_type: formData.employment_type as EmploymentType,
       });
-
-      if (!response.ok) {
-        throw new Error('AI generation failed');
-      }
-
-      const data: AIGenerationResponse = await response.json();
 
       // Update form with AI-generated content
       setFormData((prev) => ({
@@ -237,21 +229,27 @@ export default function NewJobPage() {
         return;
       }
 
-      const response = await fetch('/api/v1/employer/jobs', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          is_active: false, // Draft
-        }),
-      });
+      // Use API client to create job as draft
+      const jobData: JobCreateRequest = {
+        title: formData.title,
+        company_name: formData.company_name,
+        department: formData.department,
+        location: formData.location,
+        location_type: formData.location_type as LocationType,
+        employment_type: formData.employment_type as EmploymentType,
+        experience_level: formData.experience_level as ExperienceLevel,
+        experience_min_years: formData.experience_min_years,
+        experience_max_years: formData.experience_max_years,
+        salary_min: formData.salary_min,
+        salary_max: formData.salary_max,
+        description: formData.description,
+        required_skills: formData.required_skills,
+        preferred_skills: formData.preferred_skills,
+        requirements: formData.requirements,
+        responsibilities: formData.responsibilities,
+      };
 
-      if (!response.ok) {
-        throw new Error('Failed to save draft');
-      }
+      await createJob(jobData);
 
       setLastSaved(new Date());
       alert('Job saved as draft');
