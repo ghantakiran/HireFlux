@@ -161,6 +161,21 @@ class Profile(Base):
     skills = Column(JSON, default=[])  # Array of skills
     preferences = Column(JSON, default={})  # {remote: true, visa_friendly: true, etc.}
     onboarding_complete = Column(Boolean, default=False)
+
+    # AI Ranking fields (Issue #26)
+    years_experience = Column(Integer, nullable=True)  # Total years of professional experience
+    expected_salary_min = Column(Integer, nullable=True)  # Minimum salary expectation
+    expected_salary_max = Column(Integer, nullable=True)  # Maximum salary expectation
+    availability_status = Column(
+        String(50),
+        nullable=True,
+        default="actively_looking"
+    )  # actively_looking, open_to_offers, not_looking
+    preferred_location_type = Column(
+        String(50),
+        nullable=True
+    )  # remote, hybrid, onsite, any
+
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 

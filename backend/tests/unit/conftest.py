@@ -1,15 +1,23 @@
 """Pytest configuration for unit tests"""
 
+import os
+os.environ["TESTING"] = "1"  # Flag to indicate we're in test mode
+
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+# IMPORTANT: Import Base BEFORE any models to ensure metadata is initialized
 from app.db.base import Base
 from app.schemas.company import CompanyCreate
+from tests.unit.sqlite_compat import patch_postgresql_types_for_sqlite
 
 # Use in-memory SQLite for unit tests
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+
+# Apply PostgreSQL -> SQLite compatibility patches
+patch_postgresql_types_for_sqlite(Base.metadata)
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,

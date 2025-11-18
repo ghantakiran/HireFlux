@@ -71,13 +71,14 @@ def high_fit_candidate(db_session: Session):
     user = User(
         email="jane.smith@example.com",
         password_hash="hashed",
-        full_name="Jane Smith",
     )
     db_session.add(user)
     db_session.commit()
 
     profile = Profile(
         user_id=user.id,
+        first_name="Jane",
+        last_name="Smith",
         location="San Francisco, CA",
         years_experience=7,
         skills=["React", "TypeScript", "Node.js", "PostgreSQL", "AWS", "Docker"],
@@ -98,13 +99,14 @@ def medium_fit_candidate(db_session: Session):
     user = User(
         email="john.doe@example.com",
         password_hash="hashed",
-        full_name="John Doe",
     )
     db_session.add(user)
     db_session.commit()
 
     profile = Profile(
         user_id=user.id,
+        first_name="John",
+        last_name="Doe",
         location="Oakland, CA",
         years_experience=4,
         skills=["React", "JavaScript", "Node.js", "MongoDB"],
@@ -125,13 +127,14 @@ def low_fit_candidate(db_session: Session):
     user = User(
         email="bob.junior@example.com",
         password_hash="hashed",
-        full_name="Bob Junior",
     )
     db_session.add(user)
     db_session.commit()
 
     profile = Profile(
         user_id=user.id,
+        first_name="Bob",
+        last_name="Junior",
         location="New York, NY",
         years_experience=2,
         skills=["Python", "Django", "MySQL"],
