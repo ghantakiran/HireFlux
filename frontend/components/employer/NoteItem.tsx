@@ -93,7 +93,7 @@ export default function NoteItem({
 
   // Get badge colors
   const typeBadgeColor = getNoteTypeBadgeColor(note.note_type);
-  const typeColors = {
+  const typeColors: Record<string, string> = {
     gray: 'bg-gray-100 text-gray-700',
     blue: 'bg-blue-100 text-blue-700',
     green: 'bg-green-100 text-green-700',
