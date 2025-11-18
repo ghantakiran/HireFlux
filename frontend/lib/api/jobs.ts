@@ -66,6 +66,10 @@ export interface Job {
   expires_at: string | null;
   created_at: string;
   updated_at: string;
+  // Analytics/metrics fields
+  applications_count?: number;
+  views_count?: number;
+  avg_fit_index?: number;
 }
 
 export interface JobCreateRequest {
