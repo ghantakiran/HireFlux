@@ -51,7 +51,6 @@ def sample_employer_user(db_session: Session):
     user = User(
         email="employer@testcompany.com",
         password_hash="hashed_password",
-        full_name="Employer User",
     )
     db_session.add(user)
     db_session.commit()
@@ -103,7 +102,6 @@ def sample_candidate_user(db_session: Session):
     user = User(
         email="candidate@example.com",
         password_hash="hashed_password",
-        full_name="Jane Candidate",
     )
     db_session.add(user)
     db_session.commit()
