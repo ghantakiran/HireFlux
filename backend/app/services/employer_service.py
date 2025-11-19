@@ -68,10 +68,8 @@ class EmployerService:
         user = User(
             id=uuid4(),
             email=data.email,
-            hashed_password=hashed_password,
+            password_hash=hashed_password,
             user_type="employer",
-            is_active=True,
-            is_verified=False,  # Will need email verification
         )
         self.db.add(user)
         self.db.flush()  # Get user.id

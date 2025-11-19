@@ -48,7 +48,7 @@ async def sample_company(db_session: Session):
     user = User(
         id=uuid4(),
         email="existing@company.com",
-        hashed_password="hashed_password",
+        password_hash="hashed_password",
         user_type="employer",
     )
     db_session.add(user)
@@ -177,9 +177,9 @@ def test_create_company_hashes_password(
     # Get the user from database
     user = db_session.get(User, founder_member.user_id)
 
-    assert user.hashed_password is not None
-    assert user.hashed_password != "SecurePass123!"
-    assert user.hashed_password.startswith("$2b$")  # bcrypt hash prefix
+    assert user.password_hash is not None
+    assert user.password_hash != "SecurePass123!"
+    assert user.password_hash.startswith("$2b$")  # bcrypt hash prefix
 
 
 # ===========================================================================
