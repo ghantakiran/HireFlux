@@ -35,7 +35,7 @@ def sample_company_with_jobs(db_session: Session):
     owner_user = User(
         id=uuid4(),
         email="owner@techcorp.com",
-        hashed_password="hashed_password",
+        password_hash="hashed_password",
         user_type="employer",
     )
     db_session.add(owner_user)
@@ -106,7 +106,7 @@ def sample_company_with_jobs(db_session: Session):
         candidate = User(
             id=uuid4(),
             email=f"candidate{i+1}@example.com",
-            hashed_password="hashed",
+            password_hash="hashed",
             user_type="job_seeker",
         )
         db_session.add(candidate)
@@ -479,7 +479,7 @@ def test_get_team_activity_multiple_members(
     recruiter_user = User(
         id=uuid4(),
         email="recruiter@techcorp.com",
-        hashed_password="hashed",
+        password_hash="hashed",
         user_type="employer",
     )
     db_session.add(recruiter_user)
@@ -708,7 +708,7 @@ def test_feature_complete_dashboard_workflow(db_session: Session):
     owner = User(
         id=uuid4(),
         email="founder@startupxyz.com",
-        hashed_password="hashed",
+        password_hash="hashed",
         user_type="employer",
     )
     db_session.add(owner)
@@ -750,7 +750,7 @@ def test_feature_complete_dashboard_workflow(db_session: Session):
     candidate = User(
         id=uuid4(),
         email="candidate@example.com",
-        hashed_password="hashed",
+        password_hash="hashed",
         user_type="job_seeker",
     )
     db_session.add(candidate)

@@ -52,10 +52,10 @@ def test_user(db_session):
     from app.api.v1.auth import get_password_hash
 
     user = User(
-        name="Test User",
+        first_name="Test",
+        last_name="User",
         email="test@example.com",
-        hashed_password=get_password_hash("password123"),
-        is_active=True,
+        password_hash=get_password_hash("password123"),
         terms_accepted_at=datetime.utcnow(),
     )
     db_session.add(user)
@@ -187,10 +187,10 @@ class TestUserLogin:
         from app.api.v1.auth import get_password_hash
 
         user = User(
-            name="Inactive User",
+            first_name="Inactive",
+            last_name="User",
             email="inactive@example.com",
-            hashed_password=get_password_hash("password123"),
-            is_active=False,
+            password_hash=get_password_hash("password123"),
         )
         db_session.add(user)
         db_session.commit()
@@ -327,10 +327,10 @@ class TestPasswordReset:
         from app.api.v1.auth import get_password_hash
 
         user = User(
-            name="Test User",
+            first_name="Test",
+            last_name="User",
             email="test@example.com",
-            hashed_password=get_password_hash("oldpassword"),
-            is_active=True,
+            password_hash=get_password_hash("oldpassword"),
         )
         db_session.add(user)
         db_session.commit()
@@ -365,10 +365,10 @@ class TestPasswordReset:
         from app.api.v1.auth import get_password_hash
 
         user = User(
-            name="Test User",
+            first_name="Test",
+            last_name="User",
             email="test@example.com",
-            hashed_password=get_password_hash("oldpassword"),
-            is_active=True,
+            password_hash=get_password_hash("oldpassword"),
         )
         db_session.add(user)
         db_session.commit()
