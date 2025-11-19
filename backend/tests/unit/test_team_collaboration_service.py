@@ -46,7 +46,7 @@ def sample_company(db_session: Session):
     owner_user = User(
         id=uuid4(),
         email="owner@testcompany.com",
-        hashed_password="hashed_password",
+        password_hash="hashed_password",
         user_type="employer",
     )
     db_session.add(owner_user)
@@ -105,7 +105,7 @@ def additional_users(db_session: Session):
         user = User(
             id=uuid4(),
             email=f"user{i}@testcompany.com",
-            hashed_password="hashed_password",
+            password_hash="hashed_password",
             user_type="employer",
         )
         db_session.add(user)
@@ -195,7 +195,7 @@ async def test_invite_exceeds_team_limit_fails(
     existing_user = User(
         id=uuid4(),
         email="existing@testcompany.com",
-        hashed_password="hashed",
+        password_hash="hashed",
         user_type="employer",
     )
     db_session.add(existing_user)
@@ -625,7 +625,7 @@ async def test_permission_matrix(
     user = User(
         id=uuid4(),
         email=f"{role}@testcompany.com",
-        hashed_password="hashed",
+        password_hash="hashed",
         user_type="employer",
     )
     db_session.add(user)
@@ -666,7 +666,7 @@ async def test_get_member_permissions_returns_all(
     user = User(
         id=uuid4(),
         email="manager@testcompany.com",
-        hashed_password="hashed",
+        password_hash="hashed",
         user_type="employer",
     )
     db_session.add(user)
