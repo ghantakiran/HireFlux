@@ -109,7 +109,10 @@ class TestAPIKeyCreation:
             rate_limit_tier="elevated",
         )
 
-        # Mock DB save
+        # Mock DB query and save
+        mock_query = Mock()
+        mock_query.filter.return_value.first.return_value = test_company
+        api_key_service.db.query.return_value = mock_query
         api_key_service.db.add = Mock()
         api_key_service.db.commit = Mock()
         api_key_service.db.refresh = Mock()
@@ -149,6 +152,10 @@ class TestAPIKeyCreation:
             rate_limit_tier="standard",
         )
 
+        # Mock DB query and save
+        mock_query = Mock()
+        mock_query.filter.return_value.first.return_value = test_company
+        api_key_service.db.query.return_value = mock_query
         api_key_service.db.add = Mock()
         api_key_service.db.commit = Mock()
         api_key_service.db.refresh = Mock()
@@ -181,6 +188,10 @@ class TestAPIKeyCreation:
             expires_at=expires_at,
         )
 
+        # Mock DB query and save
+        mock_query = Mock()
+        mock_query.filter.return_value.first.return_value = test_company
+        api_key_service.db.query.return_value = mock_query
         api_key_service.db.add = Mock()
         api_key_service.db.commit = Mock()
         api_key_service.db.refresh = Mock()
