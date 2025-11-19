@@ -47,7 +47,7 @@ def sample_application(db_session: Session):
     candidate_user = User(
         id=uuid4(),
         email="candidate@example.com",
-        hashed_password="hashed",
+        password_hash="hashed",
         user_type="seeker",
     )
     db_session.add(candidate_user)
@@ -68,7 +68,7 @@ def sample_application(db_session: Session):
         id=uuid4(),
         title="Senior Software Engineer",
         company_id=company.id,
-        status="active",
+        is_active=True,
     )
     db_session.add(job)
     db_session.flush()
@@ -86,7 +86,7 @@ def sample_application(db_session: Session):
     interviewer_user = User(
         id=uuid4(),
         email="interviewer@techcompany.com",
-        hashed_password="hashed",
+        password_hash="hashed",
         user_type="employer",
     )
     db_session.add(interviewer_user)
@@ -296,7 +296,7 @@ async def test_assign_interviewers_success(
     user2 = User(
         id=uuid4(),
         email="interviewer2@techcompany.com",
-        hashed_password="hashed",
+        password_hash="hashed",
         user_type="employer",
     )
     db_session.add(user2)
@@ -655,7 +655,7 @@ async def test_get_aggregated_feedback_success(
             interview_id=interview.id,
             interviewer_id=interviewer.id,
             feedback_data={
-                "overall_rating": 4 + round_num,
+                "overall_rating": 3 + round_num,  # round 1 -> 4, round 2 -> 5
                 "recommendation": "yes",
             },
         )
@@ -685,7 +685,7 @@ async def test_send_interview_reminders_success(db_session: Session):
     candidate = User(
         id=uuid4(),
         email="candidate@example.com",
-        hashed_password="hashed",
+        password_hash="hashed",
         user_type="seeker",
     )
     db_session.add(candidate)
