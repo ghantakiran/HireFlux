@@ -35,8 +35,7 @@ def sample_company_with_owner(db_session: Session):
     owner = User(
         id=uuid4(),
         email="owner@testcompany.com",
-        hashed_password="hashed_password_123",
-        is_active=True,
+        password_hash="hashed_password_123",
     )
     db_session.add(owner)
 
@@ -79,8 +78,7 @@ def sample_growth_company(db_session: Session):
     owner = User(
         id=uuid4(),
         email="growth_owner@company.com",
-        hashed_password="hashed_password_123",
-        is_active=True,
+        password_hash="hashed_password_123",
     )
     db_session.add(owner)
 
