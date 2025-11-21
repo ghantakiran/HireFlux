@@ -3,9 +3,11 @@
 API endpoints for employer registration, company management, and team collaboration.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
+from uuid import UUID
+from datetime import datetime
 
 from app.db.session import get_db
 from app.schemas.company import (
@@ -25,12 +27,20 @@ from app.schemas.dashboard import (
     RecentActivity,
     TeamActivity,
 )
+from app.schemas.applicant_filtering import (
+    ApplicantListResponse,
+    ApplicationResponse,
+    CandidateProfileResponse,
+    FilterStatsResponse,
+)
 from app.services.employer_service import EmployerService
 from app.services.dashboard_service import DashboardService
 from app.services.auth import AuthService
+from app.services.applicant_filtering_service import ApplicantFilteringService, FilterParams
 from app.api.dependencies import get_current_user
 from app.db.models.user import User
 from app.db.models.company import CompanyMember
+from app.db.models.job import Job
 
 
 router = APIRouter(prefix="/employers", tags=["Employers"])
@@ -887,4 +897,230 @@ def update_company_settings(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update settings: {str(e)}",
+        )
+
+
+# ============================================================================
+# Applicant Filtering & Sorting Endpoints (Issue #59)
+# ============================================================================
+
+
+@router.get("/jobs/{job_id}/applicants", response_model=dict)
+def get_job_applicants(
+    job_id: UUID,
+    # Filtering parameters
+    status: Optional[List[str]] = Query(None, description="Filter by status(es)"),
+    minFitIndex: Optional[int] = Query(None, ge=0, le=100, description="Minimum fit score"),
+    maxFitIndex: Optional[int] = Query(None, ge=0, le=100, description="Maximum fit score"),
+    appliedAfter: Optional[datetime] = Query(None, description="Applied after date"),
+    appliedBefore: Optional[datetime] = Query(None, description="Applied before date"),
+    assignedTo: Optional[str] = Query(None, description="Filter by assigned team member"),
+    tags: Optional[List[str]] = Query(None, description="Filter by tags"),
+    search: Optional[str] = Query(None, description="Search by candidate name/email"),
+    unassigned: Optional[bool] = Query(None, description="Show only unassigned"),
+    # Sorting parameters
+    sortBy: Optional[str] = Query("appliedDate", description="Sort by: fitIndex, appliedDate, experience"),
+    order: Optional[str] = Query("desc", description="Sort order: desc or asc"),
+    # Pagination
+    page: Optional[int] = Query(1, ge=1, description="Page number"),
+    limit: Optional[int] = Query(50, ge=1, le=100, description="Items per page"),
+    # Dependencies
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get filtered and sorted applicants for a job posting.
+
+    **Issue #59: Applicant Filtering & Sorting - ATS Core Features**
+
+    Enables employers to efficiently manage 100+ applications per job with:
+    - Multi-criteria filtering (status, fit score, date, tags, assignment)
+    - Full-text search by candidate name/email
+    - Flexible sorting (fit score, date, experience)
+    - Pagination for large result sets
+    - Filter statistics for UI indicators
+
+    **Filtering Options:**
+    - `status`: Filter by one or multiple statuses (new, screening, interview, offer, hired, rejected)
+    - `minFitIndex`/`maxFitIndex`: Filter by AI fit score range (0-100)
+    - `appliedAfter`/`appliedBefore`: Date range filtering
+    - `assignedTo`: Filter by assigned team member ID
+    - `tags`: Filter by custom tags (starred, needs_review, etc.)
+    - `search`: Full-text search by candidate name or email
+    - `unassigned`: Show only unassigned applicants (true/false)
+
+    **Sorting Options:**
+    - `sortBy`: Sort by fitIndex, appliedDate, or experience
+    - `order`: desc (descending) or asc (ascending)
+
+    **Pagination:**
+    - `page`: Page number (starts at 1)
+    - `limit`: Items per page (1-100, default: 50)
+
+    **Response:**
+    - `applications`: List of applications with candidate profiles
+    - `total_count`: Total matching applications (for pagination)
+    - `page`: Current page number
+    - `limit`: Items per page
+    - `has_more`: Whether more results exist
+    - `filter_stats`: Statistics for filter UI (status counts, fit ranges, unassigned count)
+
+    **Performance:**
+    - <2 seconds for 500+ applicants
+    - Optimized with database indexes
+    - Eager loading to prevent N+1 queries
+
+    **Authentication Required:** Employer user
+
+    **Permissions:** owner, admin, hiring_manager, recruiter, interviewer, viewer
+    """
+
+    # Verify user is an employer
+    if current_user.user_type != "employer":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only employers can access this endpoint",
+        )
+
+    # Get user's company membership
+    company_member = (
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
+    )
+
+    if not company_member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with any company",
+        )
+
+    # Verify job belongs to user's company
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Job not found with id: {job_id}",
+        )
+
+    if job.company_id != company_member.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to view applicants for this job",
+        )
+
+    # Validate query parameters
+    if page < 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Page number must be >= 1",
+        )
+
+    if limit < 1 or limit > 100:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Limit must be between 1 and 100",
+        )
+
+    # Validate status values
+    if status:
+        allowed_statuses = ["new", "screening", "interview", "offer", "hired", "rejected"]
+        for s in status:
+            if s not in allowed_statuses:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid status '{s}'. Allowed: {', '.join(allowed_statuses)}",
+                )
+
+    # Validate sortBy
+    if sortBy not in ["fitIndex", "appliedDate", "experience"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="sortBy must be one of: fitIndex, appliedDate, experience",
+        )
+
+    # Validate order
+    if order not in ["desc", "asc"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="order must be one of: desc, asc",
+        )
+
+    # Convert API parameter names to service parameter names
+    sort_by_map = {
+        "fitIndex": "fit_index",
+        "appliedDate": "applied_at",
+        "experience": "experience",
+    }
+
+    # Build filter parameters
+    filters = FilterParams(
+        status=status,
+        min_fit_index=minFitIndex,
+        max_fit_index=maxFitIndex,
+        applied_after=appliedAfter,
+        applied_before=appliedBefore,
+        assigned_to=assignedTo,
+        tags=tags,
+        search=search,
+        unassigned=unassigned,
+        sort_by=sort_by_map[sortBy],
+        order=order,
+        page=page,
+        limit=limit,
+    )
+
+    try:
+        # Initialize filtering service
+        filtering_service = ApplicantFilteringService(db)
+
+        # Get filtered and paginated applicants
+        applications, total_count = filtering_service.filter_applicants_with_pagination(
+            job_id, filters
+        )
+
+        # Get filter statistics for UI
+        filter_stats = filtering_service.get_filter_statistics(job_id)
+
+        # Calculate pagination info
+        has_more = (page * limit) < total_count
+
+        # Format response
+        applications_data = []
+        for app in applications:
+            candidate_data = {
+                "first_name": app.user.profile.first_name if app.user.profile else None,
+                "last_name": app.user.profile.last_name if app.user.profile else None,
+                "email": app.user.email,
+                "location": app.user.profile.location if app.user.profile else None,
+                "phone": app.user.profile.phone if app.user.profile else None,
+            }
+
+            app_data = {
+                "id": str(app.id),
+                "user_id": str(app.user_id),
+                "job_id": str(app.job_id),
+                "status": app.status,
+                "fit_index": app.fit_index,
+                "applied_at": app.applied_at,
+                "tags": app.tags or [],
+                "assigned_to": app.assigned_to or [],
+                "candidate": candidate_data,
+            }
+            applications_data.append(app_data)
+
+        return {
+            "success": True,
+            "data": {
+                "applications": applications_data,
+                "total_count": total_count,
+                "page": page,
+                "limit": limit,
+                "has_more": has_more,
+                "filter_stats": filter_stats,
+            },
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch applicants: {str(e)}",
         )

@@ -13,7 +13,7 @@ from app.db.models.user import User
 from app.db.models.resume import Resume
 from app.db.models.job import Job
 from app.db.models.application import Application
-from app.core.security import get_password_hash, create_access_token
+from app.core.security import hash_password, create_access_token
 from datetime import datetime, timedelta
 import uuid
 
@@ -63,7 +63,7 @@ def test_user(test_db):
     user = User(
         id=uuid.uuid4(),
         email="test@example.com",
-        hashed_password=get_password_hash("testpassword123"),
+        password_hash=hash_password("testpassword123"),
         full_name="Test User",
         is_active=True,
         is_verified=True,
