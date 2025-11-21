@@ -402,18 +402,25 @@ export const employerApi = {
 
 // ATS (Applicant Tracking System) API
 export const atsApi = {
-  // Application listing with filtering and sorting
+  // Application listing with comprehensive filtering and sorting (Issue #59)
   getJobApplications: (
     jobId: string,
     params?: {
-      status?: string;
-      min_fit_index?: number;
-      sort_by?: string;
-      order?: string;
-      page?: number;
-      limit?: number;
+      status?: string[];         // Filter by status(es)
+      minFitIndex?: number;      // Minimum fit score (0-100)
+      maxFitIndex?: number;      // Maximum fit score (0-100)
+      appliedAfter?: string;     // Applied after date (ISO 8601)
+      appliedBefore?: string;    // Applied before date (ISO 8601)
+      assignedTo?: string;       // Filter by assigned team member
+      tags?: string[];           // Filter by tags
+      search?: string;           // Search by candidate name/email
+      unassigned?: boolean;      // Show only unassigned
+      sortBy?: 'fitIndex' | 'appliedDate' | 'experience';
+      order?: 'desc' | 'asc';
+      page?: number;             // Page number (default: 1)
+      limit?: number;            // Items per page (1-100, default: 50)
     }
-  ) => apiClient.get<ApiResponse>(`/ats/jobs/${jobId}/applications`, { params }),
+  ) => apiClient.get<ApiResponse>(`/employers/jobs/${jobId}/applicants`, { params }),
 
   // AI candidate ranking
   getRankedApplications: (jobId: string) =>
