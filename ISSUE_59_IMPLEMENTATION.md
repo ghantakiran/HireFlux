@@ -1,6 +1,6 @@
 # Issue #59: Applicant Filtering & Sorting - Implementation Progress
 
-**Status**: ✅ Backend Complete (15/15 tests) | 🔄 API Endpoints In Progress | 🔄 Frontend Pending
+**Status**: ✅ Backend Complete (15/15 tests) | ✅ API Endpoints Complete (12 integration tests) | 🔄 Frontend Pending
 **Date**: 2025-11-21
 **Developer**: Senior Software Engineer
 **Methodology**: TDD/BDD with continuous testing and integration
@@ -111,49 +111,82 @@ tests/unit/test_applicant_filtering_service.py::TestApplicantFilteringService::t
 
 ---
 
-### 3. API Endpoints 🔄 NEXT
+### 3. API Endpoints ✅ COMPLETE
 
-**File**: `backend/app/api/v1/endpoints/employer.py` (to be created/modified)
+**File**: `backend/app/api/v1/endpoints/employer.py` (237 lines added)
 
 **Endpoint**:
 ```
-GET /api/v1/employer/jobs/{job_id}/applicants
+GET /api/v1/employers/jobs/{job_id}/applicants
 ```
 
 **Query Parameters**:
 ```typescript
 {
   status?: string[],           // Filter by status(es)
-  minFitIndex?: number,        // Minimum fit score
-  maxFitIndex?: number,        // Maximum fit score
-  appliedAfter?: date,         // Applied after date
-  appliedBefore?: date,        // Applied before date
+  minFitIndex?: number,        // Minimum fit score (0-100)
+  maxFitIndex?: number,        // Maximum fit score (0-100)
+  appliedAfter?: date,         // Applied after date (ISO 8601)
+  appliedBefore?: date,        // Applied before date (ISO 8601)
   assignedTo?: string,         // Team member ID
   tags?: string[],             // Tags to filter by
-  search?: string,             // Search term
+  search?: string,             // Search by candidate name/email
   unassigned?: boolean,        // Show only unassigned
   sortBy?: "fitIndex" | "appliedDate" | "experience",
   order?: "desc" | "asc",
-  page?: number,
-  limit?: number
+  page?: number,              // Page number (default: 1)
+  limit?: number              // Items per page (1-100, default: 50)
 }
 ```
 
 **Response**:
 ```typescript
 {
-  applications: Application[],
-  total_count: number,
-  page: number,
-  limit: number,
-  has_more: boolean,
-  filter_stats: {
-    status_counts: { [status: string]: number },
-    fit_index_counts: { high: number, medium: number, low: number },
-    unassigned_count: number
+  success: true,
+  data: {
+    applications: Application[],  // With embedded candidate profiles
+    total_count: number,
+    page: number,
+    limit: number,
+    has_more: boolean,
+    filter_stats: {
+      status_counts: { [status: string]: number },
+      fit_index_counts: { high: number, medium: number, low: number },
+      unassigned_count: number,
+      total_count: number
+    }
   }
 }
 ```
+
+**Features Implemented**:
+- ✅ Authentication & authorization (employer-only, company verification)
+- ✅ Comprehensive query parameter validation
+- ✅ Status filtering with validation
+- ✅ Fit index range filtering
+- ✅ Date range filtering
+- ✅ Tag filtering
+- ✅ Team member assignment filtering
+- ✅ Full-text search (candidate name/email)
+- ✅ Flexible sorting (fit index, applied date)
+- ✅ Page-based pagination (1-100 items/page)
+- ✅ Filter statistics for UI
+- ✅ Optimized database queries (eager loading)
+- ✅ Integration with ApplicantFilteringService
+
+**Integration Tests Created**: 12 scenarios
+1. ✅ Get all applicants (no filters)
+2. ✅ Filter by single status
+3. ✅ Filter by multiple statuses
+4. ✅ Filter by fit index range
+5. ✅ Search by candidate name
+6. ✅ Sort by fit index descending
+7. ✅ Pagination (page 1 & 2)
+8. ✅ Combined filters
+9. ✅ Filter statistics included
+10. ✅ Unauthorized access (401)
+11. ✅ Job not found (404)
+12. ✅ Invalid query parameters (400)
 
 ---
 
@@ -274,13 +307,13 @@ test('Pagination works correctly', async ({ page }) => {
 - [x] All tests passing
 - [x] Commit and push to GitHub
 
-### API Endpoints 🔄
-- [ ] Create applicants endpoint
-- [ ] Add query parameter validation
-- [ ] Add authentication/authorization
-- [ ] Add rate limiting
-- [ ] Integration tests
-- [ ] API documentation (Swagger/OpenAPI)
+### API Endpoints ✅
+- [x] Create applicants endpoint
+- [x] Add query parameter validation
+- [x] Add authentication/authorization
+- [ ] Add rate limiting (future enhancement)
+- [x] Integration tests (12 scenarios)
+- [x] API documentation (inline docstring)
 
 ### Frontend 🔄
 - [ ] Create filter sidebar component
@@ -326,18 +359,23 @@ test('Pagination works correctly', async ({ page }) => {
 
 ## Files Created/Modified
 
-### Created:
+### Backend Created:
 1. `backend/app/services/applicant_filtering_service.py` (269 lines)
 2. `backend/tests/unit/test_applicant_filtering_service.py` (364 lines)
+3. `backend/app/schemas/applicant_filtering.py` (135 lines)
+4. `backend/tests/integration/test_applicant_filtering_api.py` (398 lines)
 
-**Total Lines**: 633 lines of tested code
+### Backend Modified:
+1. `backend/app/api/v1/endpoints/employer.py` (+237 lines)
+2. `backend/tests/integration/conftest.py` (+2 lines fixed)
 
-### To Be Created:
-3. `backend/app/api/v1/endpoints/employer.py` (applicants endpoint)
-4. `frontend/components/employer/applicant-filter-sidebar.tsx`
-5. `frontend/components/employer/applicant-list.tsx`
-6. `frontend/components/employer/applicant-search.tsx`
-7. `frontend/tests/e2e/applicant-filtering.spec.ts`
+**Total Backend Lines**: 1,405 lines of tested code
+
+### Frontend To Be Created:
+1. `frontend/components/employer/applicant-filter-sidebar.tsx`
+2. `frontend/components/employer/applicant-list.tsx`
+3. `frontend/components/employer/applicant-search.tsx`
+4. `frontend/tests/e2e/applicant-filtering.spec.ts`
 
 ---
 
@@ -391,9 +429,9 @@ test('Pagination works correctly', async ({ page }) => {
 
 ---
 
-**Estimated Time to Complete**: 8-12 hours
-**Current Progress**: 40% complete (backend done, tests passing)
-**Ready for**: API endpoint creation
+**Estimated Time to Complete**: 4-6 hours (frontend + E2E)
+**Current Progress**: 60% complete (backend + API done, all tests passing)
+**Ready for**: Frontend component creation
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
