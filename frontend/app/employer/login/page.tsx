@@ -65,7 +65,14 @@ export default function EmployerLoginPage() {
 
       // Store JWT token (in production, use httpOnly cookies)
       if (result.access_token) {
-        localStorage.setItem('employer_token', result.access_token);
+        localStorage.setItem('access_token', result.access_token);
+        if (result.refresh_token) {
+          localStorage.setItem('refresh_token', result.refresh_token);
+        }
+        // Store user info
+        if (result.user) {
+          localStorage.setItem('user', JSON.stringify(result.user));
+        }
       }
 
       toast.success('Login successful');
