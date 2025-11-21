@@ -349,8 +349,9 @@ def view_candidate(...):
 - [x] API endpoints created
 - [x] Integration tests created
 - [x] Data schemas defined
-- [ ] Frontend components
-- [ ] E2E tests with Playwright
+- [x] Frontend components (4 components created)
+- [x] E2E tests with Playwright (13 test scenarios)
+- [x] Committed to Git (2 commits)
 - [ ] Database migration (if needed)
 - [ ] Environment variables
 - [ ] Deploy to staging
@@ -381,16 +382,27 @@ def view_candidate(...):
 
 ## Files Created/Modified
 
-### Created:
+### Backend Created:
 1. `backend/app/services/usage_limit_service.py` (336 lines)
 2. `backend/app/schemas/usage_limits.py` (135 lines)
 3. `backend/tests/unit/test_usage_limit_service.py` (364 lines)
 4. `backend/tests/integration/test_usage_limits_api.py` (250 lines)
 
-### Modified:
+### Backend Modified:
 1. `backend/app/api/v1/endpoints/billing.py` (+254 lines)
 
-**Total Lines of Code**: 1,339 lines
+### Frontend Created:
+1. `frontend/components/employer/usage-meter.tsx` (157 lines)
+2. `frontend/components/employer/upgrade-modal.tsx` (162 lines)
+3. `frontend/components/employer/limit-warning.tsx` (138 lines)
+4. `frontend/components/employer/usage-limits-dashboard.tsx` (236 lines)
+5. `frontend/lib/types/usage-limits.ts` (38 lines)
+6. `frontend/tests/e2e/usage-limits.spec.ts` (235 lines)
+
+### Frontend Modified:
+1. `frontend/lib/api.ts` (+8 lines - added 3 endpoints)
+
+**Total Lines of Code**: 2,305 lines (Backend: 1,339 | Frontend: 966)
 
 ---
 
@@ -426,5 +438,5 @@ def view_candidate(...):
 ---
 
 **Estimated Time to Complete**: 10-12 hours
-**Current Progress**: 60% complete (backend done)
-**Ready for**: Frontend development and E2E testing
+**Current Progress**: 95% complete (backend + frontend done)
+**Ready for**: Deployment to Vercel and E2E testing
