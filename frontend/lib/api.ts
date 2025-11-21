@@ -283,6 +283,15 @@ export const billingApi = {
     success_url: string;
     cancel_url: string;
   }) => apiClient.post<ApiResponse>('/billing/credits/purchase', data),
+
+  // Usage limits endpoints (Issue #64)
+  getUsageLimits: () => apiClient.get<ApiResponse>('/billing/usage-limits'),
+
+  checkUsageLimit: (resource: 'jobs' | 'candidate_views' | 'team_members') =>
+    apiClient.post<ApiResponse>('/billing/usage-limits/check', { resource }),
+
+  getUpgradeRecommendation: () =>
+    apiClient.get<ApiResponse>('/billing/usage-limits/upgrade-recommendation'),
 };
 
 // Notification API
