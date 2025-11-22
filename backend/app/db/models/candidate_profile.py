@@ -50,6 +50,11 @@ class CandidateProfile(Base):
     open_to_work = Column(Boolean(), nullable=False, server_default="false")
     open_to_remote = Column(Boolean(), nullable=False, server_default="false")
 
+    # Privacy controls - Issue #57
+    show_salary = Column(Boolean(), nullable=False, server_default="true")
+    show_contact = Column(Boolean(), nullable=False, server_default="false")
+    show_location = Column(Boolean(), nullable=False, server_default="true")
+
     # Profile content
     headline = Column(String(255))  # "Senior Full-Stack Engineer | Python | React"
     bio = Column(Text())
