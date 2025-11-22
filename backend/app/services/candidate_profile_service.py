@@ -490,6 +490,220 @@ class CandidateProfileService:
         return True
 
     # ===========================================================================
+    # Profile Completeness Calculation - Issue #57
+    # ===========================================================================
+
+    def calculate_profile_completeness(self, profile: CandidateProfile) -> dict:
+        """
+        Calculate profile completeness percentage and identify missing fields.
+
+        Args:
+            profile: CandidateProfile to evaluate
+
+        Returns:
+            {
+                "percentage": int (0-100),
+                "missing_fields": List[str],
+                "is_complete": bool
+            }
+        """
+        weights = self.get_field_weights()
+        total_score = 0
+        missing_fields = []
+
+        for field, weight in weights.items():
+            value = getattr(profile, field, None)
+
+            # Check if field is filled
+            is_filled = False
+            if isinstance(value, list):
+                is_filled = len(value) > 0
+            elif isinstance(value, str):
+                is_filled = bool(value and value.strip())
+            elif value is not None:
+                is_filled = True
+
+            if is_filled:
+                total_score += weight
+            else:
+                missing_fields.append(field)
+
+        percentage = min(100, int(total_score))
+
+        return {
+            "percentage": percentage,
+            "missing_fields": missing_fields,
+            "is_complete": percentage == 100,
+        }
+
+    def get_field_weights(self) -> dict:
+        """
+        Get field weights for completeness calculation.
+
+        Total must sum to 100.
+
+        Required fields (higher weight):
+        - headline (15%)
+        - bio (15%)
+        - skills (15%)
+        - years_experience (10%)
+        - location (10%)
+        - experience_level (10%)
+
+        Optional fields (lower weight):
+        - profile_picture_url (5%)
+        - preferred_roles (5%)
+        - expected_salary_min (5%)
+        - portfolio (5%)
+        - resume_summary (5%)
+
+        Returns:
+            Dict of field names to weight percentages
+        """
+        return {
+            # Required fields (75% total)
+            "headline": 15,
+            "bio": 15,
+            "skills": 15,
+            "years_experience": 10,
+            "location": 10,
+            "experience_level": 10,
+            # Optional fields (25% total)
+            "profile_picture_url": 5,
+            "preferred_roles": 5,
+            "expected_salary_min": 5,
+            "portfolio": 5,
+            "resume_summary": 5,
+        }
+
+    def get_required_profile_fields(self) -> List[str]:
+        """Get list of required fields for public profile."""
+        return [
+            "headline",
+            "bio",
+            "skills",
+            "years_experience",
+            "location",
+            "experience_level",
+        ]
+
+    def get_optional_profile_fields(self) -> List[str]:
+        """Get list of optional fields for profile completeness."""
+        return [
+            "profile_picture_url",
+            "preferred_roles",
+            "expected_salary_min",
+            "portfolio",
+            "resume_summary",
+        ]
+
+    def validate_public_profile(self, profile: CandidateProfile):
+        """
+        Validate that profile meets requirements for public visibility.
+
+        Args:
+            profile: CandidateProfile to validate
+
+        Raises:
+            ValueError: If profile doesn't meet public requirements
+        """
+        completeness = self.calculate_profile_completeness(profile)
+
+        # Must be at least 50% complete
+        if completeness["percentage"] < 50:
+            raise ValueError(
+                f"Profile must be at least 50% complete to make public (currently {completeness['percentage']}%)"
+            )
+
+        # Must have all required fields
+        required_fields = self.get_required_profile_fields()
+        missing_required = [
+            field for field in required_fields if field in completeness["missing_fields"]
+        ]
+
+        if missing_required:
+            raise ValueError(
+                f"Please fill in required fields: {', '.join(missing_required)}"
+            )
+
+    # ===========================================================================
+    # Privacy Controls - Issue #57
+    # ===========================================================================
+
+    def get_public_profile_data(self, profile: CandidateProfile) -> dict:
+        """
+        Get public profile data respecting privacy controls.
+
+        Args:
+            profile: CandidateProfile
+
+        Returns:
+            Dict of publicly visible profile fields
+        """
+        data = {
+            "id": str(profile.id),
+            "headline": profile.headline,
+            "bio": profile.bio,
+            "skills": profile.skills,
+            "years_experience": profile.years_experience,
+            "experience_level": profile.experience_level,
+            "preferred_roles": profile.preferred_roles,
+            "preferred_location_type": profile.preferred_location_type,
+            "availability_status": profile.availability_status,
+            "open_to_work": profile.open_to_work,
+            "open_to_remote": profile.open_to_remote,
+            "portfolio": profile.portfolio,
+            "profile_picture_url": profile.profile_picture_url,
+            "profile_views": profile.profile_views,
+        }
+
+        # Privacy controls
+        show_salary = getattr(profile, "show_salary", True)
+        show_contact = getattr(profile, "show_contact", False)
+        show_location = getattr(profile, "show_location", True)
+
+        # Salary expectations (privacy controlled)
+        if show_salary:
+            data["expected_salary_min"] = profile.expected_salary_min
+            data["expected_salary_max"] = profile.expected_salary_max
+            data["expected_salary_currency"] = profile.expected_salary_currency
+
+        # Location (privacy controlled)
+        if show_location:
+            data["location"] = profile.location
+        else:
+            # Show only country if location is hidden
+            if profile.location:
+                parts = profile.location.split(",")
+                data["location"] = parts[-1].strip() if parts else "Not specified"
+
+        # Contact info (privacy controlled)
+        if show_contact and hasattr(profile, "user") and profile.user:
+            data["email"] = profile.user.email
+
+        return data
+
+    def get_profile_preview(self, profile: CandidateProfile) -> dict:
+        """
+        Get profile preview showing what employers will see.
+
+        Args:
+            profile: CandidateProfile
+
+        Returns:
+            Dict with preview data and completeness info
+        """
+        public_data = self.get_public_profile_data(profile)
+        completeness = self.calculate_profile_completeness(profile)
+
+        return {
+            **public_data,
+            "completeness_percentage": completeness["percentage"],
+            "missing_fields": completeness["missing_fields"],
+            "is_complete": completeness["is_complete"],
+        }
+
+    # ===========================================================================
     # Private Helper Methods
     # ===========================================================================
 
