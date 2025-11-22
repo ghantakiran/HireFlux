@@ -67,6 +67,17 @@ class Company(Base):
     max_candidate_views = Column(Integer, default=10)
     max_team_members = Column(Integer, default=1)
 
+    # Domain verification (Issue #67)
+    domain_verified = Column(Boolean, default=False, nullable=False, index=True)
+    verification_token = Column(String(255), nullable=True, index=True)
+    verification_method = Column(
+        String(50), nullable=True
+    )  # "email", "dns", "file", "manual"
+    verification_token_expires_at = Column(DateTime, nullable=True)
+    verification_attempts = Column(Integer, default=0, nullable=False)
+    last_verification_attempt = Column(DateTime, nullable=True)
+    verified_at = Column(DateTime, nullable=True)
+
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(
