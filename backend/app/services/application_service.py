@@ -1,11 +1,14 @@
 """Application Service for Employer ATS
 
 Provides application management, notes, assignments, and bulk operations.
+
+Issue #58: Enhanced with status transition validation, email notifications,
+and bulk updates.
 """
 
 import re
 from datetime import datetime, timedelta
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict
 from uuid import UUID
 
 from sqlalchemy import func
@@ -21,6 +24,7 @@ from app.schemas.application import (
     ApplicationBulkUpdate,
     ATSApplicationStatus,
 )
+from app.services.application_notification_service import ApplicationNotificationService
 
 
 class ApplicationService:
@@ -103,14 +107,28 @@ class ApplicationService:
         return applications, total
 
     def update_application_status(
-        self, application_id: UUID, status_data: ApplicationStatusUpdate
+        self,
+        application_id: UUID,
+        status_data: ApplicationStatusUpdate,
+        send_email: bool = True,
+        rejection_reason: Optional[str] = None,
+        custom_message: Optional[str] = None,
     ) -> Application:
         """
-        Update application status and record history.
+        Update application status with validation, history tracking, and notifications.
+
+        Issue #58: Enhanced with:
+        - Status transition validation
+        - Email notifications to candidates
+        - Rejection reason tracking
+        - Custom message support
 
         Args:
             application_id: Application UUID
             status_data: New status and optional note
+            send_email: Whether to send email notification (default: True)
+            rejection_reason: Reason for rejection (if status = rejected)
+            custom_message: Optional custom message from employer
 
         Returns:
             Updated Application
@@ -125,16 +143,23 @@ class ApplicationService:
         if not application:
             raise Exception(f"Application {application_id} not found")
 
-        # Check for invalid transitions
-        if application.status == "rejected":
-            raise Exception("Cannot change status of rejected application")
-
         old_status = application.status
         new_status = status_data.status.value
+
+        # Validate status transition
+        validation_error = self._validate_status_transition(old_status, new_status)
+        if validation_error:
+            raise Exception(validation_error)
 
         # Update application status
         application.status = new_status
         application.updated_at = datetime.utcnow()
+
+        # Store rejection reason if provided
+        if new_status == ATSApplicationStatus.REJECTED.value and rejection_reason:
+            # Store in application notes or custom field (depends on schema)
+            # For now, we'll store in status history change_reason
+            pass
 
         # Record status history
         status_history = ApplicationStatusHistory(
@@ -142,7 +167,7 @@ class ApplicationService:
             old_status=old_status,
             new_status=new_status,
             changed_by="user",  # Could be passed from auth context
-            change_reason=status_data.note,
+            change_reason=rejection_reason or status_data.note,
             changed_at=datetime.utcnow(),
         )
 
@@ -150,7 +175,65 @@ class ApplicationService:
         self.db.commit()
         self.db.refresh(application)
 
+        # Send email notification
+        if send_email:
+            notification_service = ApplicationNotificationService(self.db)
+            try:
+                notification_service.send_status_change_notification(
+                    application_id=application_id,
+                    old_status=old_status,
+                    new_status=new_status,
+                    rejection_reason=rejection_reason,
+                    custom_message=custom_message,
+                )
+            except Exception as e:
+                # Log error but don't fail the status update
+                print(f"Failed to send email notification: {e}")
+
         return application
+
+    def _validate_status_transition(
+        self, old_status: str, new_status: str
+    ) -> Optional[str]:
+        """
+        Validate status transition rules.
+
+        Issue #58: Prevent invalid transitions like:
+        - Cannot change status of rejected application
+        - Cannot change status of hired application
+        - Cannot go backwards in pipeline (optional rule)
+
+        Args:
+            old_status: Current status
+            new_status: Desired new status
+
+        Returns:
+            Error message if invalid, None if valid
+        """
+        # Cannot change rejected applications
+        if old_status == ATSApplicationStatus.REJECTED.value:
+            return "Cannot change status of rejected application"
+
+        # Cannot change hired applications
+        if old_status == ATSApplicationStatus.HIRED.value:
+            return "Cannot change status of hired application"
+
+        # Valid status progression (optional - can be disabled for flexibility)
+        # status_order = {
+        #     ATSApplicationStatus.NEW.value: 0,
+        #     ATSApplicationStatus.REVIEWING.value: 1,
+        #     ATSApplicationStatus.PHONE_SCREEN.value: 2,
+        #     ATSApplicationStatus.TECHNICAL_INTERVIEW.value: 3,
+        #     ATSApplicationStatus.FINAL_INTERVIEW.value: 4,
+        #     ATSApplicationStatus.OFFER.value: 5,
+        #     ATSApplicationStatus.HIRED.value: 6,
+        #     ATSApplicationStatus.REJECTED.value: 7,
+        # }
+        #
+        # if status_order.get(new_status, 999) < status_order.get(old_status, 0):
+        #     return "Cannot move application backwards in pipeline"
+
+        return None  # Valid transition
 
     def add_application_note(
         self, application_id: UUID, author_id: UUID, note_data: ApplicationNoteCreate
@@ -245,15 +328,30 @@ class ApplicationService:
 
         return application
 
-    def bulk_update_applications(self, bulk_data: ApplicationBulkUpdate) -> int:
+    def bulk_update_applications(
+        self,
+        bulk_data: ApplicationBulkUpdate,
+        send_emails: bool = True,
+        rejection_reason: Optional[str] = None,
+        custom_message: Optional[str] = None,
+    ) -> Dict:
         """
-        Bulk update multiple applications.
+        Bulk update multiple applications with email notifications.
+
+        Issue #58: Enhanced with:
+        - Email notifications for all updated applications
+        - Rejection reason support
+        - Transaction rollback on failure
+        - Detailed success/failure tracking
 
         Args:
             bulk_data: Application IDs and action to perform
+            send_emails: Whether to send email notifications (default: True)
+            rejection_reason: Reason for rejection (if rejecting)
+            custom_message: Optional custom message from employer
 
         Returns:
-            Number of applications updated
+            Dict with success_count, failed_count, and errors
         """
         applications = (
             self.db.query(Application)
@@ -262,55 +360,118 @@ class ApplicationService:
         )
 
         if not applications:
-            return 0
+            return {
+                "success": False,
+                "success_count": 0,
+                "failed_count": 0,
+                "errors": ["No applications found with provided IDs"],
+            }
 
         updated_count = 0
+        failed_count = 0
+        errors = []
 
-        for app in applications:
-            if bulk_data.action == "reject":
-                app.status = ATSApplicationStatus.REJECTED.value
-                updated_count += 1
-
-                # Record status history
-                status_history = ApplicationStatusHistory(
-                    application_id=app.id,
-                    old_status=app.status,
-                    new_status=ATSApplicationStatus.REJECTED.value,
-                    changed_by="bulk_action",
-                    change_reason="Bulk rejected",
-                    changed_at=datetime.utcnow(),
-                )
-                self.db.add(status_history)
-
-            elif bulk_data.action == "move_to_stage" and bulk_data.target_status:
+        # Use transaction for atomic bulk update
+        try:
+            for app in applications:
                 old_status = app.status
-                app.status = bulk_data.target_status.value
-                updated_count += 1
 
-                # Record status history
-                status_history = ApplicationStatusHistory(
-                    application_id=app.id,
-                    old_status=old_status,
-                    new_status=bulk_data.target_status.value,
-                    changed_by="bulk_action",
-                    change_reason=f"Bulk moved to {bulk_data.target_status.value}",
-                    changed_at=datetime.utcnow(),
-                )
-                self.db.add(status_history)
+                if bulk_data.action == "reject":
+                    new_status = ATSApplicationStatus.REJECTED.value
+                    app.status = new_status
+                    updated_count += 1
 
-            elif bulk_data.action == "shortlist":
-                # Add "shortlisted" tag
-                if not app.tags:
-                    app.tags = []
-                if "shortlisted" not in app.tags:
-                    app.tags.append("shortlisted")
-                updated_count += 1
+                    # Record status history
+                    status_history = ApplicationStatusHistory(
+                        application_id=app.id,
+                        old_status=old_status,
+                        new_status=new_status,
+                        changed_by="bulk_action",
+                        change_reason=rejection_reason or "Bulk rejected",
+                        changed_at=datetime.utcnow(),
+                    )
+                    self.db.add(status_history)
 
-            app.updated_at = datetime.utcnow()
+                elif bulk_data.action == "move_to_stage" and bulk_data.target_status:
+                    new_status = bulk_data.target_status.value
 
-        self.db.commit()
+                    # Validate transition
+                    validation_error = self._validate_status_transition(
+                        old_status, new_status
+                    )
+                    if validation_error:
+                        failed_count += 1
+                        errors.append(
+                            f"Application {app.id}: {validation_error}"
+                        )
+                        continue
 
-        return updated_count
+                    app.status = new_status
+                    updated_count += 1
+
+                    # Record status history
+                    status_history = ApplicationStatusHistory(
+                        application_id=app.id,
+                        old_status=old_status,
+                        new_status=new_status,
+                        changed_by="bulk_action",
+                        change_reason=f"Bulk moved to {bulk_data.target_status.value}",
+                        changed_at=datetime.utcnow(),
+                    )
+                    self.db.add(status_history)
+
+                elif bulk_data.action == "shortlist":
+                    # Add "shortlisted" tag
+                    if not app.tags:
+                        app.tags = []
+                    if "shortlisted" not in app.tags:
+                        app.tags.append("shortlisted")
+                    updated_count += 1
+
+                app.updated_at = datetime.utcnow()
+
+            # Commit database changes
+            self.db.commit()
+
+            # Send bulk email notifications (Issue #58)
+            if send_emails and updated_count > 0:
+                notification_service = ApplicationNotificationService(self.db)
+
+                # Determine which status to use for notifications
+                if bulk_data.action == "reject":
+                    notify_status = ATSApplicationStatus.REJECTED.value
+                elif bulk_data.action == "move_to_stage" and bulk_data.target_status:
+                    notify_status = bulk_data.target_status.value
+                else:
+                    notify_status = None
+
+                if notify_status:
+                    email_result = notification_service.send_bulk_status_notifications(
+                        application_ids=[
+                            app.id
+                            for app in applications
+                            if app.status == notify_status
+                        ],
+                        new_status=notify_status,
+                        rejection_reason=rejection_reason,
+                        custom_message=custom_message,
+                    )
+
+                    # Merge email errors with validation errors
+                    if email_result.get("errors"):
+                        errors.extend(email_result["errors"])
+
+            return {
+                "success": failed_count == 0,
+                "success_count": updated_count,
+                "failed_count": failed_count,
+                "errors": errors if errors else None,
+            }
+
+        except Exception as e:
+            # Rollback on any error
+            self.db.rollback()
+            raise Exception(f"Bulk update failed: {str(e)}")
 
     def update_application_note(
         self, note_id: UUID, author_id: UUID, note_data: ApplicationNoteUpdate
