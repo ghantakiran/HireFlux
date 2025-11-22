@@ -96,9 +96,15 @@ class ApplicationNotificationService:
                 self.db.query(Company).filter(Company.id == job.company_id).first()
             )
 
+        # Get candidate name (from profile if available)
+        candidate_name = candidate.email  # Fallback to email
+        if hasattr(candidate, 'profile') and candidate.profile:
+            if hasattr(candidate.profile, 'first_name') and candidate.profile.first_name:
+                candidate_name = f"{candidate.profile.first_name} {candidate.profile.last_name or ''}".strip()
+
         # Build email context
         context = {
-            "candidate_name": candidate.full_name or candidate.email,
+            "candidate_name": candidate_name,
             "job_title": job.title,
             "company_name": company.name if company else job.company,
             "old_status": old_status,
