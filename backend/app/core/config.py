@@ -91,6 +91,9 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: List[str] = ["http://localhost:3000"]
 
+    # Frontend URL (for email verification links, etc.)
+    FRONTEND_URL: str = "http://localhost:3000"
+
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = 60
     RATE_LIMIT_PER_HOUR: int = 1000
