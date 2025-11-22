@@ -13,6 +13,9 @@
 
 import React, { useState, useMemo } from 'react';
 import { AlertCircle, Search, Filter, ChevronDown, Eye, CheckSquare, Square } from 'lucide-react';
+import StatusChangeModal from './StatusChangeModal';
+import BulkActionToolbar from './BulkActionToolbar';
+import BulkStatusChangeModal from './BulkStatusChangeModal';
 
 // ============================================================================
 // Types & Interfaces
@@ -136,6 +139,11 @@ export function ApplicantList({
   const [sortBy, setSortBy] = useState<string>('fit_index_desc');
   const [activeApplicantId, setActiveApplicantId] = useState<string | null>(null);
 
+  // Modal states for Issue #58
+  const [statusChangeModalOpen, setStatusChangeModalOpen] = useState(false);
+  const [currentApplicantForStatus, setCurrentApplicantForStatus] = useState<Applicant | null>(null);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
+
   // ============================================================================
   // Handlers
   // ============================================================================
@@ -179,6 +187,41 @@ export function ApplicantList({
   const handleRowClick = (applicantId: string) => {
     setActiveApplicantId(applicantId);
     onViewApplicant(applicantId);
+  };
+
+  // Handler for opening status change modal (Issue #58)
+  const handleOpenStatusModal = (applicant: Applicant) => {
+    setCurrentApplicantForStatus(applicant);
+    setStatusChangeModalOpen(true);
+  };
+
+  // Handler for status change confirmation (Issue #58)
+  const handleStatusChangeConfirm = async (data: any) => {
+    if (!currentApplicantForStatus) return;
+
+    // Call parent handler
+    await onUpdateStage(currentApplicantForStatus.id, data.newStatus);
+
+    // Close modal and reset
+    setStatusChangeModalOpen(false);
+    setCurrentApplicantForStatus(null);
+  };
+
+  // Handler for bulk status change (Issue #58)
+  const handleBulkStatusChange = (status: string) => {
+    setBulkModalOpen(true);
+  };
+
+  // Handler for bulk status change confirmation (Issue #58)
+  const handleBulkConfirm = async (data: any) => {
+    if (selectedIds.length === 0) return;
+
+    // Call parent handler
+    await onBulkUpdate(selectedIds, { stage: data.newStatus });
+
+    // Close modal and reset selections
+    setBulkModalOpen(false);
+    setSelectedIds([]);
   };
 
   // ============================================================================
@@ -238,39 +281,20 @@ export function ApplicantList({
           </p>
         </div>
 
-        {/* Bulk Actions */}
+        {/* Bulk Actions Toolbar (Issue #58) */}
         {selectedIds.length > 0 && (
-          <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
-            <span className="text-sm font-medium text-blue-900">
-              {selectedIds.length} selected
-            </span>
-            <select
-              aria-label="Bulk actions"
-              className="text-sm border border-blue-300 rounded px-2 py-1 bg-white"
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value.startsWith('move:')) {
-                  handleBulkAction('move', value.split(':')[1]);
-                } else if (value === 'reject') {
-                  handleBulkAction('reject');
-                } else if (value === 'archive') {
-                  handleBulkAction('archive');
-                }
-                e.target.value = '';
-              }}
-            >
-              <option value="">Bulk Actions</option>
-              <optgroup label="Move to Stage">
-                {STAGES.map(stage => (
-                  <option key={stage.value} value={`move:${stage.value}`}>
-                    Move to {stage.label}
-                  </option>
-                ))}
-              </optgroup>
-              <option value="reject">Reject Selected</option>
-              <option value="archive">Archive Selected</option>
-            </select>
-          </div>
+          <BulkActionToolbar
+            selectedCount={selectedIds.length}
+            onDeselectAll={() => setSelectedIds([])}
+            onBulkReject={() => {
+              // Open bulk modal with reject pre-selected
+              setBulkModalOpen(true);
+            }}
+            onBulkMoveToStage={(stage) => {
+              // Open bulk modal
+              setBulkModalOpen(true);
+            }}
+          />
         )}
       </div>
 
@@ -449,20 +473,21 @@ export function ApplicantList({
                       </div>
                     </td>
 
-                    {/* Stage */}
+                    {/* Stage (Issue #58 - opens StatusChangeModal) */}
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                      <select
-                        value={applicant.stage}
-                        onChange={(e) => handleStageChange(applicant.id, e.target.value)}
-                        aria-label={`Update stage for ${applicant.candidateName}`}
-                        className="text-sm border border-gray-300 rounded px-2 py-1 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        {STAGES.map(stage => (
-                          <option key={stage.value} value={stage.value}>
-                            {stage.label}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-700">
+                          {getStageLabel(applicant.stage)}
+                        </span>
+                        <button
+                          onClick={() => handleOpenStatusModal(applicant)}
+                          data-testid="status-dropdown"
+                          className="text-xs px-2 py-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
+                          aria-label={`Change status for ${applicant.candidateName}`}
+                        >
+                          Change
+                        </button>
+                      </div>
                     </td>
 
                     {/* Applied Date */}
@@ -532,6 +557,39 @@ export function ApplicantList({
           </p>
         )}
       </div>
+
+      {/* Status Change Modal (Issue #58) */}
+      {currentApplicantForStatus && (
+        <StatusChangeModal
+          application={{
+            id: currentApplicantForStatus.id,
+            candidateName: currentApplicantForStatus.candidateName,
+            jobTitle: currentApplicantForStatus.jobTitle,
+            status: currentApplicantForStatus.stage,
+          }}
+          isOpen={statusChangeModalOpen}
+          onClose={() => {
+            setStatusChangeModalOpen(false);
+            setCurrentApplicantForStatus(null);
+          }}
+          onConfirm={handleStatusChangeConfirm}
+        />
+      )}
+
+      {/* Bulk Status Change Modal (Issue #58) */}
+      {bulkModalOpen && (
+        <BulkStatusChangeModal
+          applications={applicants.filter(a => selectedIds.includes(a.id)).map(a => ({
+            id: a.id,
+            candidateName: a.candidateName,
+            jobTitle: a.jobTitle,
+            status: a.stage,
+          }))}
+          isOpen={bulkModalOpen}
+          onClose={() => setBulkModalOpen(false)}
+          onConfirm={handleBulkConfirm}
+        />
+      )}
     </div>
   );
 }
