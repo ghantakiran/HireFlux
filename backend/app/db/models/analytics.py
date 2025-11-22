@@ -8,12 +8,13 @@ from decimal import Decimal
 from typing import Optional, Dict, Any
 from uuid import UUID, uuid4
 
-from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, Numeric, String, Text, Index
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PGUUID
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, Numeric, String, Text, Index, JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.db.base import Base
+from app.db.types import GUID
 
 
 class AnalyticsSnapshot(Base):
@@ -26,13 +27,13 @@ class AnalyticsSnapshot(Base):
 
     __tablename__ = "analytics_snapshots"
 
-    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    company_id = Column(PGUUID(as_uuid=True), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(GUID(), primary_key=True, default=uuid4)
+    company_id = Column(GUID(), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False, index=True)
     snapshot_date = Column(Date, nullable=False)
     metric_type = Column(String(50), nullable=False)  # 'sourcing', 'pipeline', 'time', 'quality', 'cost'
 
-    # Aggregated metrics (flexible JSONB structure)
-    metrics = Column(JSONB, nullable=False)
+    # Aggregated metrics (flexible JSON structure, JSONB for PostgreSQL)
+    metrics = Column(JSON().with_variant(JSONB, "postgresql"), nullable=False)
 
     # Metadata
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
@@ -60,13 +61,13 @@ class ApplicationStageHistory(Base):
 
     __tablename__ = "application_stage_history"
 
-    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    application_id = Column(PGUUID(as_uuid=True), ForeignKey("applications.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(GUID(), primary_key=True, default=uuid4)
+    application_id = Column(GUID(), ForeignKey("applications.id", ondelete="CASCADE"), nullable=False, index=True)
 
     # Stage transition
     from_stage = Column(String(50), nullable=True)  # NULL for initial stage
     to_stage = Column(String(50), nullable=False)
-    changed_by = Column(PGUUID(as_uuid=True), ForeignKey("company_members.id", ondelete="SET NULL"), nullable=True)
+    changed_by = Column(GUID(), ForeignKey("company_members.id", ondelete="SET NULL"), nullable=True)
 
     # Timestamps
     changed_at = Column(DateTime, server_default=func.now(), nullable=False, index=True)
@@ -98,8 +99,8 @@ class CompanyAnalyticsConfig(Base):
 
     __tablename__ = "company_analytics_config"
 
-    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    company_id = Column(PGUUID(as_uuid=True), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    id = Column(GUID(), primary_key=True, default=uuid4)
+    company_id = Column(GUID(), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
 
     # Benchmark targets
     target_time_to_hire_days = Column(Integer, default=30)

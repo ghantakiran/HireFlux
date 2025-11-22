@@ -32,6 +32,7 @@ from app.api.v1.endpoints import (
     candidate_assessments,  # Sprint 19-20 Week 37: Candidate Assessment Taking
     email_verification,  # Sprint 19-20 Week 39: Email Verification (Issue #20)
     job_templates,  # Sprint 19-20 Week 40: Job Templates Library (Issue #24)
+    domain_verification,  # Issue #67: Company Domain Verification - Prevent Fake Companies
 )
 
 api_router = APIRouter()
@@ -87,6 +88,11 @@ api_router.include_router(
 api_router.include_router(
     job_templates.router
 )  # Job Templates Library (Sprint 19-20 Week 40 - Issue #24)
+api_router.include_router(
+    domain_verification.router,
+    prefix="/employer/domain-verification",
+    tags=["Domain Verification"]
+)  # Company Domain Verification (Issue #67)
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users

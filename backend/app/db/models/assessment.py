@@ -28,8 +28,10 @@ from sqlalchemy import (
     Index,
     UniqueConstraint,
     ARRAY,
+    JSON,
 )
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
+from sqlalchemy.dialects.postgresql import JSONB
+from app.db.types import GUID
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -50,9 +52,9 @@ class Assessment(Base):
     __tablename__ = "assessments"
 
     # Primary Key & Foreign Keys
-    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    company_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False)
-    created_by: Mapped[Optional[UUID]] = mapped_column(PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"))
+    id: Mapped[UUID] = mapped_column(GUID(), primary_key=True, default=uuid4)
+    company_id: Mapped[UUID] = mapped_column(GUID(), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False)
+    created_by: Mapped[Optional[UUID]] = mapped_column(GUID(), ForeignKey("users.id", ondelete="SET NULL"))
 
     # Basic Information
     title: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -124,8 +126,8 @@ class AssessmentQuestion(Base):
     __tablename__ = "assessment_questions"
 
     # Primary Key & Foreign Keys
-    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    assessment_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
+    id: Mapped[UUID] = mapped_column(GUID(), primary_key=True, default=uuid4)
+    assessment_id: Mapped[UUID] = mapped_column(GUID(), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
 
     # Question Content
     question_text: Mapped[str] = mapped_column(Text, nullable=False)
@@ -133,14 +135,14 @@ class AssessmentQuestion(Base):
     description: Mapped[Optional[str]] = mapped_column(Text)
 
     # MCQ Options (JSONB)
-    options: Mapped[Optional[dict]] = mapped_column(JSONB)  # ["Option A", "Option B", ...]
-    correct_answers: Mapped[Optional[dict]] = mapped_column(JSONB)  # ["Option B"]
+    options: Mapped[Optional[dict]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))  # ["Option A", "Option B", ...]
+    correct_answers: Mapped[Optional[dict]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))  # ["Option B"]
 
     # Coding Challenge Fields
     coding_language: Mapped[Optional[str]] = mapped_column(String(50))
     starter_code: Mapped[Optional[str]] = mapped_column(Text)
     solution_code: Mapped[Optional[str]] = mapped_column(Text)
-    test_cases: Mapped[Optional[dict]] = mapped_column(JSONB)  # [{"input": "...", "expected_output": "...", "points": 5}]
+    test_cases: Mapped[Optional[dict]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))  # [{"input": "...", "expected_output": "...", "points": 5}]
     execution_timeout_seconds: Mapped[int] = mapped_column(Integer, default=10)
 
     # File Upload Fields
@@ -187,10 +189,10 @@ class AssessmentAttempt(Base):
     __tablename__ = "assessment_attempts"
 
     # Primary Key & Foreign Keys
-    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    assessment_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
-    application_id: Mapped[Optional[UUID]] = mapped_column(PGUUID(as_uuid=True), ForeignKey("applications.id", ondelete="CASCADE"))
-    candidate_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    id: Mapped[UUID] = mapped_column(GUID(), primary_key=True, default=uuid4)
+    assessment_id: Mapped[UUID] = mapped_column(GUID(), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
+    application_id: Mapped[Optional[UUID]] = mapped_column(GUID(), ForeignKey("applications.id", ondelete="CASCADE"))
+    candidate_id: Mapped[UUID] = mapped_column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     # Attempt Metadata
     attempt_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
@@ -218,12 +220,12 @@ class AssessmentAttempt(Base):
     ip_address: Mapped[Optional[str]] = mapped_column(String(45))
     user_agent: Mapped[Optional[str]] = mapped_column(String(500))
     tab_switch_count: Mapped[int] = mapped_column(Integer, default=0)
-    suspicious_activity: Mapped[Optional[dict]] = mapped_column(JSONB)
+    suspicious_activity: Mapped[Optional[dict]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
 
     # Grading Status
     grading_status: Mapped[str] = mapped_column(String(50), default="pending")  # pending, auto_graded, manual_grading_required, graded
     graded_at: Mapped[Optional[datetime]] = mapped_column(TIMESTAMP(timezone=True))
-    graded_by: Mapped[Optional[UUID]] = mapped_column(PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"))
+    graded_by: Mapped[Optional[UUID]] = mapped_column(GUID(), ForeignKey("users.id", ondelete="SET NULL"))
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
@@ -257,15 +259,15 @@ class AssessmentResponse(Base):
     __tablename__ = "assessment_responses"
 
     # Primary Key & Foreign Keys
-    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    attempt_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("assessment_attempts.id", ondelete="CASCADE"), nullable=False)
-    question_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("assessment_questions.id", ondelete="CASCADE"), nullable=False)
+    id: Mapped[UUID] = mapped_column(GUID(), primary_key=True, default=uuid4)
+    attempt_id: Mapped[UUID] = mapped_column(GUID(), ForeignKey("assessment_attempts.id", ondelete="CASCADE"), nullable=False)
+    question_id: Mapped[UUID] = mapped_column(GUID(), ForeignKey("assessment_questions.id", ondelete="CASCADE"), nullable=False)
 
     # Response Content (polymorphic)
     response_type: Mapped[str] = mapped_column(String(50), nullable=False)
 
     # MCQ Response
-    selected_options: Mapped[Optional[dict]] = mapped_column(JSONB)
+    selected_options: Mapped[Optional[dict]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
 
     # Text Response
     text_response: Mapped[Optional[str]] = mapped_column(Text)
@@ -278,7 +280,7 @@ class AssessmentResponse(Base):
 
     # Coding Response
     code_language: Mapped[Optional[str]] = mapped_column(String(50))
-    code_execution_output: Mapped[Optional[dict]] = mapped_column(JSONB)
+    code_execution_output: Mapped[Optional[dict]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
     code_execution_error: Mapped[Optional[str]] = mapped_column(Text)
 
     # Grading
@@ -327,9 +329,9 @@ class QuestionBankItem(Base):
     __tablename__ = "question_bank"
 
     # Primary Key & Foreign Keys
-    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    company_id: Mapped[Optional[UUID]] = mapped_column(PGUUID(as_uuid=True), ForeignKey("companies.id", ondelete="CASCADE"))
-    created_by: Mapped[Optional[UUID]] = mapped_column(PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"))
+    id: Mapped[UUID] = mapped_column(GUID(), primary_key=True, default=uuid4)
+    company_id: Mapped[Optional[UUID]] = mapped_column(GUID(), ForeignKey("companies.id", ondelete="CASCADE"))
+    created_by: Mapped[Optional[UUID]] = mapped_column(GUID(), ForeignKey("users.id", ondelete="SET NULL"))
 
     # Question Content (same as AssessmentQuestion)
     question_text: Mapped[str] = mapped_column(Text, nullable=False)
@@ -337,14 +339,14 @@ class QuestionBankItem(Base):
     description: Mapped[Optional[str]] = mapped_column(Text)
 
     # MCQ
-    options: Mapped[Optional[dict]] = mapped_column(JSONB)
-    correct_answers: Mapped[Optional[dict]] = mapped_column(JSONB)
+    options: Mapped[Optional[dict]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    correct_answers: Mapped[Optional[dict]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
 
     # Coding
     coding_language: Mapped[Optional[str]] = mapped_column(String(50))
     starter_code: Mapped[Optional[str]] = mapped_column(Text)
     solution_code: Mapped[Optional[str]] = mapped_column(Text)
-    test_cases: Mapped[Optional[dict]] = mapped_column(JSONB)
+    test_cases: Mapped[Optional[dict]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
 
     # File Upload
     allowed_file_types: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(50)))
@@ -392,9 +394,9 @@ class JobAssessmentRequirement(Base):
     __tablename__ = "job_assessment_requirements"
 
     # Primary Key & Foreign Keys
-    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    job_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False)
-    assessment_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
+    id: Mapped[UUID] = mapped_column(GUID(), primary_key=True, default=uuid4)
+    job_id: Mapped[UUID] = mapped_column(GUID(), ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False)
+    assessment_id: Mapped[UUID] = mapped_column(GUID(), ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
 
     # Requirement Configuration
     is_required: Mapped[bool] = mapped_column(Boolean, default=True)

@@ -15,6 +15,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    JSON,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
@@ -46,7 +47,7 @@ class APIKey(Base):
 
     # Permissions and rate limiting
     permissions = Column(
-        JSONB,
+        JSON().with_variant(JSONB, "postgresql"),
         nullable=False,
         default=dict,
         comment='Scoped permissions: {"jobs": ["read", "write"], "candidates": ["read"]}',
@@ -172,7 +173,7 @@ class Webhook(Base):
     url = Column(String(500), nullable=False, comment="Webhook endpoint URL")
     description = Column(Text, nullable=True, comment="Human-readable description")
     events = Column(
-        JSONB,
+        JSON().with_variant(JSONB, "postgresql"),
         nullable=False,
         default=list,
         comment='Array of subscribed events: ["application.created", "job.published"]',
@@ -184,13 +185,13 @@ class Webhook(Base):
 
     # Retry configuration
     retry_policy = Column(
-        JSONB,
+        JSON().with_variant(JSONB, "postgresql"),
         nullable=False,
         default={"max_attempts": 3, "backoff_seconds": [60, 300, 900]},
         comment="Retry configuration",
     )
     headers = Column(
-        JSONB,
+        JSON().with_variant(JSONB, "postgresql"),
         nullable=True,
         comment="Custom headers to include in webhook requests",
     )
@@ -253,7 +254,7 @@ class WebhookDelivery(Base):
     event_id = Column(
         GUID(), nullable=True, comment="ID of the event entity"
     )
-    payload = Column(JSONB, nullable=False, comment="Full webhook payload sent")
+    payload = Column(JSON().with_variant(JSONB, "postgresql"), nullable=False, comment="Full webhook payload sent")
 
     # Delivery tracking
     attempt_number = Column(
@@ -364,7 +365,7 @@ class WhiteLabelBranding(Base):
     career_page_footer_html = Column(Text, nullable=True)
 
     # Social media links
-    social_links = Column(JSONB, default=dict, comment='{"linkedin": "url", "twitter": "url"}')
+    social_links = Column(JSON().with_variant(JSONB, "postgresql"), default=dict, comment='{"linkedin": "url", "twitter": "url"}')
 
     # Custom CSS
     custom_css = Column(Text, nullable=True)
@@ -412,7 +413,7 @@ class WhiteLabelApplicationField(Base):
         comment='"text", "textarea", "select", "checkbox", "file"',
     )
     field_options = Column(
-        JSONB, nullable=True, comment='For select/radio: ["Option 1", "Option 2"]'
+        JSON().with_variant(JSONB, "postgresql"), nullable=True, comment='For select/radio: ["Option 1", "Option 2"]'
     )
 
     is_required = Column(Boolean, nullable=False, default=False)
@@ -462,7 +463,7 @@ class WhiteLabelDomainVerification(Base):
     last_check_at = Column(DateTime, nullable=True)
 
     # DNS configuration
-    dns_records = Column(JSONB, nullable=True, comment="Required DNS records to add")
+    dns_records = Column(JSON().with_variant(JSONB, "postgresql"), nullable=True, comment="Required DNS records to add")
     error_message = Column(Text, nullable=True)
 
     # Metadata
