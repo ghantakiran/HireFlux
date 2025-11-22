@@ -1,6 +1,7 @@
 """Job Service for Employer Job Posting
 
 Provides CRUD operations for job postings with subscription limit enforcement.
+Issue #64: Integrated with UsageLimitService for atomic limit checking
 """
 
 from datetime import datetime
@@ -14,6 +15,7 @@ from sqlalchemy.orm import Session
 from app.db.models.company import Company
 from app.db.models.job import Job
 from app.schemas.job import JobCreate, JobUpdate, JobStatus
+from app.services.usage_limit_service import UsageLimitService
 
 
 class JobService:
@@ -21,6 +23,7 @@ class JobService:
 
     def __init__(self, db: Session):
         self.db = db
+        self.usage_limit_service = UsageLimitService(db)
 
     def create_job(self, company_id: UUID, job_data: JobCreate) -> Job:
         """
@@ -41,18 +44,10 @@ class JobService:
         if not company:
             raise Exception(f"Company {company_id} not found")
 
-        # Check subscription limits
-        active_jobs_count = (
-            self.db.query(func.count(Job.id))
-            .filter(Job.company_id == company_id, Job.is_active == True)
-            .scalar()
-        ) or 0
-
-        if active_jobs_count >= company.max_active_jobs:
-            raise Exception(
-                f"Subscription limit reached. Your {company.subscription_tier} plan allows "
-                f"{company.max_active_jobs} active job(s). Please upgrade or close existing jobs."
-            )
+        # Check subscription limits using UsageLimitService (Issue #64)
+        limit_check = self.usage_limit_service.check_job_posting_limit(company_id)
+        if not limit_check.allowed:
+            raise Exception(limit_check.message)
 
         # Validate required fields
         if not job_data.title or job_data.title.strip() == "":
@@ -89,6 +84,9 @@ class JobService:
         self.db.add(job)
         self.db.commit()
         self.db.refresh(job)
+
+        # Increment usage counter (Issue #64)
+        self.usage_limit_service.increment_job_posting(company_id)
 
         return job
 

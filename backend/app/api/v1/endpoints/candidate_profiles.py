@@ -2,6 +2,7 @@
 
 API endpoints for job seeker profile management and employer candidate discovery.
 Enables two-sided marketplace functionality.
+Issue #64: Integrated usage limit enforcement for candidate views
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
@@ -23,8 +24,10 @@ from app.schemas.candidate_profile import (
 )
 from app.services.candidate_profile_service import CandidateProfileService
 from app.services.candidate_search_service import CandidateSearchService
+from app.services.usage_limit_service import UsageLimitService
 from app.api.dependencies import get_current_user
 from app.db.models.user import User
+from app.db.models.company import CompanyMember
 
 
 router = APIRouter(prefix="/candidate-profiles", tags=["Candidate Profiles"])
@@ -426,7 +429,11 @@ def get_candidate_profile(
     - Only returns data if profile is public
     - Contact information not exposed (use invite system)
 
-    **Note:** This endpoint tracks views for billing/analytics.
+    **Usage Limits (Issue #64):**
+    - Starter: 10 views/month
+    - Growth: 100 views/month
+    - Professional: Unlimited views
+    - Enforces limits and tracks usage for billing
     """
     profile_service = CandidateProfileService(db)
 
@@ -442,8 +449,23 @@ def get_candidate_profile(
             status_code=status.HTTP_404_NOT_FOUND, detail="Candidate profile not found"
         )
 
-    # TODO: Track profile view for billing/analytics
-    # This would require employer/company context from current_user
+    # Check if user is an employer and track view (Issue #64)
+    company_member = (
+        db.query(CompanyMember).filter(CompanyMember.user_id == current_user.id).first()
+    )
+
+    if company_member:
+        # Employer viewing - check limits and track usage
+        usage_limit_service = UsageLimitService(db)
+        limit_check = usage_limit_service.check_and_increment_candidate_view(
+            company_member.company_id
+        )
+
+        if not limit_check.allowed:
+            raise HTTPException(
+                status_code=status.HTTP_402_PAYMENT_REQUIRED,
+                detail=limit_check.message,
+            )
 
     return {
         "success": True,
