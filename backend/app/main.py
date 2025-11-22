@@ -13,6 +13,7 @@ import time
 from app.core.config import settings
 from app.api.v1.router import api_router
 from app.core.exceptions import APIException
+from app.middleware.query_logging import DatabasePerformanceMiddleware
 
 # Import all models to ensure SQLAlchemy relationship resolution
 import app.db.models  # noqa: F401
@@ -157,6 +158,9 @@ if settings.ENVIRONMENT == "production":
         allowed_hosts=settings.ALLOWED_HOSTS,
     )
 
+# Database Performance Monitoring Middleware (Issue #66)
+app.add_middleware(DatabasePerformanceMiddleware)
+
 
 # Request ID and Timing Middleware
 @app.middleware("http")
@@ -230,6 +234,22 @@ async def health_check():
         "service": settings.APP_NAME,
         "version": settings.APP_VERSION,
         "environment": settings.ENVIRONMENT,
+    }
+
+
+# Query Performance Metrics Endpoint (Issue #66)
+@app.get("/metrics/queries", tags=["Health"])
+async def query_metrics():
+    """Get database query performance metrics"""
+    from app.middleware.query_logging import metrics_collector
+
+    return {
+        "status": "ok",
+        "metrics": metrics_collector.get_metrics(),
+        "thresholds": {
+            "target_p95_ms": 300,
+            "slow_query_threshold_ms": 500,
+        },
     }
 
 
