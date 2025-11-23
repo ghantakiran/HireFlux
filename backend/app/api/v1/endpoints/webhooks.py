@@ -604,3 +604,96 @@ def get_webhook_statistics(
     webhook_service = WebhookService(db)
     stats = webhook_service.get_webhook_statistics()
     return stats
+
+
+# ============================================================================
+# RESEND EMAIL WEBHOOKS (Issue #52)
+# ============================================================================
+
+
+@router.post("/resend", status_code=200, include_in_schema=False)
+async def resend_email_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    resend_signature: Optional[str] = Header(None, alias="Resend-Webhook-Signature"),
+):
+    """
+    Receive webhook from Resend email service (Issue #52)
+
+    Events handled:
+    - email.delivered: Email successfully delivered
+    - email.bounced: Email bounced (hard or soft)
+    - email.complained: Recipient marked as spam
+    - email.opened: Email opened by recipient
+    - email.clicked: Link clicked in email
+
+    Signature verification is performed for security.
+    """
+    import hmac
+    import hashlib
+    from app.services.email_webhook_service import EmailWebhookService
+    from app.core.config import settings
+
+    try:
+        # Read raw body for signature verification
+        body = await request.body()
+        body_str = body.decode("utf-8")
+
+        # Verify webhook signature if configured
+        if hasattr(settings, 'RESEND_WEBHOOK_SECRET') and settings.RESEND_WEBHOOK_SECRET:
+            if not resend_signature:
+                logger.warning("Resend webhook received without signature")
+                raise HTTPException(status_code=401, detail="Missing webhook signature")
+
+            # Compute expected signature
+            secret = settings.RESEND_WEBHOOK_SECRET.encode("utf-8")
+            expected_signature = hmac.new(
+                secret, body_str.encode("utf-8"), hashlib.sha256
+            ).hexdigest()
+
+            # Compare signatures (timing-safe comparison)
+            if not hmac.compare_digest(expected_signature, resend_signature):
+                logger.warning("Resend webhook signature verification failed")
+                raise HTTPException(status_code=401, detail="Invalid webhook signature")
+
+        # Parse webhook payload
+        try:
+            payload = json.loads(body_str)
+        except json.JSONDecodeError:
+            logger.error("Invalid JSON payload from Resend")
+            raise HTTPException(status_code=400, detail="Invalid JSON payload")
+
+        event_type = payload.get("type")
+        if not event_type:
+            raise HTTPException(status_code=400, detail="Missing event type")
+
+        # Process webhook in background
+        webhook_service = EmailWebhookService(db)
+
+        # Route to appropriate handler
+        handlers = {
+            "email.delivered": webhook_service.handle_delivered,
+            "email.bounced": webhook_service.handle_bounced,
+            "email.complained": webhook_service.handle_complained,
+            "email.opened": webhook_service.handle_opened,
+            "email.clicked": webhook_service.handle_clicked,
+        }
+
+        handler = handlers.get(event_type)
+        if handler:
+            # Process in background for better performance
+            background_tasks.add_task(handler, payload)
+            logger.info(f"Resend webhook queued: {event_type}")
+        else:
+            logger.warning(f"Unknown Resend webhook event type: {event_type}")
+
+        # Always return 200 to prevent Resend from retrying
+        return {"received": True, "event_type": event_type}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing Resend webhook: {e}")
+        # Return 200 to prevent retries for non-retryable errors
+        return {"received": True, "error": str(e)}
