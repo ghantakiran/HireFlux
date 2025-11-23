@@ -189,6 +189,84 @@ class ApplicationNotificationService:
             "errors": errors if errors else None,
         }
 
+    def preview_status_change_email(
+        self,
+        application_id: UUID,
+        new_status: str,
+        rejection_reason: Optional[str] = None,
+        custom_message: Optional[str] = None,
+    ) -> Dict:
+        """
+        Preview email that will be sent on status change (Issue #58).
+
+        Args:
+            application_id: Application UUID
+            new_status: New status to preview
+            rejection_reason: Reason for rejection (if status = rejected)
+            custom_message: Optional custom message from employer
+
+        Returns:
+            Dict with subject, html_body, text_body
+        """
+        # Get application with related data
+        application = (
+            self.db.query(Application)
+            .filter(Application.id == application_id)
+            .first()
+        )
+
+        if not application:
+            raise Exception(f"Application {application_id} not found")
+
+        # Get candidate (user)
+        candidate = self.db.query(User).filter(User.id == application.user_id).first()
+
+        if not candidate:
+            raise Exception("Candidate not found")
+
+        # Get job details
+        job = self.db.query(Job).filter(Job.id == application.job_id).first()
+
+        if not job:
+            raise Exception("Job not found")
+
+        # Get company details
+        company = None
+        if job.company_id:
+            company = (
+                self.db.query(Company).filter(Company.id == job.company_id).first()
+            )
+
+        # Get candidate name (from profile if available)
+        candidate_name = candidate.email  # Fallback to email
+        if hasattr(candidate, 'profile') and candidate.profile:
+            if hasattr(candidate.profile, 'first_name') and candidate.profile.first_name:
+                candidate_name = f"{candidate.profile.first_name} {candidate.profile.last_name or ''}".strip()
+
+        # Build email context
+        context = {
+            "candidate_name": candidate_name,
+            "job_title": job.title,
+            "company_name": company.name if company else job.company,
+            "old_status": application.status,
+            "new_status": new_status,
+            "rejection_reason": rejection_reason,
+            "custom_message": custom_message,
+            "application_date": application.applied_at.strftime("%B %d, %Y")
+            if application.applied_at
+            else "Recently",
+        }
+
+        # Get email template for status
+        template = self._get_template_for_status(new_status, context)
+
+        return {
+            "subject": template["subject"],
+            "html_body": template["html_body"],
+            "text_body": template["text_body"],
+            "preview": True,
+        }
+
     # =========================================================================
     # Email Templates
     # =========================================================================

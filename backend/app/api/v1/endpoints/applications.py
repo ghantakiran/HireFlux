@@ -235,11 +235,15 @@ def update_application_status(
             detail="You do not have access to this application",
         )
 
-    # Update status via service
+    # Update status via service (Issue #58: Enhanced with email support)
     try:
         app_service = ApplicationService(db)
         updated_app = app_service.update_application_status(
-            application_id=application_id, status_data=status_data
+            application_id=application_id,
+            status_data=status_data,
+            send_email=status_data.send_email,
+            rejection_reason=status_data.rejection_reason,
+            custom_message=status_data.custom_message,
         )
         return ATSApplicationResponse.model_validate(updated_app)
 
@@ -568,17 +572,84 @@ def bulk_update_applications(
             detail="Some applications do not belong to your company",
         )
 
-    # Perform bulk update via service
+    # Perform bulk update via service (Issue #58: Enhanced with email support)
     try:
         app_service = ApplicationService(db)
-        updated_count = app_service.bulk_update_applications(bulk_data=bulk_data)
+        result = app_service.bulk_update_applications(
+            bulk_data=bulk_data,
+            send_emails=bulk_data.send_email,
+            rejection_reason=bulk_data.rejection_reason,
+            custom_message=bulk_data.custom_message,
+        )
 
+        # Return detailed result with success/failure counts
         return {
-            "success": True,
-            "updated_count": updated_count,
-            "message": f"Successfully updated {updated_count} application(s)",
+            "success": result.get("success", True),
+            "success_count": result.get("success_count", 0),
+            "failed_count": result.get("failed_count", 0),
+            "errors": result.get("errors", []),
+            "message": f"Successfully updated {result.get('success_count', 0)} application(s)"
+            + (f", {result.get('failed_count', 0)} failed" if result.get("failed_count", 0) > 0 else ""),
         }
 
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.get(
+    "/applications/{application_id}/email-preview",
+    summary="Preview email before sending (Issue #58)",
+    description="Preview email that will be sent to candidate on status change",
+)
+def preview_status_change_email(
+    application_id: UUID,
+    new_status: ATSApplicationStatus = Query(..., description="New status to preview"),
+    rejection_reason: Optional[str] = Query(None, description="Rejection reason (if applicable)"),
+    custom_message: Optional[str] = Query(None, description="Custom message from employer"),
+    company_member: CompanyMember = Depends(get_user_company_member),
+    db: Session = Depends(get_db),
+):
+    """
+    Preview email that will be sent to candidate on status change.
+
+    **Permissions**: All company members can preview emails
+
+    Returns email subject and body HTML for preview.
+    """
+    # Verify application belongs to user's company
+    from app.db.models.application import Application
+
+    application = (
+        db.query(Application)
+        .join(Application.job)
+        .filter(Application.id == application_id)
+        .first()
+    )
+
+    if not application:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Application not found"
+        )
+
+    if application.job.company_id != company_member.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this application",
+        )
+
+    # Generate email preview
+    from app.services.application_notification_service import ApplicationNotificationService
+
+    notification_service = ApplicationNotificationService(db)
+
+    try:
+        preview = notification_service.preview_status_change_email(
+            application_id=application_id,
+            new_status=new_status.value,
+            rejection_reason=rejection_reason,
+            custom_message=custom_message,
+        )
+        return preview
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 

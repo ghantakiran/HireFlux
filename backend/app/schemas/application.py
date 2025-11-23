@@ -276,11 +276,20 @@ class ApplicationNoteResponse(BaseModel):
 
 
 class ApplicationStatusUpdate(BaseModel):
-    """Update application status"""
+    """Update application status (Issue #58)"""
 
     status: ATSApplicationStatus
     note: Optional[str] = Field(
         None, max_length=500, description="Optional reason for status change"
+    )
+    send_email: bool = Field(
+        default=True, description="Whether to send email notification to candidate"
+    )
+    custom_message: Optional[str] = Field(
+        None, max_length=1000, description="Custom message from employer (included in email)"
+    )
+    rejection_reason: Optional[str] = Field(
+        None, max_length=500, description="Reason for rejection (only for rejected status)"
     )
 
     model_config = {
@@ -288,6 +297,8 @@ class ApplicationStatusUpdate(BaseModel):
             "example": {
                 "status": "phone_screen",
                 "note": "Moving to phone screen after reviewing portfolio",
+                "send_email": True,
+                "custom_message": "Looking forward to speaking with you!",
             }
         }
     }
@@ -313,11 +324,20 @@ class ApplicationAssignUpdate(BaseModel):
 
 
 class ApplicationBulkUpdate(BaseModel):
-    """Bulk update applications"""
+    """Bulk update applications (Issue #58)"""
 
     application_ids: List[UUID] = Field(..., min_length=1, max_length=100)
     action: str = Field(..., pattern="^(reject|shortlist|move_to_stage)$")
     target_status: Optional[ATSApplicationStatus] = None
+    send_email: bool = Field(
+        default=True, description="Whether to send email notifications to candidates"
+    )
+    custom_message: Optional[str] = Field(
+        None, max_length=1000, description="Custom message from employer (included in emails)"
+    )
+    rejection_reason: Optional[str] = Field(
+        None, max_length=500, description="Reason for rejection (only for reject action)"
+    )
 
     model_config = {
         "json_schema_extra": {
@@ -328,6 +348,8 @@ class ApplicationBulkUpdate(BaseModel):
                 ],
                 "action": "move_to_stage",
                 "target_status": "phone_screen",
+                "send_email": True,
+                "custom_message": "We're excited to move you forward in the process!",
             }
         }
     }

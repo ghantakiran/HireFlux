@@ -82,15 +82,16 @@ export async function bulkUpdateApplicationStatus(
   data: BulkStatusChangeRequest
 ): Promise<BulkStatusChangeResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/applications/bulk-status`, {
-      method: 'PATCH',
+    const response = await fetch(`${API_BASE_URL}/api/v1/applications/bulk-update`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getAuthToken()}`,
       },
       body: JSON.stringify({
         application_ids: data.applicationIds,
-        status: data.newStatus,
+        action: 'move_to_stage',
+        target_status: data.newStatus,
         send_email: data.sendEmail,
         custom_message: data.customMessage,
         rejection_reason: data.rejectionReason,
@@ -105,6 +106,48 @@ export async function bulkUpdateApplicationStatus(
     return await response.json();
   } catch (error: any) {
     console.error('Error bulk updating application statuses:', error);
+    throw error;
+  }
+}
+
+/**
+ * Preview email before sending (Issue #58)
+ */
+export async function previewStatusChangeEmail(
+  applicationId: string,
+  newStatus: ApplicationStatus,
+  rejectionReason?: string,
+  customMessage?: string
+) {
+  try {
+    const params = new URLSearchParams({
+      new_status: newStatus,
+    });
+
+    if (rejectionReason) {
+      params.append('rejection_reason', rejectionReason);
+    }
+    if (customMessage) {
+      params.append('custom_message', customMessage);
+    }
+
+    const response = await fetch(
+      `${API_BASE_URL}/api/v1/applications/${applicationId}/email-preview?${params}`,
+      {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to preview email');
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error('Error previewing email:', error);
     throw error;
   }
 }
