@@ -19,6 +19,7 @@ from app.services.ranking_service import CandidateRankingService
 from app.schemas.application import (
     ATSApplicationResponse,
     ATSApplicationListResponse,
+    ATSApplicationStatus,
     ApplicationStatusUpdate,
     ApplicationNoteCreate,
     ApplicationNoteUpdate,
