@@ -11,8 +11,11 @@ from app.core.exceptions import ServiceError
 
 @pytest.fixture
 def email_service():
-    """Create Email service instance"""
-    return EmailService()
+    """Create Email service instance with mocked Resend API key"""
+    with patch("app.services.email_service.settings.RESEND_API_KEY", "test_api_key"):
+        with patch("app.services.email_service.resend.api_key", "test_api_key"):
+            service = EmailService()
+            yield service
 
 
 @pytest.fixture
@@ -37,8 +40,10 @@ class TestEmailServiceInitialization:
 
     def test_service_initializes_successfully(self):
         """Test service initialization"""
-        service = EmailService()
-        assert service is not None
+        with patch("app.services.email_service.settings.RESEND_API_KEY", "test_api_key"):
+            with patch("app.services.email_service.resend.api_key", "test_api_key"):
+                service = EmailService()
+                assert service is not None
 
     def test_service_has_resend_client(self, email_service):
         """Test service has Resend client"""
@@ -99,14 +104,13 @@ class TestSendEmail:
 
     def test_send_email_validates_email_address(self, email_service):
         """Test email validation"""
-        invalid_request = EmailSend(
-            to_email="invalid-email",
-            subject="Test",
-            html_body="Test",
-        )
-
-        with pytest.raises((ValueError, Exception)):
-            email_service.send_email(invalid_request)
+        # Pydantic validates at schema level, so invalid emails raise ValidationError during construction
+        with pytest.raises(Exception):  # Pydantic ValidationError
+            invalid_request = EmailSend(
+                to_email="invalid-email",
+                subject="Test",
+                html_body="Test",
+            )
 
 
 class TestNotificationEmails:

@@ -439,7 +439,7 @@ class EmailService:
 
     def _validate_email(self, email: str) -> bool:
         """Validate email address format"""
-        pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        pattern = r"^[\w\.\+-]+@[\w\.-]+\.\w+$"
         return bool(re.match(pattern, email))
 
     def _sanitize_html(self, html: str) -> str:

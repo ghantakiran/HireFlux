@@ -169,9 +169,9 @@ class NotificationStats(BaseModel):
 class EmailSend(BaseModel):
     """Schema for sending an email"""
 
-    to_email: str = Field(..., pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$")
+    to_email: str = Field(..., pattern=r"^[\w\.\+-]+@[\w\.-]+\.\w+$")
     subject: str = Field(..., min_length=1, max_length=255)
-    html_body: str = Field(..., min_length=1)
+    html_body: str = Field(default="")  # Can be empty if template_name is provided
     text_body: Optional[str] = None
     template_name: Optional[str] = None
     template_variables: Optional[Dict[str, Any]] = None
