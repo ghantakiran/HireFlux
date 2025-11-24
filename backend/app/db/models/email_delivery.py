@@ -103,7 +103,7 @@ class EmailDeliveryLog(Base):
     webhook_events = Column(JSON, nullable=True)  # Array of all webhook events received
 
     # Metadata
-    metadata = Column(JSON, nullable=True)  # Additional context (job_id, application_id, etc.)
+    extra_metadata = Column(JSON, nullable=True)  # Additional context (job_id, application_id, etc.)
 
     # Timestamps
     created_at = Column(DateTime, default=func.now(), index=True)
