@@ -15,9 +15,11 @@ from sqlalchemy import (
     Enum,
     Index,
 )
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.base import Base
+import uuid
 import enum
 
 
@@ -49,7 +51,7 @@ class EmailDeliveryLog(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Recipient information
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True)
     to_email = Column(String(255), nullable=False, index=True)
     from_email = Column(String(255), nullable=False)
 
@@ -61,10 +63,10 @@ class EmailDeliveryLog(Base):
     # External provider tracking
     message_id = Column(String(255), nullable=True, unique=True, index=True)  # Resend message ID
 
-    # Delivery status
+    # Delivery status (using String to avoid enum migration conflicts)
     status = Column(
-        Enum(EmailDeliveryStatus),
-        default=EmailDeliveryStatus.QUEUED,
+        String(50),
+        default="queued",
         nullable=False,
         index=True
     )
@@ -120,17 +122,17 @@ class EmailDeliveryLog(Base):
     )
 
     def __repr__(self):
-        return f"<EmailDeliveryLog(id={self.id}, to='{self.to_email}', status={self.status.value}, type='{self.email_type}')>"
+        return f"<EmailDeliveryLog(id={self.id}, to='{self.to_email}', status={self.status}, type='{self.email_type}')>"
 
     @property
     def is_delivered(self) -> bool:
         """Check if email was successfully delivered"""
-        return self.status == EmailDeliveryStatus.DELIVERED
+        return self.status == "delivered"
 
     @property
     def is_bounced(self) -> bool:
         """Check if email bounced"""
-        return self.status in [EmailDeliveryStatus.BOUNCED, EmailDeliveryStatus.SOFT_BOUNCED]
+        return self.status in ["bounced", "soft_bounced"]
 
     @property
     def is_engaged(self) -> bool:
@@ -146,7 +148,7 @@ class EmailDeliveryLog(Base):
 
     def should_retry(self) -> bool:
         """Check if email should be retried"""
-        if self.status != EmailDeliveryStatus.SOFT_BOUNCED:
+        if self.status != "soft_bounced":
             return False
         if self.retry_count >= self.max_retries:
             return False
@@ -205,7 +207,7 @@ class EmailBlocklist(Base):
     reason_detail = Column(Text, nullable=True)
 
     # Block metadata
-    blocked_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    blocked_by_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     blocked_by_system = Column(Boolean, default=False)
 
     # Timestamps
@@ -237,7 +239,7 @@ class EmailUnsubscribe(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True)
     email = Column(String(255), nullable=False, index=True)
 
     # Unsubscribe scope

@@ -47,7 +47,7 @@ def email_log():
         subject="Test Email",
         email_type="test",
         message_id="resend_msg_123",
-        status=EmailDeliveryStatus.SENT,
+        status="sent",
         sent_at=datetime.now(),
     )
 
@@ -81,7 +81,7 @@ def test_handle_delivered_updates_status(webhook_service, db_session, email_log)
 
     # Assert
     assert result["success"] is True
-    assert email_log.status == EmailDeliveryStatus.DELIVERED
+    assert email_log.status == "delivered"
     assert email_log.delivered_at is not None
     db_session.commit.assert_called_once()
 
@@ -139,7 +139,7 @@ def test_handle_hard_bounce_adds_to_blocklist(webhook_service, db_session, email
 
     # Assert
     assert result["success"] is True
-    assert email_log.status == EmailDeliveryStatus.BOUNCED
+    assert email_log.status == "bounced"
     assert email_log.bounce_type == "hard"
     assert email_log.bounce_reason == "Address does not exist"
 
@@ -183,7 +183,7 @@ def test_handle_soft_bounce_schedules_retry(webhook_service, db_session, email_l
 
     # Assert
     assert result["success"] is True
-    assert email_log.status == EmailDeliveryStatus.SOFT_BOUNCED
+    assert email_log.status == "soft_bounced"
     assert email_log.bounce_type == "soft"
     assert email_log.retry_count == 1
     assert email_log.next_retry_at is not None
@@ -220,7 +220,7 @@ def test_soft_bounce_max_retries_adds_to_blocklist(
     result = webhook_service.handle_bounced(webhook_data)
 
     # Assert
-    assert email_log.status == EmailDeliveryStatus.BOUNCED  # Permanent
+    assert email_log.status == "bounced"  # Permanent
     db_session.add.assert_called()  # Blocklist entry added
 
 
@@ -254,7 +254,7 @@ def test_handle_complained_auto_unsubscribes(webhook_service, db_session, email_
 
     # Assert
     assert result["success"] is True
-    assert email_log.status == EmailDeliveryStatus.COMPLAINED
+    assert email_log.status == "complained"
 
     # Verify unsubscribe entry created
     db_session.add.assert_called()
@@ -311,7 +311,7 @@ def test_handle_opened_records_first_open(webhook_service, db_session, email_log
     And open count should be incremented
     """
     # Arrange
-    email_log.status = EmailDeliveryStatus.DELIVERED
+    email_log.status = "delivered"
     db_session.query.return_value.filter.return_value.first.return_value = email_log
     webhook_data = {
         "type": "email.opened",
@@ -327,7 +327,7 @@ def test_handle_opened_records_first_open(webhook_service, db_session, email_log
 
     # Assert
     assert result["success"] is True
-    assert email_log.status == EmailDeliveryStatus.OPENED
+    assert email_log.status == "opened"
     assert email_log.opened_at is not None  # First open timestamp
     assert email_log.open_count == 1
     assert email_log.last_opened_at is not None
@@ -342,7 +342,7 @@ def test_handle_opened_multiple_times(webhook_service, db_session, email_log):
     """
     # Arrange
     first_open_time = datetime.now() - timedelta(hours=1)
-    email_log.status = EmailDeliveryStatus.OPENED
+    email_log.status = "opened"
     email_log.opened_at = first_open_time
     email_log.open_count = 1
     db_session.query.return_value.filter.return_value.first.return_value = email_log
@@ -376,7 +376,7 @@ def test_handle_clicked_records_url(webhook_service, db_session, email_log):
     And clicked URL should be recorded
     """
     # Arrange
-    email_log.status = EmailDeliveryStatus.OPENED
+    email_log.status = "opened"
     db_session.query.return_value.filter.return_value.first.return_value = email_log
     webhook_data = {
         "type": "email.clicked",
@@ -393,7 +393,7 @@ def test_handle_clicked_records_url(webhook_service, db_session, email_log):
 
     # Assert
     assert result["success"] is True
-    assert email_log.status == EmailDeliveryStatus.CLICKED
+    assert email_log.status == "clicked"
     assert email_log.click_count == 1
     assert email_log.clicked_at is not None
     assert email_log.clicked_urls is not None
@@ -408,7 +408,7 @@ def test_handle_clicked_multiple_urls(webhook_service, db_session, email_log):
     Then all URLs should be tracked
     """
     # Arrange
-    email_log.status = EmailDeliveryStatus.CLICKED
+    email_log.status = "clicked"
     email_log.click_count = 1
     email_log.clicked_urls = [
         {"url": "https://hireflux.com/jobs/123", "clicked_at": "2025-11-23T10:00:00Z"}

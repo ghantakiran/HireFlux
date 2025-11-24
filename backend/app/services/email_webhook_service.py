@@ -64,7 +64,7 @@ class EmailWebhookService:
                 }
 
             # Update status
-            email_log.status = EmailDeliveryStatus.DELIVERED
+            email_log.status = "delivered"
             email_log.delivered_at = datetime.now()
 
             # Log webhook event
@@ -124,7 +124,7 @@ class EmailWebhookService:
 
             if bounce_type == "soft":
                 # Soft bounce - schedule retry if under max retries
-                email_log.status = EmailDeliveryStatus.SOFT_BOUNCED
+                email_log.status = "soft_bounced"
                 email_log.retry_count += 1
 
                 if email_log.retry_count < email_log.max_retries:
@@ -135,7 +135,7 @@ class EmailWebhookService:
                     )
                 else:
                     # Max retries exceeded - treat as hard bounce
-                    email_log.status = EmailDeliveryStatus.BOUNCED
+                    email_log.status = "bounced"
                     self._add_to_blocklist(
                         email_log.to_email,
                         "hard_bounce",
@@ -146,7 +146,7 @@ class EmailWebhookService:
                     )
             else:
                 # Hard bounce - add to blocklist
-                email_log.status = EmailDeliveryStatus.BOUNCED
+                email_log.status = "bounced"
                 self._add_to_blocklist(
                     email_log.to_email, "hard_bounce", bounce_reason
                 )
@@ -190,7 +190,7 @@ class EmailWebhookService:
                 }
 
             # Update status
-            email_log.status = EmailDeliveryStatus.COMPLAINED
+            email_log.status = "complained"
             email_log.complained_at = datetime.now()
 
             # Log webhook event
@@ -250,7 +250,7 @@ class EmailWebhookService:
             if email_log.open_count == 0:
                 # First open
                 email_log.opened_at = now
-                email_log.status = EmailDeliveryStatus.OPENED
+                email_log.status = "opened"
 
             email_log.open_count += 1
             email_log.last_opened_at = now
@@ -305,7 +305,7 @@ class EmailWebhookService:
             if email_log.click_count == 0:
                 # First click
                 email_log.clicked_at = now
-                email_log.status = EmailDeliveryStatus.CLICKED
+                email_log.status = "clicked"
 
             email_log.click_count += 1
             email_log.last_clicked_at = now
@@ -359,7 +359,7 @@ class EmailWebhookService:
             self.db.query(EmailDeliveryLog)
             .filter(
                 EmailDeliveryLog.sent_at >= since,
-                EmailDeliveryLog.status == EmailDeliveryStatus.DELIVERED,
+                EmailDeliveryLog.status == "delivered",
             )
             .count()
         )
@@ -382,13 +382,7 @@ class EmailWebhookService:
             self.db.query(EmailDeliveryLog)
             .filter(
                 EmailDeliveryLog.delivered_at >= since,
-                EmailDeliveryLog.status.in_(
-                    [
-                        EmailDeliveryStatus.DELIVERED,
-                        EmailDeliveryStatus.OPENED,
-                        EmailDeliveryStatus.CLICKED,
-                    ]
-                ),
+                EmailDeliveryLog.status.in_(["delivered", "opened", "clicked"]),
             )
             .count()
         )
@@ -422,13 +416,7 @@ class EmailWebhookService:
             self.db.query(EmailDeliveryLog)
             .filter(
                 EmailDeliveryLog.delivered_at >= since,
-                EmailDeliveryLog.status.in_(
-                    [
-                        EmailDeliveryStatus.DELIVERED,
-                        EmailDeliveryStatus.OPENED,
-                        EmailDeliveryStatus.CLICKED,
-                    ]
-                ),
+                EmailDeliveryLog.status.in_(["delivered", "opened", "clicked"]),
             )
             .count()
         )
@@ -464,7 +452,7 @@ class EmailWebhookService:
             self.db.query(EmailDeliveryLog)
             .filter(
                 EmailDeliveryLog.sent_at >= since,
-                EmailDeliveryLog.status == EmailDeliveryStatus.COMPLAINED,
+                EmailDeliveryLog.status == "complained",
             )
             .count()
         )
