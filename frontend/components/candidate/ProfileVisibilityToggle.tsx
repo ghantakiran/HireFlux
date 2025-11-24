@@ -36,18 +36,15 @@ export default function ProfileVisibilityToggle({
   const [error, setError] = useState<string | null>(null);
 
   // Check if profile can be made public
-  const canBePublic = completenessPercentage >= 50 && missingRequiredFields.length === 0;
+  // Only require 50% completeness, missing fields are suggestions not blockers
+  const canBePublic = completenessPercentage >= 50;
 
   const handleToggle = async () => {
     // Prevent toggling to public if requirements not met
     if (!isPublic && !canBePublic) {
-      if (completenessPercentage < 50) {
-        setError(
-          `Complete at least 50% of your profile to make it public (currently ${completenessPercentage}%)`
-        );
-      } else if (missingRequiredFields.length > 0) {
-        setError(`Please fill in required fields: ${missingRequiredFields.join(', ')}`);
-      }
+      setError(
+        `Complete at least 50% of your profile to make it public (currently ${completenessPercentage}%)`
+      );
       return;
     }
 
@@ -136,17 +133,9 @@ export default function ProfileVisibilityToggle({
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             <div className="font-medium mb-2">Cannot make profile public yet</div>
-            <ul className="list-disc list-inside space-y-1 text-sm">
-              {completenessPercentage < 50 && (
-                <li>Profile must be at least 50% complete (currently {completenessPercentage}%)</li>
-              )}
-              {missingRequiredFields.length > 0 && (
-                <li>
-                  Missing required fields: {missingRequiredFields.slice(0, 3).join(', ')}
-                  {missingRequiredFields.length > 3 && ` +${missingRequiredFields.length - 3} more`}
-                </li>
-              )}
-            </ul>
+            <p className="text-sm">
+              Profile must be at least 50% complete (currently {completenessPercentage}%)
+            </p>
           </AlertDescription>
         </Alert>
       )}
