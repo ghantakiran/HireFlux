@@ -175,6 +175,8 @@ class EmailSend(BaseModel):
     text_body: Optional[str] = None
     template_name: Optional[str] = None
     template_variables: Optional[Dict[str, Any]] = None
+    email_type: str = Field(default="transactional", max_length=50)  # For delivery tracking
+    user_id: Optional[str] = None  # For delivery tracking
 
 
 class EmailResponse(BaseModel):

@@ -1,22 +1,26 @@
 """
-Email Service
-Handles sending emails via Resend with template support
+Email Service - Issue #52
+Handles sending emails via Resend with template support and delivery tracking
 """
 
 import re
 from typing import Dict, Any, List, Optional
+from datetime import datetime
 import resend
 from jinja2 import Template
+from sqlalchemy.orm import Session
 
 from app.schemas.notification import EmailSend
 from app.core.config import settings
 from app.core.exceptions import ServiceError
+from app.db.models.email_delivery import EmailDeliveryLog
+from app.core.logging import logger
 
 
 class EmailService:
-    """Service for sending emails via Resend"""
+    """Service for sending emails via Resend with delivery tracking"""
 
-    def __init__(self):
+    def __init__(self, db: Optional[Session] = None):
         if not settings.RESEND_API_KEY:
             raise ServiceError("RESEND_API_KEY is not configured")
 
@@ -24,6 +28,7 @@ class EmailService:
         self.client = resend
         self.from_email = settings.FROM_EMAIL
         self.from_name = settings.FROM_NAME
+        self.db = db  # Database session for delivery tracking
 
     def send_email(self, request: EmailSend, max_retries: int = 1) -> Dict[str, Any]:
         """Send an email"""
@@ -59,9 +64,13 @@ class EmailService:
                         }
                     )
 
-                    # Log email sent
+                    # Log email sent with delivery tracking
                     self._log_email_sent(
-                        request.to_email, request.subject, response.get("id")
+                        to_email=request.to_email,
+                        subject=request.subject,
+                        message_id=response.get("id"),
+                        email_type=request.email_type,
+                        user_id=request.user_id,
                     )
 
                     return {
@@ -139,6 +148,8 @@ class EmailService:
                 subject=subject,
                 html_body=html_body,
                 text_body=f"New job match: {job_data['job_title']} at {job_data['company_name']} - {job_data['fit_score']}% fit",
+                email_type="job_match",
+                user_id=job_data.get("user_id"),
             )
         )
 
@@ -196,11 +207,13 @@ class EmailService:
                 subject=subject,
                 html_body=html_body,
                 text_body=f"Application update: {application_data['job_title']} - Status: {status}",
+                email_type="application_status",
+                user_id=application_data.get("user_id"),
             )
         )
 
     def send_credit_alert_email(
-        self, to_email: str, user_name: str, credit_balance: int, threshold: int
+        self, to_email: str, user_name: str, credit_balance: int, threshold: int, user_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """Send credit balance alert email"""
         subject = f"⚠️ Credit Balance Low - {credit_balance} credits remaining"
@@ -248,6 +261,8 @@ class EmailService:
                 subject=subject,
                 html_body=html_body,
                 text_body=f"Credit alert: {credit_balance} credits remaining (threshold: {threshold})",
+                email_type="credit_low",
+                user_id=user_id,
             )
         )
 
@@ -297,6 +312,8 @@ class EmailService:
                 subject=subject,
                 html_body=html_body,
                 text_body=f"Interview reminder: {interview_data['role']} at {interview_data['company_name']} on {interview_data['scheduled_time']}",
+                email_type="interview_reminder",
+                user_id=interview_data.get("user_id"),
             )
         )
 
@@ -373,6 +390,8 @@ class EmailService:
                 subject=subject,
                 html_body=html_body,
                 text_body=f"Weekly summary: {digest_data.get('jobs_matched', 0)} jobs matched, {digest_data.get('applications_sent', 0)} applications sent",
+                email_type="weekly_digest",
+                user_id=digest_data.get("user_id"),
             )
         )
 
@@ -435,7 +454,53 @@ class EmailService:
         )
         return html
 
-    def _log_email_sent(self, to_email: str, subject: str, message_id: Optional[str]):
-        """Log email send event"""
-        # In production, log to database or analytics service
-        pass
+    def _log_email_sent(
+        self,
+        to_email: str,
+        subject: str,
+        message_id: Optional[str],
+        email_type: str = "transactional",
+        user_id: Optional[str] = None,
+    ):
+        """
+        Log email send event to database - Issue #52
+
+        Args:
+            to_email: Recipient email address
+            subject: Email subject line
+            message_id: Resend message ID
+            email_type: Type of email (job_match, application_status, etc.)
+            user_id: User ID if applicable
+        """
+        if not self.db:
+            # If no database session, just log to console
+            logger.info(
+                f"Email sent: {email_type} to {to_email} (message_id: {message_id})"
+            )
+            return
+
+        try:
+            # Create email delivery log record
+            email_log = EmailDeliveryLog(
+                user_id=user_id,
+                to_email=to_email,
+                from_email=self.from_email,
+                subject=subject,
+                email_type=email_type,
+                message_id=message_id,
+                status="sent",
+                queued_at=datetime.now(),
+                sent_at=datetime.now(),
+            )
+
+            self.db.add(email_log)
+            self.db.commit()
+
+            logger.info(
+                f"Email delivery logged: {email_type} to {to_email} (log_id: {email_log.id}, message_id: {message_id})"
+            )
+
+        except Exception as e:
+            logger.error(f"Failed to log email delivery: {str(e)}")
+            self.db.rollback()
+            # Don't fail email send if logging fails

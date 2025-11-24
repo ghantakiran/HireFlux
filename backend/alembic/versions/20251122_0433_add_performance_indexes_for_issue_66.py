@@ -31,6 +31,12 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Add performance indexes for critical query paths"""
+    from sqlalchemy import inspect
+    from alembic import context
+
+    # Get connection and inspector for checking existing indexes
+    conn = context.get_bind()
+    inspector = inspect(conn)
 
     # =========================================================================
     # APPLICATIONS TABLE - Highest Query Volume
@@ -38,45 +44,52 @@ def upgrade() -> None:
 
     # Composite index for employer ATS view (job_id + stage + fit_index)
     # Query: SELECT * FROM applications WHERE job_id = ? AND stage = ? ORDER BY fit_index DESC
-    op.create_index(
-        'idx_applications_job_stage_fit',
-        'applications',
-        ['job_id', 'status', 'fit_index'],
-        postgresql_ops={'fit_index': 'DESC'}
-    )
+    existing_indexes = [idx['name'] for idx in inspector.get_indexes('applications')]
+
+    if 'idx_applications_job_stage_fit' not in existing_indexes:
+        op.create_index(
+            'idx_applications_job_stage_fit',
+            'applications',
+            ['job_id', 'status', 'fit_index'],
+            postgresql_ops={'fit_index': 'DESC'}
+        )
 
     # Composite index for company view (user_id + status)
     # Query: SELECT * FROM applications WHERE user_id = ? AND status = ?
-    op.create_index(
-        'idx_applications_user_status',
-        'applications',
-        ['user_id', 'status']
-    )
+    if 'idx_applications_user_status' not in existing_indexes:
+        op.create_index(
+            'idx_applications_user_status',
+            'applications',
+            ['user_id', 'status']
+        )
 
     # Index for timeline view (created_at DESC for recent applications)
     # Query: SELECT * FROM applications ORDER BY created_at DESC LIMIT 100
-    op.create_index(
-        'idx_applications_created_at',
-        'applications',
-        ['created_at'],
-        postgresql_ops={'created_at': 'DESC'}
-    )
+    if 'idx_applications_created_at' not in existing_indexes:
+        op.create_index(
+            'idx_applications_created_at',
+            'applications',
+            ['created_at'],
+            postgresql_ops={'created_at': 'DESC'}
+        )
 
     # Index for auto-apply filtering
     # Query: SELECT * FROM applications WHERE is_auto_applied = TRUE
-    op.create_index(
-        'idx_applications_auto_applied',
-        'applications',
-        ['is_auto_applied']
-    )
+    if 'idx_applications_auto_applied' not in existing_indexes:
+        op.create_index(
+            'idx_applications_auto_applied',
+            'applications',
+            ['is_auto_applied']
+        )
 
     # Composite index for analytics queries (source + created_at)
     # Query: SELECT * FROM applications WHERE source = ? AND created_at > ?
-    op.create_index(
-        'idx_applications_source_created',
-        'applications',
-        ['source', 'created_at']
-    )
+    if 'idx_applications_source_created' not in existing_indexes:
+        op.create_index(
+            'idx_applications_source_created',
+            'applications',
+            ['source', 'created_at']
+        )
 
     # =========================================================================
     # JOBS TABLE - High-Traffic Search Queries
