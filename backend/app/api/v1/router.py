@@ -95,10 +95,8 @@ api_router.include_router(
     tags=["Domain Verification"]
 )  # Company Domain Verification (Issue #67)
 api_router.include_router(
-    file_storage.router,
-    prefix="/files",
-    tags=["File Storage"]
-)  # S3 Storage for Resume & Document Management (Issue #53)
+    file_storage.router
+)  # S3 Storage for Resume & Document Management (Issue #53) - router already has /files prefix
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users
