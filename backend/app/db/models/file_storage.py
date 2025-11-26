@@ -103,7 +103,7 @@ class FileMetadata(Base):
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    user = relationship("User", foreign_keys=[user_id], back_populates="files")
+    user = relationship("User", foreign_keys=[user_id])
     company = relationship("Company", foreign_keys=[company_id])
     application = relationship("Application", foreign_keys=[application_id])
 

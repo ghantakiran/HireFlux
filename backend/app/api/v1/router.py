@@ -33,6 +33,7 @@ from app.api.v1.endpoints import (
     email_verification,  # Sprint 19-20 Week 39: Email Verification (Issue #20)
     job_templates,  # Sprint 19-20 Week 40: Job Templates Library (Issue #24)
     domain_verification,  # Issue #67: Company Domain Verification - Prevent Fake Companies
+    file_storage,  # Issue #53: S3 Storage for Resume & Document Management
 )
 
 api_router = APIRouter()
@@ -93,6 +94,11 @@ api_router.include_router(
     prefix="/employer/domain-verification",
     tags=["Domain Verification"]
 )  # Company Domain Verification (Issue #67)
+api_router.include_router(
+    file_storage.router,
+    prefix="/files",
+    tags=["File Storage"]
+)  # S3 Storage for Resume & Document Management (Issue #53)
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users

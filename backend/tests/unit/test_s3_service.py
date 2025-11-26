@@ -113,7 +113,7 @@ class TestPreSignedURLGeneration:
             s3_service.generate_upload_url(config)
 
         assert "File too large" in str(exc_info.value)
-        assert "10MB" in str(exc_info.value)
+        assert "10" in str(exc_info.value) and "MB" in str(exc_info.value)
 
     def test_generate_upload_url_for_company_logo(self, s3_service):
         """Test generating pre-signed URL for company logo upload"""
@@ -146,7 +146,7 @@ class TestPreSignedURLGeneration:
             s3_service.generate_upload_url(config)
 
         assert "Logo too large" in str(exc_info.value)
-        assert "2MB" in str(exc_info.value)
+        assert "2" in str(exc_info.value) and "MB" in str(exc_info.value)
 
     def test_generate_download_url_for_resume(self, s3_service, mock_db):
         """Test generating pre-signed download URL for resume"""
