@@ -65,6 +65,14 @@ from app.db.models.assessment import (
     QuestionBankItem,
     JobAssessmentRequirement,
 )
+from app.db.models.file_storage import (
+    FileMetadata,
+    FileAccessLog,
+    PreSignedURL,
+    FileType,
+    FileStatus,
+    StorageClass,
+)
 
 __all__ = [
     "Base",
@@ -119,4 +127,10 @@ __all__ = [
     "AssessmentResponse",
     "QuestionBankItem",
     "JobAssessmentRequirement",
+    "FileMetadata",
+    "FileAccessLog",
+    "PreSignedURL",
+    "FileType",
+    "FileStatus",
+    "StorageClass",
 ]
