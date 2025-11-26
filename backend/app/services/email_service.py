@@ -395,6 +395,402 @@ class EmailService:
             )
         )
 
+    def send_welcome_email(
+        self, to_email: str, user_name: str, user_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Send welcome email with onboarding checklist"""
+        subject = f"Welcome to HireFlux, {user_name}! 🎉"
+
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 8px 8px 0 0; text-align: center; }}
+                .content {{ background: #f9fafb; padding: 30px; }}
+                .checklist {{ background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }}
+                .checklist-item {{ padding: 12px; margin: 8px 0; border-left: 4px solid #667eea; background: #f3f4f6; }}
+                .button {{ display: inline-block; padding: 14px 28px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }}
+                .footer {{ text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px; padding: 20px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🎉 Welcome to HireFlux!</h1>
+                    <p style="font-size: 18px; margin: 10px 0;">Your AI-powered job search starts here</p>
+                </div>
+                <div class="content">
+                    <p>Hi {user_name},</p>
+                    <p>We're thrilled to have you join HireFlux! You're now part of a community that's revolutionizing job searching with AI.</p>
+
+                    <div class="checklist">
+                        <h2 style="margin-top: 0;">Quick Start Checklist</h2>
+                        <div class="checklist-item">✅ Complete your profile</div>
+                        <div class="checklist-item">📄 Generate your first AI-optimized resume</div>
+                        <div class="checklist-item">🎯 Set your job preferences</div>
+                        <div class="checklist-item">💼 Browse high-fit job matches</div>
+                        <div class="checklist-item">🚀 Apply to your first job</div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <a href="{settings.CORS_ORIGINS[0]}/dashboard/onboarding" class="button">Get Started</a>
+                    </div>
+
+                    <p style="margin-top: 30px;">Need help? Check out our <a href="{settings.CORS_ORIGINS[0]}/help">Help Center</a> or reply to this email.</p>
+                </div>
+                <div class="footer">
+                    <p>HireFlux - AI-Powered Job Search</p>
+                    <p><a href="{settings.CORS_ORIGINS[0]}/settings/notifications">Manage email preferences</a></p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+        return self.send_email(
+            EmailSend(
+                to_email=to_email,
+                subject=subject,
+                html_body=html_body,
+                text_body=f"Welcome to HireFlux, {user_name}! Get started: {settings.CORS_ORIGINS[0]}/dashboard/onboarding",
+                email_type="welcome",
+                user_id=user_id,
+            )
+        )
+
+    def send_email_verification(
+        self, to_email: str, user_name: str, verification_token: str, user_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Send email verification link"""
+        verification_url = f"{settings.CORS_ORIGINS[0]}/verify-email?token={verification_token}"
+        subject = "Verify your HireFlux email address"
+
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: #1f2937; color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }}
+                .content {{ background: #f9fafb; padding: 40px; text-align: center; }}
+                .button {{ display: inline-block; padding: 14px 32px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; font-size: 16px; }}
+                .code-box {{ background: white; padding: 20px; border-radius: 8px; margin: 20px 0; font-family: monospace; font-size: 24px; letter-spacing: 4px; font-weight: bold; }}
+                .footer {{ text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🔐 Verify Your Email</h1>
+                </div>
+                <div class="content">
+                    <p>Hi {user_name},</p>
+                    <p>Thanks for signing up! Please verify your email address to activate your account.</p>
+
+                    <a href="{verification_url}" class="button">Verify Email Address</a>
+
+                    <p style="color: #6b7280; margin-top: 30px;">This link will expire in 24 hours.</p>
+                    <p style="color: #6b7280;">If you didn't create a HireFlux account, you can safely ignore this email.</p>
+                </div>
+                <div class="footer">
+                    <p>If the button doesn't work, copy this link:</p>
+                    <p style="word-break: break-all; color: #3b82f6;">{verification_url}</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+        return self.send_email(
+            EmailSend(
+                to_email=to_email,
+                subject=subject,
+                html_body=html_body,
+                text_body=f"Verify your email: {verification_url}",
+                email_type="email_verification",
+                user_id=user_id,
+            )
+        )
+
+    def send_password_reset_email(
+        self, to_email: str, user_name: str, reset_token: str, user_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Send password reset email"""
+        reset_url = f"{settings.CORS_ORIGINS[0]}/reset-password?token={reset_token}"
+        subject = "Reset your HireFlux password"
+
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: #dc2626; color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }}
+                .content {{ background: #f9fafb; padding: 40px; text-align: center; }}
+                .button {{ display: inline-block; padding: 14px 32px; background: #dc2626; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; font-size: 16px; }}
+                .warning-box {{ background: #fef2f2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0; text-align: left; }}
+                .footer {{ text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🔒 Password Reset Request</h1>
+                </div>
+                <div class="content">
+                    <p>Hi {user_name},</p>
+                    <p>We received a request to reset your password. Click the button below to create a new password:</p>
+
+                    <a href="{reset_url}" class="button">Reset Password</a>
+
+                    <div class="warning-box">
+                        <p style="margin: 0;"><strong>⚠️ Security Notice:</strong></p>
+                        <p style="margin: 5px 0 0 0;">This link expires in 1 hour. If you didn't request this, please ignore this email and ensure your account is secure.</p>
+                    </div>
+                </div>
+                <div class="footer">
+                    <p>If the button doesn't work, copy this link:</p>
+                    <p style="word-break: break-all; color: #dc2626;">{reset_url}</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+        return self.send_email(
+            EmailSend(
+                to_email=to_email,
+                subject=subject,
+                html_body=html_body,
+                text_body=f"Reset your password: {reset_url}",
+                email_type="password_reset",
+                user_id=user_id,
+            )
+        )
+
+    def send_team_invitation_email(
+        self, to_email: str, inviter_name: str, company_name: str, role: str, invitation_token: str
+    ) -> Dict[str, Any]:
+        """Send team member invitation email (Employer)"""
+        invitation_url = f"{settings.CORS_ORIGINS[0]}/accept-invitation?token={invitation_token}"
+        subject = f"{inviter_name} invited you to join {company_name} on HireFlux"
+
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; padding: 40px; border-radius: 8px 8px 0 0; text-align: center; }}
+                .content {{ background: #f9fafb; padding: 40px; }}
+                .invite-card {{ background: white; padding: 25px; border-radius: 8px; margin: 20px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
+                .button {{ display: inline-block; padding: 14px 32px; background: #3b82f6; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; font-size: 16px; }}
+                .footer {{ text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🤝 Team Invitation</h1>
+                </div>
+                <div class="content">
+                    <p>Hi there,</p>
+                    <p><strong>{inviter_name}</strong> has invited you to join their team on HireFlux.</p>
+
+                    <div class="invite-card">
+                        <h2 style="margin-top: 0; color: #1f2937;">{company_name}</h2>
+                        <p><strong>Role:</strong> {role}</p>
+                        <p style="color: #6b7280;">Join your team to collaborate on hiring, manage candidates, and streamline your recruitment process.</p>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <a href="{invitation_url}" class="button">Accept Invitation</a>
+                    </div>
+
+                    <p style="color: #6b7280; margin-top: 30px; font-size: 14px;">This invitation will expire in 7 days.</p>
+                </div>
+                <div class="footer">
+                    <p>If the button doesn't work, copy this link:</p>
+                    <p style="word-break: break-all; color: #3b82f6;">{invitation_url}</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+        return self.send_email(
+            EmailSend(
+                to_email=to_email,
+                subject=subject,
+                html_body=html_body,
+                text_body=f"{inviter_name} invited you to join {company_name} on HireFlux. Accept: {invitation_url}",
+                email_type="team_invitation",
+            )
+        )
+
+    def send_company_registration_email(
+        self, to_email: str, company_name: str, admin_name: str, user_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Send company registration confirmation email (Employer)"""
+        subject = f"Welcome to HireFlux - {company_name} is ready to hire! 🚀"
+
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 40px; border-radius: 8px 8px 0 0; text-align: center; }}
+                .content {{ background: #f9fafb; padding: 30px; }}
+                .feature-box {{ background: white; padding: 20px; margin: 15px 0; border-left: 4px solid #10b981; border-radius: 4px; }}
+                .button {{ display: inline-block; padding: 14px 28px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }}
+                .footer {{ text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🚀 Welcome to HireFlux!</h1>
+                    <p style="font-size: 18px; margin: 10px 0;">{company_name} is all set</p>
+                </div>
+                <div class="content">
+                    <p>Hi {admin_name},</p>
+                    <p>Congratulations! Your company account is now active. You can start posting jobs and finding top talent powered by AI.</p>
+
+                    <h2>What you can do now:</h2>
+
+                    <div class="feature-box">
+                        <strong>📝 Post Your First Job</strong>
+                        <p style="margin: 5px 0 0 0; color: #6b7280;">AI-assisted job descriptions in minutes</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <strong>🎯 AI Candidate Ranking</strong>
+                        <p style="margin: 5px 0 0 0; color: #6b7280;">Automatic fit scoring for every applicant</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <strong>👥 Invite Your Team</strong>
+                        <p style="margin: 5px 0 0 0; color: #6b7280;">Collaborate with hiring managers and recruiters</p>
+                    </div>
+
+                    <div class="feature-box">
+                        <strong>📊 Track Applications</strong>
+                        <p style="margin: 5px 0 0 0; color: #6b7280;">Full ATS with pipeline management</p>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <a href="{settings.CORS_ORIGINS[0]}/employer/dashboard" class="button">Go to Dashboard</a>
+                    </div>
+
+                    <p style="margin-top: 30px;">Need help? Our team is here: <a href="mailto:support@hireflux.com">support@hireflux.com</a></p>
+                </div>
+                <div class="footer">
+                    <p>HireFlux - AI-Powered Recruiting Platform</p>
+                    <p><a href="{settings.CORS_ORIGINS[0]}/employer/settings">Manage company settings</a></p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+        return self.send_email(
+            EmailSend(
+                to_email=to_email,
+                subject=subject,
+                html_body=html_body,
+                text_body=f"Welcome to HireFlux! {company_name} is ready to start hiring. Dashboard: {settings.CORS_ORIGINS[0]}/employer/dashboard",
+                email_type="company_registration",
+                user_id=user_id,
+            )
+        )
+
+    def send_subscription_status_email(
+        self, to_email: str, user_name: str, subscription_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Send subscription status change email"""
+        status = subscription_data["status"]
+        plan_name = subscription_data["plan_name"]
+
+        status_icons = {
+            "active": "✅",
+            "cancelled": "❌",
+            "upgraded": "🚀",
+            "downgraded": "⬇️",
+            "renewed": "🔄",
+        }
+
+        subject = f"{status_icons.get(status, '📧')} Subscription {status.title()} - {plan_name}"
+
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: #6366f1; color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }}
+                .content {{ background: #f9fafb; padding: 30px; }}
+                .info-box {{ background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }}
+                .button {{ display: inline-block; padding: 12px 24px; background: #6366f1; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0; }}
+                .footer {{ text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>{status_icons.get(status, '📧')} Subscription {status.title()}</h1>
+                </div>
+                <div class="content">
+                    <p>Hi {user_name},</p>
+                    <p>Your subscription status has been updated:</p>
+
+                    <div class="info-box">
+                        <h3 style="margin-top: 0;">Plan: {plan_name}</h3>
+                        <p><strong>Status:</strong> {status.title()}</p>
+                        <p><strong>Next billing date:</strong> {subscription_data.get('next_billing_date', 'N/A')}</p>
+                        <p><strong>Amount:</strong> ${subscription_data.get('amount', '0')}/month</p>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <a href="{settings.CORS_ORIGINS[0]}/settings/billing" class="button">Manage Subscription</a>
+                    </div>
+
+                    <p style="margin-top: 30px; color: #6b7280;">Have questions? Contact us at <a href="mailto:billing@hireflux.com">billing@hireflux.com</a></p>
+                </div>
+                <div class="footer">
+                    <p>HireFlux Billing</p>
+                    <p><a href="{settings.CORS_ORIGINS[0]}/settings/billing">View billing history</a></p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+        return self.send_email(
+            EmailSend(
+                to_email=to_email,
+                subject=subject,
+                html_body=html_body,
+                text_body=f"Subscription {status}: {plan_name} - ${subscription_data.get('amount', '0')}/month",
+                email_type="subscription_status",
+                user_id=subscription_data.get("user_id"),
+            )
+        )
+
     def send_bulk_emails(
         self,
         recipients: List[Dict[str, str]],
