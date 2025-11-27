@@ -28,7 +28,7 @@ class MessageThread(Base):
     # Application context (optional - threads can exist without application)
     application_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("job_applications.id", ondelete="SET NULL"),
+        ForeignKey("applications.id", ondelete="SET NULL"),
         nullable=True,
         index=True
     )
