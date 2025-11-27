@@ -34,6 +34,7 @@ from app.api.v1.endpoints import (
     job_templates,  # Sprint 19-20 Week 40: Job Templates Library (Issue #24)
     domain_verification,  # Issue #67: Company Domain Verification - Prevent Fake Companies
     file_storage,  # Issue #53: S3 Storage for Resume & Document Management
+    messages,  # Issue #70: Two-Way Messaging System
 )
 
 api_router = APIRouter()
@@ -97,6 +98,9 @@ api_router.include_router(
 api_router.include_router(
     file_storage.router
 )  # S3 Storage for Resume & Document Management (Issue #53) - router already has /files prefix
+api_router.include_router(
+    messages.router
+)  # Two-Way Messaging System (Issue #70) - router already has /messages prefix
 
 # Future routers (to be created)
 # from app.api.v1.endpoints import users
