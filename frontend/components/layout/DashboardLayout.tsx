@@ -23,6 +23,8 @@ import {
   Target,
   MessageSquare,
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { MobileTabBar } from '@/components/layout/MobileTabBar';
 
 interface NavItem {
   name: string;
@@ -215,7 +217,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <Menu className="h-6 w-6" />
             </button>
 
-            <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 items-center justify-end">
+            <div className="flex flex-1 gap-x-2 self-stretch lg:gap-x-4 items-center justify-end">
               {/* Credit balance */}
               {user?.subscription_tier && (
                 <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2">
@@ -229,6 +231,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
               )}
 
+              <ThemeToggle className="h-10 w-10" />
               {/* Notifications */}
               <button className="relative rounded-full p-2 text-gray-600 hover:bg-gray-100">
                 <Bell className="h-6 w-6" />
@@ -238,7 +241,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
 
           {/* Page content */}
-          <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+          <main className="min-h-[calc(100vh-4rem)] pb-14 lg:pb-0">{children}</main>
+          {/* Mobile bottom tab bar */}
+          <MobileTabBar />
         </div>
       </div>
     </ProtectedRoute>
