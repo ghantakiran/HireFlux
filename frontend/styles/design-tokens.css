@@ -1,0 +1,210 @@
+/**
+ * HireFlux Design Tokens
+ * Issue #92: Design System Setup & Theming
+ *
+ * Color palette, typography, spacing, shadows, and animation timing
+ * Based on: UX_UI_IMPLEMENTATION_ROADMAP.md
+ */
+
+@layer base {
+  :root {
+    /* ===== PRIMARY COLORS (AI/Tech) ===== */
+    --primary-50: #F0F9FF;
+    --primary-100: #E0F2FE;
+    --primary-500: #0EA5E9; /* Brand blue */
+    --primary-600: #0284C7; /* Hover */
+    --primary-700: #0369A1; /* Active */
+    --primary-900: #0C4A6E; /* Darkest */
+
+    /* ===== SECONDARY COLORS (Success/Growth) ===== */
+    --success-50: #F0FDF4;
+    --success-500: #22C55E; /* Green */
+    --success-700: #15803D;
+
+    /* ===== ACCENT COLORS (Highlight/CTA) ===== */
+    --accent-50: #FEF3C7;
+    --accent-500: #F59E0B; /* Amber */
+    --accent-700: #B45309;
+
+    /* ===== NEUTRAL COLORS (Text/Backgrounds) ===== */
+    --gray-50: #F9FAFB;  /* Backgrounds */
+    --gray-200: #E5E7EB; /* Borders */
+    --gray-600: #4B5563; /* Secondary text */
+    --gray-900: #111827; /* Primary text */
+
+    /* ===== SEMANTIC COLORS ===== */
+    --error: #EF4444;    /* Red */
+    --warning: #F59E0B;  /* Amber */
+    --info: #3B82F6;     /* Blue */
+
+    /* ===== SHADCN/UI COMPATIBLE COLORS (HSL) ===== */
+    /* These map to the HireFlux brand colors for Shadcn/ui compatibility */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* Primary: HireFlux brand blue (#0EA5E9) */
+    --primary: 199.1 89% 48%;
+    --primary-foreground: 210 40% 98%;
+
+    /* Secondary: Neutral */
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    /* Muted: Subtle backgrounds */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    /* Accent: HireFlux amber (#F59E0B) */
+    --accent: 37.7 92% 50%;
+    --accent-foreground: 26.5 100% 3%;
+
+    /* Destructive: Error red */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 199.1 89% 48%; /* Matches primary */
+
+    /* ===== BORDER RADIUS ===== */
+    --radius-sm: 4px;      /* Inputs */
+    --radius: 8px;         /* Cards (default) */
+    --radius-md: 12px;     /* Modals */
+    --radius-lg: 16px;     /* Panels */
+    --radius-full: 9999px; /* Pills/avatars */
+
+    /* ===== SPACING (4px grid) ===== */
+    --spacing-1: 4px;
+    --spacing-2: 8px;
+    --spacing-3: 12px;
+    --spacing-4: 16px;
+    --spacing-6: 24px;
+    --spacing-8: 32px;
+    --spacing-12: 48px;
+    --spacing-16: 64px;
+
+    /* ===== SHADOWS (Elevation) ===== */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);    /* Hover */
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);         /* Cards */
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);   /* Dropdowns */
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1); /* Modals */
+
+    /* ===== ANIMATION TIMING ===== */
+    --duration-fast: 150ms;    /* Hover states */
+    --duration-normal: 300ms;  /* Transitions */
+    --duration-slow: 500ms;    /* Page transitions */
+
+    --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* ===== TYPOGRAPHY ===== */
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+    /* Font sizes (Tailwind scale) */
+    --text-xs: 12px;
+    --text-sm: 14px;
+    --text-base: 16px;
+    --text-lg: 18px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+    --text-3xl: 30px;
+    --text-4xl: 36px;
+
+    /* Font weights */
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    --font-extrabold: 800;
+  }
+
+  /* ===== DARK MODE ===== */
+  .dark {
+    /* Background & Surface */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Primary: Lighter blue for dark backgrounds */
+    --primary: 199.1 100% 49%;
+    --primary-foreground: 210 40% 98%;
+
+    /* Secondary */
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Muted */
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    /* Accent: Lighter amber for dark backgrounds */
+    --accent: 37.7 92% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 199.1 100% 49%;
+
+    /* Dark mode specific colors */
+    --gray-50: #1E293B;
+    --gray-200: #334155;
+    --gray-600: #94A3B8;
+    --gray-900: #F1F5F9;
+  }
+}
+
+/* ===== UTILITY CLASSES ===== */
+@layer utilities {
+  /* Transition utilities */
+  .transition-fast {
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-default);
+  }
+
+  .transition-normal {
+    transition-duration: var(--duration-normal);
+    transition-timing-function: var(--ease-default);
+  }
+
+  .transition-slow {
+    transition-duration: var(--duration-slow);
+    transition-timing-function: var(--ease-default);
+  }
+
+  .transition-bounce {
+    transition-timing-function: var(--ease-bounce);
+  }
+
+  /* Shadow utilities */
+  .shadow-hover {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow);
+  }
+
+  .shadow-dropdown {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-modal {
+    box-shadow: var(--shadow-lg);
+  }
+}

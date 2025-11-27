@@ -78,10 +78,10 @@ export default function ApplicantsPage() {
       setError(null);
 
       const response = await atsApi.getJobApplications(jobId, {
-        status: statusFilter || undefined,
-        min_fit_index: minFitIndex,
-        sort_by: sortBy,
-        order,
+        status: statusFilter ? [statusFilter] : undefined,
+        minFitIndex: minFitIndex,
+        sortBy: sortBy as 'fitIndex' | 'appliedDate' | 'experience' | undefined,
+        order: order as 'asc' | 'desc' | undefined,
         page,
         limit,
       });
