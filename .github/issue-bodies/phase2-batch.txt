@@ -1,0 +1,103 @@
+Issue #79: Resume Upload & Parsing Experience
+Phase 2 | P0 | 1 week
+- Drag-and-drop resume upload (PDF/DOCX)
+- AI parsing with progress indicator
+- Extracted data review/edit interface
+- Multiple resume version support
+- ATS optimization suggestions
+
+Issue #80: AI Resume Builder (Interactive Wizard)
+Phase 2 | P0 | 2 weeks
+- Step-by-step resume builder wizard
+- AI-powered content suggestions
+- Multiple templates (ATS-optimized)
+- Real-time preview
+- Export to PDF
+
+Issue #81: Profile Management & Settings
+Phase 2 | P1 | 1 week
+- Edit profile information
+- Manage resume versions
+- Update job preferences
+- Privacy settings
+- Account deletion
+
+Issue #83: Advanced Job Search & Filtering
+Phase 2 | P1 | 1 week
+- Advanced search interface
+- Multiple filter combinations
+- Saved searches
+- Search history
+- Boolean search support
+
+Issue #84: Job Detail Page (With Fit Index)
+Phase 2 | P0 | 1 week
+- Full job description display
+- Fit Index with detailed breakdown
+- Company profile integration
+- Similar jobs section
+- Apply/Save actions
+
+Issue #85: One-Click Apply Experience
+Phase 2 | P0 | 1 week
+- Pre-filled application form
+- Resume/cover letter selection
+- Application preview
+- Confirmation modal
+- Application tracking
+
+Issue #86: Application Tracking Dashboard
+Phase 2 | P0 | 2 weeks
+- Application pipeline view
+- Status tracking (8 stages)
+- Timeline visualization
+- Rejection feedback
+- Interview preparation
+
+Issue #87: Cover Letter Generator UI
+Phase 2 | P0 | 1 week
+- AI-powered cover letter generation
+- Tone selection (formal/conversational)
+- Edit/customize interface
+- Multiple versions
+- Export/download
+
+Issue #88: Interview Coach Interface
+Phase 2 | P1 | 2 weeks
+- Mock interview simulator
+- Question bank by job type
+- Answer recording (text/voice)
+- AI feedback (STAR framework)
+- Performance metrics
+
+Issue #89: AI Suggestions & Recommendations
+Phase 2 | P1 | 1 week
+- Contextual AI suggestions
+- Profile improvement tips
+- Job recommendation rationale
+- Skill gap analysis
+- Action items
+
+Issue #90: Subscription Plans & Upgrade Flow
+Phase 2 | P0 | 1 week
+- Plan comparison table
+- Upgrade CTA throughout app
+- Checkout flow (Stripe)
+- Plan change preview
+- Billing cycle selection
+
+Issue #91: Credit System Visualization
+Phase 2 | P0 | 1 week
+- Credit balance display
+- Usage history chart
+- Refund transactions
+- Low balance warnings
+- Purchase credits flow
+
+Issue #92: Payment & Billing Management
+Phase 2 | P1 | 1 week
+- Payment method management
+- Invoice history
+- Subscription management
+- Cancel subscription flow
+- Billing address update
