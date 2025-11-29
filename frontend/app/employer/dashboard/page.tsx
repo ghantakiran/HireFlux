@@ -417,7 +417,22 @@ export default function EmployerDashboardPage() {
             <CardTitle className="text-blue-900">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <Button
+                data-nav-company-profile
+                variant="outline"
+                className="justify-start h-auto py-4 bg-white hover:bg-blue-50"
+                onClick={() => router.push('/employer/company-profile')}
+              >
+                <div className="text-left w-full">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Briefcase className="w-4 h-4 text-indigo-600" />
+                    <span className="font-medium">Company Profile</span>
+                  </div>
+                  <p className="text-xs text-gray-600">Manage company info</p>
+                </div>
+              </Button>
+
               <Button
                 variant="outline"
                 className="justify-start h-auto py-4 bg-white hover:bg-blue-50"
