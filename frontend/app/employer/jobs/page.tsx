@@ -1,15 +1,16 @@
 /**
- * Employer Jobs List Page - Issue #23
+ * Employer Jobs List Page - Issue #79
  *
  * Features:
- * - Job listing with pagination
- * - Filters (status, department)
- * - Search by title
- * - Quick actions (edit, pause/resume, close, delete)
+ * - Job listing with statistics
+ * - Filters (status, department), search, and sort
+ * - Quick actions (edit, duplicate, close, delete)
  * - Empty states
  * - Loading states
  * - Responsive design
+ * - All E2E test data attributes
  *
+ * Related: Issue #23 (original), Issue #79 (TDD/BDD enhancement)
  * API Integration: Uses lib/api/jobs.ts
  */
 
@@ -31,6 +32,8 @@ import {
   Eye,
   Users,
   TrendingUp,
+  Copy,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -89,10 +92,38 @@ export default function EmployerJobsPage() {
   const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'applicants'>('newest');
 
   // Delete confirmation
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<Job | null>(null);
+
+  // Duplicate job
+  const duplicateJob = (job: Job) => {
+    // Navigate to create page with job data pre-filled via query params or localStorage
+    localStorage.setItem('job_template', JSON.stringify({
+      ...job,
+      title: `Copy of ${job.title}`,
+    }));
+    router.push('/employer/jobs/new?duplicate=true');
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setStatusFilter('all');
+    setDepartmentFilter('all');
+    setSearchQuery('');
+    setSortBy('newest');
+    setPage(1);
+  };
+
+  // Calculate job statistics from all jobs (would ideally come from API)
+  const jobStats = {
+    total: total,
+    active: jobs.filter((j) => j.is_active).length,
+    draft: jobs.filter((j) => !j.is_active && !j.posted_date).length,
+    closed: jobs.filter((j) => !j.is_active && j.posted_date).length,
+  };
 
   // Departments (would ideally come from API)
   const departments = ['Engineering', 'Sales', 'Marketing', 'Product', 'Operations', 'Other'];
@@ -199,6 +230,20 @@ export default function EmployerJobsPage() {
     }).format(date);
   };
 
+  // Sort jobs based on sortBy state
+  const sortedJobs = [...jobs].sort((a, b) => {
+    switch (sortBy) {
+      case 'newest':
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      case 'oldest':
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      case 'applicants':
+        return (b.applications_count || 0) - (a.applications_count || 0);
+      default:
+        return 0;
+    }
+  });
+
   // Loading skeleton
   if (isLoading && jobs.length === 0) {
     return (
@@ -247,7 +292,7 @@ export default function EmployerJobsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" data-jobs-list-page>
       {/* Header */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-6">
@@ -261,6 +306,7 @@ export default function EmployerJobsPage() {
             <Button
               onClick={() => router.push('/employer/jobs/new')}
               className="gap-2"
+              data-create-job-button
             >
               <Plus className="w-4 h-4" />
               Post New Job
@@ -269,67 +315,144 @@ export default function EmployerJobsPage() {
         </div>
       </div>
 
+      {/* Job Statistics */}
+      <div className="bg-white border-b">
+        <div className="container mx-auto px-4 py-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6" data-job-statistics>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Total Jobs</p>
+              <p className="text-3xl font-bold text-gray-900" data-total-jobs>
+                {jobStats.total}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Active</p>
+              <p className="text-3xl font-bold text-green-600" data-active-jobs>
+                {jobStats.active}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Draft</p>
+              <p className="text-3xl font-bold text-yellow-600" data-draft-jobs>
+                {jobStats.draft}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Closed</p>
+              <p className="text-3xl font-bold text-gray-600" data-closed-jobs>
+                {jobStats.closed}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto px-4 py-8">
         {/* Filters & Search */}
         <div className="bg-white rounded-lg border p-4 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Search */}
-            <div className="md:col-span-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  type="text"
-                  placeholder="Search by job title..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+          <div className="space-y-4">
+            {/* Search and Sort Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Search */}
+              <div className="md:col-span-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    type="text"
+                    placeholder="Search by job title..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                    data-search-input
+                  />
+                </div>
+              </div>
+
+              {/* Sort */}
+              <div>
+                <Select
+                  value={sortBy}
+                  onValueChange={(value: any) => setSortBy(value)}
+                >
+                  <SelectTrigger data-sort-select>
+                    <SelectValue placeholder="Sort by..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest" data-sort-option="newest">
+                      Newest First
+                    </SelectItem>
+                    <SelectItem value="oldest" data-sort-option="oldest">
+                      Oldest First
+                    </SelectItem>
+                    <SelectItem value="applicants" data-sort-option="applicants">
+                      Most Applicants
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            {/* Status Filter */}
-            <div>
-              <Select
-                value={statusFilter}
-                onValueChange={(value) => {
-                  setStatusFilter(value as FilterStatus);
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All Statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="paused">Paused</SelectItem>
-                  <SelectItem value="closed">Closed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Status Filters and Actions Row */}
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={statusFilter === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => {
+                    setStatusFilter('all');
+                    setPage(1);
+                  }}
+                  data-filter-all
+                >
+                  All
+                </Button>
+                <Button
+                  variant={statusFilter === 'active' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => {
+                    setStatusFilter('active');
+                    setPage(1);
+                  }}
+                  data-filter-active
+                >
+                  Active
+                </Button>
+                <Button
+                  variant={statusFilter === 'draft' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => {
+                    setStatusFilter('draft');
+                    setPage(1);
+                  }}
+                  data-filter-draft
+                >
+                  Draft
+                </Button>
+                <Button
+                  variant={statusFilter === 'closed' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => {
+                    setStatusFilter('closed');
+                    setPage(1);
+                  }}
+                  data-filter-closed
+                >
+                  Closed
+                </Button>
+              </div>
 
-            {/* Department Filter */}
-            <div>
-              <Select
-                value={departmentFilter}
-                onValueChange={(value) => {
-                  setDepartmentFilter(value);
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All Departments" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept} value={dept}>
-                      {dept}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {(statusFilter !== 'all' || searchQuery || sortBy !== 'newest') && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="gap-2"
+                  data-clear-filters-button
+                >
+                  <X className="w-4 h-4" />
+                  Clear Filters
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -354,7 +477,7 @@ export default function EmployerJobsPage() {
 
         {/* Empty State */}
         {jobs.length === 0 && !isLoading ? (
-          <Card className="text-center py-12">
+          <Card className="text-center py-12" data-empty-state>
             <CardContent>
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Plus className="w-8 h-8 text-blue-600" />
@@ -373,8 +496,8 @@ export default function EmployerJobsPage() {
           <>
             {/* Job List */}
             <div className="space-y-4">
-              {jobs.map((job) => (
-                <Card key={job.id} className="hover:shadow-md transition-shadow">
+              {sortedJobs.map((job) => (
+                <Card key={job.id} className="hover:shadow-md transition-shadow" data-job-card>
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -383,6 +506,7 @@ export default function EmployerJobsPage() {
                           <h3
                             className="text-xl font-semibold text-gray-900 hover:text-blue-600 cursor-pointer"
                             onClick={() => router.push(`/employer/jobs/${job.id}`)}
+                            data-job-title
                           >
                             {job.title}
                           </h3>
@@ -390,6 +514,7 @@ export default function EmployerJobsPage() {
                             className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(
                               getJobStatus(job)
                             )}`}
+                            data-job-status
                           >
                             {getStatusLabel(getJobStatus(job))}
                           </span>
@@ -398,10 +523,10 @@ export default function EmployerJobsPage() {
                         {/* Details */}
                         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
                           <span className="flex items-center gap-1">
-                            <span className="font-medium">{job.department}</span>
+                            <span className="font-medium" data-job-department>{job.department}</span>
                           </span>
                           <span>•</span>
-                          <span>{job.location}</span>
+                          <span data-job-location>{job.location}</span>
                           <span>•</span>
                           <span className="capitalize">{job.location_type}</span>
                           <span>•</span>
@@ -420,7 +545,7 @@ export default function EmployerJobsPage() {
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-gray-400" />
                             <span className="text-gray-600">
-                              <span className="font-semibold text-gray-900">
+                              <span className="font-semibold text-gray-900" data-applicant-count>
                                 {job.applications_count || 0}
                               </span>{' '}
                               applications
@@ -449,7 +574,7 @@ export default function EmployerJobsPage() {
                         </div>
 
                         {/* Created date */}
-                        <p className="text-xs text-gray-500 mt-2">
+                        <p className="text-xs text-gray-500 mt-2" data-created-date>
                           Posted on {formatDate(job.posted_date || job.created_at)}
                         </p>
                       </div>
@@ -470,9 +595,17 @@ export default function EmployerJobsPage() {
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => router.push(`/employer/jobs/${job.id}/edit`)}
+                            data-edit-button
                           >
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Job
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => duplicateJob(job)}
+                            data-duplicate-option
+                          >
+                            <Copy className="w-4 h-4 mr-2" />
+                            Duplicate Job
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           {job.is_active ? (
@@ -493,6 +626,7 @@ export default function EmployerJobsPage() {
                           <DropdownMenuItem
                             onClick={() => updateStatus(job.id, 'closed' as JobStatus)}
                             className="text-orange-600"
+                            data-close-option
                           >
                             <XCircle className="w-4 h-4 mr-2" />
                             Close Job
@@ -504,6 +638,7 @@ export default function EmployerJobsPage() {
                               setDeleteDialogOpen(true);
                             }}
                             className="text-red-600"
+                            data-delete-option
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
                             Delete Job
