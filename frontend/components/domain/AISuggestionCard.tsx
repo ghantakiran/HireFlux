@@ -21,6 +21,11 @@ export interface AISuggestion {
   confidence: number; // 0-100
   impact: 'high' | 'medium' | 'low';
   category: 'resume' | 'cover-letter' | 'job-match' | 'interview';
+  metadata?: {
+    difficulty?: 'easy' | 'medium' | 'hard';
+    estimatedTime?: string;
+    [key: string]: any;
+  };
 }
 
 export interface AISuggestionCardProps {

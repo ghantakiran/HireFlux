@@ -181,7 +181,8 @@ export default function ApplicantFilterSidebar({
               {/* Preset ranges */}
               <div className="space-y-2">
                 {FIT_INDEX_RANGES.map((range) => {
-                  const count = filterStats?.fit_index_counts[range.label.split(' ')[0].toLowerCase()] || 0;
+                  const key = range.label.split(' ')[0].toLowerCase() as 'high' | 'medium' | 'low';
+                  const count = filterStats?.fit_index_counts[key] || 0;
                   const isActive =
                     filters.minFitIndex === range.min &&
                     filters.maxFitIndex === range.max;

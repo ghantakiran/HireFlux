@@ -109,7 +109,7 @@ export default function ProfileVisibilityToggle({
             </AlertDescription>
           </Alert>
         ) : (
-          <Alert variant="secondary" className="mt-4" data-testid="private-status-message">
+          <Alert variant="default" className="mt-4" data-testid="private-status-message">
             <Lock className="h-4 w-4" />
             <AlertDescription>
               <span className="font-medium">Your profile is now private.</span> Only you can see

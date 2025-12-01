@@ -870,7 +870,7 @@ export default function NewJobPage() {
                       <Checkbox
                         id={benefit}
                         checked={formData.benefits.includes(benefit)}
-                        onCheckedChange={() => toggleBenefit(benefit)}
+                        onChange={() => toggleBenefit(benefit)}
                         data-benefit-checkbox={benefit}
                       />
                       <label

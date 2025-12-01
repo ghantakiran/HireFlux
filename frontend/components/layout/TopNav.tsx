@@ -195,19 +195,19 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild data-menu-profile-settings>
+                <DropdownMenuItem data-menu-profile-settings>
                   <Link href="/settings/profile" className="flex items-center gap-2">
                     <User className="h-4 w-4" />
                     Profile Settings
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild data-menu-billing>
+                <DropdownMenuItem data-menu-billing>
                   <Link href="/settings/billing" className="flex items-center gap-2">
                     <CreditCard className="h-4 w-4" />
                     Billing
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild data-menu-help>
+                <DropdownMenuItem data-menu-help>
                   <Link href="/help" className="flex items-center gap-2">
                     <HelpCircle className="h-4 w-4" />
                     Help & Support

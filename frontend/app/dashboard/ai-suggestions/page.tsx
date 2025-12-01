@@ -113,12 +113,11 @@ export default function AISuggestionsPage() {
     // Filter by category
     if (activeCategory !== 'all') {
       filtered = filtered.filter((s) => {
-        // Map suggestion types to categories
-        if (activeCategory === 'skills') return s.type === 'skill';
-        if (activeCategory === 'experience') return s.type === 'experience';
-        if (activeCategory === 'profile') return s.type === 'profile';
-        if (activeCategory === 'resume') return s.type === 'resume';
-        if (activeCategory === 'jobs') return s.type === 'job';
+        // Map suggestion categories
+        if (activeCategory === 'resume') return s.category === 'resume';
+        if (activeCategory === 'jobs') return s.category === 'job-match';
+        if (activeCategory === 'profile') return s.category === 'cover-letter' || s.category === 'interview';
+        // Default category mappings for other types
         return true;
       });
     }
@@ -193,13 +192,14 @@ export default function AISuggestionsPage() {
         // Skills Suggestions
         {
           id: 'sug-skill-1',
-          type: 'skill',
+          category: 'resume',
           title: 'Add TypeScript to your skills',
           description: 'TypeScript is required by 78% of React developer jobs in your target market.',
           reasoning: 'Based on analysis of 1,247 similar profiles, adding TypeScript increases match rate by 35%.',
           confidence: 0.92,
           impact: 'high',
           metadata: {
+            type: 'skill',
             difficulty: 'easy',
             estimatedTime: '5 minutes',
             urgent: false,
@@ -208,13 +208,14 @@ export default function AISuggestionsPage() {
         },
         {
           id: 'sug-skill-2',
-          type: 'skill',
+          category: 'resume',
           title: 'Add GraphQL to complement your REST API experience',
           description: 'GraphQL is increasingly popular in modern full-stack roles.',
           reasoning: 'Jobs requiring both REST and GraphQL offer 20% higher salaries on average.',
           confidence: 0.75,
           impact: 'medium',
           metadata: {
+            type: 'skill',
             difficulty: 'medium',
             estimatedTime: '10 minutes',
             urgent: false,
@@ -223,13 +224,14 @@ export default function AISuggestionsPage() {
         },
         {
           id: 'sug-skill-3',
-          type: 'skill',
+          category: 'resume',
           title: 'Add Docker for DevOps competency',
           description: 'Docker containerization is mentioned in 65% of senior engineering roles.',
           reasoning: 'Demonstrates infrastructure knowledge valued by scaling startups.',
           confidence: 0.68,
           impact: 'medium',
           metadata: {
+            type: 'skill',
             difficulty: 'easy',
             estimatedTime: '5 minutes',
             urgent: false,
@@ -240,13 +242,14 @@ export default function AISuggestionsPage() {
         // Experience Suggestions
         {
           id: 'sug-exp-1',
-          type: 'experience',
+          category: 'resume',
           title: 'Quantify your impact at TechCorp',
           description: 'Add metrics to your "Led frontend team" achievement.',
           reasoning: 'Quantified achievements increase recruiter engagement by 45%. Example: "Led team of 5 engineers, shipping 12 features and improving load time by 40%".',
           confidence: 0.88,
           impact: 'high',
           metadata: {
+            type: 'experience',
             difficulty: 'medium',
             estimatedTime: '15 minutes',
             urgent: true,
@@ -255,13 +258,14 @@ export default function AISuggestionsPage() {
         },
         {
           id: 'sug-exp-2',
-          type: 'experience',
+          category: 'resume',
           title: 'Highlight leadership in recent project',
           description: 'Your e-commerce project shows technical skills but lacks leadership indicators.',
           reasoning: 'Senior roles prioritize leadership. Add mentorship, code reviews, or architectural decisions.',
           confidence: 0.71,
           impact: 'medium',
           metadata: {
+            type: 'experience',
             difficulty: 'medium',
             estimatedTime: '20 minutes',
             urgent: false,
@@ -272,13 +276,14 @@ export default function AISuggestionsPage() {
         // Profile Suggestions
         {
           id: 'sug-profile-1',
-          type: 'profile',
+          category: 'resume',
           title: 'Improve your professional summary',
           description: 'Your summary is generic. Make it results-oriented and role-specific.',
           reasoning: 'Top 10% of candidates use specific metrics and target role keywords in summaries.',
           confidence: 0.85,
           impact: 'high',
           metadata: {
+            type: 'profile',
             difficulty: 'medium',
             estimatedTime: '30 minutes',
             urgent: true,
@@ -287,13 +292,14 @@ export default function AISuggestionsPage() {
         },
         {
           id: 'sug-profile-2',
-          type: 'profile',
+          category: 'resume',
           title: 'Add portfolio link to profile',
           description: 'Frontend developers with portfolios get 3x more profile views.',
           reasoning: 'Visual proof of work is critical for UI/UX-focused roles.',
           confidence: 0.79,
           impact: 'medium',
           metadata: {
+            type: 'profile',
             difficulty: 'easy',
             estimatedTime: '5 minutes',
             urgent: false,
@@ -304,13 +310,14 @@ export default function AISuggestionsPage() {
         // Resume Suggestions
         {
           id: 'sug-resume-1',
-          type: 'resume',
+          category: 'resume',
           title: 'Optimize ATS compatibility',
           description: 'Your resume uses tables and graphics that ATS systems cannot parse.',
           reasoning: 'ATS-friendly resumes have 60% higher callback rates. Use simple formatting with clear headings.',
           confidence: 0.91,
           impact: 'high',
           metadata: {
+            type: 'resume',
             difficulty: 'hard',
             estimatedTime: '1 hour',
             urgent: true,
@@ -319,13 +326,14 @@ export default function AISuggestionsPage() {
         },
         {
           id: 'sug-resume-2',
-          type: 'resume',
+          category: 'resume',
           title: 'Add keywords for target roles',
           description: 'Your resume is missing 8 common keywords found in "Senior React Developer" job descriptions.',
           reasoning: 'Keyword optimization increases ATS match scores by 35%.',
           confidence: 0.82,
           impact: 'high',
           metadata: {
+            type: 'resume',
             difficulty: 'medium',
             estimatedTime: '20 minutes',
             urgent: false,
@@ -336,13 +344,14 @@ export default function AISuggestionsPage() {
         // Job Suggestions
         {
           id: 'sug-job-1',
-          type: 'job',
+          category: 'job-match',
           title: 'Apply to Senior Frontend Engineer at InnovateLab',
           description: 'This role has a 94% fit index with your profile and closes in 3 days.',
           reasoning: 'Perfect match for your React + TypeScript experience. Remote-friendly, competitive salary.',
           confidence: 0.94,
           impact: 'high',
           metadata: {
+            type: 'job',
             difficulty: 'easy',
             estimatedTime: '10 minutes',
             urgent: true,
@@ -351,13 +360,14 @@ export default function AISuggestionsPage() {
         },
         {
           id: 'sug-job-2',
-          type: 'job',
+          category: 'job-match',
           title: 'Apply to React Developer at StartupXYZ',
           description: '87% fit index. High growth startup with strong engineering culture.',
           reasoning: 'Your skills align well. Startup experience valued. Equity compensation.',
           confidence: 0.87,
           impact: 'medium',
           metadata: {
+            type: 'job',
             difficulty: 'easy',
             estimatedTime: '10 minutes',
             urgent: false,
@@ -515,9 +525,9 @@ export default function AISuggestionsPage() {
     // Remove from list
     setAllSuggestions((prev) => prev.filter((s) => s.id !== suggestionId));
 
-    // Navigate to relevant edit page based on type
+    // Navigate to relevant edit page based on category
     // This would be actual navigation in production
-    console.log('Navigate to:', suggestion.type, 'edit page');
+    console.log('Navigate to:', suggestion.category, 'edit page');
   };
 
   const handleRejectSuggestion = (suggestionId: string) => {
@@ -555,11 +565,11 @@ export default function AISuggestionsPage() {
   const getCategoryCount = (category: SuggestionCategory): number => {
     if (category === 'all') return allSuggestions.length;
     return allSuggestions.filter((s) => {
-      if (category === 'skills') return s.type === 'skill';
-      if (category === 'experience') return s.type === 'experience';
-      if (category === 'profile') return s.type === 'profile';
-      if (category === 'resume') return s.type === 'resume';
-      if (category === 'jobs') return s.type === 'job';
+      if (category === 'skills') return s.metadata?.type === 'skill';
+      if (category === 'experience') return s.metadata?.type === 'experience';
+      if (category === 'profile') return s.metadata?.type === 'profile';
+      if (category === 'resume') return s.metadata?.type === 'resume';
+      if (category === 'jobs') return s.metadata?.type === 'job';
       return false;
     }).length;
   };
@@ -828,8 +838,6 @@ export default function AISuggestionsPage() {
                     suggestion={suggestion}
                     onAccept={handleAcceptSuggestion}
                     onReject={handleRejectSuggestion}
-                    showEstimatedTime
-                    showDifficulty
                   />
                 </div>
               ))
@@ -987,8 +995,6 @@ export default function AISuggestionsPage() {
                 data={chartData}
                 type="line"
                 height={300}
-                showStats
-                showDataTable
               />
 
               <div className="mt-6">

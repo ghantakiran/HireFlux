@@ -280,7 +280,7 @@ export default function BulkStatusChangeModal({
                     <Checkbox
                       id="continue-with-valid"
                       checked={continueWithValid}
-                      onCheckedChange={(checked) => setContinueWithValid(checked as boolean)}
+                      onChange={(e) => setContinueWithValid(e.target.checked)}
                       data-testid="continue-with-valid-checkbox"
                     />
                     <Label htmlFor="continue-with-valid" className="text-sm font-normal">
@@ -351,7 +351,7 @@ export default function BulkStatusChangeModal({
               <Checkbox
                 id="bulk-send-email"
                 checked={sendEmail}
-                onCheckedChange={(checked) => setSendEmail(checked as boolean)}
+                onChange={(e) => setSendEmail(e.target.checked)}
                 disabled={loading}
                 data-testid="bulk-send-email-checkbox"
               />

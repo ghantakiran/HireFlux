@@ -30,17 +30,9 @@ const meta: Meta<typeof JobCard> = {
       control: 'boolean',
       description: 'Show AI fit score badge',
     },
-    showSaved: {
-      control: 'boolean',
-      description: 'Show save/bookmark button',
-    },
     showDescription: {
       control: 'boolean',
       description: 'Show job description',
-    },
-    showSkills: {
-      control: 'boolean',
-      description: 'Show skill tags',
     },
   },
   decorators: [
@@ -67,11 +59,10 @@ const mockJob = {
     max: 180000,
     currency: 'USD' as const,
   },
-  postedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+  postedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
   description: 'Join our innovative team to build next-generation web applications. You\'ll work on cutting-edge React/Next.js projects, collaborate with cross-functional teams, and shape the future of our platform.',
-  skills: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'GraphQL'],
+  tags: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'GraphQL'],
   fitIndex: 87,
-  matchReasoning: 'Strong alignment with your React and TypeScript expertise. Location matches your preferences.',
 };
 
 // Default Story
@@ -80,9 +71,7 @@ export const Default: Story = {
     job: mockJob,
     variant: 'full',
     showFitIndex: true,
-    showSaved: true,
     showDescription: true,
-    showSkills: true,
   },
 };
 
@@ -94,7 +83,6 @@ export const ExcellentMatch: Story = {
       fitIndex: 95,
       title: 'React Engineer',
       company: 'Dream Company',
-      matchReasoning: 'Perfect match! Your experience aligns exceptionally well with all requirements.',
     },
     variant: 'full',
     showFitIndex: true,
@@ -108,7 +96,6 @@ export const ModerateMatch: Story = {
       ...mockJob,
       fitIndex: 65,
       title: 'Full Stack Developer',
-      matchReasoning: 'Partial match. Frontend skills align, but backend requirements may be a stretch.',
     },
   },
 };
@@ -141,7 +128,7 @@ export const ManySkills: Story = {
   args: {
     job: {
       ...mockJob,
-      skills: [
+      tags: [
         'React',
         'TypeScript',
         'Next.js',
@@ -169,7 +156,7 @@ export const EntryLevel: Story = {
         currency: 'USD' as const,
       },
       fitIndex: 92,
-      skills: ['React', 'JavaScript', 'CSS', 'Git'],
+      tags: ['React', 'JavaScript', 'CSS', 'Git'],
     },
   },
 };
@@ -185,7 +172,7 @@ export const SeniorPosition: Story = {
         max: 280000,
         currency: 'USD' as const,
       },
-      skills: [
+      tags: [
         'React',
         'System Design',
         'Architecture',
@@ -257,8 +244,10 @@ export const WithoutDescription: Story = {
 // Saved Job
 export const SavedJob: Story = {
   args: {
-    job: mockJob,
-    saved: true,
+    job: {
+      ...mockJob,
+      saved: true,
+    },
   },
 };
 
@@ -285,7 +274,7 @@ export const JustPosted: Story = {
   args: {
     job: {
       ...mockJob,
-      postedDate: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+      postedDate: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
       title: 'React Developer - Just Posted!',
     },
   },
@@ -296,7 +285,7 @@ export const OldPosting: Story = {
   args: {
     job: {
       ...mockJob,
-      postedDate: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000), // 25 days ago
+      postedDate: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(), // 25 days ago
       title: 'Senior Engineer - Closing Soon',
     },
   },

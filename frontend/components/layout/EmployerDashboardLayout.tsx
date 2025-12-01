@@ -13,7 +13,7 @@ interface EmployerDashboardLayoutProps {
  */
 export function EmployerDashboardLayout({ children }: EmployerDashboardLayoutProps) {
   return (
-    <ProtectedRoute requiredRole="employer">
+    <ProtectedRoute>
       <AppShell role="employer">
         {children}
       </AppShell>

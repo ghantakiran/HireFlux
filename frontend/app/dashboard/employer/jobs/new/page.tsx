@@ -1331,6 +1331,10 @@ export default function AIJobDescriptionGenerator() {
   // RENDER - GENERATED JD VIEW & EDITOR
   // ============================================================================
 
+  if (!generatedJD) {
+    return null; // Shouldn't happen due to earlier checks, but satisfies TypeScript
+  }
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl" data-generated-jd>
       {/* Header with Actions */}
@@ -1444,31 +1448,31 @@ export default function AIJobDescriptionGenerator() {
             <CardContent className="pt-6">
               <div className="grid grid-cols-5 gap-4">
                 <div className="text-center" data-score-clarity>
-                  <p className="text-2xl font-bold" className={getScoreColor(qualityScore.clarity)}>
+                  <p className={`text-2xl font-bold ${getScoreColor(qualityScore.clarity)}`}>
                     {qualityScore.clarity}
                   </p>
                   <p className="text-xs text-muted-foreground">Clarity</p>
                 </div>
                 <div className="text-center" data-score-completeness>
-                  <p className="text-2xl font-bold" className={getScoreColor(qualityScore.completeness)}>
+                  <p className={`text-2xl font-bold ${getScoreColor(qualityScore.completeness)}`}>
                     {qualityScore.completeness}
                   </p>
                   <p className="text-xs text-muted-foreground">Completeness</p>
                 </div>
                 <div className="text-center" data-score-professionalism>
-                  <p className="text-2xl font-bold" className={getScoreColor(qualityScore.professionalism)}>
+                  <p className={`text-2xl font-bold ${getScoreColor(qualityScore.professionalism)}`}>
                     {qualityScore.professionalism}
                   </p>
                   <p className="text-xs text-muted-foreground">Professional</p>
                 </div>
                 <div className="text-center" data-score-seo>
-                  <p className="text-2xl font-bold" className={getScoreColor(qualityScore.seo)}>
+                  <p className={`text-2xl font-bold ${getScoreColor(qualityScore.seo)}`}>
                     {qualityScore.seo}
                   </p>
                   <p className="text-xs text-muted-foreground">SEO</p>
                 </div>
                 <div className="text-center" data-score-ats>
-                  <p className="text-2xl font-bold" className={getScoreColor(qualityScore.ats)}>
+                  <p className={`text-2xl font-bold ${getScoreColor(qualityScore.ats)}`}>
                     {qualityScore.ats}
                   </p>
                   <p className="text-xs text-muted-foreground">ATS</p>

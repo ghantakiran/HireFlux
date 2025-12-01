@@ -151,13 +151,7 @@ export function OnboardingChecklist({
           data-progress-bar
           aria-label={`Onboarding progress: ${progress}%`}
           className="h-2"
-        >
-          <div
-            data-progress-fill
-            className="h-full bg-primary transition-all"
-            style={{ width: `${progress}%` }}
-          />
-        </Progress>
+        />
       </div>
 
       {/* Steps */}

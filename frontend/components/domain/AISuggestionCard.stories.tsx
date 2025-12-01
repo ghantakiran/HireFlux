@@ -54,12 +54,15 @@ type Story = StoryObj<typeof AISuggestionCard>;
 // Mock suggestion data
 const mockSuggestion = {
   id: '1',
-  type: 'skill' as const,
+  category: 'resume' as const,
   title: 'Add TypeScript to your resume',
   description: 'Your recent projects show strong TypeScript usage, but it\'s not prominently featured in your skills section.',
   reasoning: 'Based on analysis of your GitHub contributions and project descriptions, TypeScript appears in 85% of your recent work. Adding this to your skills section could increase match rates by ~15% for frontend positions.',
   confidence: 0.92,
   impact: 'high' as const,
+  metadata: {
+    type: 'skill',
+  },
 };
 
 // Default Story
@@ -116,7 +119,9 @@ export const SkillSuggestion: Story = {
   args: {
     suggestion: {
       ...mockSuggestion,
-      type: 'skill' as const,
+      metadata: {
+        type: 'skill',
+      },
       title: 'Add GraphQL to skills',
     },
   },
@@ -126,7 +131,9 @@ export const ExperienceSuggestion: Story = {
   args: {
     suggestion: {
       ...mockSuggestion,
-      type: 'experience' as const,
+      metadata: {
+        type: 'experience',
+      },
       title: 'Quantify your impact at TechCorp',
       description: 'Add metrics to demonstrate the scope of your work.',
       reasoning: 'Job descriptions with quantifiable achievements receive 40% more interviews. Your TechCorp role lacks specific metrics about team size, user impact, or performance improvements.',
@@ -138,7 +145,10 @@ export const EducationSuggestion: Story = {
   args: {
     suggestion: {
       ...mockSuggestion,
-      type: 'education' as const,
+      category: 'resume' as const,
+      metadata: {
+        type: 'education',
+      },
       title: 'Add relevant coursework',
       description: 'List advanced CS courses that align with target roles.',
       reasoning: 'For candidates with <3 years experience, relevant coursework can strengthen applications. Your degree included advanced algorithms and distributed systems courses.',
@@ -150,7 +160,9 @@ export const ProfileSuggestion: Story = {
   args: {
     suggestion: {
       ...mockSuggestion,
-      type: 'profile' as const,
+      metadata: {
+        type: 'profile',
+      },
       title: 'Update your professional summary',
       description: 'Emphasize full-stack capabilities and leadership.',
       reasoning: 'Your current summary focuses solely on frontend work, but your experience shows strong backend and mentoring skills. A more balanced summary could expand job matches by 20%.',
@@ -240,35 +252,44 @@ export const MultipleSuggestions: Story = {
       <AISuggestionCard
         suggestion={{
           id: '1',
-          type: 'skill' as const,
+          category: 'resume' as const,
           title: 'Add TypeScript to skills',
           description: 'TypeScript appears in 85% of your projects.',
           reasoning: 'Strong evidence from GitHub analysis.',
           confidence: 0.95,
           impact: 'high' as const,
+          metadata: {
+            type: 'skill',
+          },
         }}
       />
       <AISuggestionCard
         suggestion={{
           id: '2',
-          type: 'experience' as const,
+          category: 'resume' as const,
           title: 'Quantify achievements',
           description: 'Add metrics to your most recent role.',
           reasoning: 'Quantified achievements increase interview rates by 40%.',
           confidence: 0.82,
           impact: 'high' as const,
+          metadata: {
+            type: 'experience',
+          },
         }}
         variant="compact"
       />
       <AISuggestionCard
         suggestion={{
           id: '3',
-          type: 'profile' as const,
+          category: 'resume' as const,
           title: 'Update professional summary',
           description: 'Highlight leadership and mentoring.',
           reasoning: 'Moderate confidence based on job descriptions.',
           confidence: 0.65,
           impact: 'medium' as const,
+          metadata: {
+            type: 'profile',
+          },
         }}
         variant="compact"
       />

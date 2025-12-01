@@ -176,21 +176,27 @@ export default function ApplicationTrackingDashboardPage() {
       const mockSuggestions: AISuggestion[] = [
         {
           id: 'sug-1',
-          type: 'skill',
+          category: 'resume',
           title: 'Follow up on pending applications',
           description: 'You have 2 applications from over a week ago with no response.',
           reasoning: 'Following up shows interest and can increase response rates by 25%.',
           confidence: 0.85,
           impact: 'medium',
+          metadata: {
+            type: 'skill',
+          },
         },
         {
           id: 'sug-2',
-          type: 'profile',
+          category: 'resume',
           title: 'Update your resume for rejected applications',
           description: 'Your recent rejection may indicate a skills mismatch.',
           reasoning: 'Tailoring your resume for specific job requirements can improve match rates.',
           confidence: 0.72,
           impact: 'high',
+          metadata: {
+            type: 'profile',
+          },
         },
       ];
       setAiSuggestions(mockSuggestions);
@@ -357,8 +363,6 @@ export default function ApplicationTrackingDashboardPage() {
                   data={chartData}
                   type="bar"
                   height={300}
-                  showStats
-                  showDataTable
                 />
               </CardContent>
             </Card>

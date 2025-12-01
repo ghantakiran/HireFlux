@@ -76,7 +76,7 @@ import {
   getStatusLabel,
 } from '@/lib/api/jobs';
 
-type FilterStatus = 'all' | JobStatus;
+type FilterStatus = 'all' | 'draft' | 'active' | 'paused' | 'closed';
 
 export default function EmployerJobsPage() {
   const router = useRouter();

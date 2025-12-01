@@ -564,8 +564,9 @@ export function ApplicantList({
           application={{
             id: currentApplicantForStatus.id,
             candidateName: currentApplicantForStatus.candidateName,
+            candidateEmail: currentApplicantForStatus.candidateEmail,
             jobTitle: currentApplicantForStatus.jobTitle,
-            status: currentApplicantForStatus.stage,
+            status: currentApplicantForStatus.stage as any,
           }}
           isOpen={statusChangeModalOpen}
           onClose={() => {
@@ -582,8 +583,9 @@ export function ApplicantList({
           applications={applicants.filter(a => selectedIds.includes(a.id)).map(a => ({
             id: a.id,
             candidateName: a.candidateName,
+            candidateEmail: a.candidateEmail,
             jobTitle: a.jobTitle,
-            status: a.stage,
+            status: a.stage as any,
           }))}
           isOpen={bulkModalOpen}
           onClose={() => setBulkModalOpen(false)}

@@ -346,7 +346,7 @@ export default function StatusChangeModal({
               <Checkbox
                 id="send-email"
                 checked={sendEmail}
-                onCheckedChange={(checked) => setSendEmail(checked as boolean)}
+                onChange={(e) => setSendEmail(e.target.checked)}
                 disabled={loading}
                 data-testid="send-email-checkbox"
               />
