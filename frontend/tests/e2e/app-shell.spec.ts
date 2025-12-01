@@ -25,25 +25,23 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
   // ============================================================================
 
   /**
-   * Login as a job seeker
+   * Navigate to job seeker dashboard (pre-authenticated via storageState)
    */
   async function loginAsJobSeeker(page: Page) {
-    await page.goto('/login');
-    await page.locator('[data-email-input]').fill('jobseeker@example.com');
-    await page.locator('[data-password-input]').fill('password123');
-    await page.locator('[data-login-button]').click();
-    await expect(page).toHaveURL('/dashboard');
+    // Auth state is already set via Playwright storageState
+    // Just navigate directly to the dashboard
+    await page.goto('/dashboard');
+    await page.waitForLoadState('networkidle');
   }
 
   /**
-   * Login as an employer
+   * Navigate to employer dashboard (pre-authenticated via storageState)
    */
   async function loginAsEmployer(page: Page) {
-    await page.goto('/login');
-    await page.locator('[data-email-input]').fill('employer@example.com');
-    await page.locator('[data-password-input]').fill('password123');
-    await page.locator('[data-login-button]').click();
-    await expect(page).toHaveURL('/employer/dashboard');
+    // Auth state is already set via Playwright storageState
+    // Just navigate directly to the dashboard
+    await page.goto('/employer/dashboard');
+    await page.waitForLoadState('networkidle');
   }
 
   /**
