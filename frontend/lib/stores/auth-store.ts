@@ -153,12 +153,16 @@ export const useAuthStore = create<AuthState>()(
           // In E2E test mode (mock tokens), skip API validation and use persisted state
           const isMockToken = accessToken && accessToken.startsWith('mock-');
           if (isMockToken && typeof window !== 'undefined') {
+            console.log('[E2E Auth] Mock token detected, using persisted state');
             // Try to get persisted user from zustand storage
             const authStorage = localStorage.getItem('auth-storage');
+            console.log('[E2E Auth] Auth storage:', authStorage ? 'Found' : 'Not found');
             if (authStorage) {
               try {
                 const parsed = JSON.parse(authStorage);
+                console.log('[E2E Auth] Parsed state:', parsed);
                 if (parsed.state && parsed.state.user) {
+                  console.log('[E2E Auth] Setting authenticated state with user:', parsed.state.user.email);
                   set({
                     user: parsed.state.user,
                     accessToken: parsed.state.accessToken,
@@ -167,10 +171,13 @@ export const useAuthStore = create<AuthState>()(
                     isInitialized: true,
                     isLoading: false,
                   });
+                  console.log('[E2E Auth] Auth state set successfully');
                   return;
+                } else {
+                  console.warn('[E2E Auth] No user found in parsed state');
                 }
               } catch (e) {
-                console.warn('Failed to parse auth storage:', e);
+                console.warn('[E2E Auth] Failed to parse auth storage:', e);
               }
             }
           }
@@ -234,6 +241,7 @@ export const useAuthStore = create<AuthState>()(
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
+        isInitialized: state.isInitialized,
       }),
     }
   )
