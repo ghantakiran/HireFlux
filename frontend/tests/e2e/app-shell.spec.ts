@@ -28,32 +28,8 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
    * Navigate to job seeker dashboard (pre-authenticated via storageState)
    */
   async function loginAsJobSeeker(page: Page) {
-    // Mock API responses for auth endpoints
-    await page.route('**/api/users/me', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          data: {
-            id: 'jobseeker-user-123',
-            email: 'jobseeker@test.com',
-            first_name: 'Job',
-            last_name: 'Seeker',
-            full_name: 'Job Seeker',
-            user_type: 'job_seeker',
-            subscription_tier: 'plus',
-            is_verified: true,
-            onboarding_completed: true,
-          },
-        }),
-      });
-    });
-
-    // Navigate to a neutral page first to set localStorage
-    await page.goto('/');
-
-    // Set auth state in localStorage directly
-    await page.evaluate(() => {
+    // Set auth context in page BEFORE any navigation
+    await page.addInitScript(() => {
       const mockUser = {
         id: 'jobseeker-user-123',
         email: 'jobseeker@test.com',
@@ -88,7 +64,28 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
       localStorage.setItem('auth-storage', JSON.stringify(authState));
     });
 
-    // Now navigate to dashboard
+    // Mock API responses for auth endpoints
+    await page.route('**/api/users/me', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: {
+            id: 'jobseeker-user-123',
+            email: 'jobseeker@test.com',
+            first_name: 'Job',
+            last_name: 'Seeker',
+            full_name: 'Job Seeker',
+            user_type: 'job_seeker',
+            subscription_tier: 'plus',
+            is_verified: true,
+            onboarding_completed: true,
+          },
+        }),
+      });
+    });
+
+    // Navigate to dashboard (localStorage already set via addInitScript)
     await page.goto('/dashboard');
     await page.waitForLoadState('networkidle');
   }
@@ -97,33 +94,8 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
    * Navigate to employer dashboard (pre-authenticated via storageState)
    */
   async function loginAsEmployer(page: Page) {
-    // Mock API responses for auth endpoints
-    await page.route('**/api/users/me', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          data: {
-            id: 'employer-user-123',
-            email: 'employer@company.com',
-            first_name: 'Employer',
-            last_name: 'User',
-            full_name: 'Employer User',
-            user_type: 'employer',
-            company_id: 'company-123',
-            subscription_tier: 'professional',
-            is_verified: true,
-            onboarding_completed: true,
-          },
-        }),
-      });
-    });
-
-    // Navigate to a neutral page first to set localStorage
-    await page.goto('/');
-
-    // Set auth state in localStorage directly
-    await page.evaluate(() => {
+    // Set auth context in page BEFORE any navigation
+    await page.addInitScript(() => {
       const mockUser = {
         id: 'employer-user-123',
         email: 'employer@company.com',
@@ -159,7 +131,29 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
       localStorage.setItem('auth-storage', JSON.stringify(authState));
     });
 
-    // Now navigate to dashboard
+    // Mock API responses for auth endpoints
+    await page.route('**/api/users/me', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: {
+            id: 'employer-user-123',
+            email: 'employer@company.com',
+            first_name: 'Employer',
+            last_name: 'User',
+            full_name: 'Employer User',
+            user_type: 'employer',
+            company_id: 'company-123',
+            subscription_tier: 'professional',
+            is_verified: true,
+            onboarding_completed: true,
+          },
+        }),
+      });
+    });
+
+    // Navigate to dashboard (localStorage already set via addInitScript)
     await page.goto('/employer/dashboard');
     await page.waitForLoadState('networkidle');
   }
