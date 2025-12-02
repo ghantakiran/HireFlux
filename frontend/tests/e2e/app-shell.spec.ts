@@ -219,19 +219,19 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
       const navBox = await topNav.boundingBox();
       expect(navBox?.height).toBe(64);
 
-      // Check top nav contains required elements
-      await expect(page.locator('[data-logo]')).toBeVisible();
-      await expect(page.locator('[data-search-bar]')).toBeVisible();
-      await expect(page.locator('[data-notifications-icon]')).toBeVisible();
-      await expect(page.locator('[data-profile-menu-trigger]')).toBeVisible();
+      // Check top nav contains required elements (scoped to desktop TopNav)
+      await expect(page.locator('[data-top-nav] [data-logo]')).toBeVisible();
+      await expect(page.locator('[data-top-nav] [data-search-bar]')).toBeVisible();
+      await expect(page.locator('[data-top-nav] [data-notifications-icon]')).toBeVisible();
+      await expect(page.locator('[data-top-nav] [data-profile-menu-trigger]')).toBeVisible();
     });
 
     test('should navigate to dashboard when logo is clicked', async ({ page }) => {
       await loginAsJobSeeker(page);
       await page.goto('/jobs');
 
-      // Click logo
-      await page.locator('[data-logo]').click();
+      // Click logo (scoped to desktop TopNav)
+      await page.locator('[data-top-nav] [data-logo]').click();
 
       // Should navigate to job seeker dashboard
       await expect(page).toHaveURL('/dashboard');
@@ -241,8 +241,8 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
       await loginAsEmployer(page);
       await page.goto('/employer/jobs');
 
-      // Click logo
-      await page.locator('[data-logo]').click();
+      // Click logo (scoped to desktop TopNav)
+      await page.locator('[data-top-nav] [data-logo]').click();
 
       // Should navigate to employer dashboard
       await expect(page).toHaveURL('/employer/dashboard');
@@ -251,11 +251,11 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
     test('should focus search bar when clicked', async ({ page }) => {
       await loginAsJobSeeker(page);
 
-      // Click search bar
-      await page.locator('[data-search-bar]').click();
+      // Click search bar (scoped to desktop TopNav)
+      await page.locator('[data-top-nav] [data-search-bar]').click();
 
-      // Search input should be focused
-      const searchInput = page.locator('[data-search-input]');
+      // Search input should be focused (scoped to desktop TopNav)
+      const searchInput = page.locator('[data-top-nav] [data-search-input]');
       await expect(searchInput).toBeFocused();
 
       // Check placeholder
@@ -265,8 +265,8 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
     test('should display notification badge when there are unread notifications', async ({ page }) => {
       await loginAsJobSeeker(page);
 
-      // Assuming user has 3 unread notifications (mock data)
-      const badge = page.locator('[data-notifications-badge]');
+      // Assuming user has 3 unread notifications (mock data) - scoped to desktop TopNav
+      const badge = page.locator('[data-top-nav] [data-notifications-badge]');
       await expect(badge).toBeVisible();
       await expect(badge).toHaveText('3');
     });
@@ -274,8 +274,8 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
     test('should open notifications dropdown when icon is clicked', async ({ page }) => {
       await loginAsJobSeeker(page);
 
-      // Click notifications icon
-      await page.locator('[data-notifications-icon]').click();
+      // Click notifications icon (scoped to desktop TopNav)
+      await page.locator('[data-top-nav] [data-notifications-icon]').click();
 
       // Dropdown should be visible
       const dropdown = page.locator('[data-notifications-dropdown]');
@@ -288,8 +288,8 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
     test('should open profile menu when avatar is clicked', async ({ page }) => {
       await loginAsJobSeeker(page);
 
-      // Click profile avatar
-      await page.locator('[data-profile-menu-trigger]').click();
+      // Click profile avatar (scoped to desktop TopNav)
+      await page.locator('[data-top-nav] [data-profile-menu-trigger]').click();
 
       // Profile menu should be visible
       const menu = page.locator('[data-profile-menu]');
@@ -305,8 +305,8 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
     test('should sign out user when sign out is clicked', async ({ page }) => {
       await loginAsJobSeeker(page);
 
-      // Open profile menu
-      await page.locator('[data-profile-menu-trigger]').click();
+      // Open profile menu (scoped to desktop TopNav)
+      await page.locator('[data-top-nav] [data-profile-menu-trigger]').click();
 
       // Click sign out
       await page.locator('[data-menu-sign-out]').click();
