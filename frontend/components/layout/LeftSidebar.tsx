@@ -127,7 +127,7 @@ export function LeftSidebar({ role = 'job_seeker' }: LeftSidebarProps) {
                       ? 'bg-blue-50 text-blue-600'
                       : 'text-gray-700 hover:bg-gray-100'
                   } ${collapsed ? 'justify-center' : ''}`}
-                  data-nav={item.dataAttr}
+                  {...{ [`data-nav-${item.dataAttr}`]: '' }}
                   aria-current={active ? 'page' : undefined}
                   data-active={active ? 'true' : 'false'}
                 >
