@@ -11,6 +11,10 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests/e2e',
+  /* Exclude Jest test files from Playwright */
+  testIgnore: ['**/__tests__/**', '**/*.test.ts', '**/*.test.tsx'],
+  /* Only match Playwright E2E test files */
+  testMatch: '**/*.spec.ts',
   /* Global setup to create authenticated sessions */
   globalSetup: './tests/e2e/global-setup.ts',
   /* Run tests in files in parallel */
