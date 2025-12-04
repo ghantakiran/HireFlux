@@ -32,6 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 interface TopNavProps {
   role?: 'job_seeker' | 'employer';
@@ -212,6 +213,10 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
                     <HelpCircle className="h-4 w-4" />
                     Help & Support
                   </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                  <ThemeToggle />
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

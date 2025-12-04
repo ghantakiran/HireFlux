@@ -23,6 +23,8 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    color: var(--gray-900);
+    background-color: var(--color-background);
   }
 
   /* Headings use Inter with bold weights */
