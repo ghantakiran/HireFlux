@@ -49,9 +49,47 @@
     scroll-behavior: smooth;
   }
 
-  /* Focus visible for keyboard navigation */
+  /* Focus visible for keyboard navigation (Issue #149) */
   *:focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
+  }
+
+  /* Enhanced focus for interactive elements */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [role="button"]:focus-visible,
+  [role="link"]:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px hsl(var(--ring) / 0.2);
+  }
+
+  /* Remove default browser focus outline */
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Smooth scroll behavior (respects prefers-reduced-motion) */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Skip link animation */
+    [data-testid="skip-to-content"] {
+      transition: transform 0.2s ease-in-out;
+    }
+  }
+
+  /* High contrast mode support for focus indicators */
+  @media (prefers-contrast: high) {
+    *:focus-visible {
+      outline-width: 3px;
+      outline-offset: 3px;
+    }
   }
 }

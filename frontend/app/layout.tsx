@@ -7,6 +7,9 @@ import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { NetworkStatusIndicator } from '@/components/network-status-indicator';
+import { SkipLink } from '@/components/skip-link';
+import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
+import { KeyboardNavigationProvider } from '@/components/providers/keyboard-navigation-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,11 +31,17 @@ export default function RootLayout({
         <ThemeProvider>
           <ErrorBoundary>
             <QueryClientProvider>
-              <AuthProvider>
-                <NetworkStatusIndicator />
-                {children}
-                <Toaster position="top-right" richColors />
-              </AuthProvider>
+              <KeyboardNavigationProvider>
+                <AuthProvider>
+                  <SkipLink />
+                  <NetworkStatusIndicator />
+                  <div id="main-content">
+                    {children}
+                  </div>
+                  <Toaster position="top-right" richColors />
+                  <KeyboardShortcutsHelp />
+                </AuthProvider>
+              </KeyboardNavigationProvider>
             </QueryClientProvider>
           </ErrorBoundary>
         </ThemeProvider>
