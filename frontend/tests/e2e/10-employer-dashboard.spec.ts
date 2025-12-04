@@ -22,24 +22,32 @@ test.describe('Employer Dashboard - Normal View', () => {
 
   test('should display all stat cards with correct data', async ({ page }) => {
     // Active Jobs stat
-    await expect(page.getByText(/active jobs/i)).toBeVisible();
-    await expect(page.getByText('12')).toBeVisible();
-    await expect(page.getByText(/currently hiring/i)).toBeVisible();
+    const activeJobsStat = page.getByTestId('active-jobs-stat');
+    await expect(activeJobsStat).toBeVisible();
+    await expect(activeJobsStat).toContainText('Active Jobs');
+    await expect(activeJobsStat).toContainText('12');
+    await expect(activeJobsStat).toContainText('Currently hiring');
 
     // New Applications stat
-    await expect(page.getByText(/new applications today/i)).toBeVisible();
-    await expect(page.getByText('8')).toBeVisible();
-    await expect(page.getByText(/last 24 hours/i)).toBeVisible();
+    const newApplicationsStat = page.getByTestId('new-applications-stat');
+    await expect(newApplicationsStat).toBeVisible();
+    await expect(newApplicationsStat).toContainText('New Applications Today');
+    await expect(newApplicationsStat).toContainText('8');
+    await expect(newApplicationsStat).toContainText('Last 24 hours');
 
     // Candidate Quality stat
-    await expect(page.getByText(/candidate quality/i)).toBeVisible();
-    await expect(page.getByText('78')).toBeVisible();
-    await expect(page.getByText(/average fit index/i)).toBeVisible();
+    const candidateQualityStat = page.getByTestId('candidate-quality-stat');
+    await expect(candidateQualityStat).toBeVisible();
+    await expect(candidateQualityStat).toContainText('Candidate Quality');
+    await expect(candidateQualityStat).toContainText('78');
+    await expect(candidateQualityStat).toContainText('Average Fit Index');
 
     // Time to Fill stat
-    await expect(page.getByText(/time to fill/i)).toBeVisible();
-    await expect(page.getByText('24 days')).toBeVisible();
-    await expect(page.getByText(/average duration/i)).toBeVisible();
+    const timeToFillStat = page.getByTestId('time-to-fill-stat');
+    await expect(timeToFillStat).toBeVisible();
+    await expect(timeToFillStat).toContainText('Time to Fill');
+    await expect(timeToFillStat).toContainText('24 days');
+    await expect(timeToFillStat).toContainText('Average duration');
   });
 
   test('should display all quick action buttons', async ({ page }) => {
@@ -76,21 +84,23 @@ test.describe('Employer Dashboard - Normal View', () => {
   });
 
   test('should display top performing jobs', async ({ page }) => {
-    await expect(page.getByText(/top performing jobs/i)).toBeVisible();
+    const topJobsSection = page.getByTestId('top-performing-jobs');
+    await expect(topJobsSection).toBeVisible();
+    await expect(topJobsSection.getByRole('heading', { name: /top performing jobs/i })).toBeVisible();
 
     // Check first job
-    await expect(page.getByText('Senior Frontend Developer')).toBeVisible();
-    await expect(page.getByText('34 applications')).toBeVisible();
-    await expect(page.getByText('245 views')).toBeVisible();
-    await expect(page.getByText('5 days ago')).toBeVisible();
+    await expect(topJobsSection.getByRole('heading', { name: 'Senior Frontend Developer' })).toBeVisible();
+    await expect(topJobsSection.getByText('34 applications')).toBeVisible();
+    await expect(topJobsSection.getByText('245 views')).toBeVisible();
+    await expect(topJobsSection.getByText('5 days ago')).toBeVisible();
 
     // Check second job
-    await expect(page.getByText('Backend Engineer')).toBeVisible();
-    await expect(page.getByText('28 applications')).toBeVisible();
+    await expect(topJobsSection.getByRole('heading', { name: 'Backend Engineer' })).toBeVisible();
+    await expect(topJobsSection.getByText('28 applications')).toBeVisible();
 
     // Check third job
-    await expect(page.getByText('Full Stack Developer')).toBeVisible();
-    await expect(page.getByText('19 applications')).toBeVisible();
+    await expect(topJobsSection.getByRole('heading', { name: 'Full Stack Developer' })).toBeVisible();
+    await expect(topJobsSection.getByText('19 applications')).toBeVisible();
   });
 
   test('should display applications by status pipeline', async ({ page }) => {
@@ -129,20 +139,22 @@ test.describe('Employer Dashboard - Normal View', () => {
   });
 
   test('should be keyboard accessible', async ({ page }) => {
-    // Tab through quick action buttons
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-
-    // Post New Job button should be focused
+    // Focus on the first quick action button directly to start keyboard navigation
     const postJobButton = page.getByRole('button', { name: /post new job/i });
+    await postJobButton.focus();
+
+    // Verify Post New Job button is focused
     await expect(postJobButton).toBeFocused();
 
     // Tab to next button
     await page.keyboard.press('Tab');
     const viewApplicationsButton = page.getByRole('button', { name: /view all applications/i });
     await expect(viewApplicationsButton).toBeFocused();
+
+    // Tab to third button
+    await page.keyboard.press('Tab');
+    const searchCandidatesButton = page.getByRole('button', { name: /search candidates/i });
+    await expect(searchCandidatesButton).toBeFocused();
   });
 
   test('should have accessible stat cards with ARIA labels', async ({ page }) => {
@@ -240,7 +252,7 @@ test.describe('Employer Dashboard - Empty State', () => {
   });
 
   test('should show "No recent activity"', async ({ page }) => {
-    await expect(page.getByText(/recent activity/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /recent activity/i })).toBeVisible();
     await expect(page.getByText(/no recent activity/i)).toBeVisible();
   });
 });

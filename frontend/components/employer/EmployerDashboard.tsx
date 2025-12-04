@@ -225,6 +225,7 @@ export function EmployerDashboard({
 
           {/* Candidate Quality */}
           <div
+            data-testid="candidate-quality-stat"
             role="region"
             aria-label="Candidate quality statistic"
             className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
@@ -239,6 +240,7 @@ export function EmployerDashboard({
 
           {/* Time to Fill */}
           <div
+            data-testid="time-to-fill-stat"
             role="region"
             aria-label="Time to fill statistic"
             className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
@@ -254,7 +256,7 @@ export function EmployerDashboard({
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Top Performing Jobs */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div data-testid="top-performing-jobs" className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Top Performing Jobs</h2>
             {data.topJobs.length === 0 ? (
               <p className="text-gray-500 text-center py-8">No jobs yet</p>
