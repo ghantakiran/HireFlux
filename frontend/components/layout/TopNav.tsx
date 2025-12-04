@@ -215,9 +215,9 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                <div className="px-2 py-1.5">
                   <ThemeToggle />
-                </DropdownMenuItem>
+                </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => setSignOutDialogOpen(true)}

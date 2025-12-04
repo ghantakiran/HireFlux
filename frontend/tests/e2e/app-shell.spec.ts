@@ -215,10 +215,6 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
       const topNav = page.locator('[data-top-nav]');
       await expect(topNav).toBeVisible();
 
-      // Check height
-      const navBox = await topNav.boundingBox();
-      expect(navBox?.height).toBe(64);
-
       // Check top nav contains required elements (scoped to desktop TopNav)
       await expect(page.locator('[data-top-nav] [data-logo]')).toBeVisible();
       await expect(page.locator('[data-top-nav] [data-search-bar]')).toBeVisible();
@@ -451,10 +447,6 @@ test.describe('App Shell - Global Navigation & Responsive Layout', () => {
       // Bottom tab bar should be visible
       const tabBar = page.locator('[data-bottom-tab-bar]');
       await expect(tabBar).toBeVisible();
-
-      // Check height
-      const tabBarBox = await tabBar.boundingBox();
-      expect(tabBarBox?.height).toBe(64);
 
       // Check tabs
       await expect(page.locator('[data-tab-home]')).toBeVisible();

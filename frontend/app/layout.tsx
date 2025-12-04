@@ -5,6 +5,8 @@ import { AuthProvider } from '@/components/auth/AuthProvider';
 import { QueryClientProvider } from '@/components/providers/query-client-provider';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { NetworkStatusIndicator } from '@/components/network-status-indicator';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,12 +26,15 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ThemeProvider>
-          <QueryClientProvider>
-            <AuthProvider>
-              {children}
-              <Toaster position="top-right" richColors />
-            </AuthProvider>
-          </QueryClientProvider>
+          <ErrorBoundary>
+            <QueryClientProvider>
+              <AuthProvider>
+                <NetworkStatusIndicator />
+                {children}
+                <Toaster position="top-right" richColors />
+              </AuthProvider>
+            </QueryClientProvider>
+          </ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>
