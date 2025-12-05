@@ -54,14 +54,21 @@ async function dragAndDrop(page: Page, sourceSelector: string, targetSelector: s
   const targetX = targetBounding.x + targetBounding.width / 2;
   const targetY = targetBounding.y + targetBounding.height / 2;
 
-  // Perform drag operation
+  // Perform drag operation (accounting for @dnd-kit activationConstraint: distance 8)
   await page.mouse.move(sourceX, sourceY);
   await page.mouse.down();
-  await page.waitForTimeout(100); // Small delay for drag to register
-  await page.mouse.move(targetX, targetY, { steps: 10 }); // Smooth movement
+  await page.waitForTimeout(50);
+
+  // Move 10 pixels down to exceed the 8px activation distance threshold
+  await page.mouse.move(sourceX, sourceY + 10, { steps: 2 });
   await page.waitForTimeout(100);
+
+  // Now move to target
+  await page.mouse.move(targetX, targetY, { steps: 15 }); // Smooth movement
+  await page.waitForTimeout(150);
+
   await page.mouse.up();
-  await page.waitForTimeout(500); // Wait for API call and UI update
+  await page.waitForTimeout(600); // Wait for API call and UI update
 }
 
 // ============================================================================
@@ -451,8 +458,9 @@ test.describe('Applicant Kanban Board - Modal Integration', () => {
     const firstCard = page.locator('[data-testid="kanban-card"]').first();
     await firstCard.click();
 
-    // Modal should show application ID
-    await expect(page.getByText(/app-\d+/)).toBeVisible();
+    // Modal should show application ID (scope to modal to avoid activity log matches)
+    const modal = page.locator('.fixed.inset-0').filter({ has: page.getByText('Card Clicked') });
+    await expect(modal.getByText(/app-\d+/)).toBeVisible();
   });
 
   test('should close modal on backdrop click', async ({ page }) => {
@@ -534,10 +542,8 @@ test.describe('Applicant Kanban Board - Filtering and Sorting', () => {
     await page.selectOption('#sort-select', 'fit-desc');
     await page.waitForTimeout(500);
 
-    // Get all fit index badges
-    const fitBadges = page.locator('[data-testid="kanban-card"] span').filter({
-      hasText: /^\d+$/,
-    });
+    // Get all fit index badges using the specific test ID
+    const fitBadges = page.locator('[data-testid="fit-index-badge"]');
 
     const firstFit = await fitBadges.first().textContent();
     const lastFit = await fitBadges.last().textContent();
@@ -637,7 +643,7 @@ test.describe('Applicant Kanban Board - Responsive Design', () => {
     await waitForBoardLoad(page);
 
     // Columns should be in a horizontal layout
-    const columnsContainer = page.locator('[data-testid="dnd-context"] > div');
+    const columnsContainer = page.locator('[data-testid="dnd-context"]');
     const displayStyle = await columnsContainer.evaluate((el) =>
       window.getComputedStyle(el).display
     );
@@ -652,7 +658,7 @@ test.describe('Applicant Kanban Board - Responsive Design', () => {
     await waitForBoardLoad(page);
 
     // Container should have overflow-x
-    const container = page.locator('[data-testid="dnd-context"] > div');
+    const container = page.locator('[data-testid="dnd-context"]');
     const overflowX = await container.evaluate((el) =>
       window.getComputedStyle(el).overflowX
     );
@@ -781,7 +787,8 @@ test.describe('Applicant Kanban Board - Performance', () => {
     // Activity log should update immediately
     await page.waitForTimeout(100);
 
-    const log = page.locator('.font-mono');
+    // Scope to the activity log section to avoid matching modal elements
+    const log = page.locator('.font-mono').filter({ hasText: 'User Action' });
     await expect(log).toContainText('Clicked card');
   });
 });
