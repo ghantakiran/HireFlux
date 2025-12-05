@@ -167,11 +167,12 @@ export default function KanbanCard({
           </h3>
           <div className="flex items-center gap-2 mt-1">
             <span
+              data-testid="fit-index-badge"
               className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${fitIndexColor}`}
             >
               {applicant.fitIndex}
             </span>
-            <span className="text-xs text-gray-500">{relativeTime}</span>
+            <span data-testid="applied-time" className="text-xs text-gray-500">{relativeTime}</span>
           </div>
         </div>
       </div>

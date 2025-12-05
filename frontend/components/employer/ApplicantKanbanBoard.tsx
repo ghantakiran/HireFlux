@@ -153,6 +153,14 @@ export default function ApplicantKanbanBoard({
     }
   }, [storeError]);
 
+  // Fetch applications when component mounts or jobId changes
+  const { fetchApplications } = useATSStore();
+  useEffect(() => {
+    if (jobId) {
+      fetchApplications(jobId);
+    }
+  }, [jobId, fetchApplications]);
+
   // Organize applicants by stage (using store's filtered data)
   const stages: KanbanStage[] = useMemo(() => {
     return STAGES.map((stage) => ({
