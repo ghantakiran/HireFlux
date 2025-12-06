@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Not Found Page for Next.js App Router (Issue #138)
  *
