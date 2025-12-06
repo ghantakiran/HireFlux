@@ -164,9 +164,9 @@ async function mockEmptyDashboard(page: Page) {
 
 test.describe('Employer Dashboard - Overview Metrics', () => {
   test.beforeEach(async ({ page }) => {
-    // Set auth token
+    // Set E2E mock auth token (must start with 'mock-' to bypass ProtectedRoute)
     await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'test-token-123');
+      localStorage.setItem('access_token', 'mock-test-token-123');
     });
   });
 
@@ -180,6 +180,11 @@ test.describe('Employer Dashboard - Overview Metrics', () => {
      */
 
     await mockDashboardData(page);
+
+    // Navigate to a base page first to set up context
+    await page.goto(`${BASE_URL}/`);
+
+    // Now navigate to dashboard with mocked data
     await page.goto(`${BASE_URL}/employer/dashboard`);
 
     // Wait for dashboard to load
@@ -307,7 +312,7 @@ test.describe('Employer Dashboard - Overview Metrics', () => {
 test.describe('Employer Dashboard - Applications Pipeline', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'test-token-123');
+      localStorage.setItem('access_token', 'mock-test-token-123');
     });
     await mockDashboardData(page);
   });
@@ -364,7 +369,7 @@ test.describe('Employer Dashboard - Applications Pipeline', () => {
 test.describe('Employer Dashboard - Top Performing Jobs', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'test-token-123');
+      localStorage.setItem('access_token', 'mock-test-token-123');
     });
     await mockDashboardData(page);
   });
@@ -437,7 +442,7 @@ test.describe('Employer Dashboard - Top Performing Jobs', () => {
 test.describe('Employer Dashboard - Recent Activity', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'test-token-123');
+      localStorage.setItem('access_token', 'mock-test-token-123');
     });
     await mockDashboardData(page);
   });
@@ -488,7 +493,7 @@ test.describe('Employer Dashboard - Recent Activity', () => {
 test.describe('Employer Dashboard - Quick Actions', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'test-token-123');
+      localStorage.setItem('access_token', 'mock-test-token-123');
     });
     await mockDashboardData(page);
   });
@@ -556,7 +561,7 @@ test.describe('Employer Dashboard - Quick Actions', () => {
 test.describe('Employer Dashboard - Error Handling', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'test-token-123');
+      localStorage.setItem('access_token', 'mock-test-token-123');
     });
   });
 
@@ -595,7 +600,7 @@ test.describe('Employer Dashboard - Error Handling', () => {
 test.describe('Employer Dashboard - Responsive Design', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'test-token-123');
+      localStorage.setItem('access_token', 'mock-test-token-123');
     });
     await mockDashboardData(page);
   });
