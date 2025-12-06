@@ -10,6 +10,44 @@
 
 ---
 
+## ⚠️ Vercel E2E Test Results (2025-12-06)
+
+**Test Run**: 80 tests (16 scenarios × 5 browsers) against Vercel deployment
+**Pass Rate**: 0/80 (0%) ❌
+**Root Cause**: Vercel deployment protection blocking access
+
+### Issue Identified:
+
+**Vercel Authentication Wall**: Preview deployment `https://frontend-rdek6tvjg-kirans-projects-994c7420.vercel.app` has Vercel's SSO/authentication enabled, which blocks E2E tests from reaching the application.
+
+**Evidence** (`error-context.md`):
+- Line 20: "Log in to Vercel" heading (Vercel's auth, not our app)
+- Tests redirect to Vercel's login page before reaching `/employer/dashboard`
+- All 80 tests timeout waiting for `h1:has-text("Dashboard")`
+
+### Solutions:
+
+**Option 1: Production Deployment** ✅ Recommended
+- Deploy to production URL (typically public, no Vercel auth)
+- Command: `vercel --prod`
+- Production deployments at `frontend-ten-self-72.vercel.app` are usually public
+
+**Option 2: Disable Vercel Auth**
+- Configure Vercel project settings to allow public preview deployments
+- Remove deployment protection for E2E testing
+
+**Option 3: Local Testing**
+- Use local dev server for E2E validation
+- Run `npm run dev` + Playwright tests
+- Note: Still has localStorage + SSR timing issues documented below
+
+### Next Steps:
+1. Deploy to production with `vercel --prod`
+2. Run E2E tests against production URL
+3. Validate all 16 scenarios pass in production-like environment
+
+---
+
 ## 📋 Test Coverage Summary (16 Tests)
 
 ### 1. Overview Metrics (4 tests) ✅
