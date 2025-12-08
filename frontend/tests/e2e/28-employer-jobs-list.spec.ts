@@ -191,7 +191,7 @@ test.describe('Employer Jobs List - Filters & Search', () => {
 
     // When: Navigate and select "Active" filter
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     // Click status filter dropdown
     const statusFilter = page.locator('select, [role="combobox"]').filter({ hasText: /Status|All/ }).first();
@@ -214,7 +214,7 @@ test.describe('Employer Jobs List - Filters & Search', () => {
 
     // When: Navigate and select department filter
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     const deptFilter = page.locator('select, [role="combobox"]').filter({ hasText: /Department|All/ }).first();
     if (await deptFilter.isVisible()) {
@@ -236,7 +236,7 @@ test.describe('Employer Jobs List - Filters & Search', () => {
 
     // When: Navigate and search for "Frontend"
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="Search"]').first();
     await searchInput.fill('Frontend');
@@ -255,7 +255,7 @@ test.describe('Employer Jobs List - Filters & Search', () => {
 
     // When: Search for non-existent job
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     const searchInput = page.locator('input[type="search"], input[placeholder*="Search"]').first();
     await searchInput.fill('NonexistentJob12345');
@@ -274,7 +274,7 @@ test.describe('Employer Jobs List - Filters & Search', () => {
     await mockJobsAPI(page, mockJobs, 2);
 
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     // Apply search filter
     const searchInput = page.locator('input[type="search"], input[placeholder*="Search"]').first();
@@ -304,7 +304,7 @@ test.describe('Employer Jobs List - Filters & Search', () => {
 
     // When: Apply status + department filters
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     // Apply filters (if UI allows multiple)
     const statusFilter = page.locator('select, [role="combobox"]').filter({ hasText: /Status/ }).first();
@@ -340,7 +340,7 @@ test.describe('Employer Jobs List - Sorting', () => {
 
     // When: Navigate and select "Newest" sort
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     const sortSelect = page.locator('select, [role="combobox"]').filter({ hasText: /Sort|Newest/ }).first();
     if (await sortSelect.isVisible()) {
@@ -363,7 +363,7 @@ test.describe('Employer Jobs List - Sorting', () => {
 
     // When: Sort by applicants
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     const sortSelect = page.locator('select, [role="combobox"]').filter({ hasText: /Sort/ }).first();
     if (await sortSelect.isVisible()) {
@@ -387,7 +387,7 @@ test.describe('Employer Jobs List - Sorting', () => {
 
     // When: Sort by oldest
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     const sortSelect = page.locator('select, [role="combobox"]').filter({ hasText: /Sort/ }).first();
     if (await sortSelect.isVisible()) {
@@ -419,7 +419,7 @@ test.describe('Employer Jobs List - Quick Actions', () => {
 
     // When: Click "Edit" action on job card
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     // Open actions menu and click Edit
     const actionsMenu = page.locator('button:has-text("Edit"), button[aria-label*="actions"], button >> svg.lucide-more').first();
@@ -439,7 +439,7 @@ test.describe('Employer Jobs List - Quick Actions', () => {
 
     // When: Click "View Applications" or job card
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     // Click on job card or "View" button
     const viewButton = page.locator('text=View, button:has-text("View Applications"), text=Frontend Dev').first();
@@ -465,7 +465,7 @@ test.describe('Employer Jobs List - Quick Actions', () => {
 
     // When: Click "Pause" action
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     const actionsMenu = page.locator('button[aria-label*="actions"], button >> svg.lucide-more').first();
     await actionsMenu.click();
@@ -499,7 +499,7 @@ test.describe('Employer Jobs List - Quick Actions', () => {
 
     // When: Click "Delete" and confirm
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     const actionsMenu = page.locator('button[aria-label*="actions"], button >> svg.lucide-more').first();
     await actionsMenu.click();
@@ -522,7 +522,7 @@ test.describe('Employer Jobs List - Quick Actions', () => {
 
     // When: Click "Duplicate" action
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     const actionsMenu = page.locator('button[aria-label*="actions"], button >> svg.lucide-more').first();
     await actionsMenu.click();
@@ -557,7 +557,7 @@ test.describe('Employer Jobs List - Pagination', () => {
 
     // When: Navigate to page 2
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     const nextButton = page.locator('button:has-text("Next"), button[aria-label*="next"]').first();
     if (await nextButton.isVisible()) {
@@ -577,7 +577,7 @@ test.describe('Employer Jobs List - Pagination', () => {
 
     // When: Load jobs list
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     // Then: Should see pagination controls
     const pagination = page.locator('[data-pagination], nav[aria-label*="pagination"], .pagination').first();
@@ -598,7 +598,7 @@ test.describe('Employer Jobs List - Pagination', () => {
 
     // When: Load jobs list
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     // Then: Should see exactly 20 job cards
     const jobCards = page.locator('[data-job-card], .job-card, article').filter({ hasText: /Job \d+/ });
@@ -706,7 +706,7 @@ test.describe('Employer Jobs List - Responsive Design', () => {
 
     // When: Navigate to jobs list
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     // Then: Should be responsive
     await expect(page.locator('text=Mobile Test Job')).toBeVisible();
@@ -728,7 +728,7 @@ test.describe('Employer Jobs List - Responsive Design', () => {
 
     // When: Navigate to jobs list
     await page.goto(`${BASE_URL}/employer/jobs`);
-    await waitForPageLoad(page);
+    await page.waitForSelector('h1:has-text("Job Postings")');
 
     // Then: Should display both jobs
     await expect(page.locator('text=Tablet Test Job')).toBeVisible();
