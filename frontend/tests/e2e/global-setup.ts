@@ -17,6 +17,19 @@ async function globalSetup(config: FullConfig) {
     // Navigate to any page to establish context
     await page.goto(baseURL);
 
+    // Set E2E bypass cookie for reliable auth bypass detection
+    await context.addCookies([
+      {
+        name: 'e2e_bypass',
+        value: 'true',
+        domain: new URL(baseURL).hostname,
+        path: '/',
+        httpOnly: false,
+        secure: false,
+        sameSite: 'Lax',
+      },
+    ]);
+
     // Create employer auth state
     await page.evaluate(() => {
       const mockEmployer = {

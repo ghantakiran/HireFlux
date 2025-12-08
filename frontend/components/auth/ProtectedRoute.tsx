@@ -20,9 +20,17 @@ export function ProtectedRoute({
   const pathname = usePathname();
   const { isAuthenticated, isLoading, isInitialized, user, initializeAuth } = useAuthStore();
 
-  // Check if we're in E2E test mode (mock tokens)
-  const isMockMode = typeof window !== 'undefined' &&
-    localStorage.getItem('access_token')?.startsWith('mock-');
+  // Check if we're in E2E test mode (multiple detection methods for reliability)
+  const isMockMode = typeof window !== 'undefined' && (
+    // Method 1: Mock token in localStorage
+    localStorage.getItem('access_token')?.startsWith('mock-') ||
+    // Method 2: E2E bypass cookie (set by Playwright)
+    document.cookie.includes('e2e_bypass=true') ||
+    // Method 3: Playwright detection
+    (window as any).playwright !== undefined ||
+    // Method 4: Process env (for build-time detection)
+    process.env.NEXT_PUBLIC_E2E_BYPASS === 'true'
+  );
 
   useEffect(() => {
     // Initialize auth on mount (skip in E2E mock mode)

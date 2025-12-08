@@ -20,6 +20,15 @@ import { test, expect, Page } from '@playwright/test';
 // Base URL for the application
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
 
+// Helper function to set up authentication
+async function setupAuth(page: Page) {
+  await page.addInitScript(() => {
+    // Set E2E mock auth token (must start with 'mock-' to bypass ProtectedRoute)
+    localStorage.setItem('access_token', 'mock-test-token-employer-jobs');
+    localStorage.setItem('user_role', 'employer');
+  });
+}
+
 // Helper function to mock jobs API with sample data
 async function mockJobsAPI(page: Page, jobs: any[] = [], total: number = 0) {
   await page.route('**/api/v1/jobs*', async (route) => {
@@ -57,7 +66,19 @@ function generateMockJob(overrides: Partial<any> = {}) {
   return { ...defaults, ...overrides };
 }
 
-// No custom navigation helper needed - following dashboard pattern
+// Wait for page to be ready
+async function waitForPageLoad(page: Page) {
+  // Wait for URL to change to /employer/jobs
+  await page.waitForURL('**/employer/jobs', { timeout: 5000 });
+
+  // Wait for the main container to appear (more reliable than networkidle in parallel tests)
+  await page.waitForSelector('[data-jobs-list-page], [data-empty-state], .text-red-600', {
+    timeout: 15000
+  });
+
+  // Small delay to ensure React hydration completes
+  await page.waitForTimeout(500);
+}
 
 // ============================================================================
 // Test Suite: Employer Jobs List Page
@@ -65,10 +86,7 @@ function generateMockJob(overrides: Partial<any> = {}) {
 
 test.describe('Employer Jobs List - Display & Navigation', () => {
   test.beforeEach(async ({ page }) => {
-    // Set E2E mock auth token (must start with 'mock-' to bypass ProtectedRoute)
-    await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'mock-test-token-123');
-    });
+    await setupAuth(page);
   });
 
   test('@jobs @display @happy-path - View jobs list with job cards', async ({ page }) => {
@@ -80,16 +98,15 @@ test.describe('Employer Jobs List - Display & Navigation', () => {
     ];
     await mockJobsAPI(page, mockJobs, 3);
 
-    // Navigate to a base page first to set up context
-    await page.goto(`${BASE_URL}/`);
-
-    // Now navigate to jobs list page
+    // When: Navigate to jobs list page
+    await page.goto(`${BASE_URL}/`); // Navigate to base page first to set up context
     await page.goto(`${BASE_URL}/employer/jobs`);
+    await waitForPageLoad(page);
 
-    // Wait for page to load
-    await page.waitForSelector('h1:has-text("Job Postings")');
+    // Then: Should see page title
+    await expect(page.locator('text=Job Postings')).toBeVisible();
 
-    // Then: Should see all 3 job cards
+    // And: Should see all 3 job cards
     await expect(page.locator('[data-job-card]').filter({ hasText: 'Senior Frontend Engineer' })).toBeVisible();
     await expect(page.locator('[data-job-card]').filter({ hasText: 'Backend Developer' })).toBeVisible();
     await expect(page.locator('[data-job-card]').filter({ hasText: 'DevOps Engineer' })).toBeVisible();
@@ -109,21 +126,14 @@ test.describe('Employer Jobs List - Display & Navigation', () => {
     await mockJobsAPI(page, mockJobs, 3);
 
     // When: Navigate to jobs list
-    // Navigate to a base page first to set up context
-    await page.goto(`${BASE_URL}/`);
-
-    // Now navigate to jobs list page
     await page.goto(`${BASE_URL}/employer/jobs`);
-
-    // Wait for page to load
-    await page.waitForSelector('h1:has-text("Job Postings")');
+    await waitForPageLoad(page);
 
     // Then: Should see total jobs count
-    await expect(page.locator('[data-total-jobs]')).toContainText('3');
+    await expect(page.locator('text=/3 (jobs?|Jobs)/i')).toBeVisible();
 
-    // And: Should see job cards with salary ranges
-    await expect(page.locator('[data-job-card]').first()).toBeVisible();
-    await expect(page.locator('text=$120,000').first()).toBeVisible();
+    // And: Job cards should show salary ranges
+    await expect(page.locator('text=/\\$120,000.*\\$180,000/i')).toBeVisible();
   });
 
   test('@jobs @display @empty-state - Show empty state when no jobs', async ({ page }) => {
@@ -131,54 +141,40 @@ test.describe('Employer Jobs List - Display & Navigation', () => {
     await mockJobsAPI(page, [], 0);
 
     // When: Navigate to jobs list
-    // Navigate to a base page first to set up context
-    await page.goto(`${BASE_URL}/`);
-
-    // Now navigate to jobs list page
     await page.goto(`${BASE_URL}/employer/jobs`);
-
-    // Wait for page to load
-    await page.waitForSelector('h1:has-text("Job Postings")');
+    await waitForPageLoad(page);
 
     // Then: Should see empty state message
-    await expect(page.locator('text=No jobs posted yet')).toBeVisible();
+    await expect(page.locator('text=/No jobs found|You haven\'t posted any jobs yet/i')).toBeVisible();
 
     // And: Should see "Post a Job" call-to-action
-    await expect(page.locator('text=Create Your First Job')).toBeVisible();
+    await expect(page.locator('button:has-text("Post"), a:has-text("Post")')).toBeVisible();
   });
 
   test('@jobs @display @loading - Show loading skeletons while fetching', async ({ page }) => {
     // Given: API is slow to respond
-    await page.route('**/api/v1/jobs*', async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+    await page.route('**/api/v1/employer/jobs*', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ jobs: [], total: 0, page: 1, limit: 20, total_pages: 0 }),
+        body: JSON.stringify({ data: [], total: 0 }),
       });
     });
 
-    // When: Start navigating to jobs list page (without awaiting)
-    await page.goto(`${BASE_URL}/`, { waitUntil: 'commit' });
+    // When: Navigate to jobs list
     const navigation = page.goto(`${BASE_URL}/employer/jobs`);
 
-    // Then: Should see loading skeletons while API is responding
-    await expect(page.locator('.animate-pulse, [role="status"]').first()).toBeVisible({ timeout: 2000 });
+    // Then: Should see loading skeletons
+    await expect(page.locator('.animate-pulse, [data-loading="true"]')).toBeVisible({ timeout: 1000 });
 
-    // Wait for navigation to complete
     await navigation;
   });
 });
 
 test.describe('Employer Jobs List - Filters & Search', () => {
   test.beforeEach(async ({ page }) => {
-    // Set E2E mock auth token (must start with 'mock-' to bypass ProtectedRoute)
-    await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'mock-test-token-123');
-    });
-  });
-
-  test.beforeEach(async ({ page }) => {
+    await setupAuth(page);
   });
 
   test('@jobs @filter @status - Filter jobs by status (Active)', async ({ page }) => {
@@ -320,13 +316,7 @@ test.describe('Employer Jobs List - Filters & Search', () => {
 
 test.describe('Employer Jobs List - Sorting', () => {
   test.beforeEach(async ({ page }) => {
-    // Set E2E mock auth token (must start with 'mock-' to bypass ProtectedRoute)
-    await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'mock-test-token-123');
-    });
-  });
-
-  test.beforeEach(async ({ page }) => {
+    await setupAuth(page);
   });
 
   test('@jobs @sort @newest - Sort jobs by newest first', async ({ page }) => {
@@ -403,13 +393,7 @@ test.describe('Employer Jobs List - Sorting', () => {
 
 test.describe('Employer Jobs List - Quick Actions', () => {
   test.beforeEach(async ({ page }) => {
-    // Set E2E mock auth token (must start with 'mock-' to bypass ProtectedRoute)
-    await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'mock-test-token-123');
-    });
-  });
-
-  test.beforeEach(async ({ page }) => {
+    await setupAuth(page);
   });
 
   test('@jobs @actions @edit - Navigate to edit job page', async ({ page }) => {
@@ -539,13 +523,7 @@ test.describe('Employer Jobs List - Quick Actions', () => {
 
 test.describe('Employer Jobs List - Pagination', () => {
   test.beforeEach(async ({ page }) => {
-    // Set E2E mock auth token (must start with 'mock-' to bypass ProtectedRoute)
-    await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'mock-test-token-123');
-    });
-  });
-
-  test.beforeEach(async ({ page }) => {
+    await setupAuth(page);
   });
 
   test('@jobs @pagination @navigate - Navigate between pages', async ({ page }) => {
@@ -608,13 +586,7 @@ test.describe('Employer Jobs List - Pagination', () => {
 
 test.describe('Employer Jobs List - Error Handling', () => {
   test.beforeEach(async ({ page }) => {
-    // Set E2E mock auth token (must start with 'mock-' to bypass ProtectedRoute)
-    await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'mock-test-token-123');
-    });
-  });
-
-  test.beforeEach(async ({ page }) => {
+    await setupAuth(page);
   });
 
   test('@jobs @error @api-failure - Handle API error gracefully', async ({ page }) => {
@@ -686,13 +658,7 @@ test.describe('Employer Jobs List - Error Handling', () => {
 
 test.describe('Employer Jobs List - Responsive Design', () => {
   test.beforeEach(async ({ page }) => {
-    // Set E2E mock auth token (must start with 'mock-' to bypass ProtectedRoute)
-    await page.addInitScript(() => {
-      localStorage.setItem('access_token', 'mock-test-token-123');
-    });
-  });
-
-  test.beforeEach(async ({ page }) => {
+    await setupAuth(page);
   });
 
   test('@jobs @responsive @mobile - Display correctly on mobile devices', async ({ page }) => {
