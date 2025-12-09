@@ -178,9 +178,6 @@ test.describe('Employer Jobs List - Filters & Search', () => {
     });
   });
 
-  test.beforeEach(async ({ page }) => {
-  });
-
   test('@jobs @filter @status - Filter jobs by status (Active)', async ({ page }) => {
     // Given: Employer has active and closed jobs
     const mockJobs = [
@@ -326,9 +323,6 @@ test.describe('Employer Jobs List - Sorting', () => {
     });
   });
 
-  test.beforeEach(async ({ page }) => {
-  });
-
   test('@jobs @sort @newest - Sort jobs by newest first', async ({ page }) => {
     // Given: Jobs created at different times
     const now = new Date();
@@ -409,9 +403,6 @@ test.describe('Employer Jobs List - Quick Actions', () => {
     });
   });
 
-  test.beforeEach(async ({ page }) => {
-  });
-
   test('@jobs @actions @edit - Navigate to edit job page', async ({ page }) => {
     // Given: Employer has a job
     const mockJob = generateMockJob({ title: 'Software Engineer' });
@@ -421,8 +412,10 @@ test.describe('Employer Jobs List - Quick Actions', () => {
     await page.goto(`${BASE_URL}/employer/jobs`);
     await page.waitForSelector('h1:has-text("Job Postings")');
 
-    // Open actions dropdown menu (MoreVertical icon button)
-    await page.locator('[data-job-card]').first().locator('button').filter({ hasText: /^$/ }).click();
+    // Open actions dropdown menu (look for button variant="ghost" which is the actions menu trigger)
+    const jobCard = page.locator('[data-job-card]').first();
+    const actionsButton = jobCard.locator('button[class*="ghost"]').last();
+    await actionsButton.click();
 
     // Click Edit menu item using data attribute
     await page.locator('[data-edit-button]').click();
@@ -440,8 +433,10 @@ test.describe('Employer Jobs List - Quick Actions', () => {
     await page.goto(`${BASE_URL}/employer/jobs`);
     await page.waitForSelector('h1:has-text("Job Postings")');
 
-    // Open actions dropdown menu (MoreVertical icon button)
-    await page.locator('[data-job-card]').first().locator('button').filter({ hasText: /^$/ }).click();
+    // Open actions dropdown menu (look for button variant="ghost" which is the actions menu trigger)
+    const jobCard = page.locator('[data-job-card]').first();
+    const actionsButton = jobCard.locator('button[class*="ghost"]').last();
+    await actionsButton.click();
 
     // Click View Details menu item
     await page.locator('text=View Details').click();
@@ -468,8 +463,10 @@ test.describe('Employer Jobs List - Quick Actions', () => {
     await page.goto(`${BASE_URL}/employer/jobs`);
     await page.waitForSelector('h1:has-text("Job Postings")');
 
-    // Open actions dropdown menu (MoreVertical icon button)
-    await page.locator('[data-job-card]').first().locator('button').filter({ hasText: /^$/ }).click();
+    // Open actions dropdown menu (look for button variant="ghost" which is the actions menu trigger)
+    const jobCard = page.locator('[data-job-card]').first();
+    const actionsButton = jobCard.locator('button[class*="ghost"]').last();
+    await actionsButton.click();
 
     // Click Pause Job menu item
     await page.locator('text=Pause Job').click();
@@ -500,8 +497,10 @@ test.describe('Employer Jobs List - Quick Actions', () => {
     await page.goto(`${BASE_URL}/employer/jobs`);
     await page.waitForSelector('h1:has-text("Job Postings")');
 
-    // Open actions dropdown menu (MoreVertical icon button)
-    await page.locator('[data-job-card]').first().locator('button').filter({ hasText: /^$/ }).click();
+    // Open actions dropdown menu (look for button variant="ghost" which is the actions menu trigger)
+    const jobCard = page.locator('[data-job-card]').first();
+    const actionsButton = jobCard.locator('button[class*="ghost"]').last();
+    await actionsButton.click();
 
     // Click Delete Job menu item using data attribute
     await page.locator('[data-delete-option]').click();
@@ -523,8 +522,10 @@ test.describe('Employer Jobs List - Quick Actions', () => {
     await page.goto(`${BASE_URL}/employer/jobs`);
     await page.waitForSelector('h1:has-text("Job Postings")');
 
-    // Open actions dropdown menu (MoreVertical icon button)
-    await page.locator('[data-job-card]').first().locator('button').filter({ hasText: /^$/ }).click();
+    // Open actions dropdown menu (look for button variant="ghost" which is the actions menu trigger)
+    const jobCard = page.locator('[data-job-card]').first();
+    const actionsButton = jobCard.locator('button[class*="ghost"]').last();
+    await actionsButton.click();
 
     // Click Duplicate Job menu item using data attribute
     await page.locator('[data-duplicate-option]').click();
@@ -540,9 +541,6 @@ test.describe('Employer Jobs List - Pagination', () => {
     await page.addInitScript(() => {
       localStorage.setItem('access_token', 'mock-test-token-123');
     });
-  });
-
-  test.beforeEach(async ({ page }) => {
   });
 
   test('@jobs @pagination @navigate - Navigate between pages', async ({ page }) => {
@@ -609,9 +607,6 @@ test.describe('Employer Jobs List - Error Handling', () => {
     await page.addInitScript(() => {
       localStorage.setItem('access_token', 'mock-test-token-123');
     });
-  });
-
-  test.beforeEach(async ({ page }) => {
   });
 
   test('@jobs @error @api-failure - Handle API error gracefully', async ({ page }) => {
@@ -687,9 +682,6 @@ test.describe('Employer Jobs List - Responsive Design', () => {
     await page.addInitScript(() => {
       localStorage.setItem('access_token', 'mock-test-token-123');
     });
-  });
-
-  test.beforeEach(async ({ page }) => {
   });
 
   test('@jobs @responsive @mobile - Display correctly on mobile devices', async ({ page }) => {
