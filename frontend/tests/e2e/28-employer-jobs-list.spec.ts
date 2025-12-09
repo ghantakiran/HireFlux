@@ -421,12 +421,11 @@ test.describe('Employer Jobs List - Quick Actions', () => {
     await page.goto(`${BASE_URL}/employer/jobs`);
     await page.waitForSelector('h1:has-text("Job Postings")');
 
-    // Open actions menu and click Edit
-    const actionsMenu = page.locator('button:has-text("Edit"), button[aria-label*="actions"], button >> svg.lucide-more').first();
-    await actionsMenu.click();
+    // Open actions dropdown menu (MoreVertical icon button)
+    await page.locator('[data-job-card]').first().locator('button').filter({ hasText: /^$/ }).click();
 
-    const editButton = page.locator('text=Edit, button:has-text("Edit")').first();
-    await editButton.click();
+    // Click Edit menu item using data attribute
+    await page.locator('[data-edit-button]').click();
 
     // Then: Should navigate to edit page
     await expect(page).toHaveURL(/\/employer\/jobs\/.+\/edit/);
@@ -437,13 +436,15 @@ test.describe('Employer Jobs List - Quick Actions', () => {
     const mockJob = generateMockJob({ title: 'Frontend Dev', applications_count: 10 });
     await mockJobsAPI(page, [mockJob], 1);
 
-    // When: Click "View Applications" or job card
+    // When: Click "View Details" action from dropdown
     await page.goto(`${BASE_URL}/employer/jobs`);
     await page.waitForSelector('h1:has-text("Job Postings")');
 
-    // Click on job card or "View" button
-    const viewButton = page.locator('text=View, button:has-text("View Applications"), text=Frontend Dev').first();
-    await viewButton.click();
+    // Open actions dropdown menu (MoreVertical icon button)
+    await page.locator('[data-job-card]').first().locator('button').filter({ hasText: /^$/ }).click();
+
+    // Click View Details menu item
+    await page.locator('text=View Details').click();
 
     // Then: Should navigate to job details or applications
     await expect(page).toHaveURL(/\/employer\/jobs\/.+/);
@@ -467,13 +468,11 @@ test.describe('Employer Jobs List - Quick Actions', () => {
     await page.goto(`${BASE_URL}/employer/jobs`);
     await page.waitForSelector('h1:has-text("Job Postings")');
 
-    const actionsMenu = page.locator('button[aria-label*="actions"], button >> svg.lucide-more').first();
-    await actionsMenu.click();
+    // Open actions dropdown menu (MoreVertical icon button)
+    await page.locator('[data-job-card]').first().locator('button').filter({ hasText: /^$/ }).click();
 
-    const pauseButton = page.locator('text=Pause, button:has-text("Pause")').first();
-    if (await pauseButton.isVisible()) {
-      await pauseButton.click();
-    }
+    // Click Pause Job menu item
+    await page.locator('text=Pause Job').click();
 
     // Then: Job status should update (or show success message)
     // Note: Actual behavior depends on implementation
@@ -501,11 +500,11 @@ test.describe('Employer Jobs List - Quick Actions', () => {
     await page.goto(`${BASE_URL}/employer/jobs`);
     await page.waitForSelector('h1:has-text("Job Postings")');
 
-    const actionsMenu = page.locator('button[aria-label*="actions"], button >> svg.lucide-more').first();
-    await actionsMenu.click();
+    // Open actions dropdown menu (MoreVertical icon button)
+    await page.locator('[data-job-card]').first().locator('button').filter({ hasText: /^$/ }).click();
 
-    const deleteButton = page.locator('text=Delete, button:has-text("Delete")').first();
-    await deleteButton.click();
+    // Click Delete Job menu item using data attribute
+    await page.locator('[data-delete-option]').click();
 
     // Confirm deletion in dialog
     const confirmButton = page.locator('button:has-text("Delete"), button:has-text("Confirm")').last();
@@ -524,16 +523,14 @@ test.describe('Employer Jobs List - Quick Actions', () => {
     await page.goto(`${BASE_URL}/employer/jobs`);
     await page.waitForSelector('h1:has-text("Job Postings")');
 
-    const actionsMenu = page.locator('button[aria-label*="actions"], button >> svg.lucide-more').first();
-    await actionsMenu.click();
+    // Open actions dropdown menu (MoreVertical icon button)
+    await page.locator('[data-job-card]').first().locator('button').filter({ hasText: /^$/ }).click();
 
-    const duplicateButton = page.locator('text=Duplicate, button:has-text("Duplicate"), button:has-text("Copy")').first();
-    if (await duplicateButton.isVisible()) {
-      await duplicateButton.click();
+    // Click Duplicate Job menu item using data attribute
+    await page.locator('[data-duplicate-option]').click();
 
-      // Then: Should navigate to create page with pre-filled data or show success
-      await expect(page).toHaveURL(/\/employer\/jobs\/(new|.+\/edit)/);
-    }
+    // Then: Should navigate to create page with pre-filled data or show success
+    await expect(page).toHaveURL(/\/employer\/jobs\/(new|.+\/edit)/);
   });
 });
 
