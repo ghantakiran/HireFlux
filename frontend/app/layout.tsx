@@ -7,7 +7,7 @@ import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { NetworkStatusIndicator } from '@/components/network-status-indicator';
-import { SkipLink } from '@/components/skip-link';
+// SkipLink removed from here - now handled by AppShell component
 import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
 import { KeyboardNavigationProvider } from '@/components/providers/keyboard-navigation-provider';
 
@@ -33,7 +33,7 @@ export default function RootLayout({
             <QueryClientProvider>
               <KeyboardNavigationProvider>
                 <AuthProvider>
-                  <SkipLink />
+                  {/* SkipLink moved to AppShell component for consistency */}
                   <NetworkStatusIndicator />
                   <div id="main-content">
                     {children}

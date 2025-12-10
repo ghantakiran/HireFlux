@@ -1,40 +1,21 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TopNav } from './TopNav';
 import { LeftSidebar } from './LeftSidebar';
 import { MobileHamburgerMenu, MobileBottomTabBar } from './MobileNav';
+import { SkipLink } from '../skip-link';
+import { KeyboardShortcutsModal } from '../keyboard-shortcuts-modal';
+import { GlobalSearchModal } from '../global-search-modal';
+import { CommandPalette } from '../command-palette';
+import { useKeyboardShortcuts, createGlobalShortcuts } from '../../hooks/useKeyboardShortcuts';
 
 interface AppShellProps {
   children: React.ReactNode;
   role?: 'job_seeker' | 'employer';
 }
 
-/**
- * Skip to Main Content Link
- * Accessibility feature for keyboard navigation
- */
-function SkipToMain() {
-  const handleSkip = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const main = document.getElementById('main-content');
-    if (main) {
-      main.focus();
-      main.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
-  return (
-    <a
-      href="#main-content"
-      onClick={handleSkip}
-      className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-blue-600 focus:px-4 focus:py-2 focus:text-white focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
-      data-skip-to-main
-    >
-      Skip to main content
-    </a>
-  );
-}
+// Skip link removed - now using centralized SkipLink component
 
 /**
  * Main Content Wrapper with 12-column responsive grid
@@ -76,16 +57,50 @@ function MainContent({ children }: MainContentProps) {
  * - Desktop: TopNav + collapsible LeftSidebar
  * - Mobile: Hamburger menu + bottom tab bar
  * - Skip to main content link
+ * - Global keyboard shortcuts (Issue #149)
  * - Proper ARIA landmarks
  * - 12-column responsive grid (4-col mobile, 8-col tablet, 12-col desktop)
  * - Max content width 1200px
  * - Persistent sidebar collapse state
  */
 export function AppShell({ children, role = 'job_seeker' }: AppShellProps) {
+  // Modal state management
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+
+  // Set up global keyboard shortcuts
+  const shortcuts = createGlobalShortcuts({
+    onOpenSearch: () => setIsSearchOpen(true),
+    onOpenCommandPalette: () => setIsCommandPaletteOpen(true),
+    onOpenShortcutsHelp: () => setIsShortcutsOpen(true),
+  });
+
+  useKeyboardShortcuts({
+    shortcuts,
+    disableInInputs: true,
+    enabled: true,
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Skip to Main Content */}
-      <SkipToMain />
+      <SkipLink />
+
+      {/* Keyboard Modals */}
+      <GlobalSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        role={role}
+      />
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
+      />
 
       {/* Mobile Navigation */}
       <div className="lg:hidden">
