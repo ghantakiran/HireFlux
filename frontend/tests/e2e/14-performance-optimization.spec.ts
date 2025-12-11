@@ -10,6 +10,7 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
+import { setupAPIMocks } from './helpers/api-mock.helper';
 
 /**
  * Helper: Measure Core Web Vitals using web-vitals library
@@ -67,6 +68,11 @@ async function measureWebVitals(page: Page) {
 
 test.describe('Performance Optimization - Issue #144', () => {
   test.describe.configure({ mode: 'serial' });
+
+  // Setup API mocks before each test to ensure data is present
+  test.beforeEach(async ({ page }) => {
+    await setupAPIMocks(page);
+  });
 
   // ============================================================================
   // 1. Largest Contentful Paint (LCP) - Critical

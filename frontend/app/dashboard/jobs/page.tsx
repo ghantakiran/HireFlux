@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { useJobStore, type JobSearchFilters } from '@/lib/stores/job-store';
 import { CompanyLogo } from '@/components/ui/optimized-image';
+import { NoJobsEmptyState } from '@/components/ui/empty-state';
 
 export default function JobsPage() {
   const router = useRouter();
@@ -277,19 +278,8 @@ export default function JobsPage() {
       {/* Empty State */}
       {!isLoading && jobs.length === 0 && (
         <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <Search className="h-16 w-16 text-muted-foreground mb-4" />
-            <p className="text-lg font-medium text-muted-foreground">No jobs found</p>
-            <p className="mt-2 text-sm text-muted-foreground text-center max-w-md">
-              {activeFiltersCount > 0
-                ? 'Try adjusting your filters to see more results'
-                : 'Upload your resume and complete your profile to get personalized job matches'}
-            </p>
-            {activeFiltersCount > 0 && (
-              <Button className="mt-4" variant="outline" onClick={handleClearFilters}>
-                Clear Filters
-              </Button>
-            )}
+          <CardContent>
+            <NoJobsEmptyState onSearch={activeFiltersCount > 0 ? handleClearFilters : undefined} />
           </CardContent>
         </Card>
       )}

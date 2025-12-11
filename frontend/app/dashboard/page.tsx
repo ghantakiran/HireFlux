@@ -21,6 +21,7 @@ import {
   Star,
 } from 'lucide-react';
 import { Avatar } from '@/components/ui/optimized-image';
+import { NoActivityEmptyState } from '@/components/ui/empty-state';
 
 // Types
 interface HealthScore {
@@ -542,7 +543,7 @@ export default function DashboardPage() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No recent activity</p>
+                  <NoActivityEmptyState />
                 )}
               </div>
             </div>

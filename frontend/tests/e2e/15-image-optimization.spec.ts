@@ -10,8 +10,13 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
+import { setupAPIMocks } from './helpers/api-mock.helper';
 
 test.describe('Image Optimization & Lazy Loading - Issue #145', () => {
+  // Setup API mocks before each test to ensure data is present
+  test.beforeEach(async ({ page }) => {
+    await setupAPIMocks(page);
+  });
 
   // ============================================================================
   // 1. next/image Component Usage
