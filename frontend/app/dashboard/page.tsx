@@ -20,6 +20,7 @@ import {
   Gift,
   Star,
 } from 'lucide-react';
+import { Avatar } from '@/components/ui/optimized-image';
 
 // Types
 interface HealthScore {
@@ -525,9 +526,12 @@ export default function DashboardPage() {
                       className="flex items-start gap-4 pb-4 border-b border-gray-100 last:border-0"
                       data-testid="activity-item"
                     >
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                        <Activity className="w-5 h-5 text-blue-600" />
-                      </div>
+                      <Avatar
+                        src="/images/placeholders/avatar.svg"
+                        alt="User avatar"
+                        size={40}
+                        data-testid="avatar"
+                      />
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">{activity.title}</p>
                         <p className="text-sm text-gray-600 mt-1">{activity.description}</p>

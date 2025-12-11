@@ -75,6 +75,52 @@ const nextConfig = {
   experimental: {
     optimizeCss: true, // Enable CSS optimization
   },
+
+  // Compression
+  compress: true,
+
+  // Production optimizations
+  productionBrowserSourceMaps: false, // Disable source maps in production for smaller bundles
+
+  // Performance optimizations
+  poweredByHeader: false, // Remove X-Powered-By header for security and performance
+
+  // Font optimization
+  optimizeFonts: true,
+
+  // Compiler options for better performance
+  compiler: {
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? {
+            exclude: ['error', 'warn'],
+          }
+        : false,
+  },
+
+  // Headers for caching and security
+  async headers() {
+    return [
+      {
+        source: '/:all*(svg|jpg|jpeg|png|webp|avif|gif|ico)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

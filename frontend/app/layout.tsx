@@ -11,13 +11,29 @@ import { NetworkStatusIndicator } from '@/components/network-status-indicator';
 import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
 import { KeyboardNavigationProvider } from '@/components/providers/keyboard-navigation-provider';
 
-const inter = Inter({ subsets: ['latin'] });
+// Optimized font loading with display: swap to prevent FOIT
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'HireFlux - AI-Powered Job Application Copilot',
   description:
     'Streamline your job search with AI-powered resume generation, job matching, and automated applications.',
   keywords: ['job search', 'resume builder', 'AI', 'career', 'job application'],
+  // Viewport optimization for mobile
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  },
+  // Performance hints
+  other: {
+    'format-detection': 'telephone=no',
+  },
 };
 
 export default function RootLayout({
@@ -27,6 +43,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* Preconnect to critical origins for faster resource loading */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* DNS prefetch for external resources */}
+        <link rel="dns-prefetch" href="https://storage.hireflux.com" />
+      </head>
       <body className={inter.className}>
         <ThemeProvider>
           <ErrorBoundary>

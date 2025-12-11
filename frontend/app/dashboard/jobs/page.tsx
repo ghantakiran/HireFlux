@@ -33,6 +33,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { useJobStore, type JobSearchFilters } from '@/lib/stores/job-store';
+import { CompanyLogo } from '@/components/ui/optimized-image';
 
 export default function JobsPage() {
   const router = useRouter();
@@ -305,14 +306,25 @@ export default function JobsPage() {
                 key={job.id}
                 className="hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => handleJobClick(job.id)}
+                data-testid="job-card"
               >
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <CardTitle className="text-xl">{job.title}</CardTitle>
-                      <CardDescription className="text-lg mt-1">
-                        {job.company}
-                      </CardDescription>
+                    <div className="flex items-start gap-3 flex-1">
+                      {/* Company Logo */}
+                      <CompanyLogo
+                        src={`/images/placeholders/company-logo.svg`}
+                        alt={`${job.company} logo`}
+                        size={48}
+                        className="company-logo"
+                        data-testid="company-logo"
+                      />
+                      <div className="flex-1">
+                        <CardTitle className="text-xl">{job.title}</CardTitle>
+                        <CardDescription className="text-lg mt-1">
+                          {job.company}
+                        </CardDescription>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {fitIndex > 0 && (
