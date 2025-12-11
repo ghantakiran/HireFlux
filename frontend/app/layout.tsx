@@ -10,6 +10,8 @@ import { NetworkStatusIndicator } from '@/components/network-status-indicator';
 // SkipLink removed from here - now handled by AppShell component
 import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
 import { KeyboardNavigationProvider } from '@/components/providers/keyboard-navigation-provider';
+import { WebVitalsReporter } from '@/components/web-vitals-reporter';
+import { PWAInstaller } from '@/components/pwa-installer';
 
 // Optimized font loading with display: swap to prevent FOIT
 const inter = Inter({
@@ -49,6 +51,12 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* DNS prefetch for external resources */}
         <link rel="dns-prefetch" href="https://storage.hireflux.com" />
+        {/* PWA Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#3b82f6" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="HireFlux" />
       </head>
       <body className={inter.className}>
         <ThemeProvider>
@@ -63,6 +71,8 @@ export default function RootLayout({
                   </div>
                   <Toaster position="top-right" richColors />
                   <KeyboardShortcutsHelp />
+                  <WebVitalsReporter />
+                  <PWAInstaller />
                 </AuthProvider>
               </KeyboardNavigationProvider>
             </QueryClientProvider>
