@@ -1,3 +1,8 @@
+/**
+ * Alert Component (shadcn/ui)
+ * Displays alert messages
+ */
+
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
@@ -10,8 +15,6 @@ const alertVariants = cva(
         default: 'bg-background text-foreground',
         destructive:
           'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive',
-        warning: 'border-yellow-500/50 text-yellow-900 bg-yellow-50 [&>svg]:text-yellow-900',
-        success: 'border-green-500/50 text-green-900 bg-green-50 [&>svg]:text-green-900',
       },
     },
     defaultVariants: {

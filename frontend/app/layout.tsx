@@ -5,7 +5,7 @@ import { AuthProvider } from '@/components/auth/AuthProvider';
 import { QueryClientProvider } from '@/components/providers/query-client-provider';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/components/providers/theme-provider';
-import { ErrorBoundary } from '@/components/error-boundary';
+import { ErrorBoundary } from '@/components/error/error-boundary';
 import { NetworkStatusIndicator } from '@/components/network-status-indicator';
 // SkipLink removed from here - now handled by AppShell component
 import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
