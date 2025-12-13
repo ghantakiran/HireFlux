@@ -13,6 +13,8 @@ import { KeyboardNavigationProvider } from '@/components/providers/keyboard-navi
 import { WebVitalsReporter } from '@/components/web-vitals-reporter';
 import { PWAInstaller } from '@/components/pwa-installer';
 import { FeedbackProvider } from '@/components/feedback/feedback-provider';
+import { TourProvider } from '@/components/tours/tour-provider';
+import { TourOrchestrator } from '@/components/tours/tour-orchestrator';
 
 // Optimized font loading with display: swap to prevent FOIT
 const inter = Inter({
@@ -65,17 +67,20 @@ export default function RootLayout({
             <QueryClientProvider>
               <KeyboardNavigationProvider>
                 <AuthProvider>
-                  <FeedbackProvider>
-                    {/* SkipLink moved to AppShell component for consistency */}
-                    <NetworkStatusIndicator />
-                    <div id="main-content">
-                      {children}
-                    </div>
-                    <Toaster position="top-right" richColors />
-                    <KeyboardShortcutsHelp />
-                    <WebVitalsReporter />
-                    <PWAInstaller />
-                  </FeedbackProvider>
+                  <TourProvider>
+                    <FeedbackProvider>
+                      {/* SkipLink moved to AppShell component for consistency */}
+                      <NetworkStatusIndicator />
+                      <div id="main-content">
+                        {children}
+                      </div>
+                      <Toaster position="top-right" richColors />
+                      <KeyboardShortcutsHelp />
+                      <WebVitalsReporter />
+                      <PWAInstaller />
+                      <TourOrchestrator />
+                    </FeedbackProvider>
+                  </TourProvider>
                 </AuthProvider>
               </KeyboardNavigationProvider>
             </QueryClientProvider>
