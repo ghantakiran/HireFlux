@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { X, ChevronLeft, ChevronRight, SkipForward } from 'lucide-react';
 import { TourStep as TourStepType, TourStepPlacement } from '@/lib/tours/types';
 import { useTour } from './tour-provider';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 export interface TourStepProps {
   step: TourStepType;
@@ -239,8 +240,15 @@ export function TourStep({
           <p className="text-sm text-muted-foreground leading-relaxed">{step.content}</p>
 
           {step.image && (
-            <div className="mt-4 rounded-lg overflow-hidden">
-              <img src={step.image} alt={step.title} className="w-full" />
+            <div className="mt-4 rounded-lg overflow-hidden relative w-full h-48">
+              <OptimizedImage
+                src={step.image}
+                alt={step.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 400px"
+                className="rounded-lg"
+                objectFit="cover"
+              />
             </div>
           )}
         </div>

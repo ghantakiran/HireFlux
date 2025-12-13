@@ -43,6 +43,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 interface WhiteLabelConfig {
   id: string;
@@ -340,11 +341,14 @@ export default function WhiteLabelSettingsPage() {
                       <Label>Primary Logo (Light Background)</Label>
                       <div className="flex items-center gap-4">
                         {formData.logo_url && (
-                          <div className="w-32 h-32 border rounded-lg p-2 bg-white">
-                            <img
+                          <div className="relative w-32 h-32 border rounded-lg p-2 bg-white">
+                            <OptimizedImage
                               src={formData.logo_url}
                               alt="Primary logo"
-                              className="w-full h-full object-contain"
+                              fill
+                              sizes="128px"
+                              className="p-2"
+                              objectFit="contain"
                             />
                           </div>
                         )}
@@ -369,11 +373,14 @@ export default function WhiteLabelSettingsPage() {
                       <Label>Dark Logo (Dark Background)</Label>
                       <div className="flex items-center gap-4">
                         {formData.logo_dark_url && (
-                          <div className="w-32 h-32 border rounded-lg p-2 bg-gray-900">
-                            <img
+                          <div className="relative w-32 h-32 border rounded-lg p-2 bg-gray-900">
+                            <OptimizedImage
                               src={formData.logo_dark_url}
                               alt="Dark logo"
-                              className="w-full h-full object-contain"
+                              fill
+                              sizes="128px"
+                              className="p-2"
+                              objectFit="contain"
                             />
                           </div>
                         )}
@@ -398,11 +405,14 @@ export default function WhiteLabelSettingsPage() {
                       <Label>Icon Logo (Favicon)</Label>
                       <div className="flex items-center gap-4">
                         {formData.logo_icon_url && (
-                          <div className="w-16 h-16 border rounded-lg p-1 bg-white">
-                            <img
+                          <div className="relative w-16 h-16 border rounded-lg p-1 bg-white">
+                            <OptimizedImage
                               src={formData.logo_icon_url}
                               alt="Icon logo"
-                              className="w-full h-full object-contain"
+                              fill
+                              sizes="64px"
+                              className="p-1"
+                              objectFit="contain"
                             />
                           </div>
                         )}
@@ -427,11 +437,14 @@ export default function WhiteLabelSettingsPage() {
                       <Label>Email Logo</Label>
                       <div className="flex items-center gap-4">
                         {formData.logo_email_url && (
-                          <div className="w-48 h-24 border rounded-lg p-2 bg-white">
-                            <img
+                          <div className="relative w-48 h-24 border rounded-lg p-2 bg-white">
+                            <OptimizedImage
                               src={formData.logo_email_url}
                               alt="Email logo"
-                              className="w-full h-full object-contain"
+                              fill
+                              sizes="192px"
+                              className="p-2"
+                              objectFit="contain"
                             />
                           </div>
                         )}
@@ -938,11 +951,15 @@ export default function WhiteLabelSettingsPage() {
                   }}
                 >
                   {formData.logo_url && (
-                    <img
-                      src={formData.logo_url}
-                      alt="Logo preview"
-                      className="h-8 object-contain"
-                    />
+                    <div className="relative h-8 w-32">
+                      <OptimizedImage
+                        src={formData.logo_url}
+                        alt="Logo preview"
+                        fill
+                        sizes="128px"
+                        objectFit="contain"
+                      />
+                    </div>
                   )}
                   <h3
                     className="text-xl font-bold"

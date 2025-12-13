@@ -20,6 +20,7 @@ import {
 import { Camera, X, Loader2 } from 'lucide-react';
 import { captureAndPrepareScreenshot } from '@/lib/screenshot-utils';
 import { FieldError } from '@/components/error/error-message';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 export interface BugReportData {
   title: string;
@@ -292,18 +293,21 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
             </div>
           ) : screenshot ? (
             <div className="space-y-2">
-              <div className="relative">
-                <img
+              <div className="relative w-full h-64">
+                <OptimizedImage
                   src={screenshot.preview}
                   alt="Screenshot"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 600px"
                   className="rounded border"
+                  objectFit="contain"
                   data-testid="screenshot-image"
                 />
                 <Button
                   type="button"
                   variant="destructive"
                   size="icon"
-                  className="absolute top-2 right-2"
+                  className="absolute top-2 right-2 z-10"
                   onClick={handleRemoveScreenshot}
                   data-testid="screenshot-remove"
                 >

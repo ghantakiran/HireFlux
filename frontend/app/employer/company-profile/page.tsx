@@ -36,6 +36,7 @@ import {
   Sparkles,
   AlertCircle,
 } from 'lucide-react';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 // ============================================================================
 // Types & Interfaces
@@ -832,12 +833,15 @@ export default function CompanyProfileSetupPage() {
               {/* Logo Preview or Placeholder */}
               <div className="flex-shrink-0">
                 {profile.logo ? (
-                  <div className="relative">
-                    <img
+                  <div className="relative w-32 h-32">
+                    <OptimizedImage
                       data-logo-preview
                       src={profile.logo}
                       alt="Company logo"
-                      className="w-32 h-32 rounded-lg object-cover border border-gray-200"
+                      width={128}
+                      height={128}
+                      className="rounded-lg border border-gray-200"
+                      objectFit="cover"
                     />
                     <button
                       data-logo-remove-button
@@ -900,7 +904,16 @@ export default function CompanyProfileSetupPage() {
             {showLogoConfirm && logoPreview && (
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm font-medium mb-2">Preview your logo:</p>
-                <img src={logoPreview} alt="Logo preview" className="w-24 h-24 rounded-lg object-cover mb-3" />
+                <div className="relative w-24 h-24 mb-3">
+                  <OptimizedImage
+                    src={logoPreview}
+                    alt="Logo preview"
+                    width={96}
+                    height={96}
+                    className="rounded-lg"
+                    objectFit="cover"
+                  />
+                </div>
                 <div className="flex gap-2">
                   <button
                     data-logo-upload-confirm

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { X, ChevronLeft, ChevronRight, SkipForward } from 'lucide-react';
 import { TourStep as TourStepType } from '@/lib/tours/types';
 import { useTour } from './tour-provider';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 export interface TourBottomSheetProps {
   step: TourStepType;
@@ -224,8 +225,15 @@ export function TourBottomSheet({
             </p>
 
             {step.image && (
-              <div className="mt-4 rounded-lg overflow-hidden">
-                <img src={step.image} alt={step.title} className="w-full" />
+              <div className="mt-4 rounded-lg overflow-hidden relative w-full h-48">
+                <OptimizedImage
+                  src={step.image}
+                  alt={step.title}
+                  fill
+                  sizes="100vw"
+                  className="rounded-lg"
+                  objectFit="cover"
+                />
               </div>
             )}
           </div>

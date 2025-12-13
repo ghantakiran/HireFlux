@@ -42,6 +42,7 @@ import {
   Upload,
   AlertCircle,
 } from 'lucide-react';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 // Portfolio item types
 export type PortfolioItemType = 'github' | 'website' | 'article' | 'project';
@@ -255,11 +256,16 @@ export default function PortfolioManagement({
 
                 {/* Thumbnail */}
                 {item.thumbnailUrl && (
-                  <img
-                    src={item.thumbnailUrl}
-                    alt={item.title}
-                    className="h-16 w-16 rounded object-cover"
-                  />
+                  <div className="relative h-16 w-16">
+                    <OptimizedImage
+                      src={item.thumbnailUrl}
+                      alt={item.title}
+                      width={64}
+                      height={64}
+                      className="rounded"
+                      objectFit="cover"
+                    />
+                  </div>
                 )}
 
                 {/* Icon if no thumbnail */}
@@ -431,11 +437,16 @@ export default function PortfolioManagement({
                 className="flex-1"
               />
               {newItem.thumbnailUrl && (
-                <img
-                  src={newItem.thumbnailUrl}
-                  alt="Preview"
-                  className="h-10 w-10 rounded object-cover"
-                />
+                <div className="relative h-10 w-10">
+                  <OptimizedImage
+                    src={newItem.thumbnailUrl}
+                    alt="Preview"
+                    width={40}
+                    height={40}
+                    className="rounded"
+                    objectFit="cover"
+                  />
+                </div>
               )}
             </div>
           </div>

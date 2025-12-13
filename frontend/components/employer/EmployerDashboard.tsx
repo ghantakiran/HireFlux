@@ -25,6 +25,7 @@ import {
   Eye,
   Activity,
 } from 'lucide-react';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 // Types
 interface DashboardStats {
@@ -153,11 +154,16 @@ export function EmployerDashboard({
               <p className="text-gray-600 mt-1">Welcome back! Here's your hiring overview.</p>
             </div>
             {data.company.logo && (
-              <img
-                src={data.company.logo}
-                alt={`${data.company.name} logo`}
-                className="w-16 h-16 rounded-lg object-cover"
-              />
+              <div className="relative w-16 h-16">
+                <OptimizedImage
+                  src={data.company.logo}
+                  alt={`${data.company.name} logo`}
+                  width={64}
+                  height={64}
+                  className="rounded-lg"
+                  objectFit="cover"
+                />
+              </div>
             )}
           </div>
         </div>

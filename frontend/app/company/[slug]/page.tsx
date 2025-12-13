@@ -25,6 +25,7 @@ import {
   Instagram,
   CheckCircle2,
 } from 'lucide-react';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 // ============================================================================
 // Types
@@ -230,12 +231,16 @@ export default function CompanyPublicProfilePage({ params }: { params: { slug: s
             <div className="flex items-start gap-6">
               {/* Company Logo */}
               {company.logo && (
-                <img
-                  data-company-logo
-                  src={company.logo}
-                  alt={`${company.name} logo`}
-                  className="w-24 h-24 rounded-lg object-cover border border-gray-200"
-                />
+                <div className="relative w-24 h-24" data-company-logo>
+                  <OptimizedImage
+                    src={company.logo}
+                    alt={`${company.name} logo`}
+                    width={96}
+                    height={96}
+                    className="rounded-lg border border-gray-200"
+                    objectFit="cover"
+                  />
+                </div>
               )}
 
               <div className="flex-1">

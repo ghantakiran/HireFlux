@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Upload, X, Loader2, Image as ImageIcon } from 'lucide-react';
 import { FieldError } from '@/components/error/error-message';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 export interface FeatureRequestData {
   title: string;
@@ -233,17 +234,20 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
           {mockups.length > 0 && (
             <div className="grid grid-cols-3 gap-2" data-testid="mockup-preview">
               {mockups.map((mockup, index) => (
-                <div key={index} className="relative group">
-                  <img
+                <div key={index} className="relative group h-24">
+                  <OptimizedImage
                     src={mockup.preview}
                     alt={`Mockup ${index + 1}`}
-                    className="w-full h-24 object-cover rounded border"
+                    fill
+                    sizes="(max-width: 768px) 33vw, 150px"
+                    className="rounded border"
+                    objectFit="cover"
                   />
                   <Button
                     type="button"
                     variant="destructive"
                     size="icon"
-                    className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                     onClick={() => handleRemoveMockup(index)}
                   >
                     <X className="h-3 w-3" />
