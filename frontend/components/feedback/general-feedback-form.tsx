@@ -134,7 +134,7 @@ export function GeneralFeedbackForm({ onSubmit, onCancel }: GeneralFeedbackFormP
             </button>
           ))}
         </div>
-        {formData.rating > 0 && (
+        {formData.rating && formData.rating > 0 && (
           <p className="text-sm text-muted-foreground mt-1">
             {formData.rating === 5 && 'Excellent!'}
             {formData.rating === 4 && 'Good'}
