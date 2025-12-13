@@ -1,6 +1,7 @@
 /**
  * Tour Orchestrator Component
  * Manages the tour flow: welcome modal → active tour → completion
+ * Responsive: TourBottomSheet on mobile, TourStep on desktop
  */
 
 'use client';
@@ -9,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { useTour } from './tour-provider';
 import { TourModal } from './tour-modal';
 import { TourStep } from './tour-step';
+import { TourBottomSheet } from './tour-bottom-sheet';
 import { toast } from 'sonner';
 
 export function TourOrchestrator() {
@@ -24,6 +26,19 @@ export function TourOrchestrator() {
 
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [tourJustStarted, setTourJustStarted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Show welcome modal when tour becomes active
   useEffect(() => {
@@ -81,18 +96,23 @@ export function TourOrchestrator() {
   }
 
   if (currentStep) {
-    return (
-      <TourStep
-        step={currentStep}
-        stepNumber={currentStepIndex + 1}
-        totalSteps={activeTour.steps.length}
-        isFirst={currentStepIndex === 0}
-        isLast={currentStepIndex === activeTour.steps.length - 1}
-        onNext={handleNext}
-        onPrevious={previousStep}
-        onSkip={handleSkipFromStep}
-        onClose={handleClose}
-      />
+    const stepProps = {
+      step: currentStep,
+      stepNumber: currentStepIndex + 1,
+      totalSteps: activeTour.steps.length,
+      isFirst: currentStepIndex === 0,
+      isLast: currentStepIndex === activeTour.steps.length - 1,
+      onNext: handleNext,
+      onPrevious: previousStep,
+      onSkip: handleSkipFromStep,
+      onClose: handleClose,
+    };
+
+    // Use bottom sheet on mobile, regular step on desktop
+    return isMobile ? (
+      <TourBottomSheet {...stepProps} />
+    ) : (
+      <TourStep {...stepProps} />
     );
   }
 
