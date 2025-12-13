@@ -12,6 +12,7 @@ import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
 import { KeyboardNavigationProvider } from '@/components/providers/keyboard-navigation-provider';
 import { WebVitalsReporter } from '@/components/web-vitals-reporter';
 import { PWAInstaller } from '@/components/pwa-installer';
+import { FeedbackProvider } from '@/components/feedback/feedback-provider';
 
 // Optimized font loading with display: swap to prevent FOIT
 const inter = Inter({
@@ -64,15 +65,17 @@ export default function RootLayout({
             <QueryClientProvider>
               <KeyboardNavigationProvider>
                 <AuthProvider>
-                  {/* SkipLink moved to AppShell component for consistency */}
-                  <NetworkStatusIndicator />
-                  <div id="main-content">
-                    {children}
-                  </div>
-                  <Toaster position="top-right" richColors />
-                  <KeyboardShortcutsHelp />
-                  <WebVitalsReporter />
-                  <PWAInstaller />
+                  <FeedbackProvider>
+                    {/* SkipLink moved to AppShell component for consistency */}
+                    <NetworkStatusIndicator />
+                    <div id="main-content">
+                      {children}
+                    </div>
+                    <Toaster position="top-right" richColors />
+                    <KeyboardShortcutsHelp />
+                    <WebVitalsReporter />
+                    <PWAInstaller />
+                  </FeedbackProvider>
                 </AuthProvider>
               </KeyboardNavigationProvider>
             </QueryClientProvider>
