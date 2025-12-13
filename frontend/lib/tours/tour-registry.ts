@@ -314,7 +314,7 @@ const coverLetterTour: TourConfig = {
       id: 'cover-letter-1',
       target: '[data-tour="job-selection"]',
       title: 'Select the Job',
-      content: 'Choose the job you're applying for. We'll tailor your cover letter to the role.',
+      content: 'Choose the job you\'re applying for. We\'ll tailor your cover letter to the role.',
       placement: 'right',
     },
     {

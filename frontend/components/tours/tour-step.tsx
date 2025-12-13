@@ -184,7 +184,6 @@ export function TourStep({
             e.stopPropagation();
             onClose();
           }}
-          data-testid="tour-overlay"
         />
       )}
 

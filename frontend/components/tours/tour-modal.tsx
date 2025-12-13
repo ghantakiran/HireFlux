@@ -30,10 +30,10 @@ export function TourModal({ isOpen, title, description, tourName, stepCount, onS
         aria-describedby="tour-modal-description"
       >
         <DialogHeader>
-          <DialogTitle id="tour-modal-title" className="text-2xl font-bold">
+          <DialogTitle className="text-2xl font-bold">
             {title}
           </DialogTitle>
-          <DialogDescription id="tour-modal-description" className="text-base pt-2">
+          <DialogDescription className="text-base pt-2">
             {description}
           </DialogDescription>
         </DialogHeader>

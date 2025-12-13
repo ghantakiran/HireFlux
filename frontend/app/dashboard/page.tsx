@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { analyticsApi } from '@/lib/api';
+import { useTourTrigger } from '@/lib/tours/useTourTrigger';
 import {
   TrendingUp,
   TrendingDown,
@@ -96,6 +97,9 @@ export default function DashboardPage() {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [healthScoreExpanded, setHealthScoreExpanded] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+  // Auto-start dashboard tour on first visit
+  useTourTrigger('dashboard');
 
   const fetchDashboardData = async () => {
     try {
@@ -208,7 +212,7 @@ export default function DashboardPage() {
               <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
               <p className="text-gray-600 mt-1">Track your job search progress</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div data-tour="quick-actions" className="flex items-center gap-3">
               <span className="text-sm text-gray-500" data-testid="last-updated">
                 Updated {lastUpdated.toLocaleTimeString()}
               </span>
@@ -284,13 +288,13 @@ export default function DashboardPage() {
       )}
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div id="dashboard-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'Overview' && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Overview</h2>
 
             {/* Quick Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div data-tour="stats-cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white p-6 rounded-lg shadow" data-testid="stat-applications-week">
                 <div className="flex items-center justify-between">
                   <div>
@@ -517,7 +521,7 @@ export default function DashboardPage() {
             )}
 
             {/* Activity Timeline */}
-            <div className="bg-white p-6 rounded-lg shadow" data-testid="activity-timeline">
+            <div data-tour="recent-applications" className="bg-white p-6 rounded-lg shadow" data-testid="activity-timeline">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
               <div className="space-y-4">
                 {data.recent_activities && data.recent_activities.length > 0 ? (
@@ -551,7 +555,7 @@ export default function DashboardPage() {
             {/* Recommendations */}
             {data.health_score.recommendations &&
               data.health_score.recommendations.length > 0 && (
-                <div className="bg-white p-6 rounded-lg shadow" data-testid="recommendations-section">
+                <div data-tour="job-matches" className="bg-white p-6 rounded-lg shadow" data-testid="recommendations-section">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommendations</h3>
                   <div className="space-y-3">
                     {data.health_score.recommendations.map((rec, index) => (
