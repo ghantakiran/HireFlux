@@ -15,6 +15,7 @@ import { PWAInstaller } from '@/components/pwa-installer';
 import { FeedbackProvider } from '@/components/feedback/feedback-provider';
 import { TourProvider } from '@/components/tours/tour-provider';
 import { TourOrchestrator } from '@/components/tours/tour-orchestrator';
+import { TooltipManager } from '@/components/tours/tooltip-manager';
 
 // Optimized font loading with display: swap to prevent FOIT
 const inter = Inter({
@@ -79,6 +80,7 @@ export default function RootLayout({
                       <WebVitalsReporter />
                       <PWAInstaller />
                       <TourOrchestrator />
+                      <TooltipManager />
                     </FeedbackProvider>
                   </TourProvider>
                 </AuthProvider>
