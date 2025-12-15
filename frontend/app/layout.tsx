@@ -5,8 +5,9 @@ import { AuthProvider } from '@/components/auth/AuthProvider';
 import { QueryClientProvider } from '@/components/providers/query-client-provider';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/components/providers/theme-provider';
-import { ErrorBoundary } from '@/components/error/error-boundary';
-import { NetworkStatusIndicator } from '@/components/network-status-indicator';
+import { ErrorBoundary } from '@/components/errors/error-boundary';
+import { ErrorProvider } from '@/components/errors/error-provider';
+import { OfflineBanner } from '@/components/errors/offline-banner';
 // SkipLink removed from here - now handled by AppShell component
 import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
 import { KeyboardNavigationProvider } from '@/components/providers/keyboard-navigation-provider';
@@ -64,28 +65,30 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ThemeProvider>
-          <ErrorBoundary>
-            <QueryClientProvider>
-              <KeyboardNavigationProvider>
-                <AuthProvider>
-                  <TourProvider>
-                    <FeedbackProvider>
-                      {/* SkipLink moved to AppShell component for consistency */}
-                      <NetworkStatusIndicator />
-                      <div id="main-content">
-                        {children}
-                      </div>
-                      <Toaster position="top-right" richColors />
-                      <KeyboardShortcutsHelp />
-                      <WebVitalsReporter />
-                      <PWAInstaller />
-                      <TourOrchestrator />
-                      <TooltipManager />
-                    </FeedbackProvider>
-                  </TourProvider>
-                </AuthProvider>
-              </KeyboardNavigationProvider>
-            </QueryClientProvider>
+          <ErrorBoundary componentName="RootLayout">
+            <ErrorProvider>
+              <QueryClientProvider>
+                <KeyboardNavigationProvider>
+                  <AuthProvider>
+                    <TourProvider>
+                      <FeedbackProvider>
+                        {/* SkipLink moved to AppShell component for consistency */}
+                        <OfflineBanner position="top" />
+                        <div id="main-content">
+                          {children}
+                        </div>
+                        <Toaster position="top-right" richColors />
+                        <KeyboardShortcutsHelp />
+                        <WebVitalsReporter />
+                        <PWAInstaller />
+                        <TourOrchestrator />
+                        <TooltipManager />
+                      </FeedbackProvider>
+                    </TourProvider>
+                  </AuthProvider>
+                </KeyboardNavigationProvider>
+              </QueryClientProvider>
+            </ErrorProvider>
           </ErrorBoundary>
         </ThemeProvider>
       </body>
