@@ -66,6 +66,7 @@
     "zustand": "^4.5.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
     "@faker-js/faker": "^10.1.0",
     "@playwright/test": "^1.40.0",
     "@storybook/addon-a11y": "^8.6.14",
@@ -76,10 +77,13 @@
     "@testing-library/jest-dom": "^6.1.0",
     "@testing-library/react": "^14.1.0",
     "@testing-library/user-event": "^14.6.1",
-    "@types/node": "^20.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.19.27",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "autoprefixer": "^10.0.1",
+    "axe-core": "^4.11.0",
+    "axe-playwright": "^2.2.2",
     "critters": "^0.0.23",
     "eslint": "^8.0.0",
     "eslint-config-next": "^14.0.0",
