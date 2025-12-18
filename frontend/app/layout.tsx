@@ -27,21 +27,27 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'HireFlux - AI-Powered Job Application Copilot',
+  title: {
+    default: 'HireFlux - AI-Powered Job Application Copilot',
+    template: '%s | HireFlux',
+  },
   description:
     'Streamline your job search with AI-powered resume generation, job matching, and automated applications.',
   keywords: ['job search', 'resume builder', 'AI', 'career', 'job application'],
-  // Viewport optimization for mobile
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-  },
   // Performance hints
   other: {
     'format-detection': 'telephone=no',
   },
 };
+
+// Viewport configuration moved to separate export (Next.js 14+ requirement)
+export function generateViewport() {
+  return {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  };
+}
 
 export default function RootLayout({
   children,
