@@ -7,12 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Zap, Target, FileText, Users, TrendingUp, CheckCircle, Menu, X } from 'lucide-react';
+import { SkipLink } from '@/components/skip-link';
 
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Skip to Main Content */}
+      <SkipLink />
       {/* Navigation */}
       <nav className="border-b">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -65,7 +68,7 @@ export default function HomePage() {
       </Dialog>
 
       {/* Hero Section - AIApply Style */}
-      <main className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         <section data-testid="hero-section" className="container mx-auto px-4 py-24 md:py-32">
           <div className="mx-auto max-w-4xl text-center">
             <Badge variant="secondary" className="mb-4">
