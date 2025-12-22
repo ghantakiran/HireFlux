@@ -7,10 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Settings, User, Bell, CreditCard, Coins } from "lucide-react"
 
 export default function SettingsPage() {
-  // Set document title for WCAG 2.1 AA compliance (Issue #148)
-  useEffect(() => {
-    document.title = 'Settings | HireFlux';
-  }, []);
+  // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
 
   const router = useRouter();
   const pathname = usePathname();

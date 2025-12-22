@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,10 +10,7 @@ import { Zap, Target, FileText, Users, TrendingUp, CheckCircle, Menu, X } from '
 import { SkipLink } from '@/components/skip-link';
 
 export default function HomePage() {
-  // Set document title for WCAG 2.1 AA compliance (Issue #148)
-  useEffect(() => {
-    document.title = 'HireFlux - AI-Powered Job Application Copilot';
-  }, []);
+  // Note: Page title set via metadata in root layout.tsx for WCAG 2.1 AA compliance (Issue #148)
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

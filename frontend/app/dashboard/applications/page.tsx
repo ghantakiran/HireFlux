@@ -43,10 +43,7 @@ const PIPELINE_STAGES: PipelineStage[] = [
 type SortOption = 'newest' | 'oldest' | 'fitIndex' | 'company';
 
 export default function ApplicationTrackingDashboardPage() {
-  // Set document title for WCAG 2.1 AA compliance (Issue #148)
-  useEffect(() => {
-    document.title = 'Applications | HireFlux';
-  }, []);
+  // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
 
   // State
   const [applications, setApplications] = useState<Application[]>([]);

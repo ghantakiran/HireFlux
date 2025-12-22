@@ -292,8 +292,9 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('4.4 Page should have descriptive title (2.4.2 Page Titled)', async ({ page }) => {
       const pages = [
         { url: '/', expectedTitleContains: 'HireFlux' },
-        { url: '/login', expectedTitleContains: 'Login' },
-        { url: '/register', expectedTitleContains: 'Register' },
+        { url: '/signin', expectedTitleContains: 'Sign In' },
+        { url: '/signup', expectedTitleContains: 'Sign Up' },
+        { url: '/employer/login', expectedTitleContains: 'Login' },
         { url: '/dashboard', expectedTitleContains: 'Dashboard' },
       ];
 

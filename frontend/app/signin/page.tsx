@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -29,10 +29,7 @@ const signInSchema = z.object({
 type SignInFormData = z.infer<typeof signInSchema>;
 
 export default function SignInPage() {
-  // Set document title for WCAG 2.1 AA compliance (Issue #148)
-  useEffect(() => {
-    document.title = 'Sign In | HireFlux';
-  }, []);
+  // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
 
   const router = useRouter();
   const { setUser, setTokens } = useAuthStore();
