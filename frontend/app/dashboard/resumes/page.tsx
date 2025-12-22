@@ -34,6 +34,11 @@ import {
 import { ResumeCardSkeleton } from '@/components/skeletons/card-skeleton';
 
 export default function ResumesPage() {
+  // Set document title for WCAG 2.1 AA compliance (Issue #148)
+  useEffect(() => {
+    document.title = 'Resume Builder | HireFlux';
+  }, []);
+
   const router = useRouter();
   const {
     resumes,

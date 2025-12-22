@@ -55,6 +55,11 @@ import {
 import { toast } from 'sonner';
 
 export default function CoverLettersPage() {
+  // Set document title for WCAG 2.1 AA compliance (Issue #148)
+  useEffect(() => {
+    document.title = 'Cover Letters | HireFlux';
+  }, []);
+
   const router = useRouter();
   const {
     coverLetters,

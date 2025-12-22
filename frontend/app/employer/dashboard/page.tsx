@@ -72,6 +72,11 @@ interface RecentActivity {
 }
 
 export default function EmployerDashboardPage() {
+  // Set document title for WCAG 2.1 AA compliance (Issue #148)
+  useEffect(() => {
+    document.title = 'Employer Dashboard | HireFlux';
+  }, []);
+
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [pipeline, setPipeline] = useState<PipelineData | null>(null);

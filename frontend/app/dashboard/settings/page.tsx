@@ -1,11 +1,17 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Settings, User, Bell, CreditCard, Coins } from "lucide-react"
 
 export default function SettingsPage() {
+  // Set document title for WCAG 2.1 AA compliance (Issue #148)
+  useEffect(() => {
+    document.title = 'Settings | HireFlux';
+  }, []);
+
   const router = useRouter();
   const pathname = usePathname();
 

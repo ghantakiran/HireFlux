@@ -83,6 +83,11 @@ interface JobFormData {
 }
 
 export default function NewJobPage() {
+  // Set document title for WCAG 2.1 AA compliance (Issue #148)
+  useEffect(() => {
+    document.title = 'Post New Job | HireFlux';
+  }, []);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const isDuplicate = searchParams.get('duplicate') === 'true';
