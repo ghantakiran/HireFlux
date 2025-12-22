@@ -37,6 +37,11 @@ import { CompanyLogo } from '@/components/ui/optimized-image';
 import { NoJobsEmptyState } from '@/components/ui/empty-state';
 
 export default function JobsPage() {
+  // Set document title for WCAG 2.1 AA compliance (Issue #148)
+  useEffect(() => {
+    document.title = 'Job Matches | HireFlux';
+  }, []);
+
   const router = useRouter();
   const {
     jobs,

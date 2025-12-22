@@ -98,6 +98,11 @@ export default function DashboardPage() {
   const [healthScoreExpanded, setHealthScoreExpanded] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
+  // Set document title for WCAG 2.1 AA compliance (Issue #148)
+  useEffect(() => {
+    document.title = 'Dashboard | HireFlux';
+  }, []);
+
   // Auto-start dashboard tour on first visit
   useTourTrigger('dashboard');
 
