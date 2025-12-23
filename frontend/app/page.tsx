@@ -70,8 +70,7 @@ export default function HomePage() {
       </Dialog>
 
       {/* Hero Section - AIApply Style */}
-      <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
-        <section data-testid="hero-section" className="container mx-auto px-4 py-24 md:py-32">
+      <section data-testid="hero-section" className="container mx-auto px-4 py-24 md:py-32">
           <div className="mx-auto max-w-4xl text-center">
             <Badge variant="secondary" className="mb-4">
               <Zap className="h-3 w-3 mr-1" />
@@ -341,7 +340,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-      </main>
 
       {/* Footer */}
       <footer className="border-t py-8">
