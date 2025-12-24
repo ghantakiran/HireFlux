@@ -95,6 +95,7 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
   return (
     <>
       {/* Mobile Top Bar (visible only on mobile) */}
+      {/* Elements use tabIndex={-1} to prevent focus when hidden on desktop - Issue #149 */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b flex items-center justify-between px-4">
         {/* Hamburger Icon */}
         <Button
@@ -102,19 +103,27 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
           size="icon"
           onClick={() => setOpen(true)}
           data-hamburger-icon
+          className="lg:sr-only"
+          tabIndex={-1}
         >
           <Menu className="h-6 w-6" />
         </Button>
 
         {/* Logo (centered on mobile) */}
-        <Link href={role === 'employer' ? '/employer/dashboard' : '/dashboard'} data-logo>
+        <Link
+          href={role === 'employer' ? '/employer/dashboard' : '/dashboard'}
+          data-logo
+          className="lg:sr-only"
+          tabIndex={-1}
+        >
           <span className="text-xl font-bold text-blue-600">HireFlux</span>
         </Link>
 
         {/* User Avatar */}
         <div
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold lg:sr-only"
           data-profile-menu-trigger
+          tabIndex={-1}
         >
           {user?.first_name?.[0]}{user?.last_name?.[0]}
         </div>

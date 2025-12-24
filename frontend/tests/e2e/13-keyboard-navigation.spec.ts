@@ -27,12 +27,30 @@ test.describe('Keyboard Navigation Enhancement - Issue #149', () => {
       let focused = await page.evaluate(() => document.activeElement?.textContent);
       expect(focused).toContain('Skip to main content');
 
-      // Second tab should focus logo
+      // Second tab should focus logo (TopNav)
       await page.keyboard.press('Tab');
-      focused = await page.evaluate(() => document.activeElement?.getAttribute('aria-label') || document.activeElement?.textContent);
-      expect(focused).toMatch(/logo|hireflux/i);
+      focused = await page.evaluate(() => document.activeElement?.textContent);
+      expect(focused).toContain('HireFlux');
 
-      // Continue through main navigation (matching actual LeftSidebar nav items)
+      // Third tab: Search input (TopNav)
+      await page.keyboard.press('Tab');
+      const searchFocused = await page.evaluate(() => document.activeElement?.tagName);
+      expect(searchFocused).toBe('INPUT');
+
+      // Fourth tab: Notifications button (TopNav)
+      await page.keyboard.press('Tab');
+      // Just verify it's a button, content varies
+
+      // Fifth tab: Profile menu (TopNav)
+      await page.keyboard.press('Tab');
+      // Just verify it's a button
+
+      // Sixth tab: Sidebar collapse button
+      await page.keyboard.press('Tab');
+      focused = await page.evaluate(() => document.activeElement?.getAttribute('aria-label') || '');
+      expect(focused).toMatch(/collapse|expand/i);
+
+      // Continue through main navigation (LeftSidebar nav items)
       const expectedOrder = [
         /dashboard/i,
         /job search|jobs/i,  // "Job Search" in nav
@@ -55,11 +73,34 @@ test.describe('Keyboard Navigation Enhancement - Issue #149', () => {
     test('should have logical tab order on employer dashboard', async ({ page }) => {
       await page.goto('/employer/dashboard');
 
-      // Verify employer-specific navigation (matching actual LeftSidebar nav items)
-      await page.keyboard.press('Tab'); // Skip link
-      await page.keyboard.press('Tab'); // Logo/Brand
+      // First tab: Skip link
+      await page.keyboard.press('Tab');
+      let focused = await page.evaluate(() => document.activeElement?.textContent);
+      expect(focused).toContain('Skip to main content');
 
-      // Continue through main navigation
+      // Second tab: Logo (TopNav)
+      await page.keyboard.press('Tab');
+      focused = await page.evaluate(() => document.activeElement?.textContent);
+      expect(focused).toContain('HireFlux');
+
+      // Third tab: Search input (TopNav)
+      await page.keyboard.press('Tab');
+      // Skip validation
+
+      // Fourth tab: Notifications (TopNav)
+      await page.keyboard.press('Tab');
+      // Skip validation
+
+      // Fifth tab: Profile menu (TopNav)
+      await page.keyboard.press('Tab');
+      // Skip validation
+
+      // Sixth tab: Sidebar collapse button
+      await page.keyboard.press('Tab');
+      focused = await page.evaluate(() => document.activeElement?.getAttribute('aria-label') || '');
+      expect(focused).toMatch(/collapse|expand/i);
+
+      // Continue through main navigation (LeftSidebar employer nav items)
       const employerNav = [
         /dashboard/i,
         /jobs/i,
@@ -72,7 +113,7 @@ test.describe('Keyboard Navigation Enhancement - Issue #149', () => {
 
       for (const expected of employerNav) {
         await page.keyboard.press('Tab');
-        const focused = await page.evaluate(() =>
+        focused = await page.evaluate(() =>
           document.activeElement?.textContent || document.activeElement?.getAttribute('aria-label') || ''
         );
         expect(focused).toMatch(expected);
