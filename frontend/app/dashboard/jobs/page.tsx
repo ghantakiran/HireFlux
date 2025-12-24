@@ -37,8 +37,6 @@ import { CompanyLogo } from '@/components/ui/optimized-image';
 import { NoJobsEmptyState } from '@/components/ui/empty-state';
 
 export default function JobsPage() {
-  // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
-
   const router = useRouter();
   const {
     jobs,
@@ -60,6 +58,9 @@ export default function JobsPage() {
   const [savingJobId, setSavingJobId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Set document title for WCAG 2.1 AA compliance (Issue #148)
+    document.title = 'Job Matches | HireFlux';
+
     // Fetch jobs on mount
     fetchJobs();
     // Fetch saved jobs to know which jobs are bookmarked

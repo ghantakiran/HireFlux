@@ -131,13 +131,40 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test.beforeEach(async ({ page }) => {
       // Mock authentication for job seeker
       await page.goto('/');
-      // TODO: Add proper authentication once login flow is implemented
-      // For now, we'll test public pages
+
+      // Set up mock authentication in localStorage
+      await page.evaluate(() => {
+        const mockAuthState = {
+          state: {
+            user: {
+              id: 'test-user-123',
+              email: 'test@example.com',
+              first_name: 'Test',
+              last_name: 'User',
+              full_name: 'Test User',
+              onboarding_completed: true,
+              subscription_tier: 'free',
+              is_verified: true,
+            },
+            accessToken: 'mock-access-token',
+            refreshToken: 'mock-refresh-token',
+            isAuthenticated: true,
+            isLoading: false,
+            isInitialized: true,
+            error: null,
+          },
+          version: 0,
+        };
+        localStorage.setItem('auth-storage', JSON.stringify(mockAuthState));
+      });
     });
 
     test('2.1 Dashboard should have no accessibility violations', async ({ page }) => {
       await page.goto('/dashboard');
       await page.waitForLoadState('networkidle');
+
+      // Wait for document title to be set (useEffect timing)
+      await page.waitForFunction(() => document.title && document.title !== '', { timeout: 5000 });
 
       const results = await runAccessibilityScan(page, 'Dashboard');
       assertNoViolations(results, 'Dashboard');
@@ -192,12 +219,40 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test.beforeEach(async ({ page }) => {
       // Mock authentication for employer
       await page.goto('/');
-      // TODO: Add proper authentication once login flow is implemented
+
+      // Set up mock authentication in localStorage
+      await page.evaluate(() => {
+        const mockAuthState = {
+          state: {
+            user: {
+              id: 'test-employer-123',
+              email: 'employer@example.com',
+              first_name: 'Test',
+              last_name: 'Employer',
+              full_name: 'Test Employer',
+              onboarding_completed: true,
+              subscription_tier: 'professional',
+              is_verified: true,
+            },
+            accessToken: 'mock-employer-access-token',
+            refreshToken: 'mock-employer-refresh-token',
+            isAuthenticated: true,
+            isLoading: false,
+            isInitialized: true,
+            error: null,
+          },
+          version: 0,
+        };
+        localStorage.setItem('auth-storage', JSON.stringify(mockAuthState));
+      });
     });
 
     test('3.1 Employer Dashboard should have no accessibility violations', async ({ page }) => {
       await page.goto('/employer/dashboard');
       await page.waitForLoadState('networkidle');
+
+      // Wait for document title to be set (useEffect timing)
+      await page.waitForFunction(() => document.title && document.title !== '', { timeout: 5000 });
 
       const results = await runAccessibilityScan(page, 'Employer Dashboard');
       assertNoViolations(results, 'Employer Dashboard');

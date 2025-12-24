@@ -130,6 +130,9 @@ export default function EmployerDashboardPage() {
 
   // Initial load
   useEffect(() => {
+    // Set document title for WCAG 2.1 AA compliance (Issue #148)
+    document.title = 'Employer Dashboard | HireFlux';
+
     fetchDashboardData();
 
     // Auto-refresh every 30 seconds

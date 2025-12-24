@@ -98,7 +98,11 @@ export default function DashboardPage() {
   const [healthScoreExpanded, setHealthScoreExpanded] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
+  // Set document title for WCAG 2.1 AA compliance (Issue #148)
+  // Client-side workaround needed because parent DashboardLayout is a client component
+  useEffect(() => {
+    document.title = 'Dashboard | HireFlux';
+  }, []);
 
   // Auto-start dashboard tour on first visit
   useTourTrigger('dashboard');
