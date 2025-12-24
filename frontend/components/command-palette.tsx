@@ -187,8 +187,15 @@ export function CommandPalette({ isOpen, onClose, role = 'job_seeker' }: Command
         aria-labelledby="command-palette-title"
         className="fixed left-1/2 top-[20%] -translate-x-1/2 z-[9999] w-full max-w-2xl bg-white rounded-lg shadow-2xl overflow-hidden"
       >
+        {/* Title */}
+        <div className="px-4 pt-4 pb-2">
+          <h2 id="command-palette-title" className="text-lg font-semibold text-gray-900">
+            Command Palette
+          </h2>
+        </div>
+
         {/* Search Input */}
-        <div className="p-4 border-b border-gray-200">
+        <div className="px-4 pb-4 border-b border-gray-200">
           <input
             ref={inputRef}
             type="text"

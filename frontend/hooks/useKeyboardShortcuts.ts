@@ -163,8 +163,8 @@ export const createGlobalShortcuts = (handlers: {
     action: handlers.onOpenCommandPalette,
   },
   {
-    key: '?',
-    shiftKey: true, // Shift+/ produces ?
+    key: '/',
+    shiftKey: true, // Shift+/ to show shortcuts help
     description: 'Show keyboard shortcuts',
     action: handlers.onOpenShortcutsHelp,
   },
