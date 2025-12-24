@@ -45,6 +45,23 @@ export function DropdownMenu({ open: controlledOpen, onOpenChange, children }: D
     };
   }, [isOpen, setOpen]);
 
+  // Handle Escape key to close dropdown (WCAG 2.1 AA - Issue #149)
+  React.useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        setOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, setOpen]);
+
   return (
     <DropdownMenuContext.Provider value={{ open: isOpen, setOpen }}>
       <div className="relative" ref={dropdownRef}>
@@ -102,6 +119,8 @@ export function DropdownMenuContent({ children, align = 'end', className }: Drop
         alignmentClasses[align],
         className
       )}
+      role="menu"
+      aria-orientation="vertical"
     >
       <div className="py-1">{children}</div>
     </div>

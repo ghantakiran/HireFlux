@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
+import { ModalStackManager } from './modal-stack-context';
 
 interface DialogProps {
   open?: boolean;
@@ -40,6 +41,8 @@ interface DialogTriggerProps {
 }
 
 export function Dialog({ open, onOpenChange, children }: DialogProps) {
+  const modalId = React.useId();
+
   React.useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -50,6 +53,34 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
       document.body.style.overflow = 'unset';
     };
   }, [open]);
+
+  // Register/unregister with modal stack for nested modal support
+  React.useEffect(() => {
+    if (open) {
+      ModalStackManager.register(modalId, () => onOpenChange?.(false));
+      return () => {
+        ModalStackManager.unregister(modalId);
+      };
+    }
+  }, [open, modalId, onOpenChange]);
+
+  // Handle Escape key to close modal (WCAG 2.1 AA - Issue #149)
+  // Only close if this is the topmost modal in the stack
+  React.useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && open && ModalStackManager.isTopModal(modalId)) {
+        onOpenChange?.(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [open, onOpenChange, modalId]);
 
   if (!open) return null;
 
