@@ -32,11 +32,14 @@ test.describe('Keyboard Navigation Enhancement - Issue #149', () => {
       focused = await page.evaluate(() => document.activeElement?.getAttribute('aria-label') || document.activeElement?.textContent);
       expect(focused).toMatch(/logo|hireflux/i);
 
-      // Continue through main navigation
+      // Continue through main navigation (matching actual LeftSidebar nav items)
       const expectedOrder = [
         /dashboard/i,
-        /jobs/i,
+        /job search|jobs/i,  // "Job Search" in nav
         /applications/i,
+        /resumes/i,
+        /cover letters/i,
+        /interview prep/i,
         /profile/i
       ];
 
@@ -52,15 +55,28 @@ test.describe('Keyboard Navigation Enhancement - Issue #149', () => {
     test('should have logical tab order on employer dashboard', async ({ page }) => {
       await page.goto('/employer/dashboard');
 
-      // Verify employer-specific navigation
+      // Verify employer-specific navigation (matching actual LeftSidebar nav items)
       await page.keyboard.press('Tab'); // Skip link
-      await page.keyboard.press('Tab'); // Logo
-      await page.keyboard.press('Tab'); // Dashboard
-      await page.keyboard.press('Tab'); // Jobs
-      await page.keyboard.press('Tab'); // Candidates
+      await page.keyboard.press('Tab'); // Logo/Brand
 
-      const focused = await page.evaluate(() => document.activeElement?.textContent);
-      expect(focused).toMatch(/candidates|applicants/i);
+      // Continue through main navigation
+      const employerNav = [
+        /dashboard/i,
+        /jobs/i,
+        /candidates/i,
+        /applications/i,
+        /team/i,
+        /analytics/i,
+        /company/i
+      ];
+
+      for (const expected of employerNav) {
+        await page.keyboard.press('Tab');
+        const focused = await page.evaluate(() =>
+          document.activeElement?.textContent || document.activeElement?.getAttribute('aria-label') || ''
+        );
+        expect(focused).toMatch(expected);
+      }
     });
 
     test('should skip hidden elements', async ({ page }) => {
