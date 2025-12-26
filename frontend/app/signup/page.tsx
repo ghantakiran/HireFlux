@@ -106,10 +106,13 @@ export default function SignUpPage() {
                   placeholder="John"
                   autoComplete="given-name"
                   aria-invalid={!!errors.first_name}
+                  aria-describedby={errors.first_name ? 'first-name-error' : undefined}
                   {...register('first_name')}
                 />
                 {errors.first_name && (
-                  <p className="text-sm text-red-600">{errors.first_name.message}</p>
+                  <p id="first-name-error" className="text-sm text-red-600" role="alert">
+                    {errors.first_name.message}
+                  </p>
                 )}
               </div>
 
@@ -121,10 +124,13 @@ export default function SignUpPage() {
                   placeholder="Doe"
                   autoComplete="family-name"
                   aria-invalid={!!errors.last_name}
+                  aria-describedby={errors.last_name ? 'last-name-error' : undefined}
                   {...register('last_name')}
                 />
                 {errors.last_name && (
-                  <p className="text-sm text-red-600">{errors.last_name.message}</p>
+                  <p id="last-name-error" className="text-sm text-red-600" role="alert">
+                    {errors.last_name.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -137,10 +143,13 @@ export default function SignUpPage() {
                 placeholder="you@example.com"
                 autoComplete="email"
                 aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'email-error' : undefined}
                 {...register('email')}
               />
               {errors.email && (
-                <p className="text-sm text-red-600">{errors.email.message}</p>
+                <p id="email-error" className="text-sm text-red-600" role="alert">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -152,10 +161,13 @@ export default function SignUpPage() {
                 placeholder="••••••••"
                 autoComplete="new-password"
                 aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? 'password-error' : undefined}
                 {...register('password')}
               />
               {errors.password && (
-                <p className="text-sm text-red-600">{errors.password.message}</p>
+                <p id="password-error" className="text-sm text-red-600" role="alert">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
@@ -167,10 +179,13 @@ export default function SignUpPage() {
                 placeholder="••••••••"
                 autoComplete="new-password"
                 aria-invalid={!!errors.confirmPassword}
+                aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
                 {...register('confirmPassword')}
               />
               {errors.confirmPassword && (
-                <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>
+                <p id="confirm-password-error" className="text-sm text-red-600" role="alert">
+                  {errors.confirmPassword.message}
+                </p>
               )}
             </div>
 

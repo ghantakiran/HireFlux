@@ -40,6 +40,8 @@ export default function EmployerLoginPage() {
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: {
       email: '',
       password: '',
@@ -114,9 +116,13 @@ export default function EmployerLoginPage() {
                 className={errors.email ? 'border-red-500' : ''}
                 autoComplete="email"
                 autoFocus
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'email-error' : undefined}
               />
               {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                <p id="email-error" className="text-red-500 text-sm mt-1" role="alert">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -134,12 +140,15 @@ export default function EmployerLoginPage() {
                   placeholder="••••••••"
                   className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
                   autoComplete="current-password"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   tabIndex={-1}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
                     <EyeOff className="w-4 h-4" />
@@ -149,7 +158,9 @@ export default function EmployerLoginPage() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                <p id="password-error" className="text-red-500 text-sm mt-1" role="alert">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 

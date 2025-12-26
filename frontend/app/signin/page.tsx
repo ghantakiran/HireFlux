@@ -106,10 +106,13 @@ export default function SignInPage() {
                 placeholder="you@example.com"
                 autoComplete="email"
                 aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'email-error' : undefined}
                 {...register('email')}
               />
               {errors.email && (
-                <p className="text-sm text-red-600">{errors.email.message}</p>
+                <p id="email-error" className="text-sm text-red-600" role="alert">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -129,10 +132,13 @@ export default function SignInPage() {
                 placeholder="••••••••"
                 autoComplete="current-password"
                 aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? 'password-error' : undefined}
                 {...register('password')}
               />
               {errors.password && (
-                <p className="text-sm text-red-600">{errors.password.message}</p>
+                <p id="password-error" className="text-sm text-red-600" role="alert">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
