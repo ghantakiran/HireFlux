@@ -44,6 +44,53 @@
     min-height: 44px;
   }
 
+  /* Navigation links specifically need adequate touch targets */
+  nav a {
+    min-height: 44px !important;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* WCAG 2.5.5: Minimum touch target size for all interactive elements */
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Form inputs should be tall enough for easy interaction */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="search"],
+  input[type="url"],
+  textarea,
+  select {
+    min-height: 44px;
+  }
+
+  /* Ensure checkboxes and radio buttons have adequate click area via label */
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-width: 20px;
+    min-height: 20px;
+  }
+
+  /* Labels for checkboxes/radios should have adequate touch targets */
+  label:has(input[type="checkbox"]),
+  label:has(input[type="radio"]),
+  label[for] {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
