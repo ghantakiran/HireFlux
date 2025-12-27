@@ -89,6 +89,7 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
             href={role === 'employer' ? '/employer/dashboard' : '/dashboard'}
             className="flex items-center"
             data-logo
+            tabIndex={0}
           >
             <span className="text-2xl font-bold text-blue-600">HireFlux</span>
           </Link>
@@ -119,6 +120,7 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
                   data-notifications-icon
                   aria-haspopup="true"
                   aria-expanded={notificationsOpen}
+                  tabIndex={0}
                 >
                   <Bell className="h-5 w-5" />
                   {unreadCount > 0 && (
@@ -181,6 +183,7 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
                   data-profile-menu-trigger
                   aria-haspopup="true"
                   aria-expanded={profileMenuOpen}
+                  tabIndex={0}
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold">
                     {user?.first_name?.[0]}{user?.last_name?.[0]}

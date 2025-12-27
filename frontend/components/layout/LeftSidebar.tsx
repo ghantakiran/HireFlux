@@ -103,6 +103,7 @@ export function LeftSidebar({ role = 'job_seeker' }: LeftSidebarProps) {
             onClick={toggleCollapse}
             data-sidebar-collapse-button
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            tabIndex={0}
           >
             {collapsed ? (
               <ChevronRight className="h-5 w-5" />
