@@ -28,10 +28,10 @@ export function SkipLink() {
       href="#main-content"
       onClick={handleSkip}
       data-testid="skip-to-content"
+      tabIndex={0}
       className="
-        fixed left-4 top-4 z-[9999]
-        -translate-y-32 focus:translate-y-0
-        transition-transform duration-200
+        fixed left-4 -top-40 focus:top-4 z-[9999]
+        transition-all duration-200
         rounded-md bg-blue-600 px-4 py-2
         text-sm font-medium text-white
         shadow-lg ring-2 ring-blue-600 ring-offset-2
