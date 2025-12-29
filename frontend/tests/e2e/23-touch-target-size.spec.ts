@@ -63,11 +63,30 @@ test.describe('Touch Target Size Audit - WCAG 2.5.5', () => {
 
     const results = [];
 
+    // Dev tools to exclude from accessibility testing (production won't have these)
+    const devToolPatterns = [
+      'Hide Errors',
+      'Show Errors',
+      'Open Tanstack',
+      'Close Tanstack',
+      'React Query Devtools',
+    ];
+
     for (let i = 0; i < Math.min(count, 20); i++) {
       const button = buttons.nth(i);
       const text = await button.textContent();
       const ariaLabel = await button.getAttribute('aria-label');
       const description = text?.trim() || ariaLabel || `Button ${i + 1}`;
+
+      // Skip development tools
+      const isDevTool = devToolPatterns.some(pattern =>
+        description.includes(pattern)
+      );
+
+      if (isDevTool) {
+        console.log(`⏭️  Skipping dev tool: "${description}"`);
+        continue;
+      }
 
       const box = await button.boundingBox();
       if (box) {

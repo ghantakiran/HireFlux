@@ -39,16 +39,17 @@ export function FeedbackWidgetTrigger({ onClick, className = '' }: FeedbackWidge
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button
+          <button
             onClick={onClick}
             data-testid="feedback-widget-trigger"
             aria-label="Open feedback widget - Report bugs, request features, or send feedback"
-            className={`fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 ${className}`}
-            size="icon"
+            className={`fixed bottom-6 right-6 z-40 inline-flex items-center justify-center rounded-full shadow-lg hover:shadow-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 ${className}`}
+            style={{ width: '56px', height: '56px', minWidth: '56px', minHeight: '56px' }}
+            type="button"
           >
             <MessageSquare className="h-6 w-6" />
             <span className="sr-only">Feedback</span>
-          </Button>
+          </button>
         </TooltipTrigger>
         <TooltipContent side="left" className="flex items-center gap-2">
           <span>Send Feedback</span>
