@@ -145,7 +145,11 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
             </SheetHeader>
 
             {/* Navigation Items */}
-            <nav className="flex-1 overflow-y-auto py-4">
+            <nav
+              className="flex-1 overflow-y-auto py-4"
+              role="navigation"
+              aria-label="Mobile menu navigation"
+            >
               <ul className="space-y-1 px-4">
                 {navigationItems.map((item) => {
                   const active = isActive(item.href);
@@ -254,6 +258,8 @@ export function MobileBottomTabBar({ role = 'job_seeker' }: MobileNavProps) {
 
   return (
     <nav
+      role="navigation"
+      aria-label="Mobile bottom navigation"
       className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t"
       data-bottom-tab-bar
     >
