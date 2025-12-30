@@ -80,9 +80,10 @@ export default function RootLayout({
                       <FeedbackProvider>
                         {/* SkipLink moved to AppShell component for consistency */}
                         <OfflineBanner position="top" />
-                        <main id="main-content" tabIndex={-1} className="focus:outline-none">
+                        {/* Main landmark provided by AppShell/MainContent - don't duplicate here */}
+                        <div className="focus:outline-none">
                           {children}
-                        </main>
+                        </div>
                         <Toaster position="top-right" richColors />
                         <KeyboardShortcutsHelp />
                         <WebVitalsReporter />

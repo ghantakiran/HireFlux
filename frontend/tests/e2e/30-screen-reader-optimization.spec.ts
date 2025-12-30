@@ -454,7 +454,7 @@ test.describe('Screen Reader Optimization - Issue #150', () => {
   test.describe('6. Acceptance Criteria', () => {
 
     test('@acceptance Screen reader: All pages have landmarks', async ({ page }) => {
-      const pages = ['/dashboard', '/jobs', '/dashboard/resumes'];
+      const pages = ['/dashboard', '/dashboard/jobs', '/dashboard/resumes'];
 
       for (const url of pages) {
         await page.goto(url);

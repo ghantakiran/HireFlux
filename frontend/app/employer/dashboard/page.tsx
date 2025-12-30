@@ -146,7 +146,7 @@ export default function EmployerDashboardPage() {
       <div className="min-h-screen bg-gray-50">
         <div className="bg-white border-b">
           <div className="container mx-auto px-4 py-6">
-            <Skeleton className="h-10 w-64 mb-2" />
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
             <Skeleton className="h-6 w-96" />
           </div>
         </div>
@@ -170,19 +170,26 @@ export default function EmployerDashboardPage() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle className="text-red-600">Error Loading Dashboard</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={fetchDashboardData} className="gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-white border-b">
+          <div className="container mx-auto px-4 py-6">
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          </div>
+        </div>
+        <div className="container mx-auto px-4 py-8 flex items-center justify-center">
+          <Card className="max-w-md">
+            <CardHeader>
+              <CardTitle className="text-red-600">Error Loading Dashboard</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 mb-4">{error}</p>
+              <Button onClick={fetchDashboardData} className="gap-2" aria-label="Retry loading dashboard">
+                <RefreshCw className="w-4 h-4" />
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }

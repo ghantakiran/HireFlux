@@ -118,6 +118,7 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
                   size="icon"
                   className="relative"
                   data-notifications-icon
+                  aria-label="Notifications"
                   aria-haspopup="true"
                   aria-expanded={notificationsOpen}
                   tabIndex={0}
@@ -181,6 +182,7 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
                   variant="ghost"
                   className="flex items-center gap-2"
                   data-profile-menu-trigger
+                  aria-label="Profile menu"
                   aria-haspopup="true"
                   aria-expanded={profileMenuOpen}
                   tabIndex={0}

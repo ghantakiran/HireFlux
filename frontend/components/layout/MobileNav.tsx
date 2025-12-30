@@ -103,6 +103,7 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
           size="icon"
           onClick={() => setOpen(true)}
           data-hamburger-icon
+          aria-label="Open menu"
           className="lg:sr-only"
           tabIndex={-1}
         >
