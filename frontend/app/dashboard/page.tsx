@@ -163,6 +163,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
           {/* Skeleton loaders */}
           {[1, 2, 3].map((i) => (
             <div key={i} className="mb-4 animate-pulse" data-testid="skeleton-loader">
@@ -178,12 +179,15 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <AlertTriangle className="w-12 h-12 text-red-600 mx-auto mb-4" />
-            <p className="text-red-800 mb-4">{error}</p>
+            <h2 className="text-xl font-semibold text-red-800 mb-2">Unable to Load Dashboard</h2>
+            <p className="text-red-700 mb-4">{error}</p>
             <button
               onClick={handleRefresh}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              aria-label="Retry loading dashboard"
             >
               Try Again
             </button>
@@ -196,13 +200,16 @@ export default function DashboardPage() {
   if (!data) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto text-center" data-testid="empty-state">
-          <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold text-gray-700 mb-2">No applications yet</h2>
-          <p className="text-gray-600 mb-6">Start applying to jobs to see your analytics</p>
-          <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            Get Started
-          </button>
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
+          <div className="text-center" data-testid="empty-state">
+            <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-semibold text-gray-700 mb-2">No applications yet</h2>
+            <p className="text-gray-600 mb-6">Start applying to jobs to see your analytics</p>
+            <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              Get Started
+            </button>
+          </div>
         </div>
       </div>
     );
