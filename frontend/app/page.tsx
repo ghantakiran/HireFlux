@@ -69,6 +69,8 @@ export default function HomePage() {
         </DialogContent>
       </Dialog>
 
+      {/* Main Content */}
+      <main id="main-content">
       {/* Hero Section - AIApply Style */}
       <section data-testid="hero-section" className="container mx-auto px-4 py-24 md:py-32">
           <div className="mx-auto max-w-4xl text-center">
@@ -340,6 +342,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+      </main>
 
       {/* Footer */}
       <footer className="border-t py-8">

@@ -182,6 +182,7 @@ export default function CandidateSearchPage() {
                   size="sm"
                   onClick={() => setShowFilters(false)}
                   className="lg:hidden"
+                  aria-label="Close filters"
                 >
                   <X className="h-4 w-4" />
                 </Button>
