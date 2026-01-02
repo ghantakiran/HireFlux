@@ -70,7 +70,7 @@ export default function HomePage() {
       </Dialog>
 
       {/* Main Content */}
-      <main id="main-content">
+      <main id="main-content" tabIndex={-1} className="focus:outline-none">
       {/* Hero Section - AIApply Style */}
       <section data-testid="hero-section" className="container mx-auto px-4 py-24 md:py-32">
           <div className="mx-auto max-w-4xl text-center">
