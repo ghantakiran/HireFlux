@@ -307,7 +307,7 @@ function ShortcutItem({ shortcut, isEditing, onEdit, onCancelEdit }: ShortcutIte
               {conflict && (
                 <div className="text-xs text-destructive flex items-center gap-1" data-testid="shortcut-conflict-warning">
                   <AlertCircle className="h-3 w-3" />
-                  <span>Already used</span>
+                  <span>already in use</span>
                 </div>
               )}
               <Button

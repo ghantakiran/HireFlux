@@ -119,16 +119,26 @@ export function KeyboardShortcutsHelp() {
                             {shortcut.description}
                           </span>
                           <div className="flex items-center gap-1">
-                            {keys.map((key, keyIndex) => (
-                              <span key={keyIndex} className="flex items-center gap-1">
-                                {keyIndex > 0 && (
-                                  <span className="text-xs text-muted-foreground">then</span>
-                                )}
-                                <kbd className="rounded border border-border bg-background px-2 py-1 text-xs font-mono shadow-sm">
-                                  {key === 'meta' ? registry.getPlatformModifierDisplay() : key}
-                                </kbd>
-                              </span>
-                            ))}
+                            {keys.map((key, keyIndex) => {
+                              // Display platform-specific modifiers
+                              let displayKey = key;
+                              if (key === 'meta') {
+                                displayKey = '⌘';
+                              } else if (key === 'ctrl') {
+                                displayKey = 'Ctrl';
+                              }
+
+                              return (
+                                <span key={keyIndex} className="flex items-center gap-1">
+                                  {keyIndex > 0 && (
+                                    <span className="text-xs text-muted-foreground">then</span>
+                                  )}
+                                  <kbd className="rounded border border-border bg-background px-2 py-1 text-xs font-mono shadow-sm">
+                                    {displayKey}
+                                  </kbd>
+                                </span>
+                              );
+                            })}
                           </div>
                         </div>
                       );

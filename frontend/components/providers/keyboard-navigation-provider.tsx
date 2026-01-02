@@ -92,6 +92,18 @@ export function KeyboardNavigationProvider({
       },
     });
 
+    // Register command palette (platform-specific: Cmd+K on Mac, Ctrl+K on Windows/Linux)
+    const platformModifier = registry.getPlatformModifier();
+    registry.register({
+      id: 'command-palette',
+      category: 'Actions',
+      description: 'Open command palette',
+      defaultKeys: [platformModifier, 'k'],
+      action: () => {
+        // Handled by CommandPalette component
+      },
+    });
+
     // Register form shortcuts
     registry.register({
       id: 'form-next',
@@ -164,6 +176,7 @@ export function KeyboardNavigationProvider({
       registry.unregister('navigate-cover-letter');
       registry.unregister('navigate-settings');
       registry.unregister('help');
+      registry.unregister('command-palette');
       registry.unregister('form-next');
       registry.unregister('form-previous');
       registry.unregister('form-submit');
