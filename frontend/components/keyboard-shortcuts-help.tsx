@@ -1,10 +1,11 @@
 'use client';
 
 /**
- * Keyboard Shortcuts Help Dialog (Issue #149)
+ * Keyboard Shortcuts Help Dialog (Issue #149 + Issue #155)
  *
  * Displays available keyboard shortcuts when user presses '?'
  * Provides documentation for all keyboard navigation features.
+ * Enhanced with customization support (Issue #155).
  */
 
 import { useEffect, useState } from 'react';
@@ -15,59 +16,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Keyboard } from 'lucide-react';
-
-interface KeyboardShortcut {
-  category: string;
-  shortcuts: Array<{
-    keys: string[];
-    description: string;
-  }>;
-}
-
-const SHORTCUTS: KeyboardShortcut[] = [
-  {
-    category: 'Navigation',
-    shortcuts: [
-      { keys: ['Tab'], description: 'Move to next interactive element' },
-      { keys: ['Shift', 'Tab'], description: 'Move to previous interactive element' },
-      { keys: ['g', 'h'], description: 'Go to Home' },
-      { keys: ['g', 'd'], description: 'Go to Dashboard' },
-      { keys: ['g', 'j'], description: 'Go to Jobs' },
-      { keys: ['g', 'r'], description: 'Go to Resumes' },
-      { keys: ['g', 'a'], description: 'Go to Applications' },
-    ],
-  },
-  {
-    category: 'Actions',
-    shortcuts: [
-      { keys: ['Escape'], description: 'Close modal/dropdown/popover' },
-      { keys: ['Enter'], description: 'Activate button/link' },
-      { keys: ['Space'], description: 'Toggle checkbox/button' },
-      { keys: ['?'], description: 'Show keyboard shortcuts (this dialog)' },
-    ],
-  },
-  {
-    category: 'Forms',
-    shortcuts: [
-      { keys: ['Tab'], description: 'Move to next field' },
-      { keys: ['Shift', 'Tab'], description: 'Move to previous field' },
-      { keys: ['Enter'], description: 'Submit form' },
-      { keys: ['Escape'], description: 'Cancel/close' },
-    ],
-  },
-  {
-    category: 'Accessibility',
-    shortcuts: [
-      { keys: ['Tab'], description: 'Focus skip link (first Tab)' },
-      { keys: ['Enter'], description: 'Activate skip link' },
-      { keys: ['Arrow Keys'], description: 'Navigate within components' },
-    ],
-  },
-];
+import { Button } from '@/components/ui/button';
+import { Keyboard, Settings } from 'lucide-react';
+import { KeyboardShortcutsCustomization } from './keyboard-shortcuts-customization';
+import { useShortcuts, useKeyboardShortcutsRegistry } from '@/hooks/use-keyboard-shortcuts-registry';
 
 export function KeyboardShortcutsHelp() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showCustomization, setShowCustomization] = useState(false);
+  const shortcuts = useShortcuts();
+  const registry = useKeyboardShortcutsRegistry();
+
+  // Group shortcuts by category
+  const groupedShortcuts = shortcuts.reduce((acc, shortcut) => {
+    if (!acc[shortcut.category]) {
+      acc[shortcut.category] = [];
+    }
+    acc[shortcut.category].push(shortcut);
+    return acc;
+  }, {} as Record<string, typeof shortcuts>);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -98,66 +65,95 @@ export function KeyboardShortcutsHelp() {
   }, [isOpen]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent
-        className="max-w-2xl"
-        data-testid="keyboard-shortcuts-help"
-        aria-label="Keyboard shortcuts reference"
-      >
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            <Keyboard className="h-5 w-5" />
-            <DialogTitle>Keyboard Shortcuts</DialogTitle>
-          </div>
-          <DialogDescription>
-            Navigate the application efficiently using your keyboard
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="max-h-[60vh] overflow-y-auto pr-4">
-          <div className="space-y-6">
-            {SHORTCUTS.map((category) => (
-              <div key={category.category}>
-                <h3 className="mb-3 text-sm font-semibold text-foreground">
-                  {category.category}
-                </h3>
-                <div className="space-y-2">
-                  {category.shortcuts.map((shortcut, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between rounded-md bg-muted/50 px-3 py-2"
-                    >
-                      <span className="text-sm text-muted-foreground">
-                        {shortcut.description}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        {shortcut.keys.map((key, keyIndex) => (
-                          <span key={keyIndex} className="flex items-center gap-1">
-                            {keyIndex > 0 && (
-                              <span className="text-xs text-muted-foreground">then</span>
-                            )}
-                            <kbd className="rounded border border-border bg-background px-2 py-1 text-xs font-mono shadow-sm">
-                              {key}
-                            </kbd>
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent
+          className="max-w-2xl"
+          data-testid="keyboard-shortcuts-help"
+          aria-label="Keyboard shortcuts reference"
+        >
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Keyboard className="h-5 w-5" />
+                <DialogTitle>Keyboard Shortcuts</DialogTitle>
               </div>
-            ))}
-          </div>
-        </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setIsOpen(false);
+                  setShowCustomization(true);
+                }}
+                className="gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Customize
+              </Button>
+            </div>
+            <DialogDescription>
+              Navigate the application efficiently using your keyboard
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="mt-4 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
-          <p>
-            <strong>Tip:</strong> Press <kbd className="rounded bg-background px-1 py-0.5">?</kbd>{' '}
-            at any time to show this help dialog. Press{' '}
-            <kbd className="rounded bg-background px-1 py-0.5">Escape</kbd> to close it.
-          </p>
-        </div>
-      </DialogContent>
-    </Dialog>
+          <div className="max-h-[60vh] overflow-y-auto pr-4">
+            <div className="space-y-6">
+              {Object.entries(groupedShortcuts).map(([category, categoryShortcuts]) => (
+                <div key={category}>
+                  <h3 className="mb-3 text-sm font-semibold text-foreground">
+                    {category}
+                  </h3>
+                  <div className="space-y-2">
+                    {categoryShortcuts.map((shortcut) => {
+                      const keys = registry.getEffectiveKeys(shortcut.id);
+                      const enabled = registry.isEnabled(shortcut.id);
+
+                      return (
+                        <div
+                          key={shortcut.id}
+                          className={`flex items-center justify-between rounded-md bg-muted/50 px-3 py-2 ${
+                            !enabled ? 'opacity-50' : ''
+                          }`}
+                        >
+                          <span className="text-sm text-muted-foreground">
+                            {shortcut.description}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            {keys.map((key, keyIndex) => (
+                              <span key={keyIndex} className="flex items-center gap-1">
+                                {keyIndex > 0 && (
+                                  <span className="text-xs text-muted-foreground">then</span>
+                                )}
+                                <kbd className="rounded border border-border bg-background px-2 py-1 text-xs font-mono shadow-sm">
+                                  {key === 'meta' ? registry.getPlatformModifierDisplay() : key}
+                                </kbd>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
+            <p>
+              <strong>Tip:</strong> Press <kbd className="rounded bg-background px-1 py-0.5">?</kbd>{' '}
+              at any time to show this help dialog. Press{' '}
+              <kbd className="rounded bg-background px-1 py-0.5">Escape</kbd> to close it.
+              Click <strong>Customize</strong> to personalize your shortcuts.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <KeyboardShortcutsCustomization
+        isOpen={showCustomization}
+        onClose={() => setShowCustomization(false)}
+      />
+    </>
   );
 }
