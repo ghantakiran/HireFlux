@@ -9,7 +9,6 @@
  */
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { getKeyboardShortcutsRegistry } from '@/lib/keyboard-shortcuts-registry';
 import { useKeyboardEventHandler } from '@/hooks/use-keyboard-shortcuts-registry';
 
@@ -18,19 +17,19 @@ export function KeyboardNavigationProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-
   // Initialize shortcuts registry
   useEffect(() => {
     const registry = getKeyboardShortcutsRegistry();
 
     // Register navigation shortcuts
+    // Note: Using window.location.href instead of router.push() for keyboard shortcuts
+    // because router.push() doesn't work reliably in keyboard event handlers
     registry.register({
       id: 'navigate-home',
       category: 'Navigation',
       description: 'Go to Home',
       defaultKeys: ['g', 'h'],
-      action: () => router.push('/'),
+      action: () => { window.location.href = '/'; },
     });
 
     registry.register({
@@ -38,7 +37,7 @@ export function KeyboardNavigationProvider({
       category: 'Navigation',
       description: 'Go to Dashboard',
       defaultKeys: ['g', 'd'],
-      action: () => router.push('/dashboard'),
+      action: () => { window.location.href = '/dashboard'; },
     });
 
     registry.register({
@@ -46,7 +45,7 @@ export function KeyboardNavigationProvider({
       category: 'Navigation',
       description: 'Go to Jobs',
       defaultKeys: ['g', 'j'],
-      action: () => router.push('/jobs'),
+      action: () => { window.location.href = '/jobs'; },
     });
 
     registry.register({
@@ -54,7 +53,7 @@ export function KeyboardNavigationProvider({
       category: 'Navigation',
       description: 'Go to Resumes',
       defaultKeys: ['g', 'r'],
-      action: () => router.push('/resume'),
+      action: () => { window.location.href = '/resume'; },
     });
 
     registry.register({
@@ -62,7 +61,7 @@ export function KeyboardNavigationProvider({
       category: 'Navigation',
       description: 'Go to Applications',
       defaultKeys: ['g', 'a'],
-      action: () => router.push('/applications'),
+      action: () => { window.location.href = '/applications'; },
     });
 
     registry.register({
@@ -70,7 +69,7 @@ export function KeyboardNavigationProvider({
       category: 'Navigation',
       description: 'Go to Cover Letters',
       defaultKeys: ['g', 'c'],
-      action: () => router.push('/cover-letter'),
+      action: () => { window.location.href = '/cover-letter'; },
     });
 
     registry.register({
@@ -78,7 +77,7 @@ export function KeyboardNavigationProvider({
       category: 'Navigation',
       description: 'Go to Settings',
       defaultKeys: ['g', 's'],
-      action: () => router.push('/settings'),
+      action: () => { window.location.href = '/settings'; },
     });
 
     // Register action shortcuts
@@ -184,7 +183,7 @@ export function KeyboardNavigationProvider({
       registry.unregister('skip-link');
       registry.unregister('activate-skip');
     };
-  }, [router]);
+  }, []); // No dependencies - shortcuts are static
 
   // Handle keyboard events via registry
   useKeyboardEventHandler();
