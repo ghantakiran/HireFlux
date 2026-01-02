@@ -317,7 +317,8 @@ function ShortcutItem({ shortcut, isEditing, onEdit, onCancelEdit }: ShortcutIte
                 disabled={recordingKeys.length === 0 || (!!conflict && !showOverrideConfirm)}
                 className="h-8 px-2"
               >
-                <Check className="h-4 w-4" />
+                <Check className="h-4 w-4 mr-1" />
+                Save
               </Button>
               <Button
                 size="sm"
@@ -325,7 +326,8 @@ function ShortcutItem({ shortcut, isEditing, onEdit, onCancelEdit }: ShortcutIte
                 onClick={handleCancel}
                 className="h-8 px-2"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4 mr-1" />
+                Cancel
               </Button>
             </>
           ) : (
@@ -346,7 +348,8 @@ function ShortcutItem({ shortcut, isEditing, onEdit, onCancelEdit }: ShortcutIte
                 onClick={onEdit}
                 className="h-8 px-2"
               >
-                <Edit2 className="h-4 w-4" />
+                <Edit2 className="h-4 w-4 mr-1" />
+                Edit
               </Button>
             </>
           )}

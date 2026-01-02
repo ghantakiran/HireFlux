@@ -96,7 +96,7 @@ export function KeyboardNavigationProvider({
     registry.register({
       id: 'form-next',
       category: 'Forms',
-      description: 'Move to next field',
+      description: 'Move to next interactive element',
       defaultKeys: ['Tab'],
       action: () => {
         // Native browser behavior
@@ -126,7 +126,7 @@ export function KeyboardNavigationProvider({
     registry.register({
       id: 'cancel',
       category: 'Forms',
-      description: 'Cancel/close',
+      description: 'Close modal',
       defaultKeys: ['Escape'],
       action: () => {
         // Handled by individual components
