@@ -1,0 +1,340 @@
+/**
+ * Micro-Interactions & Animations
+ * Issue #152: [ADVANCED] Micro-Interactions & Animations
+ *
+ * This file contains all animation definitions and micro-interaction styles
+ * following accessibility best practices and performance optimization.
+ *
+ * Features:
+ * - Reduced motion support (prefers-reduced-motion)
+ * - 60fps optimized animations
+ * - Minimal layout shifts
+ * - Semantic hover/focus states
+ *
+ * Performance Budget:
+ * - Animation duration: 100-400ms
+ * - Transition properties: transform, opacity (GPU-accelerated)
+ * - Total animated elements: < 100
+ */
+
+/* ========================================================================
+   ANIMATION CONSTANTS & CUSTOM PROPERTIES
+   ======================================================================== */
+
+:root {
+  /* Timing Functions */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Durations */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+
+  /* Transforms */
+  --scale-hover: 1.05;
+  --scale-active: 0.95;
+  --translate-y-small: -2px;
+}
+
+/* ========================================================================
+   REDUCED MOTION SUPPORT (WCAG 2.1 AA)
+   ======================================================================== */
+
+/**
+ * Respect user's reduced motion preference
+ * Disable all animations and transitions for users who prefer reduced motion
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Preserve critical visual feedback even with reduced motion */
+  button:hover,
+  a:hover,
+  [role="button"]:hover {
+    opacity: 0.8;
+  }
+}
+
+/* ========================================================================
+   KEYFRAME ANIMATIONS
+   ======================================================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-4px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================================================
+   BUTTON MICRO-INTERACTIONS
+   ======================================================================== */
+
+/**
+ * Button Hover Effects - Optimized
+ * Only apply to interactive buttons (not disabled)
+ * Uses will-change sparingly to avoid memory issues
+ */
+.animate-button-hover {
+  transition: transform var(--duration-normal) var(--ease-out);
+}
+
+.animate-button-hover:hover:not(:disabled) {
+  transform: translateY(var(--translate-y-small));
+}
+
+.animate-button-hover:active:not(:disabled) {
+  transform: scale(var(--scale-active));
+}
+
+/* ========================================================================
+   LINK MICRO-INTERACTIONS
+   ======================================================================== */
+
+.animate-link-hover {
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.animate-link-hover:hover {
+  opacity: 0.8;
+}
+
+/* ========================================================================
+   CARD MICRO-INTERACTIONS
+   ======================================================================== */
+
+.animate-card-hover {
+  transition: transform var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.animate-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================================================
+   FORM MICRO-INTERACTIONS
+   ======================================================================== */
+
+/* Error States with Shake Animation */
+input[aria-invalid="true"],
+.input-error {
+  animation: shake var(--duration-slow) var(--ease-in-out);
+  border-color: rgb(239, 68, 68);
+}
+
+/* ========================================================================
+   LOADING ANIMATIONS
+   ======================================================================== */
+
+.loading,
+[aria-busy="true"],
+.skeleton {
+  animation: pulse 2s var(--ease-in-out) infinite;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* ========================================================================
+   SUCCESS & ERROR FEEDBACK
+   ======================================================================== */
+
+/* Success Toast/Alert */
+[role="alert"][data-type="success"],
+.toast-success,
+.alert-success {
+  animation: slideDown var(--duration-slow) var(--ease-out);
+}
+
+/* Error Toast/Alert */
+[role="alert"][data-type="error"],
+.toast-error,
+.alert-error {
+  animation: shake var(--duration-slow) var(--ease-in-out),
+             slideDown var(--duration-slow) var(--ease-out);
+}
+
+/* Success Checkmark */
+.checkmark,
+[class*="check"][class*="success"] {
+  animation: scaleIn var(--duration-slow) var(--ease-bounce);
+}
+
+/* ========================================================================
+   PAGE TRANSITIONS
+   ======================================================================== */
+
+/* Opt-in page transition */
+.animate-page-transition {
+  animation: fadeIn var(--duration-slow) var(--ease-out);
+}
+
+/* ========================================================================
+   MODAL & DIALOG ANIMATIONS
+   ======================================================================== */
+
+.animate-dialog {
+  animation: scaleIn var(--duration-normal) var(--ease-out);
+}
+
+.animate-backdrop {
+  animation: fadeIn var(--duration-normal) var(--ease-out);
+}
+
+/* ========================================================================
+   UTILITY CLASSES
+   ======================================================================== */
+
+/* Fade In */
+.animate-fade-in {
+  animation: fadeIn var(--duration-normal) var(--ease-out);
+}
+
+/* Slide Up */
+.animate-slide-up {
+  animation: slideUp var(--duration-normal) var(--ease-out);
+}
+
+/* Slide Down */
+.animate-slide-down {
+  animation: slideDown var(--duration-normal) var(--ease-out);
+}
+
+/* Scale In */
+.animate-scale-in {
+  animation: scaleIn var(--duration-normal) var(--ease-out);
+}
+
+/* Shake */
+.animate-shake {
+  animation: shake var(--duration-slow) var(--ease-in-out);
+}
+
+/* Pulse */
+.animate-pulse {
+  animation: pulse 2s var(--ease-in-out) infinite;
+}
+
+/* Spin */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ========================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ======================================================================== */
+
+/**
+ * GPU Acceleration Hints
+ * Only apply during active animations
+ */
+.animate-fade-in,
+.animate-slide-up,
+.animate-slide-down,
+.animate-scale-in,
+.animate-button-hover:hover,
+.animate-card-hover:hover {
+  will-change: transform, opacity;
+}
+
+/* ========================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ======================================================================== */
+
+/**
+ * Ensure focus states are always visible
+ * even with animations
+ */
+*:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  transition: outline-offset var(--duration-fast) var(--ease-out);
+}
+
+/**
+ * High contrast mode support
+ */
+@media (prefers-contrast: high) {
+  button:hover,
+  a:hover {
+    outline: 2px solid currentColor;
+  }
+}

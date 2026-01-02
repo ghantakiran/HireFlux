@@ -5,6 +5,9 @@
 /* Import HireFlux design tokens (Issue #92 + #73) */
 @import '../styles/design-tokens.css';
 
+/* Import Micro-Interactions & Animations (Issue #152) */
+@import '../styles/animations.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
