@@ -16,8 +16,12 @@ import { test, expect, Page } from '@playwright/test';
 test.describe('Keyboard Shortcuts System - Issue #155', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    // Clear any saved custom shortcuts
-    await page.evaluate(() => localStorage.clear());
+    // Clear only custom shortcuts, preserve auth tokens
+    await page.evaluate(() => {
+      // Remove only keyboard shortcuts storage
+      localStorage.removeItem('keyboard-shortcuts');
+      localStorage.removeItem('keyboard-shortcuts-customizations');
+    });
   });
 
   test.describe('1. Shortcut Registry', () => {
@@ -527,14 +531,42 @@ test.describe('Keyboard Shortcuts System - Issue #155', () => {
 
   test.describe('6. Shortcut Execution', () => {
     test('6.1 Should execute navigation shortcuts', async ({ page }) => {
+      // Debug: Check auth state and E2E detection
+      const authState = await page.evaluate(() => ({
+        accessToken: localStorage.getItem('access_token'),
+        refreshToken: localStorage.getItem('refresh_token'),
+        authStorage: localStorage.getItem('auth-storage'),
+        e2eCookie: document.cookie.includes('e2e_bypass=true'),
+        hasPlaywright: typeof (window as any).playwright !== 'undefined',
+        hasE2EBypassEnv: process.env.NEXT_PUBLIC_E2E_BYPASS === 'true',
+      }));
+      console.log('Auth state before navigation:', authState);
+
+      // Listen to console logs from the browser
+      page.on('console', msg => {
+        if (msg.text().includes('[KeyboardNav]')) {
+          console.log('BROWSER LOG:', msg.text());
+        }
+      });
+
       // Go to home
       await page.keyboard.press('g');
       await page.keyboard.press('h');
+      await page.waitForTimeout(500); // Wait for navigation
       await expect(page).toHaveURL(/\/$/);
 
       // Go to dashboard
+      console.log('Attempting navigation to /dashboard with g+d...');
       await page.keyboard.press('g');
       await page.keyboard.press('d');
+
+      // Wait for navigation to complete and settle
+      await page.waitForURL(/\/dashboard/, { timeout: 10000 });
+
+      // Debug: Check final URL
+      const finalUrl = page.url();
+      console.log('Final URL after g+d:', finalUrl);
+
       await expect(page).toHaveURL(/\/dashboard/);
     });
 
