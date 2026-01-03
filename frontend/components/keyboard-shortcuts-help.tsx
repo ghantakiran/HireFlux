@@ -120,12 +120,11 @@ export function KeyboardShortcutsHelp() {
                           </span>
                           <div className="flex items-center gap-1">
                             {keys.map((key, keyIndex) => {
-                              // Display platform-specific modifiers
+                              // Display platform-specific modifiers using registry
                               let displayKey = key;
-                              if (key === 'meta') {
-                                displayKey = '⌘';
-                              } else if (key === 'ctrl') {
-                                displayKey = 'Ctrl';
+                              if (key === 'meta' || key === 'ctrl') {
+                                // Use registry's platform-aware display method
+                                displayKey = registry.getPlatformModifierDisplay();
                               }
 
                               return (
