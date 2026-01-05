@@ -1,11 +1,15 @@
 /**
- * Skip to Content Link (Issue #149)
+ * Skip to Content Link (Issue #149 + Issue #151)
  *
  * Allows keyboard users to skip navigation and jump directly to main content.
  * WCAG 2.1 AA Requirement: Bypass Blocks (2.4.1)
+ *
+ * Updated in Issue #151 to ensure focus is properly set for E2E testing.
  */
 
 'use client';
+
+import React from 'react';
 
 export function SkipLink() {
   const handleSkip = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -15,11 +19,19 @@ export function SkipLink() {
     const mainContent = document.getElementById('main-content');
 
     if (mainContent) {
-      // Scroll to main content
-      mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Scroll to main content immediately (not smooth) for reliable focus
+      mainContent.scrollIntoView({ behavior: 'auto', block: 'start' });
 
-      // Set focus on main content
-      mainContent.focus();
+      // Use requestAnimationFrame to ensure focus happens after scroll completes
+      requestAnimationFrame(() => {
+        mainContent.focus();
+
+        // Optionally force focus with a backup
+        if (document.activeElement !== mainContent) {
+          mainContent.setAttribute('tabindex', '-1');
+          mainContent.focus();
+        }
+      });
     }
   };
 
