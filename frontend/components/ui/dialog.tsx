@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { ModalStackManager } from './modal-stack-context';
+import { X } from 'lucide-react';
 
 interface DialogProps {
   open?: boolean;
@@ -11,6 +12,7 @@ interface DialogProps {
 interface DialogContentProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   children: React.ReactNode;
+  showCloseButton?: boolean;
 }
 
 interface DialogHeaderProps {
@@ -39,6 +41,11 @@ interface DialogTriggerProps {
   children: React.ReactNode;
   onClick?: () => void;
 }
+
+// Context to pass onOpenChange to DialogContent for close button
+const DialogContext = React.createContext<{
+  onOpenChange?: (open: boolean) => void;
+} | null>(null);
 
 export function Dialog({ open, onOpenChange, children }: DialogProps) {
   const modalId = React.useId();
@@ -106,19 +113,22 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="fixed inset-0 bg-black/50"
-        onClick={() => onOpenChange?.(false)}
-        aria-hidden="true"
-      />
-      {children}
-    </div>
+    <DialogContext.Provider value={{ onOpenChange }}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div
+          className="fixed inset-0 bg-black/50"
+          onClick={() => onOpenChange?.(false)}
+          aria-hidden="true"
+        />
+        {children}
+      </div>
+    </DialogContext.Provider>
   );
 }
 
-export function DialogContent({ className, children, ...props }: DialogContentProps) {
+export function DialogContent({ className, children, showCloseButton = true, ...props }: DialogContentProps) {
   const dialogRef = React.useRef<HTMLDivElement>(null);
+  const context = React.useContext(DialogContext);
 
   // Focus trapping for keyboard navigation (WCAG 2.1 AA - Issue #151)
   React.useEffect(() => {
@@ -207,6 +217,18 @@ export function DialogContent({ className, children, ...props }: DialogContentPr
       aria-modal="true"
       {...props}
     >
+      {showCloseButton && context?.onOpenChange && (
+        <button
+          type="button"
+          onClick={() => context.onOpenChange?.(false)}
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+          aria-label="Close"
+          tabIndex={-1}
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </button>
+      )}
       {children}
     </div>
   );
