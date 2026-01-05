@@ -185,6 +185,7 @@ export function CommandPalette({ isOpen, onClose, role = 'job_seeker' }: Command
         role="dialog"
         aria-modal="true"
         aria-labelledby="command-palette-title"
+        data-testid="command-palette"
         className="fixed left-1/2 top-[20%] -translate-x-1/2 z-[9999] w-full max-w-2xl bg-white rounded-lg shadow-2xl overflow-hidden"
       >
         {/* Title */}

@@ -8,10 +8,11 @@
  * Enhanced with centralized registry system (Issue #155).
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getKeyboardShortcutsRegistry } from '@/lib/keyboard-shortcuts-registry';
 import { useKeyboardEventHandler } from '@/hooks/use-keyboard-shortcuts-registry';
+import { CommandPalette } from '@/components/command-palette';
 
 export function KeyboardNavigationProvider({
   children,
@@ -19,6 +20,7 @@ export function KeyboardNavigationProvider({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
   // Initialize shortcuts registry
   useEffect(() => {
@@ -112,7 +114,7 @@ export function KeyboardNavigationProvider({
       description: 'Open command palette',
       defaultKeys: [platformModifier, 'k'],
       action: () => {
-        // Handled by CommandPalette component
+        setIsCommandPaletteOpen(true);
       },
     });
 
@@ -196,10 +198,19 @@ export function KeyboardNavigationProvider({
       registry.unregister('skip-link');
       registry.unregister('activate-skip');
     };
-  }, [router]); // Include router as dependency
+  }, [router]); // Note: setIsCommandPaletteOpen is stable (useState setter) so doesn't need dependency
 
   // Handle keyboard events via registry
   useKeyboardEventHandler();
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        role="job_seeker" // TODO: Detect role from auth context
+      />
+    </>
+  );
 }
