@@ -114,6 +114,7 @@ export function KeyboardShortcutsHelp() {
                           className={`flex items-center justify-between rounded-md bg-muted/50 px-3 py-2 ${
                             !enabled ? 'opacity-50' : ''
                           }`}
+                          data-shortcut-action={shortcut.id}
                         >
                           <span className="text-sm text-muted-foreground">
                             {shortcut.description}
