@@ -8,6 +8,10 @@ import { Settings, User, Bell, CreditCard, Coins } from "lucide-react"
 
 export default function SettingsPage() {
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
+  // Client-side fallback to ensure title is always set (resolves SSR/hydration timing issues)
+  useEffect(() => {
+    document.title = 'Settings | HireFlux';
+  }, []);
 
   const router = useRouter();
   const pathname = usePathname();

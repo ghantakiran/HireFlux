@@ -57,6 +57,12 @@ const LOCATION_TYPES = ['remote', 'hybrid', 'onsite', 'any'];
 const AVAILABILITY_STATUSES = ['actively_looking', 'open_to_offers', 'not_looking'];
 
 export default function CandidateSearchPage() {
+  // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
+  // Client-side fallback to ensure title is always set (resolves SSR/hydration timing issues)
+  useEffect(() => {
+    document.title = 'Candidate Search | HireFlux';
+  }, []);
+
   const [loading, setLoading] = useState(false);
   const [candidates, setCandidates] = useState<CandidateProfile[]>([]);
   const [totalResults, setTotalResults] = useState(0);

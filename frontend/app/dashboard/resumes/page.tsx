@@ -35,6 +35,10 @@ import { ResumeCardSkeleton } from '@/components/skeletons/card-skeleton';
 
 export default function ResumesPage() {
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
+  // Client-side fallback to ensure title is always set (resolves SSR/hydration timing issues)
+  useEffect(() => {
+    document.title = 'Resume Builder | HireFlux';
+  }, []);
 
   const router = useRouter();
   const {

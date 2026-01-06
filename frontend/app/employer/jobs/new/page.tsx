@@ -84,6 +84,10 @@ interface JobFormData {
 
 export default function NewJobPage() {
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
+  // Client-side fallback to ensure title is always set (resolves SSR/hydration timing issues)
+  useEffect(() => {
+    document.title = 'Post New Job | HireFlux';
+  }, []);
 
   const router = useRouter();
   const searchParams = useSearchParams();

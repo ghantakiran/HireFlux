@@ -29,10 +29,12 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
 
   /**
    * Helper function to run axe-core scan and generate detailed report
+   * Excludes development-only elements like Next.js error overlay
    */
   async function runAccessibilityScan(page: any, pageName: string) {
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .exclude('#nextjs-portal')  // Exclude Next.js dev error overlay
       .analyze();
 
     const violations = accessibilityScanResults.violations;
@@ -173,6 +175,8 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('2.2 Job Matching page should have no accessibility violations', async ({ page }) => {
       await page.goto('/dashboard/jobs');
       await page.waitForLoadState('networkidle');
+      // Wait for client-side title to be set (Issue #148 - client component timing)
+      await page.waitForFunction(() => document.title.includes('Job Matches'));
 
       const results = await runAccessibilityScan(page, 'Job Matching');
       assertNoViolations(results, 'Job Matching');
@@ -181,6 +185,8 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('2.3 Resume Builder page should have no accessibility violations', async ({ page }) => {
       await page.goto('/dashboard/resumes');
       await page.waitForLoadState('networkidle');
+      // Wait for client-side title to be set (Issue #148 - client component timing)
+      await page.waitForFunction(() => document.title.includes('Resume Builder'));
 
       const results = await runAccessibilityScan(page, 'Resume Builder');
       assertNoViolations(results, 'Resume Builder');
@@ -189,6 +195,8 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('2.4 Cover Letter Generator page should have no accessibility violations', async ({ page }) => {
       await page.goto('/dashboard/cover-letters');
       await page.waitForLoadState('networkidle');
+      // Wait for client-side title to be set (Issue #148 - client component timing)
+      await page.waitForFunction(() => document.title.includes('Cover Letters'));
 
       const results = await runAccessibilityScan(page, 'Cover Letter Generator');
       assertNoViolations(results, 'Cover Letter Generator');
@@ -197,6 +205,8 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('2.5 Applications page should have no accessibility violations', async ({ page }) => {
       await page.goto('/dashboard/applications');
       await page.waitForLoadState('networkidle');
+      // Wait for client-side title to be set (Issue #148 - client component timing)
+      await page.waitForFunction(() => document.title.includes('Applications'));
 
       const results = await runAccessibilityScan(page, 'Applications');
       assertNoViolations(results, 'Applications');
@@ -205,6 +215,8 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('2.6 Settings page should have no accessibility violations', async ({ page }) => {
       await page.goto('/dashboard/settings');
       await page.waitForLoadState('networkidle');
+      // Wait for client-side title to be set (Issue #148 - client component timing)
+      await page.waitForFunction(() => document.title.includes('Settings'));
 
       const results = await runAccessibilityScan(page, 'Settings');
       assertNoViolations(results, 'Settings');
@@ -261,6 +273,8 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('3.2 Job Posting page should have no accessibility violations', async ({ page }) => {
       await page.goto('/employer/jobs/new');
       await page.waitForLoadState('networkidle');
+      // Wait for client-side title to be set (Issue #148 - client component timing)
+      await page.waitForFunction(() => document.title.includes('Post New Job'));
 
       const results = await runAccessibilityScan(page, 'Job Posting');
       assertNoViolations(results, 'Job Posting');
@@ -277,6 +291,8 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('3.4 Candidate Search page should have no accessibility violations', async ({ page }) => {
       await page.goto('/employer/candidates');
       await page.waitForLoadState('networkidle');
+      // Wait for client-side title to be set (Issue #148 - client component timing)
+      await page.waitForFunction(() => document.title.includes('Candidate Search'));
 
       const results = await runAccessibilityScan(page, 'Candidate Search');
       assertNoViolations(results, 'Candidate Search');
@@ -489,6 +505,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2aa'])
         .withRules(['color-contrast'])
+        .exclude('#nextjs-portal')  // Exclude Next.js dev error overlay
         .analyze();
 
       const contrastViolations = results.violations.filter(v => v.id === 'color-contrast');
@@ -695,6 +712,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa'])
         .withRules(['aria-valid-attr', 'aria-valid-attr-value'])
+        .exclude('#nextjs-portal')  // Exclude Next.js dev error overlay
         .analyze();
 
       const ariaViolations = results.violations.filter(
@@ -711,6 +729,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa'])
         .withRules(['aria-roles'])
+        .exclude('#nextjs-portal')  // Exclude Next.js dev error overlay
         .analyze();
 
       const roleViolations = results.violations.filter(v => v.id === 'aria-roles');
@@ -742,6 +761,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
 
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .exclude('#nextjs-portal')  // Exclude Next.js dev error overlay
         .analyze();
 
       const critical = results.violations.filter(v => v.impact === 'critical').length;
