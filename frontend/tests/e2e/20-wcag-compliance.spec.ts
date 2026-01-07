@@ -172,12 +172,16 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
             refreshToken: 'mock-refresh-token',
             isAuthenticated: true,
             isLoading: false,
-            isInitialized: true,
+            isInitialized: false, // Must be false to trigger initializeAuth()
             error: null,
           },
           version: 0,
         };
+        // Set Zustand persist storage
         localStorage.setItem('auth-storage', JSON.stringify(mockAuthState));
+        // CRITICAL: Also set individual tokens for initializeAuth() check
+        localStorage.setItem('access_token', 'mock-access-token');
+        localStorage.setItem('refresh_token', 'mock-refresh-token');
       });
     });
 
@@ -263,12 +267,16 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
             refreshToken: 'mock-employer-refresh-token',
             isAuthenticated: true,
             isLoading: false,
-            isInitialized: true,
+            isInitialized: false, // Must be false to trigger initializeAuth()
             error: null,
           },
           version: 0,
         };
+        // Set Zustand persist storage
         localStorage.setItem('auth-storage', JSON.stringify(mockAuthState));
+        // CRITICAL: Also set individual tokens for initializeAuth() check
+        localStorage.setItem('access_token', 'mock-employer-access-token');
+        localStorage.setItem('refresh_token', 'mock-employer-refresh-token');
       });
     });
 
