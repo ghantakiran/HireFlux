@@ -150,12 +150,10 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
   // ========================================================================
 
   test.describe('Job Seeker Pages', () => {
-    test.beforeEach(async ({ page }) => {
-      // Mock authentication for job seeker
-      await page.goto('/');
-
-      // Set up mock authentication in localStorage
-      await page.evaluate(() => {
+    test.beforeEach(async ({ page, context }) => {
+      // Set up mock authentication BEFORE any page navigation using addInitScript
+      // This ensures localStorage is available from the very first page load
+      await context.addInitScript(() => {
         const mockAuthState = {
           state: {
             user: {
@@ -245,12 +243,10 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
   // ========================================================================
 
   test.describe('Employer Pages', () => {
-    test.beforeEach(async ({ page }) => {
-      // Mock authentication for employer
-      await page.goto('/');
-
-      // Set up mock authentication in localStorage
-      await page.evaluate(() => {
+    test.beforeEach(async ({ page, context }) => {
+      // Set up mock authentication BEFORE any page navigation using addInitScript
+      // This ensures localStorage is available from the very first page load
+      await context.addInitScript(() => {
         const mockAuthState = {
           state: {
             user: {
