@@ -84,6 +84,26 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
   }
 
   /**
+   * Helper function to wait for document title to be set
+   * Adds delay for React hydration and logs title for debugging
+   */
+  async function waitForTitle(page: any) {
+    // Wait up to 5 seconds for title to be set, checking every 200ms
+    for (let i = 0; i < 25; i++) {
+      const currentTitle = await page.title();
+      if (currentTitle && currentTitle.trim() !== '') {
+        console.log(`✓ Page title set after ${i * 200}ms: "${currentTitle}"`);
+        return;
+      }
+      await page.waitForTimeout(200);
+    }
+
+    // If we get here, title was never set
+    const finalTitle = await page.title();
+    console.warn(`⚠️  Page title still empty after 5s: "${finalTitle}"`);
+  }
+
+  /**
    * Assert no critical or serious violations
    */
   function assertNoViolations(results: any, pageName: string, allowedImpacts: string[] = []) {
@@ -91,7 +111,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
       (v: any) => (v.impact === 'critical' || v.impact === 'serious') && !allowedImpacts.includes(v.impact)
     );
 
-    expect(criticalAndSerious, `${pageName} should have no critical or serious accessibility violations`).toHaveLength(0);
+    expect(criticalAndSerious, `${pageName} should have no critical or serious violations`).toHaveLength(0);
   }
 
   // ========================================================================
@@ -164,6 +184,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('2.1 Dashboard should have no accessibility violations', async ({ page }) => {
       await page.goto('/dashboard');
       await page.waitForLoadState('networkidle');
+      await waitForTitle(page); // Wait for title to be set
 
       const results = await runAccessibilityScan(page, 'Dashboard');
       assertNoViolations(results, 'Dashboard');
@@ -172,6 +193,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('2.2 Job Matching page should have no accessibility violations', async ({ page }) => {
       await page.goto('/dashboard/jobs');
       await page.waitForLoadState('networkidle');
+      await waitForTitle(page); // Wait for title to be set
 
       const results = await runAccessibilityScan(page, 'Job Matching');
       assertNoViolations(results, 'Job Matching');
@@ -180,6 +202,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('2.3 Resume Builder page should have no accessibility violations', async ({ page }) => {
       await page.goto('/dashboard/resumes');
       await page.waitForLoadState('networkidle');
+      await waitForTitle(page); // Wait for title to be set
 
       const results = await runAccessibilityScan(page, 'Resume Builder');
       assertNoViolations(results, 'Resume Builder');
@@ -188,6 +211,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('2.4 Cover Letter Generator page should have no accessibility violations', async ({ page }) => {
       await page.goto('/dashboard/cover-letters');
       await page.waitForLoadState('networkidle');
+      await waitForTitle(page); // Wait for title to be set
 
       const results = await runAccessibilityScan(page, 'Cover Letter Generator');
       assertNoViolations(results, 'Cover Letter Generator');
@@ -196,6 +220,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('2.5 Applications page should have no accessibility violations', async ({ page }) => {
       await page.goto('/dashboard/applications');
       await page.waitForLoadState('networkidle');
+      await waitForTitle(page); // Wait for title to be set
 
       const results = await runAccessibilityScan(page, 'Applications');
       assertNoViolations(results, 'Applications');
@@ -204,6 +229,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('2.6 Settings page should have no accessibility violations', async ({ page }) => {
       await page.goto('/dashboard/settings');
       await page.waitForLoadState('networkidle');
+      await waitForTitle(page); // Wait for title to be set
 
       const results = await runAccessibilityScan(page, 'Settings');
       assertNoViolations(results, 'Settings');
@@ -249,6 +275,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('3.1 Employer Dashboard should have no accessibility violations', async ({ page }) => {
       await page.goto('/employer/dashboard');
       await page.waitForLoadState('networkidle');
+      await waitForTitle(page); // Wait for title to be set
 
       const results = await runAccessibilityScan(page, 'Employer Dashboard');
       assertNoViolations(results, 'Employer Dashboard');
@@ -257,6 +284,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('3.2 Job Posting page should have no accessibility violations', async ({ page }) => {
       await page.goto('/employer/jobs/new');
       await page.waitForLoadState('networkidle');
+      await waitForTitle(page); // Wait for title to be set
 
       const results = await runAccessibilityScan(page, 'Job Posting');
       assertNoViolations(results, 'Job Posting');
@@ -265,6 +293,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('3.3 Applicant Tracking page should have no accessibility violations', async ({ page }) => {
       await page.goto('/employer/applicants');
       await page.waitForLoadState('networkidle');
+      await waitForTitle(page); // Wait for title to be set
 
       const results = await runAccessibilityScan(page, 'Applicant Tracking');
       assertNoViolations(results, 'Applicant Tracking');
@@ -273,6 +302,7 @@ test.describe('WCAG 2.1 AA Compliance Audit', () => {
     test('3.4 Candidate Search page should have no accessibility violations', async ({ page }) => {
       await page.goto('/employer/candidates');
       await page.waitForLoadState('networkidle');
+      await waitForTitle(page); // Wait for title to be set
 
       const results = await runAccessibilityScan(page, 'Candidate Search');
       assertNoViolations(results, 'Candidate Search');

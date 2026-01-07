@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Post New Job',
+  title: 'Post New Job | HireFlux',
   description: 'Create a new job posting with AI-powered job description generation.',
 };
 

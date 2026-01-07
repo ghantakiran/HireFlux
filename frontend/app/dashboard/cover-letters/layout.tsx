@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Cover Letters',
+  title: 'Cover Letters | HireFlux',
   description: 'Generate personalized, compelling cover letters for your job applications.',
 };
 

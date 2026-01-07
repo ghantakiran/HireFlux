@@ -2,7 +2,7 @@ import { EmployerDashboardLayout } from '@/components/layout/EmployerDashboardLa
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Employer Dashboard',
+  title: 'Employer Dashboard | HireFlux',
   description: 'Manage job postings, track applicants, and find top talent with AI-powered recruiting tools.',
 };
 

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Settings',
+  title: 'Settings | HireFlux',
   description: 'Manage your account settings, preferences, and subscription.',
 };
 

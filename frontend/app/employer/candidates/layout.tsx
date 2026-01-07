@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Candidate Search',
+  title: 'Candidate Search | HireFlux',
   description: 'Search and discover qualified candidates for your open positions.',
 };
 
