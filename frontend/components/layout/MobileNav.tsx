@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -77,6 +78,8 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const previousOpenRef = React.useRef(open);
 
   const navigationItems = role === 'employer' ? EMPLOYER_NAV : JOB_SEEKER_NAV;
 
@@ -92,20 +95,47 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
     window.location.href = '/login';
   };
 
+  // Handle focus restoration when sheet closes (Issue #151)
+  // Using useEffect for more reliable cross-browser support
+  React.useEffect(() => {
+    const wasOpen = previousOpenRef.current;
+    previousOpenRef.current = open;
+
+    // If sheet just closed, restore focus to button
+    if (wasOpen && !open && buttonRef.current) {
+      // Multiple strategies for webkit/Safari compatibility
+      const restoreFocus = () => {
+        if (buttonRef.current) {
+          buttonRef.current.focus();
+          // Verify focus was set (webkit workaround)
+          if (document.activeElement !== buttonRef.current) {
+            buttonRef.current.focus();
+          }
+        }
+      };
+
+      // Use both requestAnimationFrame and setTimeout for maximum compatibility
+      requestAnimationFrame(() => {
+        setTimeout(restoreFocus, 200); // Increased for webkit
+      });
+    }
+  }, [open]);
+
   return (
     <>
       {/* Mobile Top Bar (visible only on mobile) */}
-      {/* Elements use tabIndex={-1} to prevent focus when hidden on desktop - Issue #149 */}
+      {/* Hidden on desktop via lg:hidden class - browser handles focus automatically */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b flex items-center justify-between px-4">
         {/* Hamburger Icon */}
         <Button
+          ref={buttonRef}
           variant="ghost"
           size="icon"
           onClick={() => setOpen(true)}
           data-hamburger-icon
-          aria-label="Open menu"
-          className="lg:sr-only"
-          tabIndex={-1}
+          data-testid="mobile-menu-button"
+          aria-label="Open mobile menu"
+          className="p-2 min-h-[44px] min-w-[44px]"
         >
           <Menu className="h-6 w-6" />
         </Button>
@@ -114,20 +144,19 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
         <Link
           href={role === 'employer' ? '/employer/dashboard' : '/dashboard'}
           data-logo
-          className="lg:sr-only"
-          tabIndex={-1}
+          className="text-xl font-bold text-blue-600"
         >
-          <span className="text-xl font-bold text-blue-600">HireFlux</span>
+          HireFlux
         </Link>
 
         {/* User Avatar */}
-        <div
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold lg:sr-only"
+        <button
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           data-profile-menu-trigger
-          tabIndex={-1}
+          aria-label="Open profile menu"
         >
           {user?.first_name?.[0]}{user?.last_name?.[0]}
-        </div>
+        </button>
       </div>
 
       {/* Drawer Navigation */}
@@ -136,8 +165,7 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
           side="left"
           className="w-4/5 p-0"
           data-nav-drawer
-          onEscapeKeyDown={() => setOpen(false)}
-          onInteractOutside={() => setOpen(false)}
+          data-testid="mobile-menu"
         >
           <div className="flex h-full flex-col" data-drawer-overlay>
             {/* Header */}
