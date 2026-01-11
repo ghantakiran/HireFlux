@@ -17,6 +17,7 @@ import { FeedbackProvider } from '@/components/feedback/feedback-provider';
 import { TourProvider } from '@/components/tours/tour-provider';
 import { TourOrchestrator } from '@/components/tours/tour-orchestrator';
 import { TooltipManager } from '@/components/tours/tooltip-manager';
+import { PageTransition } from '@/components/page-transition';
 
 // Optimized font loading with display: swap to prevent FOIT
 const inter = Inter({
@@ -81,10 +82,19 @@ export default function RootLayout({
                         {/* SkipLink moved to AppShell component for consistency */}
                         <OfflineBanner position="top" />
                         {/* Main landmark provided by AppShell/MainContent - don't duplicate here */}
-                        <div className="focus:outline-none">
-                          {children}
-                        </div>
-                        <Toaster position="top-right" richColors />
+                        <PageTransition>
+                          <div className="focus:outline-none">
+                            {children}
+                          </div>
+                        </PageTransition>
+                        <Toaster
+                          position="top-right"
+                          richColors
+                          toastOptions={{
+                            className: 'animate-slide-down',
+                            duration: 4000,
+                          }}
+                        />
                         <KeyboardShortcutsHelp />
                         <WebVitalsReporter />
                         <PWAInstaller />
