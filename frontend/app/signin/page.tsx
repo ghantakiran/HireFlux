@@ -18,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { FormShake } from '@/components/ui/form-shake';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { authApi } from '@/lib/api';
 
@@ -80,8 +81,11 @@ export default function SignInPage() {
     window.location.href = `${apiUrl}/api/v1/auth/${provider}/authorize`;
   };
 
+  // Check if form has validation errors
+  const hasErrors = Object.keys(errors).length > 0;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-center text-3xl font-bold">Sign In</CardTitle>
@@ -90,7 +94,8 @@ export default function SignInPage() {
           </CardDescription>
         </CardHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <FormShake error={hasErrors}>
+          <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
             {error && (
               <div className="rounded-md bg-red-50 p-3 text-sm text-red-800" role="alert">
@@ -212,7 +217,8 @@ export default function SignInPage() {
             </div>
           </CardFooter>
         </form>
+        </FormShake>
       </Card>
-    </div>
+    </main>
   );
 }

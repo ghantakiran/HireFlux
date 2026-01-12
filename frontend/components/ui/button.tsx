@@ -39,10 +39,16 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
+
+    // Add data attributes for E2E testing
+    const hasHoverEffect = variant !== 'link';
+
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        data-has-hover-effect={hasHoverEffect}
+        data-transition-duration="200ms"
         {...props}
       />
     );

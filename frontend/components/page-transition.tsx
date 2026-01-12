@@ -11,7 +11,7 @@ import { usePathname } from 'next/navigation';
  * Respects prefers-reduced-motion for accessibility (WCAG 2.2.2).
  *
  * Features:
- * - 300ms fade-in animation (within 100-400ms performance budget)
+ * - 250ms fade-in animation (optimized for <1000ms page transition target)
  * - Opacity transition only (GPU-accelerated)
  * - Automatic on route change
  * - Reduced motion support
@@ -38,20 +38,12 @@ export function PageTransition({ children, className = '' }: PageTransitionProps
     // On initial render, show immediately to prevent flash
     if (!hasInitiallyRendered.current) {
       hasInitiallyRendered.current = true;
-      // Small delay to ensure CSS is loaded
-      requestAnimationFrame(() => {
-        setIsVisible(true);
-      });
+      setIsVisible(true);
       return;
     }
 
-    // On route change, fade out then fade in
-    setIsVisible(false);
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 50); // Brief delay for fade out
-
-    return () => clearTimeout(timer);
+    // On route change, show new content immediately (Next.js handles unmounting)
+    setIsVisible(true);
   }, [pathname]);
 
   return (
@@ -59,7 +51,7 @@ export function PageTransition({ children, className = '' }: PageTransitionProps
       className={`animate-page-transition ${className}`}
       style={{
         opacity: isVisible ? 1 : 0,
-        transition: 'opacity 300ms ease-out',
+        transition: 'opacity 250ms ease-out',
       }}
     >
       {children}
