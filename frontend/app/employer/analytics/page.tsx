@@ -3,6 +3,10 @@
 /**
  * Employer Analytics Dashboard Page
  * Sprint 15-16: Advanced Analytics & Reporting
+ *
+ * Performance Optimization (Issue #144):
+ * - Lazy load recharts components for better bundle size
+ * - Charts are deferred until below-the-fold or user scrolls
  */
 
 import React, { useState } from 'react';
@@ -16,17 +20,66 @@ import {
   useCostMetrics,
 } from '@/lib/hooks/useEmployerAnalytics';
 
-// Components
+// Regular components (lightweight)
 import { DateRangePicker } from './components/DateRangePicker';
 import { AnalyticsOverview } from './components/AnalyticsOverview';
-import { PipelineFunnelChart } from './components/PipelineFunnelChart';
-import { SourcingMetricsCard } from './components/SourcingMetricsCard';
-import { TimeToHireChart } from './components/TimeToHireChart';
 import { QualityMetricsGrid } from './components/QualityMetricsGrid';
-import { CostMetricsCard } from './components/CostMetricsCard';
 import { ExportReportButton } from './components/ExportReportButton';
 import { StageDetailsModal } from './components/StageDetailsModal';
 import { AnalyticsEmptyState } from './components/AnalyticsEmptyState';
+
+// Lazy load heavy chart components (recharts library ~100KB)
+// Using dynamic import to defer loading until needed
+import dynamic from 'next/dynamic';
+
+const PipelineFunnelChart = dynamic(
+  () => import('./components/PipelineFunnelChart').then(mod => ({ default: mod.PipelineFunnelChart })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="h-6 bg-gray-200 rounded w-1/3 mb-4 animate-pulse"></div>
+        <div className="h-96 bg-gray-100 rounded animate-pulse"></div>
+      </div>
+    ),
+  }
+);
+
+const SourcingMetricsCard = dynamic(
+  () => import('./components/SourcingMetricsCard').then(mod => ({ default: mod.SourcingMetricsCard })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="h-96 bg-gray-100 rounded animate-pulse"></div>
+      </div>
+    ),
+  }
+);
+
+const TimeToHireChart = dynamic(
+  () => import('./components/TimeToHireChart').then(mod => ({ default: mod.TimeToHireChart })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="h-96 bg-gray-100 rounded animate-pulse"></div>
+      </div>
+    ),
+  }
+);
+
+const CostMetricsCard = dynamic(
+  () => import('./components/CostMetricsCard').then(mod => ({ default: mod.CostMetricsCard })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="h-64 bg-gray-100 rounded animate-pulse"></div>
+      </div>
+    ),
+  }
+);
 
 // TODO: These will come from auth context in production
 const MOCK_COMPANY_ID = '550e8400-e29b-41d4-a716-446655440000';
