@@ -49,20 +49,39 @@ const nextConfig = {
       // Optimize client-side bundle
       config.optimization = {
         ...config.optimization,
+        // Enable tree shaking
+        usedExports: true,
+        sideEffects: true,
+        // Better module concatenation
+        concatenateModules: true,
+        // Better code splitting
         splitChunks: {
           chunks: 'all',
+          maxInitialRequests: 25,
+          minSize: 20000,
           cacheGroups: {
-            // Vendor chunk for node_modules
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              priority: 10,
-              reuseExistingChunk: true,
+            // Framework chunk (React, Next.js)
+            framework: {
+              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
+              name: 'framework',
+              priority: 40,
+              enforce: true,
             },
             // React Query chunk
             reactQuery: {
               test: /[\\/]node_modules[\\/]@tanstack[\\/]react-query/,
               name: 'react-query',
+              priority: 30,
+              reuseExistingChunk: true,
+            },
+            // Other vendor libraries
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name(module) {
+                // Get the package name
+                const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)?.[1];
+                return `vendor.${packageName?.replace('@', '')}`;
+              },
               priority: 20,
               reuseExistingChunk: true,
             },
@@ -77,8 +96,9 @@ const nextConfig = {
             // Common chunk for shared code
             common: {
               minChunks: 2,
-              priority: 5,
+              priority: 10,
               reuseExistingChunk: true,
+              enforce: true,
             },
           },
         },
@@ -91,6 +111,7 @@ const nextConfig = {
   // Enable experimental features for better performance
   experimental: {
     optimizeCss: true, // Enable CSS optimization
+    optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'], // Tree shake icon libraries
   },
 
   // Compression

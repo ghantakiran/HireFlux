@@ -61,8 +61,22 @@ export default function RootLayout({
         {/* Preconnect to critical origins for faster resource loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
         {/* DNS prefetch for external resources */}
         <link rel="dns-prefetch" href="https://storage.hireflux.com" />
+
+        {/* Preload critical fonts (Issue #144: Performance Optimization) */}
+        <link
+          rel="preload"
+          href="/_next/static/media/inter-latin-ext.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+
+        {/* Preload critical CSS for faster FCP/LCP */}
+        <link rel="preload" href="/_next/static/css/app.css" as="style" />
+
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#3b82f6" />
