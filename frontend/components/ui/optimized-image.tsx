@@ -7,12 +7,14 @@
  * - Blur placeholder support
  * - Responsive sizing
  * - Accessibility built-in
+ * - Issue #145: Image Optimization & Lazy Loading
  */
 
 'use client';
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { generateBlurPlaceholder, RESPONSIVE_SIZES } from '@/lib/image-utils';
 
 interface OptimizedImageProps {
   src: string;
@@ -45,15 +47,14 @@ export function OptimizedImage({
   placeholder = 'blur',
   blurDataURL,
   objectFit = 'cover',
-  loading = 'lazy',
+  loading, // Let Next.js decide by default
   onLoad,
   onError,
 }: OptimizedImageProps) {
   const [imgError, setImgError] = useState(false);
 
-  // Default blur placeholder (1x1 transparent gray pixel)
-  const defaultBlurDataURL =
-    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNjY2MiLz48L3N2Zz4=';
+  // Enhanced blur placeholder (better visual experience)
+  const defaultBlurDataURL = blurDataURL || generateBlurPlaceholder();
 
   // Fallback image for broken images
   const fallbackSrc = '/images/placeholders/no-image.svg';
@@ -75,12 +76,12 @@ export function OptimizedImage({
     alt,
     className,
     quality,
-    loading: priority ? undefined : loading,
+    loading: priority ? ('eager' as const) : (loading || 'lazy'),
     priority,
     onError: handleError,
     onLoad: handleLoad,
-    placeholder: placeholder === 'blur' ? ('blur' as const) : undefined,
-    blurDataURL: placeholder === 'blur' ? (blurDataURL || defaultBlurDataURL) : undefined,
+    placeholder: placeholder === 'blur' ? ('blur' as const) : ('empty' as const),
+    blurDataURL: placeholder === 'blur' ? defaultBlurDataURL : undefined,
   };
 
   // Render with fill (responsive)
@@ -135,7 +136,8 @@ export function CompanyLogo({
       priority={priority}
       className={`rounded ${className}`}
       objectFit="contain"
-      sizes={`${size}px`}
+      sizes={RESPONSIVE_SIZES.logo}
+      placeholder="blur"
     />
   );
 }
@@ -166,7 +168,8 @@ export function Avatar({
       priority={priority}
       className={`rounded-full ${className}`}
       objectFit="cover"
-      sizes={`${size}px`}
+      sizes={RESPONSIVE_SIZES.avatar}
+      placeholder="blur"
     />
   );
 }
@@ -195,8 +198,9 @@ export function HeroImage({
         alt={alt}
         fill
         priority={priority}
-        sizes="100vw"
+        sizes={RESPONSIVE_SIZES.hero}
         objectFit="cover"
+        placeholder="blur"
       />
     </div>
   );
