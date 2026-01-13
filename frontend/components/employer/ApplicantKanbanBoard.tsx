@@ -13,12 +13,13 @@
 
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import {
   DndContext,
   DragOverlay,
   PointerSensor,
   KeyboardSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragStartEvent,
@@ -71,6 +72,13 @@ interface Filters {
 
 type SortOption = 'fit-desc' | 'fit-asc' | 'date-desc' | 'date-asc';
 
+interface UndoAction {
+  applicationId: string;
+  oldStage: ApplicationStatus;
+  newStage: ApplicationStatus;
+  timestamp: number;
+}
+
 // ============================================================================
 // Constants
 // ============================================================================
@@ -117,12 +125,23 @@ export default function ApplicantKanbanBoard({
   const [isOnline, setIsOnline] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [error, setError] = useState<string | null>(storeError);
+  const [undoStack, setUndoStack] = useState<UndoAction[]>([]);
+  const [showUndoNotification, setShowUndoNotification] = useState(false);
 
-  // Drag and drop sensors
+  // Refs
+  const undoNotificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Drag and drop sensors (including touch support)
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8, // Prevent accidental drags
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250, // Delay to distinguish from scroll
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -153,6 +172,58 @@ export default function ApplicantKanbanBoard({
     }
   }, [storeError]);
 
+  // Undo handler
+  const handleUndo = useCallback(async () => {
+    if (undoStack.length === 0) return;
+
+    const lastAction = undoStack[undoStack.length - 1];
+    const { applicationId, oldStage, newStage } = lastAction;
+
+    // Remove from stack
+    setUndoStack((prev) => prev.slice(0, -1));
+
+    // Revert the change
+    updateApplication(applicationId, { stage: oldStage as string });
+
+    // Show notification
+    setShowUndoNotification(true);
+    setAnnouncement(`Undid move from ${newStage} to ${oldStage}`);
+
+    // Clear notification after 3 seconds
+    if (undoNotificationTimeoutRef.current) {
+      clearTimeout(undoNotificationTimeoutRef.current);
+    }
+    undoNotificationTimeoutRef.current = setTimeout(() => {
+      setShowUndoNotification(false);
+    }, 3000);
+
+    try {
+      // API call to revert
+      await atsApi.updateApplicationStatus(applicationId, {
+        status: oldStage as string,
+      });
+    } catch (err) {
+      // Revert back if API fails
+      updateApplication(applicationId, { stage: newStage as string });
+      setError('Failed to undo action');
+      setTimeout(() => setError(null), 5000);
+    }
+  }, [undoStack, updateApplication]);
+
+  // Keyboard shortcut for undo (Cmd+Z / Ctrl+Z)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check for Cmd+Z (Mac) or Ctrl+Z (Windows/Linux)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleUndo]);
+
   // Fetch applications when component mounts or jobId changes
   const { fetchApplications } = useATSStore();
   useEffect(() => {
@@ -180,6 +251,11 @@ export default function ApplicantKanbanBoard({
     const { active } = event;
     setActiveId(active.id as string);
     setIsDragging(true);
+
+    // Haptic feedback on mobile
+    if ('vibrate' in navigator) {
+      navigator.vibrate(50);
+    }
 
     const applicant = applicants.find((a) => a.id === active.id);
     if (applicant) {
@@ -242,7 +318,26 @@ export default function ApplicantKanbanBoard({
     // Optimistic update via store
     updateApplication(activeId, { stage: newStage });
 
+    // Add to undo stack (limit to 10 items)
+    setUndoStack((prev) => {
+      const newStack: UndoAction[] = [
+        ...prev,
+        {
+          applicationId: activeId,
+          oldStage: oldStage as ApplicationStatus,
+          newStage: newStage as ApplicationStatus,
+          timestamp: Date.now(),
+        },
+      ];
+      return newStack.slice(-10); // Keep last 10 actions
+    });
+
     setAnnouncement(`Moved ${activeApplicant.candidateName} to ${targetStage.label}`);
+
+    // Haptic feedback on successful drop (mobile)
+    if ('vibrate' in navigator) {
+      navigator.vibrate(100);
+    }
 
     // Call callback
     onStageChange?.(activeId, oldStage, newStage);
@@ -265,6 +360,9 @@ export default function ApplicantKanbanBoard({
     } catch (err) {
       // Revert on error via store
       updateApplication(activeId, { stage: oldStage });
+
+      // Remove from undo stack on error
+      setUndoStack((prev) => prev.slice(0, -1));
 
       setAnnouncement(`Failed to update candidate stage: ${(err as Error).message}`);
       setError('Failed to update candidate stage');
@@ -498,7 +596,17 @@ export default function ApplicantKanbanBoard({
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <div className="flex gap-4 overflow-x-auto pb-4" data-testid="dnd-context">
+        <div
+          className="flex gap-4 overflow-x-auto pb-4"
+          data-testid="dnd-context"
+          data-touch-enabled="true"
+          onTouchMove={(e) => {
+            // Prevent page scroll during drag
+            if (isDragging) {
+              e.preventDefault();
+            }
+          }}
+        >
           {stages.map((stage) => (
             <KanbanColumn
               key={stage.id}
@@ -513,13 +621,87 @@ export default function ApplicantKanbanBoard({
           ))}
         </div>
 
-        {/* Drag Overlay */}
-        <DragOverlay>
+        {/* Drag Overlay with enhanced styling */}
+        <DragOverlay
+          dropAnimation={{
+            duration: 200,
+            easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
           {activeApplicant ? (
-            <KanbanCard applicant={activeApplicant} isDragging />
+            <div
+              data-testid="drag-ghost"
+              style={{
+                opacity: 0.8,
+                transform: 'scale(1.05) rotate(3deg)',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)',
+                cursor: 'grabbing',
+              }}
+            >
+              <KanbanCard applicant={activeApplicant} isDragging />
+            </div>
           ) : null}
         </DragOverlay>
       </DndContext>
+
+      {/* Undo Notification */}
+      {showUndoNotification && (
+        <div
+          data-testid="undo-notification"
+          className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50 animate-slide-up"
+          role="alert"
+        >
+          <svg
+            className="w-5 h-5 text-green-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span>Action undone successfully</span>
+          <button
+            onClick={handleUndo}
+            disabled={undoStack.length === 0}
+            className="ml-2 text-blue-400 hover:text-blue-300 font-medium"
+          >
+            Undo again
+          </button>
+        </div>
+      )}
+
+      {/* Undo Button (Floating) */}
+      {undoStack.length > 0 && !showUndoNotification && (
+        <button
+          data-testid="undo-button"
+          onClick={handleUndo}
+          className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors flex items-center gap-2 z-50"
+          aria-label={`Undo last action (${undoStack.length} ${undoStack.length === 1 ? 'action' : 'actions'} available)`}
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+            />
+          </svg>
+          <span>Undo ({undoStack.length})</span>
+          <kbd className="ml-2 px-2 py-1 text-xs bg-blue-700 rounded">
+            {typeof navigator !== 'undefined' && navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'}+Z
+          </kbd>
+        </button>
+      )}
 
       {/* Screen Reader Announcements */}
       <div

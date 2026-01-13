@@ -97,8 +97,10 @@ export default function KanbanCard({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isSortableDragging || isDragging ? 0.5 : 1,
+    transition: transition || 'transform 250ms cubic-bezier(0.4, 0, 0.2, 1), opacity 200ms ease-in-out, box-shadow 200ms ease-in-out',
+    opacity: isSortableDragging || isDragging ? 0.6 : 1,
+    boxShadow: isSortableDragging ? '0 10px 25px rgba(0, 0, 0, 0.15)' : undefined,
+    willChange: 'transform, opacity, box-shadow',
   };
 
   const fitIndexColor = getFitIndexColor(applicant.fitIndex);
@@ -130,7 +132,12 @@ export default function KanbanCard({
       {...attributes}
       {...listeners}
       data-testid="kanban-card"
-      className="group relative bg-white rounded-lg border border-gray-200 p-4 cursor-pointer hover:shadow-md transition-shadow"
+      data-dragging={isSortableDragging || isDragging ? 'true' : 'false'}
+      data-candidate-id={applicant.candidateId}
+      data-application-id={applicant.id}
+      className={`group relative bg-white rounded-lg border border-gray-200 p-4 cursor-pointer hover:shadow-md transition-all duration-200 ${
+        isSortableDragging ? 'scale-105 shadow-lg' : ''
+      }`}
       onClick={handleClick}
       draggable="true"
       aria-label={`${applicant.candidateName}, ${applicant.fitIndex} fit index, applied ${relativeTime}`}

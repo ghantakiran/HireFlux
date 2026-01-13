@@ -71,8 +71,11 @@ export default function KanbanColumn({
   return (
     <div
       data-testid="kanban-column"
-      className={`flex flex-col bg-gray-50 rounded-lg border-2 transition-colors ${
-        isOver ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-200'
+      data-column={id}
+      data-drop-zone="true"
+      data-drag-over={isOver ? 'true' : 'false'}
+      className={`flex flex-col bg-gray-50 rounded-lg border-2 transition-all duration-200 ${
+        isOver ? 'ring-2 ring-blue-500 border-blue-500 bg-blue-50/50 shadow-lg' : 'border-gray-200'
       }`}
       style={{ minWidth: '280px', maxWidth: '320px' }}
     >
