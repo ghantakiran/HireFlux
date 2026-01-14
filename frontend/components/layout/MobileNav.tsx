@@ -237,6 +237,7 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
 
 /**
  * Mobile Bottom Tab Bar
+ * Issue #140: Enhanced with smooth transitions, iOS safe area, and accessibility
  */
 export function MobileBottomTabBar({ role = 'job_seeker' }: MobileNavProps) {
   const pathname = usePathname();
@@ -289,7 +290,11 @@ export function MobileBottomTabBar({ role = 'job_seeker' }: MobileNavProps) {
     <nav
       role="navigation"
       aria-label="Mobile bottom navigation"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
+      style={{
+        // iOS safe area support (Issue #140)
+        paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)',
+      }}
       data-bottom-tab-bar
     >
       <ul className="grid grid-cols-5 h-16">
@@ -301,26 +306,77 @@ export function MobileBottomTabBar({ role = 'job_seeker' }: MobileNavProps) {
             <li key={tab.name}>
               <Link
                 href={tab.href}
-                className={`flex flex-col items-center justify-center h-full relative transition-colors ${
-                  active ? 'text-blue-600' : 'text-gray-600'
-                }`}
+                className={`
+                  group
+                  flex flex-col items-center justify-center h-full relative
+                  transition-all duration-300 ease-out
+                  active:scale-95
+                  ${active ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'}
+                `}
                 data-tab={tab.dataAttr}
                 data-active={active ? 'true' : 'false'}
-                style={{ minHeight: '48px', minWidth: '48px' }}
+                aria-current={active ? 'page' : undefined}
+                style={{
+                  minHeight: '48px',
+                  minWidth: '48px',
+                  WebkitTapHighlightColor: 'transparent', // Prevent iOS tap highlight
+                }}
               >
-                <div className="relative">
-                  <Icon className="h-5 w-5" />
+                {/* Icon container with scale animation */}
+                <div
+                  className={`
+                    relative
+                    transition-transform duration-300 ease-out
+                    ${active ? 'scale-110' : 'scale-100 group-hover:scale-105'}
+                  `}
+                >
+                  <Icon
+                    className={`
+                      h-5 w-5
+                      transition-all duration-300
+                      ${active ? 'stroke-[2.5]' : 'stroke-2'}
+                    `}
+                  />
+
+                  {/* Badge with pulse animation */}
                   {tab.badge && tab.badge > 0 && (
                     <Badge
                       variant="destructive"
-                      className="absolute -right-2 -top-2 h-4 w-4 rounded-full p-0 flex items-center justify-center text-xs"
+                      className="
+                        absolute -right-2 -top-2 h-4 w-4 rounded-full p-0
+                        flex items-center justify-center text-[10px] font-semibold
+                        animate-pulse
+                        shadow-sm
+                      "
                       data-tab-badge={tab.dataAttr}
                     >
                       {tab.badge}
                     </Badge>
                   )}
+
+                  {/* Active indicator dot */}
+                  {active && (
+                    <div
+                      className="
+                        absolute -bottom-1 left-1/2 -translate-x-1/2
+                        w-1 h-1 rounded-full bg-blue-600
+                        animate-in fade-in zoom-in duration-300
+                      "
+                      aria-hidden="true"
+                    />
+                  )}
                 </div>
-                <span className="text-xs mt-1">{tab.name}</span>
+
+                {/* Label with smooth transition */}
+                <span
+                  className={`
+                    text-xs mt-1 font-medium
+                    transition-all duration-300
+                    ${active ? 'opacity-100 scale-100' : 'opacity-75 scale-95 group-hover:opacity-90'}
+                  `}
+                >
+                  {tab.name}
+                </span>
               </Link>
             </li>
           );

@@ -42,11 +42,13 @@ export const metadata: Metadata = {
 };
 
 // Viewport configuration moved to separate export (Next.js 14+ requirement)
+// Issue #140: Added viewport-fit=cover for iOS safe area support
 export function generateViewport() {
   return {
     width: 'device-width',
     initialScale: 1,
     maximumScale: 5,
+    viewportFit: 'cover', // Enable iOS safe area insets
   };
 }
 
