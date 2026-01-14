@@ -5,14 +5,13 @@ import Link from 'next/link';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import {
   Search,
-  Bell,
   User,
-  Settings,
   CreditCard,
   HelpCircle,
   LogOut,
   ChevronDown
 } from 'lucide-react';
+import { NotificationButton } from '@/components/notifications/notification-button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,21 +39,9 @@ interface TopNavProps {
 
 export function TopNav({ role = 'job_seeker' }: TopNavProps) {
   const { user, logout } = useAuthStore();
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Mock notifications (replace with real data)
-  const notifications = [
-    { id: 1, type: 'application', message: 'Application status updated', read: false },
-    { id: 2, type: 'message', message: 'New message from recruiter', read: false },
-    { id: 3, type: 'interview', message: 'Interview scheduled for tomorrow', read: false },
-    { id: 4, type: 'job_match', message: '5 new jobs match your profile', read: true },
-    { id: 5, type: 'application', message: 'Application submitted successfully', read: true },
-  ];
-
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,70 +97,8 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
           </form>
 
           <div className="ml-auto flex items-center gap-2">
-            {/* Notifications Dropdown */}
-            <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative"
-                  data-notifications-icon
-                  aria-label="Notifications"
-                  aria-haspopup="true"
-                  aria-expanded={notificationsOpen}
-                  tabIndex={0}
-                >
-                  <Bell className="h-5 w-5" />
-                  {unreadCount > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-                      data-notifications-badge
-                    >
-                      {unreadCount}
-                    </Badge>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-80"
-                data-notifications-dropdown
-              >
-                <DropdownMenuLabel className="flex items-center justify-between">
-                  <span data-unread-count>{unreadCount} unread notifications</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-auto p-0 text-xs"
-                    data-mark-all-read
-                  >
-                    Mark all as read
-                  </Button>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <div className="max-h-96 overflow-y-auto">
-                  {notifications.map((notification) => (
-                    <DropdownMenuItem
-                      key={notification.id}
-                      className="flex items-start gap-3 py-3"
-                      data-notification-item
-                      data-read={notification.read}
-                      data-notification-type={notification.type}
-                    >
-                      {!notification.read && (
-                        <span className="mt-1 h-2 w-2 rounded-full bg-blue-600" data-unread-dot />
-                      )}
-                      <div className="flex-1">
-                        <p className={notification.read ? 'text-gray-600' : 'text-gray-900'}>
-                          {notification.message}
-                        </p>
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Notifications - Issue #130 */}
+            <NotificationButton />
 
             {/* Profile Menu */}
             <DropdownMenu open={profileMenuOpen} onOpenChange={setProfileMenuOpen}>

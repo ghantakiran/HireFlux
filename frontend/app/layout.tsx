@@ -18,6 +18,7 @@ import { TourProvider } from '@/components/tours/tour-provider';
 import { TourOrchestrator } from '@/components/tours/tour-orchestrator';
 import { TooltipManager } from '@/components/tours/tooltip-manager';
 import { PageTransition } from '@/components/page-transition';
+import { NotificationProvider } from '@/components/notifications/notification-provider';
 
 // Optimized font loading with display: swap to prevent FOIT
 const inter = Inter({
@@ -93,16 +94,17 @@ export default function RootLayout({
               <QueryClientProvider>
                 <KeyboardNavigationProvider>
                   <AuthProvider>
-                    <TourProvider>
-                      <FeedbackProvider>
-                        {/* SkipLink moved to AppShell component for consistency */}
-                        <OfflineBanner position="top" />
-                        {/* Main landmark provided by AppShell/MainContent - don't duplicate here */}
-                        <PageTransition>
-                          <div className="focus:outline-none">
-                            {children}
-                          </div>
-                        </PageTransition>
+                    <NotificationProvider>
+                      <TourProvider>
+                        <FeedbackProvider>
+                          {/* SkipLink moved to AppShell component for consistency */}
+                          <OfflineBanner position="top" />
+                          {/* Main landmark provided by AppShell/MainContent - don't duplicate here */}
+                          <PageTransition>
+                            <div className="focus:outline-none">
+                              {children}
+                            </div>
+                          </PageTransition>
                         <Toaster
                           position="top-right"
                           richColors
@@ -116,8 +118,9 @@ export default function RootLayout({
                         <PWAInstaller />
                         <TourOrchestrator />
                         <TooltipManager />
-                      </FeedbackProvider>
-                    </TourProvider>
+                        </FeedbackProvider>
+                      </TourProvider>
+                    </NotificationProvider>
                   </AuthProvider>
                 </KeyboardNavigationProvider>
               </QueryClientProvider>
