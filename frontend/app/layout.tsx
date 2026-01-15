@@ -7,18 +7,20 @@ import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { ErrorBoundary } from '@/components/errors/error-boundary';
 import { ErrorProvider } from '@/components/errors/error-provider';
-import { OfflineBanner } from '@/components/errors/offline-banner';
 // SkipLink removed from here - now handled by AppShell component
 import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
 import { KeyboardNavigationProvider } from '@/components/providers/keyboard-navigation-provider';
 import { WebVitalsReporter } from '@/components/web-vitals-reporter';
-import { PWAInstaller } from '@/components/pwa-installer';
 import { FeedbackProvider } from '@/components/feedback/feedback-provider';
 import { TourProvider } from '@/components/tours/tour-provider';
 import { TourOrchestrator } from '@/components/tours/tour-orchestrator';
 import { TooltipManager } from '@/components/tours/tooltip-manager';
 import { PageTransition } from '@/components/page-transition';
 import { NotificationProvider } from '@/components/notifications/notification-provider';
+import { PWAProvider } from '@/components/pwa/pwa-provider';
+import { OfflineIndicator, OnlineIndicator } from '@/components/pwa/offline-indicator';
+import { InstallPrompt } from '@/components/pwa/install-prompt';
+import { UpdateNotification } from '@/components/pwa/update-notification';
 
 // Optimized font loading with display: swap to prevent FOIT
 const inter = Inter({
@@ -80,12 +82,17 @@ export default function RootLayout({
         {/* Preload critical CSS for faster FCP/LCP */}
         <link rel="preload" href="/_next/static/css/app.css" as="style" />
 
-        {/* PWA Manifest */}
+        {/* PWA Manifest - Issue #143 */}
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#3b82f6" />
+        <meta name="theme-color" content="#2563eb" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="HireFlux" />
+
+        {/* Apple touch icons */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/icon-192.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icon-192.png" />
       </head>
       <body className={inter.className}>
         <ThemeProvider>
@@ -95,31 +102,37 @@ export default function RootLayout({
                 <KeyboardNavigationProvider>
                   <AuthProvider>
                     <NotificationProvider>
-                      <TourProvider>
-                        <FeedbackProvider>
-                          {/* SkipLink moved to AppShell component for consistency */}
-                          <OfflineBanner position="top" />
-                          {/* Main landmark provided by AppShell/MainContent - don't duplicate here */}
-                          <PageTransition>
-                            <div className="focus:outline-none">
-                              {children}
-                            </div>
-                          </PageTransition>
-                        <Toaster
-                          position="top-right"
-                          richColors
-                          toastOptions={{
-                            className: 'animate-slide-down',
-                            duration: 4000,
-                          }}
-                        />
-                        <KeyboardShortcutsHelp />
-                        <WebVitalsReporter />
-                        <PWAInstaller />
-                        <TourOrchestrator />
-                        <TooltipManager />
-                        </FeedbackProvider>
-                      </TourProvider>
+                      <PWAProvider>
+                        <TourProvider>
+                          <FeedbackProvider>
+                            {/* SkipLink moved to AppShell component for consistency */}
+                            {/* PWA offline/online indicators */}
+                            <OfflineIndicator />
+                            <OnlineIndicator />
+                            {/* Main landmark provided by AppShell/MainContent - don't duplicate here */}
+                            <PageTransition>
+                              <div className="focus:outline-none">
+                                {children}
+                              </div>
+                            </PageTransition>
+                            <Toaster
+                              position="top-right"
+                              richColors
+                              toastOptions={{
+                                className: 'animate-slide-down',
+                                duration: 4000,
+                              }}
+                            />
+                            <KeyboardShortcutsHelp />
+                            <WebVitalsReporter />
+                            {/* PWA components */}
+                            <InstallPrompt />
+                            <UpdateNotification />
+                            <TourOrchestrator />
+                            <TooltipManager />
+                          </FeedbackProvider>
+                        </TourProvider>
+                      </PWAProvider>
                     </NotificationProvider>
                   </AuthProvider>
                 </KeyboardNavigationProvider>
