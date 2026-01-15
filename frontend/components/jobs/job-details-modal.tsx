@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import Image from 'next/image';
 import { X, MapPin, DollarSign, Clock, Building, Heart, Ban, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -58,10 +59,18 @@ export function JobDetailsModal({
           <div className="flex items-center gap-4">
             <div
               data-company-logo
-              className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0"
+              className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 relative"
             >
               {job.logo ? (
-                <img src={job.logo} alt={job.company} className="w-full h-full object-cover" />
+                <Image
+                  src={job.logo}
+                  alt={job.company}
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                  loading="eager"
+                  quality={85}
+                />
               ) : (
                 <span className="text-3xl font-bold text-gray-600">{job.company[0]}</span>
               )}

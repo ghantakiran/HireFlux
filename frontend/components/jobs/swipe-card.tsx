@@ -13,6 +13,7 @@
  */
 
 import React, { useRef, useState, useEffect } from 'react';
+import Image from 'next/image';
 import { MapPin, DollarSign, TrendingUp, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -269,10 +270,18 @@ export function SwipeCard({ job, index, onSwipe, onViewDetails, isTop }: SwipeCa
         <div className="mb-4">
           <div
             data-company-logo
-            className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden"
+            className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden relative"
           >
             {job.logo ? (
-              <img src={job.logo} alt={job.company} className="w-full h-full object-cover" />
+              <Image
+                src={job.logo}
+                alt={job.company}
+                fill
+                sizes="64px"
+                className="object-cover"
+                loading="eager"
+                quality={85}
+              />
             ) : (
               <span className="text-2xl font-bold text-gray-600">{job.company[0]}</span>
             )}
