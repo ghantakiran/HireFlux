@@ -107,7 +107,7 @@ export function GeneralFeedbackForm({ onSubmit, onCancel }: GeneralFeedbackFormP
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" data-testid="general-feedback-form">
+    <form onSubmit={handleSubmit} className="space-y-4" data-testid="general-feedback-form" data-general-feedback-form>
       {/* Rating */}
       <div>
         <Label>
@@ -122,6 +122,7 @@ export function GeneralFeedbackForm({ onSubmit, onCancel }: GeneralFeedbackFormP
               onMouseEnter={() => setHoveredStar(star)}
               onMouseLeave={() => setHoveredStar(0)}
               data-testid={`rating-star-${star}`}
+              data-rating={star}
               className="focus:outline-none focus:ring-2 focus:ring-primary rounded"
             >
               <Star
@@ -157,6 +158,7 @@ export function GeneralFeedbackForm({ onSubmit, onCancel }: GeneralFeedbackFormP
           onChange={(e) => handleChange('feedback', e.target.value)}
           placeholder="Tell us what you think..."
           className={errors.feedback ? 'border-destructive' : ''}
+          data-field="feedback"
           rows={5}
           required
         />
@@ -170,15 +172,15 @@ export function GeneralFeedbackForm({ onSubmit, onCancel }: GeneralFeedbackFormP
           value={formData.category}
           onValueChange={(value) => handleChange('category', value as GeneralFeedbackData['category'])}
         >
-          <SelectTrigger id="category">
+          <SelectTrigger id="category" data-field="category">
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="user-experience">User Experience</SelectItem>
-            <SelectItem value="performance">Performance</SelectItem>
-            <SelectItem value="features">Features</SelectItem>
-            <SelectItem value="support">Support</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
+            <SelectItem value="user-experience" data-category="user-experience">User Experience</SelectItem>
+            <SelectItem value="performance" data-category="performance">Performance</SelectItem>
+            <SelectItem value="features" data-category="features">Features</SelectItem>
+            <SelectItem value="support" data-category="support">Support</SelectItem>
+            <SelectItem value="other" data-category="other">Other</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -196,6 +198,7 @@ export function GeneralFeedbackForm({ onSubmit, onCancel }: GeneralFeedbackFormP
           type="submit"
           disabled={isSubmitting}
           className="flex-1"
+          data-submit-feedback
         >
           {isSubmitting ? (
             <>

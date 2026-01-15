@@ -158,7 +158,7 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" data-testid="feature-request-form">
+    <form onSubmit={handleSubmit} className="space-y-4" data-testid="feature-request-form" data-feature-request-form>
       {/* Title */}
       <div>
         <Label htmlFor="title">
@@ -170,6 +170,7 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
           onChange={(e) => handleChange('title', e.target.value)}
           placeholder="What feature would you like to see?"
           className={errors.title ? 'border-destructive' : ''}
+          data-field="title"
           required
         />
         <FieldError error={errors.title} fieldName="title" />
@@ -186,6 +187,7 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
           onChange={(e) => handleChange('description', e.target.value)}
           placeholder="Describe the feature in detail"
           className={errors.description ? 'border-destructive' : ''}
+          data-field="description"
           rows={4}
           required
         />
@@ -203,6 +205,7 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
           onChange={(e) => handleChange('useCase', e.target.value)}
           placeholder="How would you use this feature? What problem does it solve?"
           className={errors.useCase ? 'border-destructive' : ''}
+          data-field="use-case"
           rows={3}
           required
         />
@@ -216,13 +219,13 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
           value={formData.priority}
           onValueChange={(value) => handleChange('priority', value as FeatureRequestData['priority'])}
         >
-          <SelectTrigger id="priority">
+          <SelectTrigger id="priority" data-field="priority">
             <SelectValue placeholder="Select priority" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="low">Low - Nice to have</SelectItem>
-            <SelectItem value="medium">Medium - Would improve experience</SelectItem>
-            <SelectItem value="high">High - Essential for workflow</SelectItem>
+            <SelectItem value="low" data-priority="low">Low - Nice to have</SelectItem>
+            <SelectItem value="medium" data-priority="medium">Medium - Would improve experience</SelectItem>
+            <SelectItem value="high" data-priority="high">High - Essential for workflow</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -232,7 +235,7 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
         <Label>Mockups / Screenshots (Optional)</Label>
         <div className="mt-2 space-y-2">
           {mockups.length > 0 && (
-            <div className="grid grid-cols-3 gap-2" data-testid="mockup-preview">
+            <div className="grid grid-cols-3 gap-2" data-testid="mockup-preview" data-mockup-preview>
               {mockups.map((mockup, index) => (
                 <div key={index} className="relative group h-24">
                   <OptimizedImage
@@ -266,6 +269,7 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
                 onChange={handleFileUpload}
                 className="hidden"
                 id="mockup-upload"
+                data-upload-mockup
               />
               <label htmlFor="mockup-upload" className="cursor-pointer">
                 <div className="flex flex-col items-center">
@@ -298,6 +302,7 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
           type="submit"
           disabled={isSubmitting}
           className="flex-1"
+          data-submit-feedback
         >
           {isSubmitting ? (
             <>

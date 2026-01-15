@@ -189,7 +189,7 @@ export function FeedbackWidget({ isOpen, onClose, errorContext }: FeedbackWidget
 
         <div className="mt-4">
           {showSuccess ? (
-            <div className="text-center py-8">
+            <div className="text-center py-8" data-feedback-success aria-live="polite">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Thank You!</h3>
               <p className="text-muted-foreground mb-4">
@@ -237,11 +237,12 @@ export function FeedbackWidget({ isOpen, onClose, errorContext }: FeedbackWidget
               )}
             </div>
           ) : (
-            <div className="grid gap-3">
+            <div className="grid gap-3" data-feedback-menu role="menu">
               <Button
                 variant="outline"
                 className="h-auto py-4 px-6 flex items-start justify-start text-left"
                 onClick={() => setSelectedType('bug')}
+                data-feedback-type="bug"
               >
                 <Bug className="h-5 w-5 mt-0.5 mr-3 flex-shrink-0" />
                 <div>
@@ -256,6 +257,7 @@ export function FeedbackWidget({ isOpen, onClose, errorContext }: FeedbackWidget
                 variant="outline"
                 className="h-auto py-4 px-6 flex items-start justify-start text-left"
                 onClick={() => setSelectedType('feature')}
+                data-feedback-type="feature"
               >
                 <Lightbulb className="h-5 w-5 mt-0.5 mr-3 flex-shrink-0" />
                 <div>
@@ -270,6 +272,7 @@ export function FeedbackWidget({ isOpen, onClose, errorContext }: FeedbackWidget
                 variant="outline"
                 className="h-auto py-4 px-6 flex items-start justify-start text-left"
                 onClick={() => setSelectedType('general')}
+                data-feedback-type="general"
               >
                 <MessageCircle className="h-5 w-5 mt-0.5 mr-3 flex-shrink-0" />
                 <div>

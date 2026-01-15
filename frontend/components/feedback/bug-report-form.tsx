@@ -172,7 +172,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" data-testid="bug-report-form">
+    <form onSubmit={handleSubmit} className="space-y-4" data-testid="bug-report-form" data-bug-report-form>
       {/* Error ID (if from error context) */}
       {formData.errorId && (
         <div className="bg-muted p-3 rounded-lg">
@@ -197,6 +197,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
           onChange={(e) => handleChange('title', e.target.value)}
           placeholder="Brief description of the bug"
           className={errors.title ? 'border-destructive' : ''}
+          data-field="title"
           required
         />
         <FieldError error={errors.title} fieldName="title" />
@@ -213,6 +214,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
           onChange={(e) => handleChange('description', e.target.value)}
           placeholder="Describe what went wrong"
           className={errors.description ? 'border-destructive' : ''}
+          data-field="description"
           rows={3}
           required
         />
@@ -230,6 +232,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
           onChange={(e) => handleChange('stepsToReproduce', e.target.value)}
           placeholder="1. Go to...\n2. Click on...\n3. Notice..."
           className={errors.stepsToReproduce ? 'border-destructive' : ''}
+          data-field="steps"
           rows={4}
           required
         />
@@ -244,6 +247,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
           value={formData.expectedBehavior}
           onChange={(e) => handleChange('expectedBehavior', e.target.value)}
           placeholder="What should happen"
+          data-field="expected"
           rows={2}
         />
       </div>
@@ -256,6 +260,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
           value={formData.actualBehavior}
           onChange={(e) => handleChange('actualBehavior', e.target.value)}
           placeholder="What actually happened"
+          data-field="actual"
           rows={2}
         />
       </div>
@@ -267,14 +272,14 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
           value={formData.severity}
           onValueChange={(value) => handleChange('severity', value as BugReportData['severity'])}
         >
-          <SelectTrigger id="severity">
+          <SelectTrigger id="severity" data-field="severity">
             <SelectValue placeholder="Select severity" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="low">Low - Minor inconvenience</SelectItem>
-            <SelectItem value="medium">Medium - Affects functionality</SelectItem>
-            <SelectItem value="high">High - Major functionality broken</SelectItem>
-            <SelectItem value="critical">Critical - App unusable</SelectItem>
+            <SelectItem value="low" data-severity="low">Low - Minor inconvenience</SelectItem>
+            <SelectItem value="medium" data-severity="medium">Medium - Affects functionality</SelectItem>
+            <SelectItem value="high" data-severity="high">High - Major functionality broken</SelectItem>
+            <SelectItem value="critical" data-severity="critical">Critical - App unusable</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -302,6 +307,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
                   className="rounded border"
                   objectFit="contain"
                   data-testid="screenshot-image"
+                  data-screenshot-preview
                 />
                 <Button
                   type="button"
@@ -310,6 +316,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
                   className="absolute top-2 right-2 z-10"
                   onClick={handleRemoveScreenshot}
                   data-testid="screenshot-remove"
+                  data-remove-screenshot
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -325,6 +332,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
                 variant="outline"
                 onClick={handleCaptureScreenshot}
                 data-testid="screenshot-capture"
+                data-capture-screenshot
               >
                 <Camera className="mr-2 h-4 w-4" />
                 Capture Screenshot
@@ -350,6 +358,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
           type="submit"
           disabled={isSubmitting || Object.keys(errors).length > 0}
           className="flex-1"
+          data-submit-feedback
         >
           {isSubmitting ? (
             <>
