@@ -182,11 +182,11 @@ export default function OnboardingSettingsPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div data-testid="tour-statistics" className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Completed</p>
+                <p className="text-sm text-gray-600">Tours Completed</p>
                 <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
               </div>
               <CheckCircle2 className="h-8 w-8 text-green-600" />
@@ -247,6 +247,7 @@ export default function OnboardingSettingsPage() {
               </div>
               <Switch
                 id="tooltips-enabled"
+                data-testid="setting-tooltips-enabled"
                 checked={settings.tooltipsEnabled}
                 onCheckedChange={(checked) =>
                   updateSettings({ tooltipsEnabled: checked })
@@ -366,7 +367,7 @@ export default function OnboardingSettingsPage() {
             </Button>
           </div>
 
-          <div className="space-y-4">
+          <div data-testid="tour-list" className="space-y-4">
             {allTours.map((tour) => {
               const status = getTourStatus(tour.id);
               const progress = tourProgress.get(tour.id);
@@ -374,6 +375,7 @@ export default function OnboardingSettingsPage() {
               return (
                 <div
                   key={tour.id}
+                  data-testid={`tour-item-${tour.id}`}
                   className="p-4 border border-gray-200 rounded-lg hover:border-primary transition-colors"
                 >
                   <div className="flex items-start justify-between">
