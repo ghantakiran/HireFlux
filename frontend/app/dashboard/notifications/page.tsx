@@ -1,269 +1,622 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Bell, CheckCircle, AlertCircle, CreditCard, FileText, Building } from "lucide-react"
+'use client';
 
-export default function NotificationsPage() {
+/**
+ * Notifications History Page
+ * Issue #130: Notification Center (In-App)
+ *
+ * Full notification history with:
+ * - Search functionality
+ * - Date grouping
+ * - Bulk actions
+ * - Pagination/infinite scroll
+ * - All test data attributes
+ */
+
+import React, { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
+import {
+  Bell,
+  Search,
+  Trash2,
+  CheckCheck,
+  Check,
+  Target,
+  MessageSquare,
+  Video,
+  Gift,
+  AlertCircle,
+  Clock,
+  Loader2,
+  X,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import type { Notification, NotificationType } from '@/lib/types/notifications';
+import { MOCK_NOTIFICATIONS } from '@/lib/mock-data/notifications';
+
+// Notification type icons
+const NOTIFICATION_ICONS: Record<NotificationType, React.ElementType> = {
+  application: Target,
+  message: MessageSquare,
+  interview: Video,
+  offer: Gift,
+  system: AlertCircle,
+  reminder: Clock,
+};
+
+// Notification type colors
+const NOTIFICATION_COLORS: Record<NotificationType, string> = {
+  application: 'text-blue-600',
+  message: 'text-green-600',
+  interview: 'text-purple-600',
+  offer: 'text-yellow-600',
+  system: 'text-gray-600',
+  reminder: 'text-orange-600',
+};
+
+// Filter tabs
+const FILTER_TABS = [
+  { key: 'all', label: 'All' },
+  { key: 'application', label: 'Applications' },
+  { key: 'message', label: 'Messages' },
+  { key: 'interview', label: 'Interviews' },
+  { key: 'offer', label: 'Offers' },
+];
+
+// Group notifications by date
+function groupByDate(notifications: Notification[]) {
+  const groups: { date: string; label: string; notifications: Notification[] }[] = [];
+
+  notifications.forEach((notification) => {
+    const date = new Date(notification.timestamp);
+    let label: string;
+    let dateKey: string;
+
+    if (isToday(date)) {
+      label = 'Today';
+      dateKey = 'today';
+    } else if (isYesterday(date)) {
+      label = 'Yesterday';
+      dateKey = 'yesterday';
+    } else {
+      label = format(date, 'MMMM d, yyyy');
+      dateKey = format(date, 'yyyy-MM-dd');
+    }
+
+    const existingGroup = groups.find((g) => g.date === dateKey);
+    if (existingGroup) {
+      existingGroup.notifications.push(notification);
+    } else {
+      groups.push({
+        date: dateKey,
+        label,
+        notifications: [notification],
+      });
+    }
+  });
+
+  return groups;
+}
+
+export default function NotificationsHistoryPage() {
+  const router = useRouter();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showClearReadDialog, setShowClearReadDialog] = useState(false);
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
+
+  // Load notifications on mount
+  useEffect(() => {
+    const loadNotifications = async () => {
+      setIsLoading(true);
+      try {
+        // Try to load from localStorage first
+        const stored = localStorage.getItem('notifications');
+        if (stored) {
+          setNotifications(JSON.parse(stored));
+        } else {
+          setNotifications(MOCK_NOTIFICATIONS);
+        }
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+        setNotifications(MOCK_NOTIFICATIONS);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadNotifications();
+  }, []);
+
+  // Persist notifications to localStorage
+  useEffect(() => {
+    if (!isLoading && notifications.length > 0) {
+      localStorage.setItem('notifications', JSON.stringify(notifications));
+    }
+  }, [notifications, isLoading]);
+
+  // Filter notifications
+  const filteredNotifications = useMemo(() => {
+    let result = notifications;
+
+    // Filter by type
+    if (activeFilter !== 'all') {
+      result = result.filter((n) => n.type === activeFilter);
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (n) =>
+          n.title.toLowerCase().includes(query) ||
+          n.message.toLowerCase().includes(query)
+      );
+    }
+
+    return result;
+  }, [notifications, activeFilter, searchQuery]);
+
+  // Group filtered notifications by date
+  const groupedNotifications = useMemo(() => {
+    return groupByDate(filteredNotifications);
+  }, [filteredNotifications]);
+
+  // Paginated notifications
+  const paginatedNotifications = useMemo(() => {
+    return filteredNotifications.slice(0, page * ITEMS_PER_PAGE);
+  }, [filteredNotifications, page]);
+
+  // Stats
+  const stats = useMemo(() => {
+    return {
+      total: notifications.length,
+      unread: notifications.filter((n) => !n.read).length,
+      thisWeek: notifications.filter((n) => {
+        const date = new Date(n.timestamp);
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return date >= weekAgo;
+      }).length,
+    };
+  }, [notifications]);
+
+  // Count by type
+  const countByType = useMemo(() => {
+    return {
+      all: filteredNotifications.length,
+      application: notifications.filter((n) => n.type === 'application').length,
+      message: notifications.filter((n) => n.type === 'message').length,
+      interview: notifications.filter((n) => n.type === 'interview').length,
+      offer: notifications.filter((n) => n.type === 'offer').length,
+    };
+  }, [notifications, filteredNotifications]);
+
+  // Handle selection
+  const toggleSelection = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const selectAll = () => {
+    if (selectedIds.size === filteredNotifications.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredNotifications.map((n) => n.id)));
+    }
+  };
+
+  // Actions
+  const markAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  };
+
+  const markAsUnread = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: false } : n))
+    );
+  };
+
+  const markAllAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const deleteSelected = () => {
+    setNotifications((prev) =>
+      prev.filter((n) => !selectedIds.has(n.id))
+    );
+    setSelectedIds(new Set());
+    setShowDeleteDialog(false);
+  };
+
+  const clearReadNotifications = () => {
+    setNotifications((prev) => prev.filter((n) => !n.read));
+    setShowClearReadDialog(false);
+  };
+
+  const handleNotificationClick = (notification: Notification) => {
+    // Mark as read
+    if (!notification.read) {
+      markAsRead(notification.id);
+    }
+
+    // Navigate if has action URL
+    if (notification.actionUrl) {
+      router.push(notification.actionUrl);
+    }
+  };
+
+  // Load more (infinite scroll)
+  const loadMore = () => {
+    setPage((prev) => prev + 1);
+  };
+
+  if (isLoading) {
+    return (
+      <div
+        data-notification-loading
+        className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[400px]"
+      >
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">Notifications</h1>
+        <h1 className="text-3xl font-bold mb-2">Notifications</h1>
         <p className="text-muted-foreground">
           Stay updated on your job search progress
         </p>
       </div>
 
-      {/* Notification Stats */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">12</div>
+            <div className="text-2xl font-bold text-blue-600">{stats.unread}</div>
             <div className="text-sm text-muted-foreground">Unread</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">45</div>
+            <div className="text-2xl font-bold text-green-600">{stats.total}</div>
             <div className="text-sm text-muted-foreground">Total</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600">8</div>
+            <div className="text-2xl font-bold text-orange-600">{stats.thisWeek}</div>
             <div className="text-sm text-muted-foreground">This Week</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Mark All Read */}
-      <div className="mb-6 flex justify-end">
-        <Button variant="outline">Mark All as Read</Button>
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            data-notification-search
+            placeholder="Search notifications..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2">
+          {selectedIds.size > 0 && (
+            <Button
+              variant="outline"
+              data-bulk-delete
+              onClick={() => setShowDeleteDialog(true)}
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete ({selectedIds.size})
+            </Button>
+          )}
+
+          {notifications.some((n) => n.read) && (
+            <Button
+              variant="outline"
+              data-clear-read-notifications
+              onClick={() => setShowClearReadDialog(true)}
+            >
+              Clear Read
+            </Button>
+          )}
+
+          {notifications.some((n) => !n.read) && (
+            <Button variant="outline" data-mark-all-read onClick={markAllAsRead}>
+              <CheckCheck className="h-4 w-4 mr-2" />
+              Mark All Read
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Notifications List */}
-      <div className="space-y-4">
-        {/* Unread Notification */}
-        <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <Bell className="h-5 w-5 text-blue-500" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-semibold">10 new high-fit jobs!</h4>
-                  <Badge variant="secondary" className="text-xs">New</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  We found 10 jobs matching your profile with Fit Index {'>'}  80
-                </p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span>2 hours ago</span>
-                  <Button variant="link" className="p-0 h-auto text-xs">
-                    View Jobs
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Application Update */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-semibold">Application submitted successfully</h4>
-                  <Badge variant="outline" className="text-xs">Applied</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Your application to <strong>Senior Software Engineer</strong> at <strong>TechCorp</strong> has been submitted
-                </p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span>1 day ago</span>
-                  <Button variant="link" className="p-0 h-auto text-xs">
-                    View Application
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Interview Scheduled */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <AlertCircle className="h-5 w-5 text-orange-500" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-semibold">Interview scheduled</h4>
-                  <Badge variant="secondary" className="text-xs">Interview</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Phone screen scheduled for <strong>Backend Developer</strong> at <strong>StartupCo</strong> on Friday at 2 PM
-                </p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span>2 days ago</span>
-                  <Button variant="link" className="p-0 h-auto text-xs">
-                    View Details
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Credit Update */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <CreditCard className="h-5 w-5 text-purple-500" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-semibold">Credit refunded</h4>
-                  <Badge variant="outline" className="text-xs">Credit</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  +1 credit refunded for <strong>Full Stack Engineer</strong> at <strong>BigCorp</strong> - Job no longer available
-                </p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span>3 days ago</span>
-                  <Button variant="link" className="p-0 h-auto text-xs">
-                    View Credits
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Cover Letter Generated */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <FileText className="h-5 w-5 text-blue-500" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-semibold">Cover letter generated</h4>
-                  <Badge variant="outline" className="text-xs">Generated</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Cover letter for <strong>Product Manager</strong> at <strong>ScaleUp</strong> is ready for review
-                </p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span>4 days ago</span>
-                  <Button variant="link" className="p-0 h-auto text-xs">
-                    View Letter
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Weekly Report */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <Building className="h-5 w-5 text-green-500" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-semibold">Weekly job matches report</h4>
-                  <Badge variant="outline" className="text-xs">Report</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Your weekly digest: 15 new jobs, 3 applications submitted, 1 interview scheduled
-                </p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span>1 week ago</span>
-                  <Button variant="link" className="p-0 h-auto text-xs">
-                    View Report
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* System Update */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <Bell className="h-5 w-5 text-gray-500" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-semibold">New feature: Auto-Apply</h4>
-                  <Badge variant="outline" className="text-xs">System</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Automatically apply to high-fit jobs with your pre-approved settings. Available for Pro subscribers.
-                </p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span>2 weeks ago</span>
-                  <Button variant="link" className="p-0 h-auto text-xs">
-                    Learn More
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Filter Tabs */}
+      <div
+        data-notification-filters
+        className="flex gap-2 mb-6 overflow-x-auto pb-2"
+      >
+        {FILTER_TABS.map((tab) => (
+          <button
+            key={tab.key}
+            data-filter-tab={tab.key}
+            data-active={activeFilter === tab.key ? 'true' : 'false'}
+            onClick={() => setActiveFilter(tab.key)}
+            className={`
+              flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium
+              transition-colors duration-200 whitespace-nowrap
+              ${
+                activeFilter === tab.key
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }
+            `}
+          >
+            {tab.label}
+            <span
+              data-tab-count
+              className={`
+                px-1.5 py-0.5 rounded-full text-xs font-semibold
+                ${
+                  activeFilter === tab.key
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 text-gray-700'
+                }
+              `}
+            >
+              {countByType[tab.key as keyof typeof countByType]}
+            </span>
+          </button>
+        ))}
       </div>
 
-      {/* Notification Settings */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Notification Preferences</CardTitle>
-          <CardDescription>Choose what notifications you want to receive</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-semibold">Job Matches</h4>
-                <p className="text-sm text-muted-foreground">Get notified when new high-fit jobs are found</p>
-              </div>
-              <Button variant="outline" size="sm">Configure</Button>
+      {/* Notification List */}
+      {filteredNotifications.length > 0 ? (
+        <>
+          <ul
+            role="list"
+            aria-label="Notifications"
+            data-notification-list
+            className="space-y-6"
+          >
+            {groupedNotifications.map((group) => (
+              <li key={group.date}>
+                {/* Date Header */}
+                <h3
+                  data-date-header={group.date}
+                  className="text-sm font-semibold text-muted-foreground mb-3 px-1"
+                >
+                  {group.label}
+                </h3>
+
+                {/* Notifications for this date */}
+                <div className="space-y-2">
+                  {group.notifications.map((notification) => {
+                    const Icon = NOTIFICATION_ICONS[notification.type];
+                    const iconColor = NOTIFICATION_COLORS[notification.type];
+
+                    return (
+                      <Card
+                        key={notification.id}
+                        role="listitem"
+                        data-notification-item
+                        data-notification-id={notification.id}
+                        data-notification-type={notification.type}
+                        data-read={notification.read ? 'true' : 'false'}
+                        data-action-url={notification.actionUrl || ''}
+                        className={`
+                          group cursor-pointer transition-all duration-200
+                          hover:shadow-md
+                          ${!notification.read ? 'border-l-4 border-l-blue-500 bg-blue-50/50' : ''}
+                        `}
+                        onClick={() => handleNotificationClick(notification)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-3">
+                            {/* Checkbox */}
+                            <div
+                              className="flex-shrink-0 pt-0.5"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Checkbox
+                                data-notification-checkbox
+                                checked={selectedIds.has(notification.id)}
+                                onChange={() => toggleSelection(notification.id)}
+                              />
+                            </div>
+
+                            {/* Icon */}
+                            <div className={`flex-shrink-0 ${iconColor}`}>
+                              <Icon className="h-5 w-5" />
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <h4
+                                    data-notification-title
+                                    className={`font-medium ${!notification.read ? 'font-semibold' : ''}`}
+                                  >
+                                    {notification.title}
+                                  </h4>
+                                  {!notification.read && (
+                                    <Badge variant="secondary" className="text-xs ml-2">
+                                      New
+                                    </Badge>
+                                  )}
+                                </div>
+
+                                {/* Actions */}
+                                <div
+                                  className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  {notification.read ? (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      data-mark-unread-button
+                                      onClick={() => markAsUnread(notification.id)}
+                                      className="h-7 w-7 p-0"
+                                      title="Mark as unread"
+                                    >
+                                      <Check className="h-3 w-3" />
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      data-mark-read-button
+                                      onClick={() => markAsRead(notification.id)}
+                                      className="h-7 w-7 p-0"
+                                      title="Mark as read"
+                                    >
+                                      <CheckCheck className="h-3 w-3" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+
+                              <p
+                                data-notification-message
+                                className="text-sm text-muted-foreground mt-1 line-clamp-2"
+                              >
+                                {notification.message}
+                              </p>
+
+                              <time
+                                data-notification-timestamp
+                                dateTime={notification.timestamp}
+                                className="text-xs text-muted-foreground mt-2 block"
+                              >
+                                {formatDistanceToNow(new Date(notification.timestamp), {
+                                  addSuffix: true,
+                                })}
+                              </time>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          {/* Pagination / Load More */}
+          {paginatedNotifications.length < filteredNotifications.length && (
+            <div data-pagination className="mt-6 flex justify-center">
+              <Button variant="outline" onClick={loadMore}>
+                Load More
+              </Button>
             </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-semibold">Application Updates</h4>
-                <p className="text-sm text-muted-foreground">Notifications about your job applications</p>
-              </div>
-              <Button variant="outline" size="sm">Configure</Button>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-semibold">Credit Updates</h4>
-                <p className="text-sm text-muted-foreground">Credit purchases, refunds, and low balance alerts</p>
-              </div>
-              <Button variant="outline" size="sm">Configure</Button>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-semibold">System Updates</h4>
-                <p className="text-sm text-muted-foreground">New features, maintenance, and important announcements</p>
-              </div>
-              <Button variant="outline" size="sm">Configure</Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          )}
+        </>
+      ) : (
+        /* Empty State */
+        <div
+          data-notification-empty
+          className="flex flex-col items-center justify-center py-16 text-center"
+        >
+          <Bell className="h-16 w-16 text-gray-300 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No notifications
+          </h3>
+          <p className="text-sm text-muted-foreground max-w-sm">
+            {searchQuery
+              ? `No notifications matching "${searchQuery}"`
+              : "You're all caught up! We'll notify you when something new happens."}
+          </p>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Notifications</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {selectedIds.size} notification
+              {selectedIds.size !== 1 ? 's' : ''}? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              data-confirm-delete
+              onClick={deleteSelected}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Clear Read Confirmation Dialog */}
+      <Dialog open={showClearReadDialog} onOpenChange={setShowClearReadDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Clear Read Notifications</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to clear all read notifications? This action
+              cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowClearReadDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              data-confirm-clear
+              onClick={clearReadNotifications}
+            >
+              Clear Read
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
-  )
+  );
 }
