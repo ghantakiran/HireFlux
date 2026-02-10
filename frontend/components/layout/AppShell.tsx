@@ -83,7 +83,7 @@ export function AppShell({ children, role = 'job_seeker' }: AppShellProps) {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Skip to Main Content */}
       <SkipLink />
 

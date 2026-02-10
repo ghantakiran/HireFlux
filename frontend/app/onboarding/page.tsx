@@ -250,7 +250,7 @@ export default function OnboardingPage() {
         </div>
 
         {draft && draft.step > 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800 text-center">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-sm text-blue-800 dark:text-blue-300 text-center">
             You have a saved draft from step {draft.step}. We&apos;ll pick up where you left off.
           </div>
         )}
@@ -274,7 +274,7 @@ export default function OnboardingPage() {
       <CardContent>
         <form onSubmit={step1Form.handleSubmit(handleStep1Submit)} className="space-y-4">
           {error && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-800" role="alert">
+            <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-800 dark:text-red-300" role="alert">
               {error}
             </div>
           )}
@@ -326,7 +326,7 @@ export default function OnboardingPage() {
       <CardContent>
         <form onSubmit={step2Form.handleSubmit(handleStep2Submit)} className="space-y-4">
           {error && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-800" role="alert">
+            <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-800 dark:text-red-300" role="alert">
               {error}
             </div>
           )}
@@ -347,7 +347,7 @@ export default function OnboardingPage() {
               )}
             />
             {step2Form.formState.errors.target_titles && (
-              <p className="text-sm text-red-600">{step2Form.formState.errors.target_titles.message}</p>
+              <p className="text-sm text-red-600 dark:text-red-400">{step2Form.formState.errors.target_titles.message}</p>
             )}
           </div>
 
@@ -393,7 +393,7 @@ export default function OnboardingPage() {
               )}
             />
             {step2Form.formState.errors.industries && (
-              <p className="text-sm text-red-600">{step2Form.formState.errors.industries.message}</p>
+              <p className="text-sm text-red-600 dark:text-red-400">{step2Form.formState.errors.industries.message}</p>
             )}
           </div>
 
@@ -420,7 +420,7 @@ export default function OnboardingPage() {
       <CardContent>
         <form onSubmit={step3Form.handleSubmit(handleStep3Submit)} className="space-y-4">
           {error && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-800" role="alert">
+            <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-800 dark:text-red-300" role="alert">
               {error}
             </div>
           )}
@@ -441,7 +441,7 @@ export default function OnboardingPage() {
               )}
             />
             {step3Form.formState.errors.skills && (
-              <p className="text-sm text-red-600">{step3Form.formState.errors.skills.message}</p>
+              <p className="text-sm text-red-600 dark:text-red-400">{step3Form.formState.errors.skills.message}</p>
             )}
           </div>
 
@@ -468,7 +468,7 @@ export default function OnboardingPage() {
       <CardContent>
         <form onSubmit={step4Form.handleSubmit(handleStep4Submit)} className="space-y-6">
           {error && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-800" role="alert">
+            <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-800 dark:text-red-300" role="alert">
               {error}
             </div>
           )}
@@ -565,7 +565,7 @@ export default function OnboardingPage() {
   );
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 py-12">
       {currentStep === 0 && renderWelcome()}
       {currentStep === 1 && renderStep1()}
       {currentStep === 2 && renderStep2()}

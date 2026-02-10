@@ -80,7 +80,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-center text-3xl font-bold">Create Account</CardTitle>
@@ -92,7 +92,7 @@ export default function SignUpPage() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
             {error && (
-              <div className="rounded-md bg-red-50 p-3 text-sm text-red-800" role="alert">
+              <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-800 dark:text-red-300" role="alert">
                 {error}
               </div>
             )}
@@ -110,7 +110,7 @@ export default function SignUpPage() {
                   {...register('first_name')}
                 />
                 {errors.first_name && (
-                  <p id="first-name-error" className="text-sm text-red-600" role="alert">
+                  <p id="first-name-error" className="text-sm text-red-600 dark:text-red-400" role="alert">
                     {errors.first_name.message}
                   </p>
                 )}
@@ -128,7 +128,7 @@ export default function SignUpPage() {
                   {...register('last_name')}
                 />
                 {errors.last_name && (
-                  <p id="last-name-error" className="text-sm text-red-600" role="alert">
+                  <p id="last-name-error" className="text-sm text-red-600 dark:text-red-400" role="alert">
                     {errors.last_name.message}
                   </p>
                 )}
@@ -147,7 +147,7 @@ export default function SignUpPage() {
                 {...register('email')}
               />
               {errors.email && (
-                <p id="email-error" className="text-sm text-red-600" role="alert">
+                <p id="email-error" className="text-sm text-red-600 dark:text-red-400" role="alert">
                   {errors.email.message}
                 </p>
               )}
@@ -165,7 +165,7 @@ export default function SignUpPage() {
                 {...register('password')}
               />
               {errors.password && (
-                <p id="password-error" className="text-sm text-red-600" role="alert">
+                <p id="password-error" className="text-sm text-red-600 dark:text-red-400" role="alert">
                   {errors.password.message}
                 </p>
               )}
@@ -183,7 +183,7 @@ export default function SignUpPage() {
                 {...register('confirmPassword')}
               />
               {errors.confirmPassword && (
-                <p id="confirm-password-error" className="text-sm text-red-600" role="alert">
+                <p id="confirm-password-error" className="text-sm text-red-600 dark:text-red-400" role="alert">
                   {errors.confirmPassword.message}
                 </p>
               )}
@@ -195,10 +195,10 @@ export default function SignUpPage() {
 
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-gray-300 dark:border-gray-600" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">Or sign up with</span>
+                <span className="bg-white dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">Or sign up with</span>
               </div>
             </div>
 

@@ -211,10 +211,10 @@ export default function EmployerDashboardPage() {
   // Loading skeleton
   if (isLoading && !stats) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="bg-white border-b">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="bg-white dark:bg-gray-900 border-b dark:border-gray-700">
           <div className="container mx-auto px-4 py-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Dashboard</h1>
             <Skeleton className="h-6 w-96" />
           </div>
         </div>
@@ -238,10 +238,10 @@ export default function EmployerDashboardPage() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="bg-white border-b">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="bg-white dark:bg-gray-900 border-b dark:border-gray-700">
           <div className="container mx-auto px-4 py-6">
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
           </div>
         </div>
         <div className="container mx-auto px-4 py-8 flex items-center justify-center">
@@ -250,7 +250,7 @@ export default function EmployerDashboardPage() {
               <CardTitle className="text-red-600">Error Loading Dashboard</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600 mb-4">{error}</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
               <Button onClick={fetchDashboardData} className="gap-2" aria-label="Retry loading dashboard">
                 <RefreshCw className="w-4 h-4" />
                 Retry
@@ -271,11 +271,11 @@ export default function EmployerDashboardPage() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Welcome back!</h1>
-              <p className="text-gray-600 mt-1">{getSubtitle()}</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Welcome back!</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">{getSubtitle()}</p>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
                 Updated {Math.floor((new Date().getTime() - lastUpdated.getTime()) / 1000)}s ago
               </span>
               <Button
@@ -296,20 +296,20 @@ export default function EmployerDashboardPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Your Next Steps */}
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Your Next Steps</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Your Next Steps</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {actionCards.map((card) => (
               <Link
                 key={card.title}
                 href={card.href}
-                className={`bg-white rounded-lg shadow border-l-4 ${card.borderColor} p-5 hover:shadow-md transition-shadow group`}
+                className={`bg-white dark:bg-gray-900 rounded-lg shadow border-l-4 ${card.borderColor} p-5 hover:shadow-md transition-shadow group`}
               >
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5">{card.icon}</div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{card.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{card.description}</p>
-                    <span className="inline-block mt-3 text-sm font-medium text-blue-600 group-hover:text-blue-700">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{card.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{card.description}</p>
+                    <span className="inline-block mt-3 text-sm font-medium text-blue-600 dark:text-blue-400 group-hover:text-blue-700">
                       {card.cta} &rarr;
                     </span>
                   </div>
@@ -320,13 +320,13 @@ export default function EmployerDashboardPage() {
         </div>
 
         {/* Collapsible Metrics Overview */}
-        <div className="bg-white rounded-lg shadow mb-8">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow mb-8">
           <button
             onClick={() => setShowDetailedMetrics(!showDetailedMetrics)}
             className="w-full flex items-center justify-between p-4 text-left"
             aria-expanded={showDetailedMetrics}
           >
-            <span className="text-sm font-semibold text-gray-700">Metrics Overview</span>
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Metrics Overview</span>
             <ChevronDown
               className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
                 showDetailedMetrics ? 'rotate-180' : ''
@@ -334,59 +334,59 @@ export default function EmployerDashboardPage() {
             />
           </button>
           {showDetailedMetrics && (
-            <div className="px-4 pb-6 border-t border-gray-100 pt-4 animate-fade-in">
+            <div className="px-4 pb-6 border-t border-gray-100 dark:border-gray-800 pt-4 animate-fade-in">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Active Jobs */}
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
                     <Briefcase className="w-5 h-5 text-blue-600" />
                   </div>
-                  <p className="text-sm text-gray-600 mb-1">Active Jobs</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Active Jobs</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {stats?.active_jobs ?? 0}
                   </p>
                 </div>
 
                 {/* New Applications Today */}
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                   <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-2">
                     <Users className="w-5 h-5 text-green-600" />
                   </div>
-                  <p className="text-sm text-gray-600 mb-1">New Applications Today</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">New Applications Today</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {stats?.new_applications_today ?? 0}
                   </p>
                 </div>
 
                 {/* Avg Fit Index */}
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                   <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
                     <TrendingUp className="w-5 h-5 text-purple-600" />
                   </div>
-                  <p className="text-sm text-gray-600 mb-1">Avg Fit Index</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Avg Fit Index</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {stats?.avg_fit_index
                       ? `${stats.avg_fit_index.toFixed(1)}`
                       : '--'}
                   </p>
                   {stats?.avg_fit_index && (
-                    <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Last 30 days</p>
                   )}
                 </div>
 
                 {/* Avg Time to Fill */}
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                   <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mb-2">
                     <Clock className="w-5 h-5 text-yellow-600" />
                   </div>
-                  <p className="text-sm text-gray-600 mb-1">Avg Time to Fill</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Avg Time to Fill</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {stats?.avg_time_to_fill
                       ? `${Math.round(stats.avg_time_to_fill)}`
                       : '--'}
                   </p>
                   {stats?.avg_time_to_fill && (
-                    <p className="text-xs text-gray-500 mt-1">Days</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Days</p>
                   )}
                 </div>
               </div>
@@ -408,7 +408,7 @@ export default function EmployerDashboardPage() {
                     <div key={stage.status} className="flex items-center justify-between">
                       <span className="text-sm font-medium capitalize">{stage.status}</span>
                       <div className="flex items-center gap-3">
-                        <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-blue-600 rounded-full"
                             style={{
@@ -450,12 +450,12 @@ export default function EmployerDashboardPage() {
                   {stats.top_jobs.map((job) => (
                     <div
                       key={job.job_id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                       onClick={() => router.push(`/employer/jobs/${job.job_id}`)}
                     >
                       <div className="flex-1">
                         <p className="font-medium text-sm truncate">{job.job_title}</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           {job.total_applications} applications
                         </p>
                       </div>
@@ -464,7 +464,7 @@ export default function EmployerDashboardPage() {
                           <p className="text-sm font-semibold text-purple-600">
                             {job.avg_candidate_fit.toFixed(1)}
                           </p>
-                          <p className="text-xs text-gray-500">Fit</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Fit</p>
                         </div>
                       )}
                     </div>
@@ -498,12 +498,12 @@ export default function EmployerDashboardPage() {
                 {activity.events.slice(0, 5).map((event) => (
                   <div
                     key={event.id}
-                    className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
+                    className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                   >
                     <div className="w-2 h-2 bg-blue-600 rounded-full mt-2" />
                     <div className="flex-1">
                       <p className="text-sm font-medium">{event.description}</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {new Date(event.timestamp).toLocaleString()}
                       </p>
                     </div>
@@ -527,16 +527,16 @@ export default function EmployerDashboardPage() {
         </Card>
 
         {/* Quick Actions */}
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
           <CardHeader>
-            <CardTitle className="text-blue-900">Quick Actions</CardTitle>
+            <CardTitle className="text-blue-900 dark:text-blue-300">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <Button
                 data-nav-company-profile
                 variant="outline"
-                className="justify-start h-auto py-4 bg-white hover:bg-blue-50"
+                className="justify-start h-auto py-4 bg-white dark:bg-gray-900 hover:bg-blue-50 dark:hover:bg-gray-800"
                 onClick={() => router.push('/employer/company-profile')}
               >
                 <div className="text-left w-full">
@@ -544,13 +544,13 @@ export default function EmployerDashboardPage() {
                     <Briefcase className="w-4 h-4 text-indigo-600" />
                     <span className="font-medium">Company Profile</span>
                   </div>
-                  <p className="text-xs text-gray-600">Manage company info</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Manage company info</p>
                 </div>
               </Button>
 
               <Button
                 variant="outline"
-                className="justify-start h-auto py-4 bg-white hover:bg-blue-50"
+                className="justify-start h-auto py-4 bg-white dark:bg-gray-900 hover:bg-blue-50 dark:hover:bg-gray-800"
                 onClick={() => router.push('/employer/jobs/new')}
               >
                 <div className="text-left w-full">
@@ -558,13 +558,13 @@ export default function EmployerDashboardPage() {
                     <PlusCircle className="w-4 h-4 text-blue-600" />
                     <span className="font-medium">Post a Job</span>
                   </div>
-                  <p className="text-xs text-gray-600">Create a new job posting</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Create a new job posting</p>
                 </div>
               </Button>
 
               <Button
                 variant="outline"
-                className="justify-start h-auto py-4 bg-white hover:bg-blue-50"
+                className="justify-start h-auto py-4 bg-white dark:bg-gray-900 hover:bg-blue-50 dark:hover:bg-gray-800"
                 onClick={() => router.push('/employer/applications')}
               >
                 <div className="text-left w-full">
@@ -572,13 +572,13 @@ export default function EmployerDashboardPage() {
                     <Inbox className="w-4 h-4 text-green-600" />
                     <span className="font-medium">View Applications</span>
                   </div>
-                  <p className="text-xs text-gray-600">Review candidate applications</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Review candidate applications</p>
                 </div>
               </Button>
 
               <Button
                 variant="outline"
-                className="justify-start h-auto py-4 bg-white hover:bg-blue-50"
+                className="justify-start h-auto py-4 bg-white dark:bg-gray-900 hover:bg-blue-50 dark:hover:bg-gray-800"
                 onClick={() => router.push('/employer/candidates')}
               >
                 <div className="text-left w-full">
@@ -586,13 +586,13 @@ export default function EmployerDashboardPage() {
                     <Search className="w-4 h-4 text-purple-600" />
                     <span className="font-medium">Search Candidates</span>
                   </div>
-                  <p className="text-xs text-gray-600">Find qualified candidates</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Find qualified candidates</p>
                 </div>
               </Button>
 
               <Button
                 variant="outline"
-                className="justify-start h-auto py-4 bg-white hover:bg-blue-50"
+                className="justify-start h-auto py-4 bg-white dark:bg-gray-900 hover:bg-blue-50 dark:hover:bg-gray-800"
                 onClick={() => router.push('/employer/analytics')}
               >
                 <div className="text-left w-full">
@@ -600,7 +600,7 @@ export default function EmployerDashboardPage() {
                     <BarChart3 className="w-4 h-4 text-orange-600" />
                     <span className="font-medium">Analytics</span>
                   </div>
-                  <p className="text-xs text-gray-600">View detailed metrics</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">View detailed metrics</p>
                 </div>
               </Button>
             </div>

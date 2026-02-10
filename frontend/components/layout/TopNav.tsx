@@ -67,7 +67,7 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
       <header
         role="banner"
         aria-label="Main navigation"
-        className="sticky top-0 z-40 h-16 border-b border-gray-200 bg-white shadow-sm"
+        className="sticky top-0 z-40 h-16 border-b border-gray-200 bg-white shadow-sm dark:bg-gray-900 dark:border-gray-700"
         data-top-nav
       >
         <div className="flex h-full items-center gap-4 px-4 sm:px-6 lg:px-8">
@@ -84,7 +84,7 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="flex-1 max-w-md" data-search-bar>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <Input
                 type="search"
                 placeholder={searchPlaceholder}
@@ -115,14 +115,14 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold">
                     {user?.first_name?.[0]}{user?.last_name?.[0]}
                   </div>
-                  <ChevronDown className="h-4 w-4 text-gray-600" />
+                  <ChevronDown className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56" data-profile-menu>
                 <DropdownMenuLabel>
                   <div>
                     <p className="text-sm font-medium">{user?.first_name} {user?.last_name}</p>
-                    <p className="text-xs text-gray-500">{user?.email}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

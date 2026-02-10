@@ -85,7 +85,7 @@ export default function SignInPage() {
   const hasErrors = Object.keys(errors).length > 0;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-center text-3xl font-bold">Sign In</CardTitle>
@@ -98,7 +98,7 @@ export default function SignInPage() {
           <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
             {error && (
-              <div className="rounded-md bg-red-50 p-3 text-sm text-red-800" role="alert">
+              <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-800 dark:text-red-300" role="alert">
                 {error}
               </div>
             )}
@@ -115,7 +115,7 @@ export default function SignInPage() {
                 {...register('email')}
               />
               {errors.email && (
-                <p id="email-error" className="text-sm text-red-600" role="alert">
+                <p id="email-error" className="text-sm text-red-600 dark:text-red-400" role="alert">
                   {errors.email.message}
                 </p>
               )}
@@ -141,7 +141,7 @@ export default function SignInPage() {
                 {...register('password')}
               />
               {errors.password && (
-                <p id="password-error" className="text-sm text-red-600" role="alert">
+                <p id="password-error" className="text-sm text-red-600 dark:text-red-400" role="alert">
                   {errors.password.message}
                 </p>
               )}
@@ -153,10 +153,10 @@ export default function SignInPage() {
 
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-gray-300 dark:border-gray-600" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                <span className="bg-white dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">Or continue with</span>
               </div>
             </div>
 

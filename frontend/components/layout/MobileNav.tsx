@@ -125,7 +125,7 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
     <>
       {/* Mobile Top Bar (visible only on mobile) */}
       {/* Hidden on desktop via lg:hidden class - browser handles focus automatically */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b flex items-center justify-between px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 h-16 bg-white dark:bg-gray-900 border-b dark:border-gray-700 flex items-center justify-between px-4">
         {/* Hamburger Icon */}
         <Button
           ref={buttonRef}
@@ -191,8 +191,8 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
                         onClick={() => setOpen(false)}
                         className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
                           active
-                            ? 'bg-blue-50 text-blue-600'
-                            : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
                         }`}
                         data-drawer-nav={item.dataAttr}
                       >
@@ -207,15 +207,15 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
 
             {/* Footer - User Info & Sign Out */}
             <div className="border-t p-4">
-              <div className="mb-3 flex items-center gap-3 rounded-lg p-3 bg-gray-50">
+              <div className="mb-3 flex items-center gap-3 rounded-lg p-3 bg-gray-50 dark:bg-gray-800">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white font-semibold">
                   {user?.first_name?.[0]}{user?.last_name?.[0]}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="truncate text-sm font-medium text-gray-900">
+                  <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
                     {user?.first_name} {user?.last_name}
                   </p>
-                  <p className="truncate text-xs text-gray-500">{user?.email}</p>
+                  <p className="truncate text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                 </div>
               </div>
               <Button
@@ -290,7 +290,7 @@ export function MobileBottomTabBar({ role = 'job_seeker' }: MobileNavProps) {
     <nav
       role="navigation"
       aria-label="Mobile bottom navigation"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:bg-gray-900/95 dark:border-gray-700"
       style={{
         // iOS safe area support (Issue #140)
         paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)',
@@ -311,7 +311,7 @@ export function MobileBottomTabBar({ role = 'job_seeker' }: MobileNavProps) {
                   flex flex-col items-center justify-center h-full relative
                   transition-all duration-300 ease-out
                   active:scale-95
-                  ${active ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'}
+                  ${active ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'}
                 `}
                 data-tab={tab.dataAttr}
                 data-active={active ? 'true' : 'false'}

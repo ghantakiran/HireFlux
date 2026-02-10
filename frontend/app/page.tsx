@@ -35,12 +35,12 @@ export default function HomePage() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'bg-white/95 backdrop-blur-sm border-b shadow-sm'
+            ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b dark:border-gray-700 shadow-sm'
             : 'bg-transparent'
         }`}
       >
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className={`text-xl font-bold transition-colors ${isScrolled ? 'text-gray-900' : 'text-gray-900'}`}>
+          <div className={`text-xl font-bold transition-colors ${isScrolled ? 'text-gray-900 dark:text-gray-100' : 'text-gray-900 dark:text-gray-100'}`}>
             HireFlux
           </div>
 
@@ -407,7 +407,7 @@ export default function HomePage() {
                   week on HireFlux. The AI resume tailoring is a game-changer.&rdquo;
                 </p>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 font-semibold">
                     SM
                   </div>
                   <div>
@@ -424,7 +424,7 @@ export default function HomePage() {
                   days. The AI-generated job descriptions saved our team hours.&rdquo;
                 </p>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-semibold">
+                  <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400 font-semibold">
                     JR
                   </div>
                   <div>

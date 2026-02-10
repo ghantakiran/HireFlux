@@ -147,20 +147,20 @@ export default function DashboardPage() {
   };
 
   const getHealthColor = (score: number) => {
-    if (score >= 80) return 'text-green-600 bg-green-50';
-    if (score >= 60) return 'text-blue-600 bg-blue-50';
-    if (score >= 40) return 'text-yellow-600 bg-yellow-50';
-    return 'text-red-600 bg-red-50';
+    if (score >= 80) return 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/20';
+    if (score >= 60) return 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20';
+    if (score >= 40) return 'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-900/20';
+    return 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/20';
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Dashboard</h1>
           {[1, 2, 3].map((i) => (
             <div key={i} className="mb-4 animate-pulse" data-testid="skeleton-loader">
-              <div className="h-32 bg-gray-200 rounded-lg"></div>
+              <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
             </div>
           ))}
         </div>
@@ -170,13 +170,13 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-            <AlertTriangle className="w-12 h-12 text-red-600 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-red-800 mb-2">Unable to Load Dashboard</h2>
-            <p className="text-red-700 mb-4">{error}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Dashboard</h1>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
+            <AlertTriangle className="w-12 h-12 text-red-600 dark:text-red-400 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-red-800 dark:text-red-300 mb-2">Unable to Load Dashboard</h2>
+            <p className="text-red-700 dark:text-red-400 mb-4">{error}</p>
             <button
               onClick={handleRefresh}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -192,13 +192,13 @@ export default function DashboardPage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Dashboard</h1>
           <div className="text-center" data-testid="empty-state">
-            <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-700 mb-2">No applications yet</h2>
-            <p className="text-gray-600 mb-6">Start applying to jobs to see your analytics</p>
+            <Target className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No applications yet</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">Start applying to jobs to see your analytics</p>
             <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               Get Started
             </button>
@@ -263,33 +263,33 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Welcome back!</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Welcome back!</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
                 {data.applications_this_week > 0
                   ? `${data.applications_this_week} applications sent since last week`
                   : 'Track your job search progress'}
               </p>
             </div>
             <div data-tour="quick-actions" className="flex items-center gap-3">
-              <span className="text-sm text-gray-500" data-testid="last-updated">
+              <span className="text-sm text-gray-500 dark:text-gray-400" data-testid="last-updated">
                 Updated {lastUpdated.toLocaleTimeString()}
               </span>
               <button
                 onClick={handleRefresh}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center gap-2"
+                className="p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 rounded-lg flex items-center gap-2"
                 title="Refresh"
               >
                 <RefreshCw className="w-5 h-5" />
               </button>
               <button
                 onClick={handleExport}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center gap-2"
+                className="p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 rounded-lg flex items-center gap-2"
                 title="Export"
               >
                 <Download className="w-5 h-5" />
@@ -302,7 +302,7 @@ export default function DashboardPage() {
             <select
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value as TimeRange)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
             >
               <option value="last_7_days">Last 7 Days</option>
               <option value="last_30_days">Last 30 Days</option>
@@ -318,20 +318,20 @@ export default function DashboardPage() {
         <div className="space-y-6">
           {/* Your Next Steps */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Your Next Steps</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Your Next Steps</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {actionCards.map((card) => (
                 <Link
                   key={card.title}
                   href={card.href}
-                  className={`bg-white rounded-lg shadow border-l-4 ${card.borderColor} p-5 hover:shadow-md transition-shadow group`}
+                  className={`bg-white dark:bg-gray-900 rounded-lg shadow border-l-4 ${card.borderColor} p-5 hover:shadow-md transition-shadow group`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5">{card.icon}</div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900">{card.title}</h3>
-                      <p className="text-sm text-gray-600 mt-1">{card.description}</p>
-                      <span className="inline-block mt-3 text-sm font-medium text-blue-600 group-hover:text-blue-700">
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{card.title}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{card.description}</p>
+                      <span className="inline-block mt-3 text-sm font-medium text-blue-600 dark:text-blue-400 group-hover:text-blue-700">
                         {card.cta} &rarr;
                       </span>
                     </div>
@@ -345,14 +345,14 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Health Score Widget */}
             <div
-              className={`bg-white p-6 rounded-lg shadow cursor-pointer transition-all ${
+              className={`bg-white dark:bg-gray-900 p-6 rounded-lg shadow cursor-pointer transition-all ${
                 healthScoreExpanded ? 'ring-2 ring-blue-500' : ''
               }`}
               data-testid="health-score"
               onClick={() => setHealthScoreExpanded(!healthScoreExpanded)}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Job Search Health Score</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Job Search Health Score</h3>
                 <HelpCircle className="w-5 h-5 text-gray-400" data-testid="help-icon" />
               </div>
 
@@ -367,72 +367,72 @@ export default function DashboardPage() {
                   </span>
                 </div>
                 <div className="flex-1">
-                  <p className="text-2xl font-semibold text-gray-900 capitalize">
+                  <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 capitalize">
                     {data.health_score.level.replace('_', ' ')}
                   </p>
-                  <p className="text-gray-600 mt-1">
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">
                     Your job search is performing {data.health_score.level.replace('_', ' ').toLowerCase()}
                   </p>
                 </div>
               </div>
 
               {healthScoreExpanded && (
-                <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Activity Score</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Activity Score</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
+                      <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div
                           className="bg-blue-600 h-2 rounded-full"
                           style={{ width: `${data.health_score.activity_score}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-semibold text-gray-900">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {Math.round(data.health_score.activity_score)}
                       </span>
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Quality Score</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Quality Score</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
+                      <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div
                           className="bg-green-600 h-2 rounded-full"
                           style={{ width: `${data.health_score.quality_score}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-semibold text-gray-900">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {Math.round(data.health_score.quality_score)}
                       </span>
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Response Score</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Response Score</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
+                      <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div
                           className="bg-purple-600 h-2 rounded-full"
                           style={{ width: `${data.health_score.response_score}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-semibold text-gray-900">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {Math.round(data.health_score.response_score)}
                       </span>
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Success Score</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Success Score</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
+                      <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div
                           className="bg-yellow-600 h-2 rounded-full"
                           style={{ width: `${data.health_score.success_score}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-semibold text-gray-900">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {Math.round(data.health_score.success_score)}
                       </span>
                     </div>
@@ -442,30 +442,30 @@ export default function DashboardPage() {
             </div>
 
             {/* Pipeline Summary */}
-            <div className="bg-white p-6 rounded-lg shadow" data-testid="pipeline-stats">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Application Pipeline</h3>
+            <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow" data-testid="pipeline-stats">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Application Pipeline</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600">Total Applications</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Applications</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                     {data.pipeline_stats.total_applications}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Response Rate</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Response Rate</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                     {data.pipeline_stats.response_rate.toFixed(1)}%
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Interview Rate</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Interview Rate</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                     {data.pipeline_stats.interview_rate.toFixed(1)}%
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Offer Rate</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Offer Rate</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                     {data.pipeline_stats.offer_rate.toFixed(1)}%
                   </p>
                 </div>
@@ -474,13 +474,13 @@ export default function DashboardPage() {
           </div>
 
           {/* Collapsible Detailed Metrics */}
-          <div className="bg-white rounded-lg shadow">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow">
             <button
               onClick={() => setShowDetailedMetrics(!showDetailedMetrics)}
               className="w-full flex items-center justify-between p-4 text-left"
               aria-expanded={showDetailedMetrics}
             >
-              <span className="text-sm font-semibold text-gray-700">View Detailed Metrics</span>
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">View Detailed Metrics</span>
               <ChevronDown
                 className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
                   showDetailedMetrics ? 'rotate-180' : ''
@@ -488,14 +488,14 @@ export default function DashboardPage() {
               />
             </button>
             {showDetailedMetrics && (
-              <div className="px-4 pb-6 border-t border-gray-100 pt-4 animate-fade-in">
+              <div className="px-4 pb-6 border-t border-gray-100 dark:border-gray-800 pt-4 animate-fade-in">
                 {/* Quick Stats Cards */}
                 <div data-tour="stats-cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-gray-50 p-4 rounded-lg" data-testid="stat-applications-week">
+                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg" data-testid="stat-applications-week">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600">Applications this week</p>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Applications this week</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                           {data.applications_this_week}
                         </p>
                       </div>
@@ -503,11 +503,11 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 p-4 rounded-lg" data-testid="stat-interviews-week">
+                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg" data-testid="stat-interviews-week">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600">Interviews this week</p>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Interviews this week</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                           {data.interviews_this_week}
                         </p>
                       </div>
@@ -515,21 +515,21 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 p-4 rounded-lg" data-testid="stat-offers-pending">
+                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg" data-testid="stat-offers-pending">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600">Pending offers</p>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">{data.offers_pending}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Pending offers</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{data.offers_pending}</p>
                       </div>
                       <Gift className="w-8 h-8 text-purple-600" />
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 p-4 rounded-lg" data-testid="stat-new-matches">
+                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg" data-testid="stat-new-matches">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600">New matches</p>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">New matches</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                           {data.new_matches_count}
                         </p>
                       </div>
@@ -539,7 +539,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Full Pipeline Breakdown */}
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">Pipeline Breakdown</h4>
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Pipeline Breakdown</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                   {[
                     { label: 'Saved', value: data.pipeline_stats.saved },
@@ -553,9 +553,9 @@ export default function DashboardPage() {
                     { label: 'Rejected', value: data.pipeline_stats.rejected },
                     { label: 'Withdrawn', value: data.pipeline_stats.withdrawn },
                   ].map((stage) => (
-                    <div key={stage.label} className="text-center p-2 bg-gray-50 rounded">
-                      <p className="text-xs text-gray-500">{stage.label}</p>
-                      <p className="text-lg font-bold text-gray-900">{stage.value}</p>
+                    <div key={stage.label} className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{stage.label}</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{stage.value}</p>
                     </div>
                   ))}
                 </div>
@@ -566,11 +566,11 @@ export default function DashboardPage() {
           {/* Anomaly Alerts */}
           {data.anomalies && data.anomalies.length > 0 && (
             <div
-              className="bg-yellow-50 border border-yellow-200 p-6 rounded-lg"
+              className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 p-6 rounded-lg"
               data-testid="anomalies-section"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-yellow-900">
+                <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-300">
                   {data.anomalies.length} anomal{data.anomalies.length === 1 ? 'y' : 'ies'}{' '}
                   detected
                 </h3>
@@ -581,7 +581,7 @@ export default function DashboardPage() {
                 {data.anomalies.map((anomaly, index) => (
                   <div
                     key={index}
-                    className="bg-white p-4 rounded border border-yellow-200"
+                    className="bg-white dark:bg-gray-900 p-4 rounded border border-yellow-200 dark:border-yellow-800"
                     data-testid="anomaly-card"
                   >
                     <div className="flex items-start gap-3">
@@ -598,9 +598,9 @@ export default function DashboardPage() {
                         {anomaly.severity}
                       </span>
                       <div className="flex-1">
-                        <p className="font-semibold text-gray-900">{anomaly.title}</p>
-                        <p className="text-sm text-gray-600 mt-1">{anomaly.description}</p>
-                        <p className="text-sm text-blue-600 mt-2">
+                        <p className="font-semibold text-gray-900 dark:text-gray-100">{anomaly.title}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{anomaly.description}</p>
+                        <p className="text-sm text-blue-600 dark:text-blue-400 mt-2">
                           <span className="font-medium">Recommendation:</span> {anomaly.recommendation}
                         </p>
                       </div>
@@ -612,14 +612,14 @@ export default function DashboardPage() {
           )}
 
           {/* Activity Timeline */}
-          <div data-tour="recent-applications" className="bg-white p-6 rounded-lg shadow" data-testid="activity-timeline">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+          <div data-tour="recent-applications" className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow" data-testid="activity-timeline">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Activity</h3>
             <div className="space-y-4">
               {data.recent_activities && data.recent_activities.length > 0 ? (
                 data.recent_activities.map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex items-start gap-4 pb-4 border-b border-gray-100 last:border-0"
+                    className="flex items-start gap-4 pb-4 border-b border-gray-100 dark:border-gray-800 last:border-0"
                     data-testid="activity-item"
                   >
                     <Avatar
@@ -629,9 +629,9 @@ export default function DashboardPage() {
                       data-testid="avatar"
                     />
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">{activity.title}</p>
-                      <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
-                      <p className="text-xs text-gray-500 mt-2" data-testid="timestamp">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{activity.title}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{activity.description}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2" data-testid="timestamp">
                         {new Date(activity.timestamp).toLocaleString()}
                       </p>
                     </div>
@@ -646,19 +646,19 @@ export default function DashboardPage() {
           {/* Recommendations */}
           {data.health_score.recommendations &&
             data.health_score.recommendations.length > 0 && (
-              <div data-tour="job-matches" className="bg-white p-6 rounded-lg shadow" data-testid="recommendations-section">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommendations</h3>
+              <div data-tour="job-matches" className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow" data-testid="recommendations-section">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Recommendations</h3>
                 <div className="space-y-3">
                   {data.health_score.recommendations.map((rec, index) => (
                     <div
                       key={index}
-                      className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg"
+                      className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
                       data-testid="recommendation-item"
                     >
-                      <Target className="w-5 h-5 text-blue-600 mt-0.5" />
+                      <Target className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
                       <div className="flex-1">
-                        <p className="text-gray-900">{rec}</p>
-                        <button className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium">
+                        <p className="text-gray-900 dark:text-gray-100">{rec}</p>
+                        <button className="mt-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium">
                           Take Action &rarr;
                         </button>
                       </div>
