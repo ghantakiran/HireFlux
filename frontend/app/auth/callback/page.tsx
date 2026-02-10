@@ -72,12 +72,12 @@ function AuthCallbackContent() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="w-full max-w-md rounded-lg border border-red-200 bg-white p-8 text-center shadow-sm">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="w-full max-w-md rounded-lg border border-red-200 dark:border-red-800 bg-white dark:bg-gray-900 p-8 text-center shadow-sm">
           <div className="mb-4 flex justify-center">
-            <div className="rounded-full bg-red-100 p-3">
+            <div className="rounded-full bg-red-100 dark:bg-red-900/30 p-3">
               <svg
-                className="h-6 w-6 text-red-600"
+                className="h-6 w-6 text-red-600 dark:text-red-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -91,26 +91,26 @@ function AuthCallbackContent() {
               </svg>
             </div>
           </div>
-          <h1 className="mb-2 text-xl font-semibold text-gray-900">
+          <h1 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
             Authentication Failed
           </h1>
-          <p className="mb-4 text-sm text-gray-600">{error}</p>
-          <p className="text-xs text-gray-500">Redirecting to sign in...</p>
+          <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">{error}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Redirecting to sign in...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 text-center shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+      <div className="w-full max-w-md rounded-lg bg-white dark:bg-gray-900 p-8 text-center shadow-sm">
         <div className="mb-4 flex justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-        <h1 className="mb-2 text-xl font-semibold text-gray-900">
+        <h1 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
           Completing authentication...
         </h1>
-        <p className="text-sm text-gray-600">Please wait while we log you in</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400">Please wait while we log you in</p>
       </div>
     </div>
   );
@@ -119,12 +119,12 @@ function AuthCallbackContent() {
 export default function AuthCallbackPage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="w-full max-w-md rounded-lg bg-white p-8 text-center shadow-sm">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="w-full max-w-md rounded-lg bg-white dark:bg-gray-900 p-8 text-center shadow-sm">
           <div className="mb-4 flex justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-          <h1 className="mb-2 text-xl font-semibold text-gray-900">
+          <h1 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
             Loading...
           </h1>
         </div>

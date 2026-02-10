@@ -199,25 +199,25 @@ export default function ApplicantKanbanTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6">
       {/* Header */}
       <div className="max-w-[1600px] mx-auto mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           Applicant Kanban Board - Interactive Test
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Test drag-and-drop functionality, filtering, and all interactive features
         </p>
       </div>
 
       {/* Control Panel */}
-      <div className="max-w-[1600px] mx-auto mb-6 bg-white rounded-lg shadow-md p-6">
+      <div className="max-w-[1600px] mx-auto mb-6 bg-white dark:bg-gray-900 rounded-lg shadow-md p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Scenario Selection */}
           <div>
             <label
               htmlFor="scenario-select"
-              className="block text-sm font-semibold text-gray-900 mb-2"
+              className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"
             >
               Test Scenario
             </label>
@@ -228,7 +228,7 @@ export default function ApplicantKanbanTestPage() {
                 setScenario(e.target.value as Scenario);
                 handleRefresh();
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100"
             >
               <option value="normal">Normal (30 candidates)</option>
               <option value="empty">Empty State (0 candidates)</option>
@@ -243,7 +243,7 @@ export default function ApplicantKanbanTestPage() {
           <div>
             <label
               htmlFor="mock-mode-select"
-              className="block text-sm font-semibold text-gray-900 mb-2"
+              className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2"
             >
               Mock API Mode
             </label>
@@ -251,7 +251,7 @@ export default function ApplicantKanbanTestPage() {
               id="mock-mode-select"
               value={mockMode}
               onChange={(e) => setMockMode(e.target.value as MockMode)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100"
             >
               <option value="success">Success (300ms)</option>
               <option value="slow">Slow (2s delay)</option>
@@ -271,9 +271,9 @@ export default function ApplicantKanbanTestPage() {
         </div>
 
         {/* Info */}
-        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <h3 className="text-sm font-semibold text-blue-900 mb-1">Test Instructions</h3>
-          <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+          <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-1">Test Instructions</h3>
+          <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1 list-disc list-inside">
             <li>Drag candidates between columns to change their stage</li>
             <li>Click on a card to view details (logs activity)</li>
             <li>Use keyboard: Tab to navigate, Space/Enter to drag, Arrow keys to move</li>
@@ -285,7 +285,7 @@ export default function ApplicantKanbanTestPage() {
       </div>
 
       {/* Main Kanban Board */}
-      <div className="max-w-[1600px] mx-auto mb-6 bg-white rounded-lg shadow-md p-6">
+      <div className="max-w-[1600px] mx-auto mb-6 bg-white dark:bg-gray-900 rounded-lg shadow-md p-6">
         <ApplicantKanbanBoard
           key={refreshKey}
           jobId="job-test-1"
@@ -297,24 +297,24 @@ export default function ApplicantKanbanTestPage() {
       </div>
 
       {/* Activity Log */}
-      <div className="max-w-[1600px] mx-auto bg-white rounded-lg shadow-md p-6">
+      <div className="max-w-[1600px] mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-md p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Activity Log</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Activity Log</h2>
           <button
             onClick={() => setActivityLog([])}
-            className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+            className="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
           >
             Clear Log
           </button>
         </div>
 
-        <div className="bg-gray-50 rounded-md border border-gray-200 p-4 max-h-96 overflow-y-auto font-mono text-sm">
+        <div className="bg-gray-50 dark:bg-gray-950 rounded-md border border-gray-200 dark:border-gray-700 p-4 max-h-96 overflow-y-auto font-mono text-sm">
           {activityLog.length === 0 ? (
-            <p className="text-gray-500">No activity yet. Interact with the board to see logs.</p>
+            <p className="text-gray-500 dark:text-gray-400">No activity yet. Interact with the board to see logs.</p>
           ) : (
             <div className="space-y-1">
               {activityLog.map((log, index) => (
-                <div key={index} className="text-gray-700">
+                <div key={index} className="text-gray-700 dark:text-gray-300">
                   {log}
                 </div>
               ))}
@@ -334,12 +334,12 @@ export default function ApplicantKanbanTestPage() {
             }
           }}
         >
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Card Clicked</h2>
-            <p className="text-gray-600 mb-4">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-md">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Card Clicked</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               In a real app, the CandidateDetailModal would open here.
             </p>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
               Application ID: <span className="font-mono">{selectedCard}</span>
             </p>
             <button
@@ -353,29 +353,29 @@ export default function ApplicantKanbanTestPage() {
       )}
 
       {/* Footer Stats */}
-      <div className="max-w-[1600px] mx-auto mt-6 bg-white rounded-lg shadow-md p-4">
+      <div className="max-w-[1600px] mx-auto mt-6 bg-white dark:bg-gray-900 rounded-lg shadow-md p-4">
         <div className="grid grid-cols-4 gap-4 text-center">
           <div>
-            <div className="text-2xl font-bold text-blue-600">{activityLog.length}</div>
-            <div className="text-sm text-gray-600">Total Actions</div>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{activityLog.length}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Total Actions</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
               {activityLog.filter((log) => log.includes('Stage Change')).length}
             </div>
-            <div className="text-sm text-gray-600">Stage Changes</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Stage Changes</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-purple-600">
+            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
               {activityLog.filter((log) => log.includes('Clicked card')).length}
             </div>
-            <div className="text-sm text-gray-600">Card Clicks</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Card Clicks</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-orange-600">
+            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
               {activityLog.filter((log) => log.includes('API Call')).length}
             </div>
-            <div className="text-sm text-gray-600">API Calls</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">API Calls</div>
           </div>
         </div>
       </div>

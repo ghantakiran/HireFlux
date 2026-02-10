@@ -79,24 +79,24 @@ export default function JobPostingTestPage() {
   const initialData = hasInitialData ? mockJobData : {};
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-800">
       {/* Test Controls */}
-      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-50 shadow-sm">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 Job Posting Test Page
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 Sprint 19-20 Week 39 Day 4 - TDD Implementation (30/37 tests passing)
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium text-green-600">
+              <p className="text-sm font-medium text-green-600 dark:text-green-400">
                 ✓ 30/37 tests passing (81%)
               </p>
-              <p className="text-xs text-gray-500">Saved jobs: {savedJobs.length}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Saved jobs: {savedJobs.length}</p>
             </div>
           </div>
 
@@ -107,7 +107,7 @@ export default function JobPostingTestPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 mode === 'create'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               Create Mode
@@ -117,7 +117,7 @@ export default function JobPostingTestPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 mode === 'edit'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               Edit Mode
@@ -127,7 +127,7 @@ export default function JobPostingTestPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 mode === 'preview'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               Preview Mode
@@ -141,7 +141,7 @@ export default function JobPostingTestPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 hasInitialData
                   ? 'bg-green-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               {hasInitialData ? '✓ With Initial Data' : 'No Initial Data'}
@@ -151,7 +151,7 @@ export default function JobPostingTestPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 generatingDescription
                   ? 'bg-purple-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               {generatingDescription ? 'Generating...' : 'Simulate AI Generation'}
@@ -167,7 +167,7 @@ export default function JobPostingTestPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 publishing
                   ? 'bg-yellow-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               {publishing ? 'Publishing...' : 'Simulate Publishing'}
@@ -175,8 +175,8 @@ export default function JobPostingTestPage() {
           </div>
 
           {/* Info Panel */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-sm text-blue-900">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+            <p className="text-sm text-blue-900 dark:text-blue-300">
               <strong>Current State:</strong> Mode={mode}, InitialData={hasInitialData ? 'Yes' : 'No'},
               Generating={generatingDescription ? 'Yes' : 'No'}, Publishing={publishing ? 'Yes' : 'No'}
             </p>
@@ -200,20 +200,20 @@ export default function JobPostingTestPage() {
 
       {/* Saved Jobs List */}
       {savedJobs.length > 0 && (
-        <div className="max-w-4xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Saved Jobs ({savedJobs.length})</h2>
+        <div className="max-w-4xl mx-auto mt-8 p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Saved Jobs ({savedJobs.length})</h2>
           <div className="space-y-2">
             {savedJobs.map((job, index) => (
-              <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <div key={index} className="p-3 bg-gray-50 dark:bg-gray-950 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-gray-900">{job.title || 'Untitled'}</h3>
-                    <p className="text-sm text-gray-600">{job.location} • {job.employmentType?.replace('_', '-')}</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{job.title || 'Untitled'}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{job.location} • {job.employmentType?.replace('_', '-')}</p>
                   </div>
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
                     job.status === 'active'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
                   }`}>
                     {job.status || 'draft'}
                   </span>

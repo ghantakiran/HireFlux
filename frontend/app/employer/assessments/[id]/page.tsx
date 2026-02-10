@@ -287,13 +287,13 @@ export default function AssessmentDetailPage() {
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case 'published':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
       case 'draft':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
       case 'archived':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
     }
   };
 
@@ -301,7 +301,7 @@ export default function AssessmentDetailPage() {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
         <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent mb-2"></div>
-        <p className="text-gray-500">Loading assessment...</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading assessment...</p>
       </div>
     );
   }
@@ -309,7 +309,7 @@ export default function AssessmentDetailPage() {
   if (error || !assessment) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 px-4 py-3 rounded-lg">
           <p className="font-medium">Error loading assessment</p>
           <p className="text-sm mt-1">{error || 'Assessment not found'}</p>
           <Button
@@ -341,11 +341,11 @@ export default function AssessmentDetailPage() {
       </div>
 
       {/* Assessment Info */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6 mb-6">
         <div className="flex items-start justify-between mb-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-gray-900">{assessment.title}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{assessment.title}</h1>
               <span
                 className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(
                   assessment.status
@@ -354,7 +354,7 @@ export default function AssessmentDetailPage() {
                 {assessment.status}
               </span>
             </div>
-            <p className="text-gray-600">{assessment.description}</p>
+            <p className="text-gray-600 dark:text-gray-400">{assessment.description}</p>
           </div>
           <Button
             onClick={() => setIsEditing(!isEditing)}
@@ -368,31 +368,31 @@ export default function AssessmentDetailPage() {
 
         {/* Assessment Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-            <Clock className="w-5 h-5 text-blue-600" />
+          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
+            <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             <div>
-              <p className="text-sm text-gray-500">Time Limit</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Time Limit</p>
               <p className="font-semibold">{assessment.time_limit_minutes} minutes</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-            <Target className="w-5 h-5 text-green-600" />
+          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
+            <Target className="w-5 h-5 text-green-600 dark:text-green-400" />
             <div>
-              <p className="text-sm text-gray-500">Passing Score</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Passing Score</p>
               <p className="font-semibold">{assessment.passing_score_percentage}%</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-            <FileText className="w-5 h-5 text-purple-600" />
+          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
+            <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             <div>
-              <p className="text-sm text-gray-500">Questions</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Questions</p>
               <p className="font-semibold">{assessment.questions?.length || 0}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-            <FileText className="w-5 h-5 text-orange-600" />
+          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
+            <FileText className="w-5 h-5 text-orange-600 dark:text-orange-400" />
             <div>
-              <p className="text-sm text-gray-500">Type</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Type</p>
               <p className="font-semibold capitalize">{assessment.assessment_type.replace('_', ' ')}</p>
             </div>
           </div>
@@ -400,7 +400,7 @@ export default function AssessmentDetailPage() {
 
         {/* Edit Form */}
         {isEditing && (
-          <div className="mt-6 pt-6 border-t">
+          <div className="mt-6 pt-6 border-t dark:border-gray-700">
             <h3 className="text-lg font-semibold mb-4">Edit Assessment Settings</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
@@ -446,9 +446,9 @@ export default function AssessmentDetailPage() {
       </div>
 
       {/* Questions Section */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Questions</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Questions</h2>
           <Dialog open={isAddingQuestion} onOpenChange={setIsAddingQuestion}>
             <DialogTrigger asChild>
               <Button data-testid="add-question-button" className="flex items-center gap-2">
@@ -560,7 +560,7 @@ export default function AssessmentDetailPage() {
                         />
                       </div>
                     ))}
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {questionType === 'mcq_single'
                         ? 'Select one correct answer'
                         : 'Select all correct answers'}
@@ -598,10 +598,10 @@ export default function AssessmentDetailPage() {
 
         {/* Questions List */}
         {!assessment.questions || assessment.questions.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-lg">
+          <div className="text-center py-12 bg-gray-50 dark:bg-gray-950 rounded-lg">
             <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No questions yet</h3>
-            <p className="text-gray-600 mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No questions yet</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               Add your first question to start building this assessment
             </p>
             <Button
@@ -618,35 +618,35 @@ export default function AssessmentDetailPage() {
               <div
                 key={question.id}
                 data-testid="question-item"
-                className="flex items-start gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-start gap-4 p-4 border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center gap-3 flex-1">
                   <GripVertical className="w-5 h-5 text-gray-400 cursor-move" />
-                  <div className="flex items-center gap-2 text-gray-500">
+                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                     {getQuestionTypeIcon(question.question_type)}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-gray-500">Q{index + 1}</span>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Q{index + 1}</span>
                       <span
                         className={`px-2 py-0.5 rounded text-xs font-medium ${
                           question.difficulty === 'easy'
-                            ? 'bg-green-100 text-green-800'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
                             : question.difficulty === 'medium'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
                         }`}
                       >
                         {question.difficulty}
                       </span>
                       {question.category && (
-                        <span className="px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800">
+                        <span className="px-2 py-0.5 rounded text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
                           {question.category}
                         </span>
                       )}
                     </div>
-                    <p className="font-medium text-gray-900 mb-1">{question.question_text}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">{question.question_text}</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                       <span>{question.points} points</span>
                       {question.question_type.startsWith('mcq') && question.correct_answers && (
                         <span>{question.correct_answers.length} correct answers</span>
@@ -658,7 +658,7 @@ export default function AssessmentDetailPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDeleteQuestion(question.id)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>

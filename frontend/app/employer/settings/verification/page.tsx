@@ -90,7 +90,7 @@ export default function DomainVerificationPage() {
         <CardContent className="space-y-3">
           <div className="grid gap-3">
             <div className="flex items-start gap-3">
-              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
               <div>
                 <p className="font-medium">Build Trust</p>
                 <p className="text-sm text-muted-foreground">
@@ -99,7 +99,7 @@ export default function DomainVerificationPage() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
               <div>
                 <p className="font-medium">Prevent Impersonation</p>
                 <p className="text-sm text-muted-foreground">
@@ -108,7 +108,7 @@ export default function DomainVerificationPage() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
               <div>
                 <p className="font-medium">Stand Out</p>
                 <p className="text-sm text-muted-foreground">
@@ -117,7 +117,7 @@ export default function DomainVerificationPage() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
               <div>
                 <p className="font-medium">Higher Application Rates</p>
                 <p className="text-sm text-muted-foreground">

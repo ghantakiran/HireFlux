@@ -130,24 +130,24 @@ export default function EmployerDashboardTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-800">
       {/* Test Controls */}
-      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-50 shadow-sm">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 Employer Dashboard Test Page
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 Sprint 19-20 Week 39 Day 3 - TDD Implementation (100% test coverage)
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium text-green-600">
+              <p className="text-sm font-medium text-green-600 dark:text-green-400">
                 ✓ 33/33 tests passing
               </p>
-              <p className="text-xs text-gray-500">Retry count: {retryCount}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Retry count: {retryCount}</p>
             </div>
           </div>
 
@@ -158,7 +158,7 @@ export default function EmployerDashboardTestPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 viewMode === 'normal'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               Normal View
@@ -168,7 +168,7 @@ export default function EmployerDashboardTestPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 viewMode === 'loading'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               Loading State
@@ -178,7 +178,7 @@ export default function EmployerDashboardTestPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 viewMode === 'error'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               Error State
@@ -188,7 +188,7 @@ export default function EmployerDashboardTestPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 viewMode === 'empty'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               Empty State

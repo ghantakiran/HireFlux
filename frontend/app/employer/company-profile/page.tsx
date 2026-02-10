@@ -558,19 +558,19 @@ export default function CompanyProfileSetupPage() {
   // ============================================================================
 
   return (
-    <div data-company-profile-page className="min-h-screen bg-gray-50 py-8">
+    <div data-company-profile-page className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Company Profile</h1>
-              <p className="mt-1 text-gray-600">Manage your company information and public profile</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Company Profile</h1>
+              <p className="mt-1 text-gray-600 dark:text-gray-400">Manage your company information and public profile</p>
             </div>
             <button
               data-view-public-profile-button
               onClick={handleViewPublicProfile}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               <Eye className="w-4 h-4" />
               View Public Profile
@@ -578,17 +578,17 @@ export default function CompanyProfileSetupPage() {
           </div>
 
           {/* Completion Progress */}
-          <div data-completion-indicator className="mt-6 bg-white rounded-lg p-4 shadow-sm">
+          <div data-completion-indicator className="mt-6 bg-white dark:bg-gray-900 rounded-lg p-4 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-blue-600" />
+                <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 <span className="font-semibold">Profile Completion</span>
               </div>
-              <span data-completion-percentage className="text-lg font-bold text-blue-600">
+              <span data-completion-percentage className="text-lg font-bold text-blue-600 dark:text-blue-400">
                 {completionPercentage}%
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div
                 className="bg-blue-600 h-2 rounded-full transition-all"
                 style={{ width: `${completionPercentage}%` }}
@@ -602,9 +602,9 @@ export default function CompanyProfileSetupPage() {
                   {getSectionStatus(section) ? (
                     <Check data-section-complete className="w-4 h-4 text-green-500" />
                   ) : (
-                    <div data-section-incomplete className="w-4 h-4 rounded-full border-2 border-gray-300" />
+                    <div data-section-incomplete className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600" />
                   )}
-                  <span className={`text-sm ${getSectionStatus(section) ? 'text-gray-900' : 'text-gray-500'}`}>
+                  <span className={`text-sm ${getSectionStatus(section) ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
                     {section}
                   </span>
                 </div>
@@ -614,23 +614,23 @@ export default function CompanyProfileSetupPage() {
 
           {/* Draft Message */}
           {isDraft && (
-            <div data-draft-message className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-blue-800">Continue editing your profile</p>
+            <div data-draft-message className="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <p className="text-blue-800 dark:text-blue-300">Continue editing your profile</p>
             </div>
           )}
         </div>
 
         {/* Success Message */}
         {successMessage && (
-          <div data-success-message className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="text-green-800">{successMessage}</p>
+          <div data-success-message className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <p className="text-green-800 dark:text-green-300">{successMessage}</p>
           </div>
         )}
 
         {/* Form Error */}
         {formError && (
-          <div data-form-error className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-center justify-between">
-            <p className="text-red-800">{formError}</p>
+          <div data-form-error className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-center justify-between">
+            <p className="text-red-800 dark:text-red-300">{formError}</p>
             <button
               data-retry-button
               onClick={handleSubmit}
@@ -643,20 +643,20 @@ export default function CompanyProfileSetupPage() {
 
         {/* Auto-save Indicator */}
         {saveIndicator && (
-          <div data-save-indicator className="mb-4 text-sm text-gray-600">
+          <div data-save-indicator className="mb-4 text-sm text-gray-600 dark:text-gray-400">
             {saveIndicator}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information Section */}
-          <div data-basic-info-section className="bg-white rounded-lg shadow-sm p-6">
+          <div data-basic-info-section className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold mb-6">Basic Information</h2>
 
             <div className="space-y-4">
               {/* Company Name */}
               <div>
-                <label htmlFor="company-name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="company-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Company Name *
                 </label>
                 <input
@@ -665,20 +665,20 @@ export default function CompanyProfileSetupPage() {
                   type="text"
                   value={profile.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                 />
                 {errors.name && (
-                  <p data-company-name-error className="mt-1 text-sm text-red-600" role="alert">
+                  <p data-company-name-error className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
                     {errors.name}
                   </p>
                 )}
                 {duplicateWarning && (
-                  <div data-duplicate-warning className="mt-2 bg-yellow-50 border border-yellow-200 rounded p-3">
-                    <p className="text-sm text-yellow-800">A company with this name already exists. Is this you?</p>
+                  <div data-duplicate-warning className="mt-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-3">
+                    <p className="text-sm text-yellow-800 dark:text-yellow-300">A company with this name already exists. Is this you?</p>
                     <button
                       data-claim-profile-button
                       type="button"
-                      className="mt-2 text-sm text-blue-600 hover:text-blue-700 underline"
+                      className="mt-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
                     >
                       Claim existing profile
                     </button>
@@ -688,7 +688,7 @@ export default function CompanyProfileSetupPage() {
 
               {/* Industry */}
               <div className="relative">
-                <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="industry" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Industry *
                 </label>
                 <div className="relative">
@@ -698,19 +698,19 @@ export default function CompanyProfileSetupPage() {
                     type="button"
                     onClick={() => setShowIndustryDropdown(!showIndustryDropdown)}
                     aria-label="Select industry"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-left focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-left focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                   >
                     {profile.industry || 'Select industry'}
                   </button>
                   {showIndustryDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
                       <input
                         data-industry-search
                         type="text"
                         placeholder="Search..."
                         value={industrySearch}
                         onChange={(e) => setIndustrySearch(e.target.value)}
-                        className="w-full px-4 py-2 border-b border-gray-200"
+                        className="w-full px-4 py-2 border-b border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
                       <div className="max-h-60 overflow-y-auto">
                         {filteredIndustries.map((industry) => (
@@ -723,7 +723,7 @@ export default function CompanyProfileSetupPage() {
                               setShowIndustryDropdown(false);
                               setIndustrySearch('');
                             }}
-                            className="w-full px-4 py-2 text-left hover:bg-gray-50"
+                            className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800"
                           >
                             {industry}
                           </button>
@@ -736,7 +736,7 @@ export default function CompanyProfileSetupPage() {
 
               {/* Company Size */}
               <div className="relative">
-                <label htmlFor="company-size" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="company-size" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Company Size *
                 </label>
                 <div className="relative">
@@ -746,12 +746,12 @@ export default function CompanyProfileSetupPage() {
                     type="button"
                     onClick={() => setShowSizeDropdown(!showSizeDropdown)}
                     aria-label="Select company size"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-left focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-left focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                   >
                     {profile.size || 'Select company size'}
                   </button>
                   {showSizeDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                       {COMPANY_SIZES.map((size) => (
                         <button
                           key={size}
@@ -761,7 +761,7 @@ export default function CompanyProfileSetupPage() {
                             handleInputChange('size', size);
                             setShowSizeDropdown(false);
                           }}
-                          className="w-full px-4 py-2 text-left hover:bg-gray-50"
+                          className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800"
                         >
                           {size}
                         </button>
@@ -773,7 +773,7 @@ export default function CompanyProfileSetupPage() {
 
               {/* Website */}
               <div>
-                <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="website" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Company Website
                 </label>
                 <input
@@ -784,10 +784,10 @@ export default function CompanyProfileSetupPage() {
                   onChange={(e) => handleInputChange('website', e.target.value)}
                   onBlur={handleWebsiteBlur}
                   placeholder="https://example.com"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                 />
                 {errors.website && (
-                  <p data-website-error className="mt-1 text-sm text-red-600">
+                  <p data-website-error className="mt-1 text-sm text-red-600 dark:text-red-400">
                     {errors.website}
                   </p>
                 )}
@@ -795,7 +795,7 @@ export default function CompanyProfileSetupPage() {
 
               {/* Description */}
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Company Description
                 </label>
                 <textarea
@@ -809,14 +809,14 @@ export default function CompanyProfileSetupPage() {
                     }
                   }}
                   maxLength={DESCRIPTION_MAX_LENGTH}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                 />
                 <div className="flex items-center justify-between mt-1">
-                  <span data-description-count className="text-sm text-gray-600">
+                  <span data-description-count className="text-sm text-gray-600 dark:text-gray-400">
                     {profile.description.length}/{DESCRIPTION_MAX_LENGTH}
                   </span>
                   {profile.description.length >= DESCRIPTION_MAX_LENGTH - 20 && (
-                    <span data-description-warning className="text-sm text-orange-600">
+                    <span data-description-warning className="text-sm text-orange-600 dark:text-orange-400">
                       {DESCRIPTION_MAX_LENGTH - profile.description.length} characters remaining
                     </span>
                   )}
@@ -826,7 +826,7 @@ export default function CompanyProfileSetupPage() {
           </div>
 
           {/* Logo Section */}
-          <div data-logo-section className="bg-white rounded-lg shadow-sm p-6">
+          <div data-logo-section className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold mb-6">Company Logo</h2>
 
             <div className="flex items-start gap-6">
@@ -840,7 +840,7 @@ export default function CompanyProfileSetupPage() {
                       alt="Company logo"
                       width={128}
                       height={128}
-                      className="rounded-lg border border-gray-200"
+                      className="rounded-lg border border-gray-200 dark:border-gray-700"
                       objectFit="cover"
                     />
                     <button
@@ -855,7 +855,7 @@ export default function CompanyProfileSetupPage() {
                 ) : (
                   <div
                     data-logo-placeholder
-                    className="w-32 h-32 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50"
+                    className="w-32 h-32 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center bg-gray-50 dark:bg-gray-950"
                   >
                     <Building2 className="w-12 h-12 text-gray-400" />
                   </div>
@@ -868,12 +868,12 @@ export default function CompanyProfileSetupPage() {
                   data-logo-upload-area
                   type="button"
                   onClick={handleLogoClick}
-                  className="w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                  className="w-full px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
                 >
                   <div className="flex flex-col items-center gap-2">
                     <Upload className="w-8 h-8 text-gray-400" />
-                    <p className="text-sm font-medium text-gray-700">Click to upload logo</p>
-                    <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Click to upload logo</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG up to 5MB</p>
                   </div>
                 </button>
                 <input
@@ -884,14 +884,14 @@ export default function CompanyProfileSetupPage() {
                   className="hidden"
                 />
                 {errors.logo && (
-                  <div data-logo-error className="mt-2 text-sm text-red-600 flex items-center gap-2">
+                  <div data-logo-error className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4" />
                     {errors.logo}
                     <button
                       data-retry-upload-button
                       type="button"
                       onClick={handleLogoClick}
-                      className="text-blue-600 hover:text-blue-700 underline"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
                     >
                       Retry
                     </button>
@@ -902,7 +902,7 @@ export default function CompanyProfileSetupPage() {
 
             {/* Logo Preview Confirmation */}
             {showLogoConfirm && logoPreview && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+              <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-950 rounded-lg">
                 <p className="text-sm font-medium mb-2">Preview your logo:</p>
                 <div className="relative w-24 h-24 mb-3">
                   <OptimizedImage
@@ -927,7 +927,7 @@ export default function CompanyProfileSetupPage() {
                     data-logo-upload-cancel
                     type="button"
                     onClick={handleLogoUploadCancel}
-                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     Cancel
                   </button>
@@ -936,20 +936,20 @@ export default function CompanyProfileSetupPage() {
             )}
 
             {successMessage.includes('Logo') && (
-              <p data-logo-success-message className="mt-2 text-sm text-green-600">
+              <p data-logo-success-message className="mt-2 text-sm text-green-600 dark:text-green-400">
                 {successMessage}
               </p>
             )}
           </div>
 
           {/* Culture & Benefits Section */}
-          <div data-culture-section className="bg-white rounded-lg shadow-sm p-6">
+          <div data-culture-section className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold mb-6">Culture & Benefits</h2>
 
             <div className="space-y-4">
               {/* Company Values */}
               <div>
-                <label htmlFor="values" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="values" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Company Values
                 </label>
                 <input
@@ -959,13 +959,13 @@ export default function CompanyProfileSetupPage() {
                   value={profile.values}
                   onChange={(e) => handleInputChange('values', e.target.value)}
                   placeholder="e.g., Innovation, Collaboration, Growth"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                 />
               </div>
 
               {/* Company Culture */}
               <div>
-                <label htmlFor="culture" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="culture" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Company Culture
                 </label>
                 <textarea
@@ -975,13 +975,13 @@ export default function CompanyProfileSetupPage() {
                   value={profile.culture}
                   onChange={(e) => handleInputChange('culture', e.target.value)}
                   placeholder="Describe your company culture..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                 />
               </div>
 
               {/* Benefits */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Benefits</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Benefits</label>
 
                 {/* Benefits List */}
                 {profile.benefits.length > 0 && (
@@ -994,7 +994,7 @@ export default function CompanyProfileSetupPage() {
                         onDragStart={() => handleBenefitDragStart(index)}
                         onDragOver={(e) => handleBenefitDragOver(e, index)}
                         onDragEnd={handleBenefitDragEnd}
-                        className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg cursor-move hover:bg-gray-100"
+                        className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-950 rounded-lg cursor-move hover:bg-gray-100 dark:hover:bg-gray-800"
                       >
                         <GripVertical className="w-4 h-4 text-gray-400" />
                         <span className="flex-1">{benefit}</span>
@@ -1002,7 +1002,7 @@ export default function CompanyProfileSetupPage() {
                           data-benefit-remove-button
                           type="button"
                           onClick={() => handleRemoveBenefit(index)}
-                          className="p-1 text-red-600 hover:bg-red-50 rounded"
+                          className="p-1 text-red-600 dark:text-red-400 hover:bg-red-50 rounded"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -1020,7 +1020,7 @@ export default function CompanyProfileSetupPage() {
                     onChange={(e) => setNewBenefit(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddBenefit())}
                     placeholder="Enter a benefit"
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                     disabled={profile.benefits.length >= MAX_BENEFITS}
                   />
                   <button
@@ -1036,7 +1036,7 @@ export default function CompanyProfileSetupPage() {
                 </div>
 
                 {profile.benefits.length >= MAX_BENEFITS && (
-                  <p data-benefits-limit-message className="mt-2 text-sm text-orange-600">
+                  <p data-benefits-limit-message className="mt-2 text-sm text-orange-600 dark:text-orange-400">
                     Maximum 15 benefits allowed
                   </p>
                 )}
@@ -1045,20 +1045,20 @@ export default function CompanyProfileSetupPage() {
           </div>
 
           {/* Office Locations Section */}
-          <div data-locations-section className="bg-white rounded-lg shadow-sm p-6">
+          <div data-locations-section className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold mb-6">Office Locations</h2>
 
             {/* Locations List */}
             {profile.locations.length > 0 && (
               <div data-locations-list className="space-y-3 mb-4">
                 {profile.locations.map((location) => (
-                  <div key={location.id} data-location-item className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
+                  <div key={location.id} data-location-item className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-950 rounded-lg">
                     <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-medium">{location.address}</p>
                         {location.type === 'Headquarters' && (
-                          <span data-location-badge className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                          <span data-location-badge className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded-full">
                             Headquarters
                           </span>
                         )}
@@ -1069,7 +1069,7 @@ export default function CompanyProfileSetupPage() {
                         data-location-edit-button
                         type="button"
                         onClick={() => handleEditLocation(location.id)}
-                        className="p-1 text-gray-600 hover:bg-gray-200 rounded"
+                        className="p-1 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
@@ -1077,7 +1077,7 @@ export default function CompanyProfileSetupPage() {
                         data-location-remove-button
                         type="button"
                         onClick={() => handleRemoveLocation(location.id)}
-                        className="p-1 text-red-600 hover:bg-red-50 rounded"
+                        className="p-1 text-red-600 dark:text-red-400 hover:bg-red-50 rounded"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -1088,9 +1088,9 @@ export default function CompanyProfileSetupPage() {
             )}
 
             {/* Add/Edit Location Form */}
-            <div data-location-form className="space-y-3 p-4 bg-gray-50 rounded-lg">
+            <div data-location-form className="space-y-3 p-4 bg-gray-50 dark:bg-gray-950 rounded-lg">
               <div>
-                <label htmlFor="location-address" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="location-address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Address
                 </label>
                 <input
@@ -1100,10 +1100,10 @@ export default function CompanyProfileSetupPage() {
                   value={newLocation.address}
                   onChange={(e) => setNewLocation({ ...newLocation, address: e.target.value })}
                   placeholder="123 Main St, City, State ZIP"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                 />
                 {errors.locationAddress && (
-                  <p data-location-address-error className="mt-1 text-sm text-red-600">
+                  <p data-location-address-error className="mt-1 text-sm text-red-600 dark:text-red-400">
                     {errors.locationAddress}
                   </p>
                 )}
@@ -1149,20 +1149,20 @@ export default function CompanyProfileSetupPage() {
                 setNewLocation({ address: '', type: 'Office' });
                 setEditingLocationId(null);
               }}
-              className="mt-3 text-sm text-blue-600 hover:text-blue-700"
+              className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
             >
               + Add another location
             </button>
           </div>
 
           {/* Social Media Section */}
-          <div data-social-section className="bg-white rounded-lg shadow-sm p-6">
+          <div data-social-section className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold mb-6">Social Media</h2>
 
             <div className="space-y-4">
               {/* LinkedIn */}
               <div>
-                <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   <div className="flex items-center gap-2">
                     <Linkedin className="w-4 h-4" />
                     LinkedIn
@@ -1176,10 +1176,10 @@ export default function CompanyProfileSetupPage() {
                   onChange={(e) => handleSocialMediaChange('linkedin', e.target.value)}
                   onBlur={() => handleSocialMediaBlur('linkedin')}
                   placeholder="https://linkedin.com/company/yourcompany"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                 />
                 {errors.linkedin && (
-                  <p data-linkedin-error className="mt-1 text-sm text-red-600">
+                  <p data-linkedin-error className="mt-1 text-sm text-red-600 dark:text-red-400">
                     {errors.linkedin}
                   </p>
                 )}
@@ -1187,7 +1187,7 @@ export default function CompanyProfileSetupPage() {
 
               {/* Twitter */}
               <div>
-                <label htmlFor="twitter" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="twitter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   <div className="flex items-center gap-2">
                     <Twitter className="w-4 h-4" />
                     Twitter
@@ -1201,10 +1201,10 @@ export default function CompanyProfileSetupPage() {
                   onChange={(e) => handleSocialMediaChange('twitter', e.target.value)}
                   onBlur={() => handleSocialMediaBlur('twitter')}
                   placeholder="https://twitter.com/yourcompany"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                 />
                 {errors.twitter && (
-                  <p data-twitter-error className="mt-1 text-sm text-red-600">
+                  <p data-twitter-error className="mt-1 text-sm text-red-600 dark:text-red-400">
                     {errors.twitter}
                   </p>
                 )}
@@ -1212,7 +1212,7 @@ export default function CompanyProfileSetupPage() {
 
               {/* Facebook */}
               <div>
-                <label htmlFor="facebook" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="facebook" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   <div className="flex items-center gap-2">
                     <Facebook className="w-4 h-4" />
                     Facebook
@@ -1226,10 +1226,10 @@ export default function CompanyProfileSetupPage() {
                   onChange={(e) => handleSocialMediaChange('facebook', e.target.value)}
                   onBlur={() => handleSocialMediaBlur('facebook')}
                   placeholder="https://facebook.com/yourcompany"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                 />
                 {errors.facebook && (
-                  <p data-facebook-error className="mt-1 text-sm text-red-600">
+                  <p data-facebook-error className="mt-1 text-sm text-red-600 dark:text-red-400">
                     {errors.facebook}
                   </p>
                 )}
@@ -1237,7 +1237,7 @@ export default function CompanyProfileSetupPage() {
 
               {/* Instagram */}
               <div>
-                <label htmlFor="instagram" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="instagram" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   <div className="flex items-center gap-2">
                     <Instagram className="w-4 h-4" />
                     Instagram
@@ -1251,10 +1251,10 @@ export default function CompanyProfileSetupPage() {
                   onChange={(e) => handleSocialMediaChange('instagram', e.target.value)}
                   onBlur={() => handleSocialMediaBlur('instagram')}
                   placeholder="https://instagram.com/yourcompany"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                 />
                 {errors.instagram && (
-                  <p data-instagram-error className="mt-1 text-sm text-red-600">
+                  <p data-instagram-error className="mt-1 text-sm text-red-600 dark:text-red-400">
                     {errors.instagram}
                   </p>
                 )}
@@ -1263,20 +1263,20 @@ export default function CompanyProfileSetupPage() {
           </div>
 
           {/* Privacy Controls */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold mb-6">Privacy Settings</h2>
 
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Public Profile</p>
-                <p className="text-sm text-gray-600">Allow job seekers to view your company profile</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Allow job seekers to view your company profile</p>
               </div>
               <button
                 data-privacy-toggle
                 type="button"
                 onClick={handlePrivacyToggle}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  profile.isPublic ? 'bg-blue-600' : 'bg-gray-200'
+                  profile.isPublic ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
                 }`}
               >
                 <span
@@ -1288,12 +1288,12 @@ export default function CompanyProfileSetupPage() {
             </div>
 
             {profile.isPublic ? (
-              <p data-privacy-message className="mt-3 text-sm text-gray-600 flex items-center gap-2">
+              <p data-privacy-message className="mt-3 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
                 <Unlock className="w-4 h-4" />
                 Your profile is now public
               </p>
             ) : (
-              <p data-privacy-message className="mt-3 text-sm text-gray-600 flex items-center gap-2">
+              <p data-privacy-message className="mt-3 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
                 <Lock className="w-4 h-4" />
                 Your profile is private and not visible to job seekers
               </p>
@@ -1302,8 +1302,8 @@ export default function CompanyProfileSetupPage() {
 
           {/* Form Errors */}
           {Object.keys(errors).length > 0 && errors.name && (
-            <div data-form-errors className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-800">Please fix the errors above to continue</p>
+            <div data-form-errors className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <p className="text-red-800 dark:text-red-300">Please fix the errors above to continue</p>
             </div>
           )}
 
@@ -1320,7 +1320,7 @@ export default function CompanyProfileSetupPage() {
               data-nav-dashboard
               type="button"
               onClick={() => router.push('/employer/dashboard')}
-              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-semibold"
+              className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold"
             >
               Cancel
             </button>
@@ -1331,7 +1331,7 @@ export default function CompanyProfileSetupPage() {
       {/* Confirmation Dialog */}
       {showDeleteConfirm && (
         <div data-confirm-dialog className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md">
+          <div className="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-md">
             <p data-confirm-message className="text-lg mb-4">
               {confirmType === 'logo'
                 ? 'Are you sure you want to remove the logo?'
@@ -1350,7 +1350,7 @@ export default function CompanyProfileSetupPage() {
                   setShowDeleteConfirm(null);
                   setConfirmType(null);
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 Cancel
               </button>
@@ -1363,13 +1363,13 @@ export default function CompanyProfileSetupPage() {
       {completionPercentage < 50 && (
         <div
           data-profile-completion-prompt
-          className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 max-w-sm border border-gray-200"
+          className="fixed bottom-4 right-4 bg-white dark:bg-gray-900 rounded-lg shadow-lg p-4 max-w-sm border border-gray-200 dark:border-gray-700"
         >
           <p className="font-medium mb-2">Complete your company profile to attract better candidates</p>
           <a
             data-complete-profile-link
             href="/employer/company-profile"
-            className="text-sm text-blue-600 hover:text-blue-700 underline"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
           >
             Complete your profile →
           </a>

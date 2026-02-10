@@ -120,8 +120,8 @@ export default function CreateAssessmentPage() {
           Back
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Create Assessment</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Create Assessment</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Set up a new skills assessment for your candidates
           </p>
         </div>
@@ -129,27 +129,27 @@ export default function CreateAssessmentPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Basic Information */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FileText className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
+            <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Basic Information</h2>
           </div>
 
           <div className="space-y-4">
             {/* Title */}
             <div>
               <Label htmlFor="title">
-                Assessment Title <span className="text-red-500">*</span>
+                Assessment Title <span className="text-red-500 dark:text-red-400">*</span>
               </Label>
               <Input
                 id="title"
                 {...register('title')}
                 data-testid="assessment-title"
                 placeholder="e.g., Senior Backend Engineer Screening"
-                className={errors.title ? 'border-red-500' : ''}
+                className={errors.title ? 'border-red-500 dark:border-red-400' : ''}
               />
               {errors.title && (
-                <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+                <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.title.message}</p>
               )}
             </div>
 
@@ -168,7 +168,7 @@ export default function CreateAssessmentPage() {
             {/* Assessment Type */}
             <div>
               <Label htmlFor="assessment_type">
-                Assessment Type <span className="text-red-500">*</span>
+                Assessment Type <span className="text-red-500 dark:text-red-400">*</span>
               </Label>
               <Select
                 onValueChange={(value) => setValue('assessment_type', value as any)}
@@ -184,7 +184,7 @@ export default function CreateAssessmentPage() {
                 </SelectContent>
               </Select>
               {errors.assessment_type && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                   {errors.assessment_type.message}
                 </p>
               )}
@@ -193,10 +193,10 @@ export default function CreateAssessmentPage() {
         </div>
 
         {/* Assessment Settings */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Settings className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Assessment Settings</h2>
+            <Settings className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Assessment Settings</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -211,10 +211,10 @@ export default function CreateAssessmentPage() {
                 placeholder="60"
                 min="1"
                 max="480"
-                className={errors.time_limit_minutes ? 'border-red-500' : ''}
+                className={errors.time_limit_minutes ? 'border-red-500 dark:border-red-400' : ''}
               />
               {errors.time_limit_minutes && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                   {errors.time_limit_minutes.message}
                 </p>
               )}
@@ -231,10 +231,10 @@ export default function CreateAssessmentPage() {
                 placeholder="70"
                 min="0"
                 max="100"
-                className={errors.passing_score_percentage ? 'border-red-500' : ''}
+                className={errors.passing_score_percentage ? 'border-red-500 dark:border-red-400' : ''}
               />
               {errors.passing_score_percentage && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                   {errors.passing_score_percentage.message}
                 </p>
               )}
@@ -246,7 +246,7 @@ export default function CreateAssessmentPage() {
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <Label htmlFor="randomize_questions">Randomize Question Order</Label>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Questions will appear in random order for each candidate
                 </p>
               </div>
@@ -260,10 +260,10 @@ export default function CreateAssessmentPage() {
         </div>
 
         {/* Anti-Cheating Measures */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
           <div className="mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Anti-Cheating Measures</h2>
-            <p className="text-sm text-gray-500">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Anti-Cheating Measures</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Enable proctoring and monitoring to maintain assessment integrity
             </p>
           </div>
@@ -273,7 +273,7 @@ export default function CreateAssessmentPage() {
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <Label htmlFor="enable_proctoring">Enable Proctoring</Label>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Monitor candidate behavior during the assessment
                 </p>
               </div>
@@ -288,7 +288,7 @@ export default function CreateAssessmentPage() {
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <Label htmlFor="track_tab_switches">Track Tab Switches</Label>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Detect when candidates switch browser tabs
                 </p>
               </div>
@@ -315,7 +315,7 @@ export default function CreateAssessmentPage() {
                   max="10"
                   className="max-w-xs"
                 />
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Assessment will be auto-submitted after this limit
                 </p>
               </div>
@@ -325,7 +325,7 @@ export default function CreateAssessmentPage() {
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <Label htmlFor="track_ip_changes">Track IP Address Changes</Label>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Flag suspicious activity if IP address changes during assessment
                 </p>
               </div>

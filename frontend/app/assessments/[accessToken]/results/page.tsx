@@ -213,7 +213,7 @@ export default function AssessmentResultsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">Loading results...</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading results...</p>
       </div>
     );
   }
@@ -223,8 +223,8 @@ export default function AssessmentResultsPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Results Not Found</h2>
-          <p className="text-gray-600">Unable to load assessment results.</p>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Results Not Found</h2>
+          <p className="text-gray-600 dark:text-gray-400">Unable to load assessment results.</p>
         </div>
       </div>
     );
@@ -237,17 +237,17 @@ export default function AssessmentResultsPage() {
   };
 
   const getScoreColor = (percentage: number) => {
-    if (percentage >= 90) return 'text-green-600';
-    if (percentage >= 70) return 'text-blue-600';
-    if (percentage >= 50) return 'text-yellow-600';
-    return 'text-red-600';
+    if (percentage >= 90) return 'text-green-600 dark:text-green-400';
+    if (percentage >= 70) return 'text-blue-600 dark:text-blue-400';
+    if (percentage >= 50) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   const getScoreBg = (percentage: number) => {
-    if (percentage >= 90) return 'bg-green-50 border-green-200';
-    if (percentage >= 70) return 'bg-blue-50 border-blue-200';
-    if (percentage >= 50) return 'bg-yellow-50 border-yellow-200';
-    return 'bg-red-50 border-red-200';
+    if (percentage >= 90) return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
+    if (percentage >= 70) return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
+    if (percentage >= 50) return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800';
+    return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
   };
 
   const getCategoryStats = () => {
@@ -292,7 +292,7 @@ export default function AssessmentResultsPage() {
   const difficultyStats = getDifficultyStats();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Success Banner */}
       <div className={`${results.passed ? 'bg-green-600' : 'bg-red-600'} text-white py-6`}>
         <div className="container mx-auto px-4 text-center">
@@ -315,11 +315,11 @@ export default function AssessmentResultsPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Overall Score Card */}
-        <div className={`bg-white rounded-lg shadow-lg p-8 mb-6 border-2 ${getScoreBg(results.score_percentage)}`}>
+        <div className={`bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 mb-6 border-2 ${getScoreBg(results.score_percentage)}`}>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{results.assessment_title}</h2>
-              <p className="text-gray-600">Submitted {new Date(results.submitted_at).toLocaleString()}</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{results.assessment_title}</h2>
+              <p className="text-gray-600 dark:text-gray-400">Submitted {new Date(results.submitted_at).toLocaleString()}</p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" className="flex items-center gap-2">
@@ -339,33 +339,33 @@ export default function AssessmentResultsPage() {
               <div className={`text-5xl font-bold mb-2 ${getScoreColor(results.score_percentage)}`}>
                 Your Score: {results.score_percentage}%
               </div>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 {results.total_points_earned} / {results.total_points_possible} points
               </p>
             </div>
 
-            <div className="flex items-center gap-3 p-4 bg-white rounded-lg">
+            <div className="flex items-center gap-3 p-4 bg-white dark:bg-gray-900 rounded-lg">
               <Target className="w-8 h-8 text-blue-600" />
               <div>
-                <p className="text-sm text-gray-500">Passing Score</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Passing Score</p>
                 <p className="text-xl font-semibold">{results.passing_score_percentage}%</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-4 bg-white rounded-lg">
+            <div className="flex items-center gap-3 p-4 bg-white dark:bg-gray-900 rounded-lg">
               <CheckCircle className="w-8 h-8 text-green-600" />
               <div>
-                <p className="text-sm text-gray-500">Correct Answers</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Correct Answers</p>
                 <p className="text-xl font-semibold">
                   {correctCount} / {results.questions.length}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-4 bg-white rounded-lg">
+            <div className="flex items-center gap-3 p-4 bg-white dark:bg-gray-900 rounded-lg">
               <Clock className="w-8 h-8 text-purple-600" />
               <div>
-                <p className="text-sm text-gray-500">Time Taken</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Time Taken</p>
                 <p className="text-xl font-semibold">
                   {results.time_taken_minutes} / {results.time_limit_minutes} min
                 </p>
@@ -376,8 +376,8 @@ export default function AssessmentResultsPage() {
 
         {/* Performance by Category */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-blue-600" />
               Performance by Category
             </h3>
@@ -385,12 +385,12 @@ export default function AssessmentResultsPage() {
               {categoryStats.map((stat) => (
                 <div key={stat.category}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-700">{stat.category}</span>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{stat.category}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
                       {stat.correct}/{stat.total} ({stat.percentage}%)
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                     <div
                       className={`h-2 rounded-full ${
                         stat.percentage >= 70 ? 'bg-green-500' : stat.percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500'
@@ -403,8 +403,8 @@ export default function AssessmentResultsPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
               <Target className="w-5 h-5 text-purple-600" />
               Performance by Difficulty
             </h3>
@@ -412,12 +412,12 @@ export default function AssessmentResultsPage() {
               {difficultyStats.map((stat) => (
                 <div key={stat.difficulty}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-700 capitalize">{stat.difficulty}</span>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">{stat.difficulty}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
                       {stat.correct}/{stat.total} ({stat.percentage}%)
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                     <div
                       className={`h-2 rounded-full ${
                         stat.difficulty === 'easy'
@@ -436,9 +436,9 @@ export default function AssessmentResultsPage() {
         </div>
 
         {/* Question-by-Question Breakdown */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-900">Question-by-Question Breakdown</h3>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Question-by-Question Breakdown</h3>
             <Button variant="outline" size="sm" onClick={() => setShowBreakdown(!showBreakdown)}>
               {showBreakdown ? 'Hide' : 'Show'} Details
             </Button>
@@ -451,8 +451,8 @@ export default function AssessmentResultsPage() {
                   key={question.id}
                   className={`border rounded-lg p-4 ${
                     question.is_correct
-                      ? 'border-green-200 bg-green-50'
-                      : 'border-red-200 bg-red-50'
+                      ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20'
+                      : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20'
                   }`}
                 >
                   <div className="flex items-start gap-4">
@@ -465,31 +465,31 @@ export default function AssessmentResultsPage() {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm font-medium text-gray-500">Question {index + 1}</span>
+                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Question {index + 1}</span>
                         <span
                           className={`px-2 py-0.5 rounded text-xs font-medium ${
                             question.difficulty === 'easy'
-                              ? 'bg-green-100 text-green-800'
+                              ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
                               : question.difficulty === 'medium'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-red-100 text-red-800'
+                              ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'
+                              : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
                           }`}
                         >
                           {question.difficulty}
                         </span>
                         {question.category && (
-                          <span className="px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800">
+                          <span className="px-2 py-0.5 rounded text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
                             {question.category}
                           </span>
                         )}
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {question.points_earned}/{question.points_possible} points
                         </span>
-                        <span className="text-sm text-gray-500">•</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">•</span>
                         <Clock className="w-3 h-3 text-gray-400" />
-                        <span className="text-sm text-gray-500">{formatTime(question.time_spent_seconds)}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">{formatTime(question.time_spent_seconds)}</span>
                       </div>
-                      <p className="font-medium text-gray-900 mb-2">{question.question_text}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">{question.question_text}</p>
 
                       {/* MCQ Answer Display */}
                       {(question.question_type === 'mcq_single' || question.question_type === 'mcq_multiple') &&
@@ -497,15 +497,15 @@ export default function AssessmentResultsPage() {
                         question.correct_answer && (
                           <div className="text-sm space-y-1">
                             <div>
-                              <span className="font-medium text-gray-700">Your Answer: </span>
-                              <span className={question.is_correct ? 'text-green-700' : 'text-red-700'}>
+                              <span className="font-medium text-gray-700 dark:text-gray-300">Your Answer: </span>
+                              <span className={question.is_correct ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}>
                                 {question.candidate_answer.join(', ')}
                               </span>
                             </div>
                             {!question.is_correct && (
                               <div>
-                                <span className="font-medium text-gray-700">Correct Answer: </span>
-                                <span className="text-green-700">{question.correct_answer.join(', ')}</span>
+                                <span className="font-medium text-gray-700 dark:text-gray-300">Correct Answer: </span>
+                                <span className="text-green-700 dark:text-green-400">{question.correct_answer.join(', ')}</span>
                               </div>
                             )}
                           </div>
@@ -514,7 +514,7 @@ export default function AssessmentResultsPage() {
                       {/* Coding/Text Question Display */}
                       {(question.question_type === 'coding' || question.question_type === 'text') && (
                         <div className="text-sm">
-                          <span className={question.is_correct ? 'text-green-700' : 'text-red-700'}>
+                          <span className={question.is_correct ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}>
                             {question.is_correct
                               ? 'Your solution was correct!'
                               : `Partial credit: ${question.points_earned}/${question.points_possible} points`}
@@ -530,9 +530,9 @@ export default function AssessmentResultsPage() {
         </div>
 
         {/* Next Steps */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-2">What's Next?</h3>
-          <ul className="list-disc list-inside text-blue-800 space-y-1">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mt-6">
+          <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-2">What's Next?</h3>
+          <ul className="list-disc list-inside text-blue-800 dark:text-blue-300 space-y-1">
             <li>Your results have been submitted to the employer</li>
             <li>You will be notified if you advance to the next stage</li>
             <li>Review your performance breakdown above to identify areas for improvement</li>

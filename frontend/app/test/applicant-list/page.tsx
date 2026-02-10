@@ -219,16 +219,16 @@ export default function ApplicantListTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-800">
       {/* Test Controls */}
-      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-50 shadow-sm">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 Applicant List Test Page
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 Sprint 19-20 Week 39 Day 5 - TDD Implementation (30/38 tests passing - 79%)
               </p>
             </div>
@@ -236,7 +236,7 @@ export default function ApplicantListTestPage() {
               <p className="text-sm font-medium text-green-600">
                 ✓ 30/38 tests passing (79%)
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 {applicants.length} applicant{applicants.length === 1 ? '' : 's'} loaded
               </p>
             </div>
@@ -271,8 +271,8 @@ export default function ApplicantListTestPage() {
           </div>
 
           {/* Info Panel */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-            <p className="text-sm text-blue-900">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
+            <p className="text-sm text-blue-900 dark:text-blue-300">
               <strong>Current State:</strong> Loading={loading ? 'Yes' : 'No'}, Error={error ? 'Yes' : 'No'},
               Applicants={applicants.length}
             </p>
@@ -280,19 +280,19 @@ export default function ApplicantListTestPage() {
 
           {/* Activity Log */}
           {logs.length > 0 && (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <div className="bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
               <div className="flex justify-between items-center mb-2">
-                <h3 className="text-xs font-semibold text-gray-700 uppercase">Activity Log</h3>
+                <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Activity Log</h3>
                 <button
                   onClick={() => setLogs([])}
-                  className="text-xs text-gray-600 hover:text-gray-900"
+                  className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                 >
                   Clear
                 </button>
               </div>
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {logs.map((log, index) => (
-                  <p key={index} className="text-xs text-gray-600 font-mono">
+                  <p key={index} className="text-xs text-gray-600 dark:text-gray-400 font-mono">
                     {log}
                   </p>
                 ))}

@@ -88,24 +88,24 @@ export default function AssessmentsPage() {
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case 'published':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
       case 'draft':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
       case 'archived':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
     }
   };
 
   const getTypeBadge = (type: string) => {
     const colors = {
-      screening: 'bg-blue-100 text-blue-800',
-      technical: 'bg-purple-100 text-purple-800',
-      behavioral: 'bg-pink-100 text-pink-800',
-      culture_fit: 'bg-indigo-100 text-indigo-800',
+      screening: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+      technical: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+      behavioral: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300',
+      culture_fit: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300',
     };
-    return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
   };
 
   return (
@@ -113,8 +113,8 @@ export default function AssessmentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Assessments</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Assessments</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Create and manage skills assessments for your candidates
           </p>
         </div>
@@ -129,7 +129,7 @@ export default function AssessmentsPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
@@ -171,7 +171,7 @@ export default function AssessmentsPage() {
 
       {/* Error Display */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 px-4 py-3 rounded-lg mb-4">
           <p className="font-medium">Error loading assessments</p>
           <p className="text-sm mt-1">{error}</p>
           <Button variant="outline" size="sm" onClick={fetchAssessments} className="mt-2">
@@ -185,18 +185,18 @@ export default function AssessmentsPage() {
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent mb-2"></div>
-            <p className="text-gray-500">Loading assessments...</p>
+            <p className="text-gray-500 dark:text-gray-400">Loading assessments...</p>
           </div>
         ) : assessments.length === 0 && !error ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-12 text-center">
             <div className="max-w-md mx-auto">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-8 h-8 text-blue-600" />
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Plus className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 No assessments yet
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
                 Create your first assessment to evaluate candidate skills
               </p>
               <Button onClick={handleCreateAssessment}>
@@ -209,13 +209,13 @@ export default function AssessmentsPage() {
             <div
               key={assessment.id}
               data-testid="assessment-item"
-              className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
+              className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
               onClick={() => router.push(`/employer/assessments/${assessment.id}`)}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                       {assessment.title}
                     </h3>
                     <span
@@ -233,8 +233,8 @@ export default function AssessmentsPage() {
                       {assessment.assessment_type.replace('_', ' ')}
                     </span>
                   </div>
-                  <p className="text-gray-600 mb-4">{assessment.description}</p>
-                  <div className="flex items-center gap-6 text-sm text-gray-500">
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">{assessment.description}</p>
+                  <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
                     <span>{assessment.total_attempts} attempts</span>
                     <span>Avg Score: {assessment.avg_score}%</span>
                     <span>Pass Rate: {assessment.pass_rate}%</span>
@@ -257,7 +257,7 @@ export default function AssessmentsPage() {
                     <DropdownMenuItem onClick={() => router.push(`/employer/assessments/${assessment.id}/clone`)}>
                       Duplicate
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600">
+                    <DropdownMenuItem className="text-red-600 dark:text-red-400">
                       Archive
                     </DropdownMenuItem>
                   </DropdownMenuContent>

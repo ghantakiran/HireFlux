@@ -282,30 +282,30 @@ export default function CandidateDetailModalTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-800">
       {/* Test Controls */}
-      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-50 shadow-sm">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 Candidate Detail Modal Test Page
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 Sprint 19-20 Week 40 Day 1 - TDD Implementation (56/56 tests passing - 100%)
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium text-green-600">
+              <p className="text-sm font-medium text-green-600 dark:text-green-400">
                 ✓ 56/56 tests passing (100%)
               </p>
-              <p className="text-xs text-gray-500">Full test coverage</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Full test coverage</p>
             </div>
           </div>
 
           {/* Mock Mode Controls */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-            <h3 className="text-sm font-semibold text-blue-900 mb-2">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
+            <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">
               Mock API Mode
             </h3>
             <div className="flex gap-2">
@@ -317,7 +317,7 @@ export default function CandidateDetailModalTestPage() {
                 className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                   mockMode === 'success'
                     ? 'bg-green-600 text-white'
-                    : 'bg-green-100 text-green-800 hover:bg-green-200'
+                    : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 hover:bg-green-200'
                 }`}
               >
                 ✓ Success
@@ -330,7 +330,7 @@ export default function CandidateDetailModalTestPage() {
                 className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                   mockMode === 'slow'
                     ? 'bg-yellow-600 text-white'
-                    : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                    : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 hover:bg-yellow-200'
                 }`}
               >
                 ⏱ Slow
@@ -343,7 +343,7 @@ export default function CandidateDetailModalTestPage() {
                 className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                   mockMode === 'error'
                     ? 'bg-red-600 text-white'
-                    : 'bg-red-100 text-red-800 hover:bg-red-200'
+                    : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 hover:bg-red-200'
                 }`}
               >
                 ⚠ Error
@@ -353,21 +353,21 @@ export default function CandidateDetailModalTestPage() {
 
           {/* Activity Log */}
           {logs.length > 0 && (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <div className="bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
               <div className="flex justify-between items-center mb-2">
-                <h3 className="text-xs font-semibold text-gray-700 uppercase">
+                <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
                   Activity Log
                 </h3>
                 <button
                   onClick={() => setLogs([])}
-                  className="text-xs text-gray-600 hover:text-gray-900"
+                  className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                 >
                   Clear
                 </button>
               </div>
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {logs.map((log, index) => (
-                  <p key={index} className="text-xs text-gray-600 font-mono">
+                  <p key={index} className="text-xs text-gray-600 dark:text-gray-400 font-mono">
                     {log}
                   </p>
                 ))}
@@ -381,16 +381,16 @@ export default function CandidateDetailModalTestPage() {
       <div className="max-w-7xl mx-auto p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* High Fit Candidate */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 High Fit Candidate
               </h3>
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+              <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
                 92 Fit
               </span>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Excellent match with 95+ skills score, 6 factor breakdowns, 5
               strengths, 2 concerns
             </p>
@@ -405,16 +405,16 @@ export default function CandidateDetailModalTestPage() {
           </div>
 
           {/* Medium Fit Candidate */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Medium Fit Candidate
               </h3>
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+              <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
                 68 Fit
               </span>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Moderate match with 3 factor breakdowns, 2 strengths, 3 concerns
             </p>
             <button
@@ -431,16 +431,16 @@ export default function CandidateDetailModalTestPage() {
           </div>
 
           {/* Low Fit Candidate */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Low Fit Candidate
               </h3>
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+              <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
                 42 Fit
               </span>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Poor match with 3 factor breakdowns, 2 strengths, 4 concerns
             </p>
             <button
@@ -454,16 +454,16 @@ export default function CandidateDetailModalTestPage() {
           </div>
 
           {/* With Notes */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 With Existing Notes
               </h3>
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+              <span className="px-3 py-1 rounded-full text-sm font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
                 3 Notes
               </span>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Has 3 existing notes (2 team, 1 private) from different reviewers
             </p>
             <button
@@ -477,16 +477,16 @@ export default function CandidateDetailModalTestPage() {
           </div>
 
           {/* No Notes */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 No Notes Yet
               </h3>
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+              <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
                 0 Notes
               </span>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Shows empty state in Notes tab, ready for first note
             </p>
             <button
@@ -500,16 +500,16 @@ export default function CandidateDetailModalTestPage() {
           </div>
 
           {/* Error Case */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Error Scenario
               </h3>
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+              <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
                 ⚠ Error
               </span>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Switch to Error mode first, then open to test error handling
             </p>
             <button
@@ -524,14 +524,14 @@ export default function CandidateDetailModalTestPage() {
         </div>
 
         {/* Feature List */}
-        <div className="mt-8 bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="mt-8 bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Component Features
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Overview Tab</h3>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Overview Tab</h3>
+              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                 <li>• Candidate information display</li>
                 <li>• 7 status change buttons</li>
                 <li>• Status update workflow</li>
@@ -539,10 +539,10 @@ export default function CandidateDetailModalTestPage() {
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 AI Fit Score Tab
               </h3>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                 <li>• Overall fit index (0-100)</li>
                 <li>• Multi-factor breakdown</li>
                 <li>• Strengths highlights</li>
@@ -550,8 +550,8 @@ export default function CandidateDetailModalTestPage() {
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Notes Tab</h3>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Notes Tab</h3>
+              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                 <li>• Add team/private notes</li>
                 <li>• View all notes history</li>
                 <li>• Visibility controls</li>
@@ -559,8 +559,8 @@ export default function CandidateDetailModalTestPage() {
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Interactions</h3>
-              <ul className="text-sm text-gray-600 space-y-1">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Interactions</h3>
+              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                 <li>• Modal open/close</li>
                 <li>• Tab navigation</li>
                 <li>• Keyboard accessibility</li>

@@ -433,7 +433,7 @@ export default function TakeAssessmentPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">Loading assessment...</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading assessment...</p>
       </div>
     );
   }
@@ -443,8 +443,8 @@ export default function TakeAssessmentPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Access Error</h2>
-          <p className="text-gray-600">{accessError}</p>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Access Error</h2>
+          <p className="text-gray-600 dark:text-gray-400">{accessError}</p>
         </div>
       </div>
     );
@@ -453,32 +453,32 @@ export default function TakeAssessmentPage() {
   if (!assessment) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">Loading assessment...</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading assessment...</p>
       </div>
     );
   }
 
   if (!hasStarted) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl w-full mx-4">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{assessment.title}</h1>
-          <p className="text-gray-600 mb-6">{assessment.description}</p>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 max-w-2xl w-full mx-4">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{assessment.title}</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">{assessment.description}</p>
 
           <div className="space-y-4 mb-8">
-            <div className="flex items-center gap-3 text-gray-700">
+            <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
               <CheckCircle className="w-5 h-5 text-blue-600" />
               <span>{assessment.questions.length} questions</span>
             </div>
-            <div className="flex items-center gap-3 text-gray-700">
+            <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
               <Clock className="w-5 h-5 text-blue-600" />
               <span>{assessment.time_limit_minutes} minutes</span>
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold text-blue-900 mb-2">Instructions:</h3>
-            <ul className="list-disc list-inside text-blue-800 space-y-1 text-sm">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+            <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">Instructions:</h3>
+            <ul className="list-disc list-inside text-blue-800 dark:text-blue-300 space-y-1 text-sm">
               <li>Answer all questions to the best of your ability</li>
               <li>You can navigate between questions using Next/Previous buttons</li>
               <li>Your answers are auto-saved as you go</li>
@@ -501,15 +501,15 @@ export default function TakeAssessmentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-10">
+      <div className="bg-white dark:bg-gray-900 border-b dark:border-gray-700 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold text-gray-900">{assessment.title}</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{assessment.title}</h1>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2" data-testid="timer">
-                <span className="text-sm text-gray-600 mr-1">Time Remaining:</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400 mr-1">Time Remaining:</span>
                 <AssessmentTimer
                   timeRemaining={timeRemaining}
                   onTimeExpired={handleTimeExpired}
@@ -530,8 +530,8 @@ export default function TakeAssessmentPage() {
 
       {/* Time Warning Banner */}
       {showTimeWarning && timeRemaining > 0 && (
-        <div className="bg-yellow-50 border-b border-yellow-200">
-          <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-yellow-800">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800">
+          <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-yellow-800 dark:text-yellow-300">
             <AlertTriangle className="w-4 h-4" />
             <span className="font-medium">Time is running out!</span>
           </div>
@@ -540,8 +540,8 @@ export default function TakeAssessmentPage() {
 
       {/* Suspicious Activity Warning Banner */}
       {showSuspiciousActivityWarning && (
-        <div className="bg-red-50 border-b border-red-200">
-          <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-red-800">
+        <div className="bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800">
+          <div className="container mx-auto px-4 py-2 flex items-center gap-2 text-red-800 dark:text-red-300">
             <AlertTriangle className="w-4 h-4" />
             <span className="font-medium">
               Suspicious activity detected and logged. Please remain on this tab.
@@ -555,7 +555,7 @@ export default function TakeAssessmentPage() {
         <div className="flex gap-6">
           {/* Sidebar - Question Navigator */}
           <aside className="w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6 sticky top-24">
               <QuestionNavigator
                 totalQuestions={assessment.questions.length}
                 currentQuestionIndex={currentQuestionIndex}
@@ -568,7 +568,7 @@ export default function TakeAssessmentPage() {
           {/* Main Question Area */}
           <main className="flex-1">
             {currentQuestion && (
-              <div className="bg-white rounded-lg shadow-sm p-8">
+              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-8">
                 {/* Progress Indicator */}
                 <AssessmentProgress
                   totalQuestions={assessment.questions.length}
@@ -580,36 +580,36 @@ export default function TakeAssessmentPage() {
                 {/* Question Header */}
                 <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="text-sm text-gray-500 mb-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
                   Question {currentQuestionIndex + 1} of {assessment.questions.length}
                 </p>
                 <div className="flex items-center gap-2">
                   <span
                     className={`px-2 py-1 rounded text-xs font-medium ${
                       currentQuestion.difficulty === 'easy'
-                        ? 'bg-green-100 text-green-800'
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
                         : currentQuestion.difficulty === 'medium'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-red-100 text-red-800'
+                        ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'
+                        : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
                     }`}
                   >
                     {currentQuestion.difficulty}
                   </span>
-                  <span className="text-sm text-gray-600">{currentQuestion.points} points</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{currentQuestion.points} points</span>
                   {currentQuestion.category && (
-                    <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-800">
+                    <span className="px-2 py-1 rounded text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
                       {currentQuestion.category}
                     </span>
                   )}
                 </div>
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 Answered: {getAnsweredCount()}/{assessment.questions.length}
               </div>
             </div>
 
             {/* Question Text */}
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
               {currentQuestion.question_text}
             </h2>
 
@@ -624,8 +624,8 @@ export default function TakeAssessmentPage() {
                   return (
                     <label
                       key={index}
-                      className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
-                        isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                      className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                        isSelected ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-700'
                       }`}
                     >
                       <input
@@ -636,8 +636,8 @@ export default function TakeAssessmentPage() {
                         data-testid={`option-${optionLetter}`}
                         className="w-4 h-4 text-blue-600"
                       />
-                      <span className="font-medium text-gray-500">{optionLetter}.</span>
-                      <span className="flex-1 text-gray-900">{option}</span>
+                      <span className="font-medium text-gray-500 dark:text-gray-400">{optionLetter}.</span>
+                      <span className="flex-1 text-gray-900 dark:text-gray-100">{option}</span>
                     </label>
                   );
                 })}
@@ -647,7 +647,7 @@ export default function TakeAssessmentPage() {
             {/* Answer Options - MCQ Multiple */}
             {currentQuestion.question_type === 'mcq_multiple' && currentQuestion.options && (
               <div className="space-y-3 mb-8">
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                   Select all that apply (multiple answers may be correct)
                 </p>
                 {currentQuestion.options.map((option, index) => {
@@ -658,8 +658,8 @@ export default function TakeAssessmentPage() {
                   return (
                     <label
                       key={index}
-                      className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
-                        isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                      className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                        isSelected ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-700'
                       }`}
                     >
                       <input
@@ -669,8 +669,8 @@ export default function TakeAssessmentPage() {
                         data-testid={`option-${optionLetter}`}
                         className="w-4 h-4 text-blue-600 rounded"
                       />
-                      <span className="font-medium text-gray-500">{optionLetter}.</span>
-                      <span className="flex-1 text-gray-900">{option}</span>
+                      <span className="font-medium text-gray-500 dark:text-gray-400">{optionLetter}.</span>
+                      <span className="flex-1 text-gray-900 dark:text-gray-100">{option}</span>
                     </label>
                   );
                 })}
@@ -716,7 +716,7 @@ export default function TakeAssessmentPage() {
                       <div
                         key={idx}
                         className={`flex items-center gap-2 p-3 rounded ${
-                          result.passed ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+                          result.passed ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'
                         }`}
                       >
                         {result.passed ? (
@@ -748,7 +748,7 @@ export default function TakeAssessmentPage() {
             )}
 
             {/* Navigation */}
-            <div className="flex items-center justify-between pt-6 border-t">
+            <div className="flex items-center justify-between pt-6 border-t dark:border-gray-700">
               <Button
                 onClick={() => handleNavigateQuestion('prev')}
                 disabled={currentQuestionIndex === 0}
@@ -760,7 +760,7 @@ export default function TakeAssessmentPage() {
                 Previous
               </Button>
 
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
                 Use sidebar to jump to any question
               </span>
 
@@ -788,7 +788,7 @@ export default function TakeAssessmentPage() {
             <DialogDescription>
               You have answered {getAnsweredCount()}/{assessment.questions.length} questions.
               {getAnsweredCount() < assessment.questions.length && (
-                <span className="block mt-2 text-yellow-600">
+                <span className="block mt-2 text-yellow-600 dark:text-yellow-400">
                   Warning: You have unanswered questions.
                 </span>
               )}

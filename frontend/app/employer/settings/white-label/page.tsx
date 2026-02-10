@@ -254,14 +254,14 @@ export default function WhiteLabelSettingsPage() {
 
       {/* Enterprise Plan Requirement */}
       {!config?.is_enabled && (
-        <Card className="mb-6 border-amber-200 bg-amber-50">
+        <Card className="mb-6 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
           <CardContent className="pt-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4">
-                <Sparkles className="h-5 w-5 text-amber-600 mt-0.5" />
+                <Sparkles className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-amber-900">Enterprise Feature</h3>
-                  <p className="text-sm text-amber-700 mt-1">
+                  <h3 className="font-semibold text-amber-900 dark:text-amber-300">Enterprise Feature</h3>
+                  <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
                     White-label branding is available on Enterprise plans. Enable this feature to
                     fully customize your employer brand and remove HireFlux branding.
                   </p>
@@ -280,11 +280,11 @@ export default function WhiteLabelSettingsPage() {
 
       {/* Status Badge */}
       {config?.is_enabled && (
-        <Card className="mb-6 border-green-200 bg-green-50">
+        <Card className="mb-6 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2">
-              <Check className="h-5 w-5 text-green-600" />
-              <p className="text-sm text-green-700">
+              <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <p className="text-sm text-green-700 dark:text-green-400">
                 White-label branding is <strong>enabled</strong>. Your custom branding is live
                 across all candidate-facing pages.
               </p>
@@ -758,7 +758,7 @@ export default function WhiteLabelSettingsPage() {
                             {/* CNAME Record */}
                             <div className="space-y-2">
                               <Label>CNAME Record</Label>
-                              <div className="font-mono text-sm bg-white p-3 rounded border">
+                              <div className="font-mono text-sm bg-white dark:bg-gray-900 p-3 rounded border">
                                 <div className="grid grid-cols-3 gap-2">
                                   <div>
                                     <span className="text-muted-foreground">Type:</span> CNAME
@@ -774,7 +774,7 @@ export default function WhiteLabelSettingsPage() {
                             {/* TXT Record */}
                             <div className="space-y-2">
                               <Label>TXT Record (Verification)</Label>
-                              <div className="font-mono text-sm bg-white p-3 rounded border">
+                              <div className="font-mono text-sm bg-white dark:bg-gray-900 p-3 rounded border">
                                 <div className="grid grid-cols-3 gap-2">
                                   <div>
                                     <span className="text-muted-foreground">Type:</span> TXT
