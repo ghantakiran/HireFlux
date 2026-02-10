@@ -141,6 +141,71 @@
   }
 }
 
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes checkmark-draw {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes count-up {
+  0% {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes ring-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--ring-pulse-color, hsl(199.1 89% 48% / 0.4));
+  }
+  50% {
+    box-shadow: 0 0 0 6px var(--ring-pulse-color, hsl(199.1 89% 48% / 0));
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--ring-pulse-color, hsl(199.1 89% 48% / 0));
+  }
+}
+
+@keyframes sidebar-expand {
+  0% {
+    opacity: 0;
+    max-height: 0;
+  }
+  100% {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+@keyframes sidebar-collapse {
+  0% {
+    opacity: 1;
+    max-height: 500px;
+  }
+  100% {
+    opacity: 0;
+    max-height: 0;
+  }
+}
+
 /* ========================================================================
    BUTTON MICRO-INTERACTIONS
    ======================================================================== */
@@ -298,6 +363,38 @@ input[aria-invalid="true"],
   animation: spin 1s linear infinite;
 }
 
+/* Ripple */
+.animate-ripple {
+  animation: ripple var(--duration-slow) var(--ease-out) forwards;
+}
+
+/* Checkmark Draw */
+.animate-checkmark {
+  animation: checkmark-draw var(--duration-slow) var(--ease-out) forwards;
+}
+
+/* Count Up */
+.animate-count-up {
+  animation: count-up var(--duration-slow) var(--ease-out) forwards;
+}
+
+/* Ring Pulse */
+.animate-ring-pulse {
+  animation: ring-pulse var(--duration-slow) var(--ease-out);
+}
+
+/* Sidebar Expand */
+.animate-sidebar-expand {
+  animation: sidebar-expand var(--duration-normal) var(--ease-out) forwards;
+  overflow: hidden;
+}
+
+/* Sidebar Collapse */
+.animate-sidebar-collapse {
+  animation: sidebar-collapse var(--duration-normal) var(--ease-out) forwards;
+  overflow: hidden;
+}
+
 /* ========================================================================
    PERFORMANCE OPTIMIZATIONS
    ======================================================================== */
@@ -311,8 +408,17 @@ input[aria-invalid="true"],
 .animate-slide-down,
 .animate-scale-in,
 .animate-button-hover:hover,
-.animate-card-hover:hover {
+.animate-card-hover:hover,
+.animate-ripple,
+.animate-checkmark,
+.animate-count-up,
+.animate-sidebar-expand,
+.animate-sidebar-collapse {
   will-change: transform, opacity;
+}
+
+.animate-ring-pulse {
+  will-change: box-shadow;
 }
 
 /* ========================================================================

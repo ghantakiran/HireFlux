@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { analyticsApi } from '@/lib/api';
 import { useTourTrigger } from '@/lib/tours/useTourTrigger';
 import {
@@ -20,6 +21,9 @@ import {
   MessageSquare,
   Gift,
   Star,
+  ChevronDown,
+  Search,
+  Video,
 } from 'lucide-react';
 import { Avatar } from '@/components/ui/optimized-image';
 import { NoActivityEmptyState } from '@/components/ui/empty-state';
@@ -86,20 +90,17 @@ interface DashboardData {
 }
 
 type TimeRange = 'last_7_days' | 'last_30_days' | 'last_90_days' | 'all_time';
-type Tab = 'Overview' | 'Analytics' | 'Activity' | 'Charts' | 'Benchmarks' | 'Success Metrics';
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<Tab>('Overview');
   const [timeRange, setTimeRange] = useState<TimeRange>('last_30_days');
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [healthScoreExpanded, setHealthScoreExpanded] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showDetailedMetrics, setShowDetailedMetrics] = useState(false);
 
   // Set document title for WCAG 2.1 AA compliance (Issue #148)
-  // Client-side workaround needed because parent DashboardLayout is a client component
   useEffect(() => {
     document.title = 'Dashboard | HireFlux';
   }, []);
@@ -132,7 +133,6 @@ export default function DashboardPage() {
   const handleExport = async () => {
     try {
       const response = await analyticsApi.exportDashboardData(timeRange);
-      // Create download
       const blob = new Blob([JSON.stringify(response.data.data, null, 2)], {
         type: 'application/json',
       });
@@ -153,18 +153,11 @@ export default function DashboardPage() {
     return 'text-red-600 bg-red-50';
   };
 
-  const getTrendIcon = (trend: 'increasing' | 'decreasing' | 'stable') => {
-    if (trend === 'increasing') return <TrendingUp className="w-4 h-4 text-green-600" />;
-    if (trend === 'decreasing') return <TrendingDown className="w-4 h-4 text-red-600" />;
-    return <Minus className="w-4 h-4 text-gray-600" />;
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
-          {/* Skeleton loaders */}
           {[1, 2, 3].map((i) => (
             <div key={i} className="mb-4 animate-pulse" data-testid="skeleton-loader">
               <div className="h-32 bg-gray-200 rounded-lg"></div>
@@ -215,6 +208,60 @@ export default function DashboardPage() {
     );
   }
 
+  // Build action cards based on user state
+  const actionCards: Array<{
+    title: string;
+    description: string;
+    href: string;
+    borderColor: string;
+    icon: React.ReactNode;
+    cta: string;
+  }> = [];
+
+  if (data.new_matches_count > 0) {
+    actionCards.push({
+      title: 'Review New Matches',
+      description: `${data.new_matches_count} new high-fit roles found for you`,
+      href: '/jobs',
+      borderColor: 'border-l-blue-500',
+      icon: <Search className="w-5 h-5 text-blue-600" />,
+      cta: 'View Matches',
+    });
+  }
+
+  if (data.interviews_this_week > 0) {
+    actionCards.push({
+      title: 'Prepare for Interviews',
+      description: `${data.interviews_this_week} interview${data.interviews_this_week === 1 ? '' : 's'} scheduled this week`,
+      href: '/dashboard/interview-prep',
+      borderColor: 'border-l-green-500',
+      icon: <Video className="w-5 h-5 text-green-600" />,
+      cta: 'Start Prep',
+    });
+  }
+
+  if (data.offers_pending > 0) {
+    actionCards.push({
+      title: 'Review Pending Offers',
+      description: `${data.offers_pending} offer${data.offers_pending === 1 ? '' : 's'} awaiting your response`,
+      href: '/dashboard/applications',
+      borderColor: 'border-l-purple-500',
+      icon: <Gift className="w-5 h-5 text-purple-600" />,
+      cta: 'View Offers',
+    });
+  }
+
+  if (actionCards.length === 0) {
+    actionCards.push({
+      title: 'Start Applying',
+      description: 'Browse matched jobs and submit your first applications',
+      href: '/jobs',
+      borderColor: 'border-l-yellow-500',
+      icon: <Target className="w-5 h-5 text-yellow-600" />,
+      cta: 'Find Jobs',
+    });
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -222,8 +269,12 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-gray-600 mt-1">Track your job search progress</p>
+              <h1 className="text-3xl font-bold text-gray-900">Welcome back!</h1>
+              <p className="text-gray-600 mt-1">
+                {data.applications_this_week > 0
+                  ? `${data.applications_this_week} applications sent since last week`
+                  : 'Track your job search progress'}
+              </p>
             </div>
             <div data-tour="quick-actions" className="flex items-center gap-3">
               <span className="text-sm text-gray-500" data-testid="last-updated">
@@ -259,102 +310,39 @@ export default function DashboardPage() {
               <option value="all_time">All Time</option>
             </select>
           </div>
-
-          {/* Tabs */}
-          <div className="mt-6 flex gap-2 overflow-x-auto" role="tablist">
-            {(['Overview', 'Analytics', 'Activity', 'Charts', 'Benchmarks', 'Success Metrics'] as Tab[]).map(
-              (tab) => (
-                <button
-                  key={tab}
-                  role="tab"
-                  aria-selected={activeTab === tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${
-                    activeTab === tab
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {tab}
-                </button>
-              )
-            )}
-          </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {showMobileMenu && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden"
-          data-testid="mobile-menu"
-          onClick={() => setShowMobileMenu(false)}
-        >
-          <div className="bg-white w-64 h-full shadow-xl" role="navigation">
-            {/* Navigation content */}
-            <div className="p-4">
-              <h3 className="font-semibold mb-4">Navigation</h3>
-              {/* Add navigation links */}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Main Content */}
       <div id="dashboard-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'Overview' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Overview</h2>
-
-            {/* Quick Stats Cards */}
-            <div data-tour="stats-cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white p-6 rounded-lg shadow" data-testid="stat-applications-week">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Applications this week</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">
-                      {data.applications_this_week}
-                    </p>
+        <div className="space-y-6">
+          {/* Your Next Steps */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">Your Next Steps</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {actionCards.map((card) => (
+                <Link
+                  key={card.title}
+                  href={card.href}
+                  className={`bg-white rounded-lg shadow border-l-4 ${card.borderColor} p-5 hover:shadow-md transition-shadow group`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5">{card.icon}</div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{card.title}</h3>
+                      <p className="text-sm text-gray-600 mt-1">{card.description}</p>
+                      <span className="inline-block mt-3 text-sm font-medium text-blue-600 group-hover:text-blue-700">
+                        {card.cta} &rarr;
+                      </span>
+                    </div>
                   </div>
-                  <Briefcase className="w-10 h-10 text-blue-600" />
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow" data-testid="stat-interviews-week">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Interviews this week</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">
-                      {data.interviews_this_week}
-                    </p>
-                  </div>
-                  <Calendar className="w-10 h-10 text-green-600" />
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow" data-testid="stat-offers-pending">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Pending offers</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">{data.offers_pending}</p>
-                  </div>
-                  <Gift className="w-10 h-10 text-purple-600" />
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow" data-testid="stat-new-matches">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">New matches</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">
-                      {data.new_matches_count}
-                    </p>
-                  </div>
-                  <Star className="w-10 h-10 text-yellow-600" />
-                </div>
-              </div>
+                </Link>
+              ))}
             </div>
+          </div>
 
+          {/* Health Score + Pipeline Summary (2-col) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Health Score Widget */}
             <div
               className={`bg-white p-6 rounded-lg shadow cursor-pointer transition-all ${
@@ -388,7 +376,6 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Health Score Components (Expanded) */}
               {healthScoreExpanded && (
                 <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -454,10 +441,10 @@ export default function DashboardPage() {
               )}
             </div>
 
-            {/* Pipeline Statistics */}
+            {/* Pipeline Summary */}
             <div className="bg-white p-6 rounded-lg shadow" data-testid="pipeline-stats">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Application Pipeline</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600">Total Applications</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
@@ -484,197 +471,203 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Anomaly Alerts */}
-            {data.anomalies && data.anomalies.length > 0 && (
-              <div
-                className="bg-yellow-50 border border-yellow-200 p-6 rounded-lg"
-                data-testid="anomalies-section"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-yellow-900">
-                    {data.anomalies.length} anomal{data.anomalies.length === 1 ? 'y' : 'ies'}{' '}
-                    detected
-                  </h3>
-                  <AlertTriangle className="w-6 h-6 text-yellow-600" />
+          {/* Collapsible Detailed Metrics */}
+          <div className="bg-white rounded-lg shadow">
+            <button
+              onClick={() => setShowDetailedMetrics(!showDetailedMetrics)}
+              className="w-full flex items-center justify-between p-4 text-left"
+              aria-expanded={showDetailedMetrics}
+            >
+              <span className="text-sm font-semibold text-gray-700">View Detailed Metrics</span>
+              <ChevronDown
+                className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
+                  showDetailedMetrics ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+            {showDetailedMetrics && (
+              <div className="px-4 pb-6 border-t border-gray-100 pt-4 animate-fade-in">
+                {/* Quick Stats Cards */}
+                <div data-tour="stats-cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-gray-50 p-4 rounded-lg" data-testid="stat-applications-week">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Applications this week</p>
+                        <p className="text-2xl font-bold text-gray-900 mt-1">
+                          {data.applications_this_week}
+                        </p>
+                      </div>
+                      <Briefcase className="w-8 h-8 text-blue-600" />
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg" data-testid="stat-interviews-week">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Interviews this week</p>
+                        <p className="text-2xl font-bold text-gray-900 mt-1">
+                          {data.interviews_this_week}
+                        </p>
+                      </div>
+                      <Calendar className="w-8 h-8 text-green-600" />
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg" data-testid="stat-offers-pending">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Pending offers</p>
+                        <p className="text-2xl font-bold text-gray-900 mt-1">{data.offers_pending}</p>
+                      </div>
+                      <Gift className="w-8 h-8 text-purple-600" />
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg" data-testid="stat-new-matches">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">New matches</p>
+                        <p className="text-2xl font-bold text-gray-900 mt-1">
+                          {data.new_matches_count}
+                        </p>
+                      </div>
+                      <Star className="w-8 h-8 text-yellow-600" />
+                    </div>
+                  </div>
                 </div>
 
+                {/* Full Pipeline Breakdown */}
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">Pipeline Breakdown</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {[
+                    { label: 'Saved', value: data.pipeline_stats.saved },
+                    { label: 'Applied', value: data.pipeline_stats.applied },
+                    { label: 'In Review', value: data.pipeline_stats.in_review },
+                    { label: 'Phone Screen', value: data.pipeline_stats.phone_screen },
+                    { label: 'Technical', value: data.pipeline_stats.technical_interview },
+                    { label: 'Onsite', value: data.pipeline_stats.onsite_interview },
+                    { label: 'Final', value: data.pipeline_stats.final_interview },
+                    { label: 'Offer', value: data.pipeline_stats.offer },
+                    { label: 'Rejected', value: data.pipeline_stats.rejected },
+                    { label: 'Withdrawn', value: data.pipeline_stats.withdrawn },
+                  ].map((stage) => (
+                    <div key={stage.label} className="text-center p-2 bg-gray-50 rounded">
+                      <p className="text-xs text-gray-500">{stage.label}</p>
+                      <p className="text-lg font-bold text-gray-900">{stage.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Anomaly Alerts */}
+          {data.anomalies && data.anomalies.length > 0 && (
+            <div
+              className="bg-yellow-50 border border-yellow-200 p-6 rounded-lg"
+              data-testid="anomalies-section"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-yellow-900">
+                  {data.anomalies.length} anomal{data.anomalies.length === 1 ? 'y' : 'ies'}{' '}
+                  detected
+                </h3>
+                <AlertTriangle className="w-6 h-6 text-yellow-600" />
+              </div>
+
+              <div className="space-y-3">
+                {data.anomalies.map((anomaly, index) => (
+                  <div
+                    key={index}
+                    className="bg-white p-4 rounded border border-yellow-200"
+                    data-testid="anomaly-card"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded ${
+                          anomaly.severity === 'critical'
+                            ? 'bg-red-100 text-red-800'
+                            : anomaly.severity === 'high'
+                            ? 'bg-orange-100 text-orange-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                        data-testid="severity-badge"
+                      >
+                        {anomaly.severity}
+                      </span>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900">{anomaly.title}</p>
+                        <p className="text-sm text-gray-600 mt-1">{anomaly.description}</p>
+                        <p className="text-sm text-blue-600 mt-2">
+                          <span className="font-medium">Recommendation:</span> {anomaly.recommendation}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Activity Timeline */}
+          <div data-tour="recent-applications" className="bg-white p-6 rounded-lg shadow" data-testid="activity-timeline">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+            <div className="space-y-4">
+              {data.recent_activities && data.recent_activities.length > 0 ? (
+                data.recent_activities.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="flex items-start gap-4 pb-4 border-b border-gray-100 last:border-0"
+                    data-testid="activity-item"
+                  >
+                    <Avatar
+                      src="/images/placeholders/avatar.svg"
+                      alt="User avatar"
+                      size={40}
+                      data-testid="avatar"
+                    />
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{activity.title}</p>
+                      <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
+                      <p className="text-xs text-gray-500 mt-2" data-testid="timestamp">
+                        {new Date(activity.timestamp).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <NoActivityEmptyState />
+              )}
+            </div>
+          </div>
+
+          {/* Recommendations */}
+          {data.health_score.recommendations &&
+            data.health_score.recommendations.length > 0 && (
+              <div data-tour="job-matches" className="bg-white p-6 rounded-lg shadow" data-testid="recommendations-section">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommendations</h3>
                 <div className="space-y-3">
-                  {data.anomalies.map((anomaly, index) => (
+                  {data.health_score.recommendations.map((rec, index) => (
                     <div
                       key={index}
-                      className="bg-white p-4 rounded border border-yellow-200"
-                      data-testid="anomaly-card"
+                      className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg"
+                      data-testid="recommendation-item"
                     >
-                      <div className="flex items-start gap-3">
-                        <span
-                          className={`px-2 py-1 text-xs font-semibold rounded ${
-                            anomaly.severity === 'critical'
-                              ? 'bg-red-100 text-red-800'
-                              : anomaly.severity === 'high'
-                              ? 'bg-orange-100 text-orange-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}
-                          data-testid="severity-badge"
-                        >
-                          {anomaly.severity}
-                        </span>
-                        <div className="flex-1">
-                          <p className="font-semibold text-gray-900">{anomaly.title}</p>
-                          <p className="text-sm text-gray-600 mt-1">{anomaly.description}</p>
-                          <p className="text-sm text-blue-600 mt-2">
-                            <span className="font-medium">Recommendation:</span> {anomaly.recommendation}
-                          </p>
-                        </div>
+                      <Target className="w-5 h-5 text-blue-600 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-gray-900">{rec}</p>
+                        <button className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium">
+                          Take Action &rarr;
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-
-            {/* Activity Timeline */}
-            <div data-tour="recent-applications" className="bg-white p-6 rounded-lg shadow" data-testid="activity-timeline">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-              <div className="space-y-4">
-                {data.recent_activities && data.recent_activities.length > 0 ? (
-                  data.recent_activities.map((activity) => (
-                    <div
-                      key={activity.id}
-                      className="flex items-start gap-4 pb-4 border-b border-gray-100 last:border-0"
-                      data-testid="activity-item"
-                    >
-                      <Avatar
-                        src="/images/placeholders/avatar.svg"
-                        alt="User avatar"
-                        size={40}
-                        data-testid="avatar"
-                      />
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{activity.title}</p>
-                        <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
-                        <p className="text-xs text-gray-500 mt-2" data-testid="timestamp">
-                          {new Date(activity.timestamp).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <NoActivityEmptyState />
-                )}
-              </div>
-            </div>
-
-            {/* Recommendations */}
-            {data.health_score.recommendations &&
-              data.health_score.recommendations.length > 0 && (
-                <div data-tour="job-matches" className="bg-white p-6 rounded-lg shadow" data-testid="recommendations-section">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommendations</h3>
-                  <div className="space-y-3">
-                    {data.health_score.recommendations.map((rec, index) => (
-                      <div
-                        key={index}
-                        className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg"
-                        data-testid="recommendation-item"
-                      >
-                        <Target className="w-5 h-5 text-blue-600 mt-0.5" />
-                        <div className="flex-1">
-                          <p className="text-gray-900">{rec}</p>
-                          <button className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium">
-                            Take Action →
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-          </div>
-        )}
-
-        {activeTab === 'Analytics' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Detailed Analytics</h2>
-            <p className="text-gray-600">Detailed analytics view coming soon...</p>
-          </div>
-        )}
-
-        {activeTab === 'Activity' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Activity Timeline</h2>
-            <p className="text-gray-600">Full activity timeline coming soon...</p>
-          </div>
-        )}
-
-        {activeTab === 'Charts' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Charts</h2>
-            <div className="bg-white p-6 rounded-lg shadow" data-testid="trends-chart">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Application Trends</h3>
-              <p className="text-gray-500">Chart visualization coming soon...</p>
-              <div className="flex gap-4 mt-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-blue-600 rounded"></div>
-                  <span className="text-sm text-gray-600">Applications</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-green-600 rounded"></div>
-                  <span className="text-sm text-gray-600">Responses</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'Benchmarks' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Peer Comparison</h2>
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Platform Average</h3>
-              <p className="text-gray-600 mb-4">Your Performance</p>
-              <p className="text-gray-500">Benchmarking data coming soon...</p>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'Success Metrics' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Success Metrics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <p className="text-sm text-gray-600">Total Applications</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {data.pipeline_stats.total_applications}
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <p className="text-sm text-gray-600">Total Responses</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {data.pipeline_stats.in_review +
-                    data.pipeline_stats.phone_screen +
-                    data.pipeline_stats.technical_interview +
-                    data.pipeline_stats.onsite_interview +
-                    data.pipeline_stats.final_interview}
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <p className="text-sm text-gray-600">Total Interviews</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {data.pipeline_stats.phone_screen +
-                    data.pipeline_stats.technical_interview +
-                    data.pipeline_stats.onsite_interview +
-                    data.pipeline_stats.final_interview}
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <p className="text-sm text-gray-600">Total Offers</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {data.pipeline_stats.offer}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
