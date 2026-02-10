@@ -247,8 +247,8 @@ export default function EmployerJobsPage() {
   // Loading skeleton
   if (isLoading && jobs.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="bg-white border-b">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="bg-white dark:bg-gray-900 border-b dark:border-gray-700">
           <div className="container mx-auto px-4 py-6">
             <Skeleton className="h-10 w-48 mb-2" />
             <Skeleton className="h-6 w-96" />
@@ -274,13 +274,13 @@ export default function EmployerJobsPage() {
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle className="text-red-600">Error Loading Jobs</CardTitle>
+            <CardTitle className="text-red-600 dark:text-red-400">Error Loading Jobs</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
             <Button onClick={fetchJobs} className="gap-2">
               <RefreshCw className="w-4 h-4" />
               Retry
@@ -292,14 +292,14 @@ export default function EmployerJobsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" data-jobs-list-page>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950" data-jobs-list-page>
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="bg-white dark:bg-gray-900 border-b dark:border-gray-700">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Job Postings</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Job Postings</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
                 Manage your job listings and track applications
               </p>
             </div>
@@ -316,30 +316,30 @@ export default function EmployerJobsPage() {
       </div>
 
       {/* Job Statistics */}
-      <div className="bg-white border-b">
+      <div className="bg-white dark:bg-gray-900 border-b dark:border-gray-700">
         <div className="container mx-auto px-4 py-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6" data-job-statistics>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Jobs</p>
-              <p className="text-3xl font-bold text-gray-900" data-total-jobs>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Jobs</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100" data-total-jobs>
                 {jobStats.total}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Active</p>
-              <p className="text-3xl font-bold text-green-600" data-active-jobs>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Active</p>
+              <p className="text-3xl font-bold text-green-600 dark:text-green-400" data-active-jobs>
                 {jobStats.active}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Draft</p>
-              <p className="text-3xl font-bold text-yellow-600" data-draft-jobs>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Draft</p>
+              <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400" data-draft-jobs>
                 {jobStats.draft}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-1">Closed</p>
-              <p className="text-3xl font-bold text-gray-600" data-closed-jobs>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Closed</p>
+              <p className="text-3xl font-bold text-gray-600 dark:text-gray-400" data-closed-jobs>
                 {jobStats.closed}
               </p>
             </div>
@@ -349,7 +349,7 @@ export default function EmployerJobsPage() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Filters & Search */}
-        <div className="bg-white rounded-lg border p-4 mb-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border dark:border-gray-700 p-4 mb-6">
           <div className="space-y-4">
             {/* Search and Sort Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -459,7 +459,7 @@ export default function EmployerJobsPage() {
 
         {/* Results Summary */}
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Showing <span className="font-medium">{jobs.length}</span> of{' '}
             <span className="font-medium">{total}</span> jobs
           </p>
@@ -479,11 +479,11 @@ export default function EmployerJobsPage() {
         {jobs.length === 0 && !isLoading ? (
           <Card className="text-center py-12" data-empty-state>
             <CardContent>
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-8 h-8 text-blue-600" />
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Plus className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="text-xl font-semibold mb-2">No jobs posted yet</h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
                 Get started by posting your first job listing
               </p>
               <Button onClick={() => router.push('/employer/jobs/new')} className="gap-2">
@@ -504,7 +504,7 @@ export default function EmployerJobsPage() {
                         {/* Title & Status */}
                         <div className="flex items-center gap-3 mb-2">
                           <h3
-                            className="text-xl font-semibold text-gray-900 hover:text-blue-600 cursor-pointer"
+                            className="text-xl font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
                             onClick={() => router.push(`/employer/jobs/${job.id}`)}
                             data-job-title
                           >
@@ -521,7 +521,7 @@ export default function EmployerJobsPage() {
                         </div>
 
                         {/* Details */}
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
                           <span className="flex items-center gap-1">
                             <span className="font-medium" data-job-department>{job.department}</span>
                           </span>
@@ -535,7 +535,7 @@ export default function EmployerJobsPage() {
 
                         {/* Salary */}
                         {(job.salary_min || job.salary_max) && (
-                          <p className="text-sm text-gray-700 mb-3">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
                             {formatSalaryRange(job.salary_min, job.salary_max)}
                           </p>
                         )}
@@ -544,8 +544,8 @@ export default function EmployerJobsPage() {
                         <div className="flex items-center gap-6 text-sm">
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-gray-400" />
-                            <span className="text-gray-600">
-                              <span className="font-semibold text-gray-900" data-applicant-count>
+                            <span className="text-gray-600 dark:text-gray-400">
+                              <span className="font-semibold text-gray-900 dark:text-gray-100" data-applicant-count>
                                 {job.applications_count || 0}
                               </span>{' '}
                               applications
@@ -553,8 +553,8 @@ export default function EmployerJobsPage() {
                           </div>
                           <div className="flex items-center gap-2">
                             <Eye className="w-4 h-4 text-gray-400" />
-                            <span className="text-gray-600">
-                              <span className="font-semibold text-gray-900">
+                            <span className="text-gray-600 dark:text-gray-400">
+                              <span className="font-semibold text-gray-900 dark:text-gray-100">
                                 {job.views_count || 0}
                               </span>{' '}
                               views
@@ -563,9 +563,9 @@ export default function EmployerJobsPage() {
                           {job.avg_fit_index && (
                             <div className="flex items-center gap-2">
                               <TrendingUp className="w-4 h-4 text-gray-400" />
-                              <span className="text-gray-600">
+                              <span className="text-gray-600 dark:text-gray-400">
                                 Avg fit:{' '}
-                                <span className="font-semibold text-purple-600">
+                                <span className="font-semibold text-purple-600 dark:text-purple-400">
                                   {job.avg_fit_index.toFixed(1)}
                                 </span>
                               </span>
@@ -574,7 +574,7 @@ export default function EmployerJobsPage() {
                         </div>
 
                         {/* Created date */}
-                        <p className="text-xs text-gray-500 mt-2" data-created-date>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2" data-created-date>
                           Posted on {formatDate(job.posted_date || job.created_at)}
                         </p>
                       </div>
@@ -625,7 +625,7 @@ export default function EmployerJobsPage() {
                           )}
                           <DropdownMenuItem
                             onClick={() => updateStatus(job.id, 'closed' as JobStatus)}
-                            className="text-orange-600"
+                            className="text-orange-600 dark:text-orange-400"
                             data-close-option
                           >
                             <XCircle className="w-4 h-4 mr-2" />
@@ -637,7 +637,7 @@ export default function EmployerJobsPage() {
                               setJobToDelete(job);
                               setDeleteDialogOpen(true);
                             }}
-                            className="text-red-600"
+                            className="text-red-600 dark:text-red-400"
                             data-delete-option
                           >
                             <Trash2 className="w-4 h-4 mr-2" />

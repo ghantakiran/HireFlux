@@ -196,12 +196,12 @@ export default function ResumesPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Error Banner */}
       {error && (
-        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4" role="alert">
+        <div className="mb-6 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4" role="alert">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-medium text-red-800">Error</h3>
-              <p className="text-sm text-red-700">{error}</p>
+              <h3 className="font-medium text-red-800 dark:text-red-300">Error</h3>
+              <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
             </div>
             <Button variant="ghost" size="sm" onClick={clearError}>
               Dismiss
@@ -245,7 +245,7 @@ export default function ResumesPage() {
           {resumes.map((resume) => (
             <Card
               key={resume.id}
-              className="cursor-pointer transition-all hover:shadow-lg hover:border-blue-300"
+              className="cursor-pointer transition-all hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-700"
               data-testid="resume-card"
               onClick={() => handleResumeClick(resume.id)}
             >
@@ -313,7 +313,7 @@ export default function ResumesPage() {
                       {deletingId === resume.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        <Trash2 className="h-4 w-4 text-red-600" />
+                        <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
                       )}
                     </Button>
                   </div>

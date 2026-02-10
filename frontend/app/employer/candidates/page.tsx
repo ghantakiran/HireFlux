@@ -406,7 +406,7 @@ export default function CandidateSearchPage() {
           </div>
 
           {/* Active Filters Display */}
-          <Card className="bg-blue-50 border-blue-200">
+          <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
             <CardContent className="p-4">
               <p className="text-sm">
                 <strong>{totalResults}</strong> candidates found
@@ -656,7 +656,7 @@ export default function CandidateSearchPage() {
                             href={item.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-blue-600 hover:underline"
+                            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                           >
                             View Project →
                           </a>

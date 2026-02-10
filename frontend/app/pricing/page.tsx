@@ -582,8 +582,8 @@ export default function PricingPage() {
         data-plan={plan.tier}
         data-highlighted={isHighlighted ? 'true' : 'false'}
         className={`
-          relative border rounded-lg p-6 flex flex-col h-full
-          ${isHighlighted ? 'ring-2 ring-blue-500 shadow-lg' : 'border-gray-200'}
+          relative border rounded-lg p-6 flex flex-col h-full bg-white dark:bg-gray-900
+          ${isHighlighted ? 'ring-2 ring-blue-500 shadow-lg' : 'border-gray-200 dark:border-gray-700'}
           ${plan.popular ? 'border-blue-500 shadow-md' : ''}
           transition-all duration-200 hover:shadow-lg
         `}
@@ -610,14 +610,14 @@ export default function PricingPage() {
         {/* Plan Header */}
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 bg-gray-100 rounded-lg">{plan.icon}</div>
+            <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">{plan.icon}</div>
             <div>
               <h3 data-plan-name className="text-xl font-bold">
                 {plan.name}
               </h3>
             </div>
           </div>
-          <p className="text-sm text-gray-600">{plan.tagline}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{plan.tagline}</p>
         </div>
 
         {/* Pricing */}
@@ -626,24 +626,24 @@ export default function PricingPage() {
             <span className="text-4xl font-bold">
               ${billingCycle === 'monthly' ? price : Math.floor(price / 12)}
             </span>
-            <span data-billing-cycle-display className="text-gray-600">
+            <span data-billing-cycle-display className="text-gray-600 dark:text-gray-400">
               /{billingCycle === 'monthly' ? 'month' : 'month'}
             </span>
           </div>
 
           {billingCycle === 'annual' && price > 0 && (
             <>
-              <div data-plan-price-annual className="text-sm text-gray-600 mb-1">
+              <div data-plan-price-annual className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                 ${price}/year (billed annually)
               </div>
-              <div data-savings-badge data-savings-amount className="text-sm text-green-600 font-semibold">
+              <div data-savings-badge data-savings-amount className="text-sm text-green-600 dark:text-green-400 font-semibold">
                 Save ${savings} ({Math.round((savings / (plan.monthlyPrice * 12)) * 100)}% off)
               </div>
             </>
           )}
 
           {billingCycle === 'monthly' && price > 0 && (
-            <div data-plan-price-monthly className="text-sm text-gray-600">
+            <div data-plan-price-monthly className="text-sm text-gray-600 dark:text-gray-400">
               ${price}/month
             </div>
           )}
@@ -658,10 +658,10 @@ export default function PricingPage() {
             w-full py-3 px-4 rounded-lg font-semibold mb-6 transition-colors
             ${
               isCurrent
-                ? 'bg-gray-200 text-gray-600 cursor-not-allowed'
+                ? 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed'
                 : plan.popular
                   ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-gray-900 text-white hover:bg-gray-800'
+                  : 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200'
             }
           `}
         >
@@ -676,9 +676,9 @@ export default function PricingPage() {
                 {feature.included ? (
                   <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                 ) : (
-                  <X className="w-5 h-5 text-gray-300 shrink-0 mt-0.5" />
+                  <X className="w-5 h-5 text-gray-300 dark:text-gray-600 shrink-0 mt-0.5" />
                 )}
-                <span className={`text-sm ${feature.included ? 'text-gray-900' : 'text-gray-400'}`}>
+                <span className={`text-sm ${feature.included ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}`}>
                   {feature.text}
                 </span>
               </div>
@@ -688,7 +688,7 @@ export default function PricingPage() {
           {plan.features.length > 6 && (
             <button
               onClick={() => handleToggleFeatures(plan.tier)}
-              className="mt-3 text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+              className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
             >
               {expandedFeatures[plan.tier] ? (
                 <>
@@ -723,7 +723,7 @@ export default function PricingPage() {
         onClick={handleCloseModal}
       >
         <div
-          className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6"
+          className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Modal Header */}
@@ -734,7 +734,7 @@ export default function PricingPage() {
             <button
               data-close-modal-button
               onClick={handleCloseModal}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             >
               <X className="w-6 h-6" />
             </button>
@@ -743,10 +743,10 @@ export default function PricingPage() {
           {/* Plan Comparison */}
           <div data-features-comparison className="mb-6 grid grid-cols-2 gap-4">
             <div>
-              <h3 data-current-plan-display className="font-semibold mb-2 text-sm text-gray-600">
+              <h3 data-current-plan-display className="font-semibold mb-2 text-sm text-gray-600 dark:text-gray-400">
                 Current: {currentPlanData.name}
               </h3>
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <div className="text-2xl font-bold mb-2">${currentPlanData.monthlyPrice}/mo</div>
                 <ul className="space-y-1 text-sm">
                   {currentPlanData.features.slice(0, 5).map((f, idx) =>
@@ -762,10 +762,10 @@ export default function PricingPage() {
             </div>
 
             <div>
-              <h3 data-new-plan-display className="font-semibold mb-2 text-sm text-gray-600">
+              <h3 data-new-plan-display className="font-semibold mb-2 text-sm text-gray-600 dark:text-gray-400">
                 New: {newPlanData.name}
               </h3>
-              <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-500">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-2 border-blue-500">
                 <div data-modal-plan-price className="text-2xl font-bold mb-2">
                   ${billingCycle === 'monthly' ? price : Math.floor(price / 12)}/mo
                 </div>
@@ -784,12 +784,12 @@ export default function PricingPage() {
           </div>
 
           {/* Price Information */}
-          <div data-price-difference className="mb-6 bg-gray-50 p-4 rounded-lg">
+          <div data-price-difference className="mb-6 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
             {previewData.isDowngrade ? (
               <div data-downgrade-warning className="space-y-2">
-                <p className="font-semibold text-yellow-700">⚠️ Downgrade Notice</p>
+                <p className="font-semibold text-yellow-700 dark:text-yellow-400">⚠️ Downgrade Notice</p>
                 <p className="text-sm">Your plan will change to {newPlanData.name} at the end of your current billing period.</p>
-                <div data-downgrade-effective-date className="text-sm text-gray-600">
+                <div data-downgrade-effective-date className="text-sm text-gray-600 dark:text-gray-400">
                   Effective: {user?.nextBillingDate || 'End of billing period'}
                 </div>
                 <div data-features-to-lose className="mt-3">
@@ -813,7 +813,7 @@ export default function PricingPage() {
                   <span className="font-semibold">${price}/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
                 </div>
                 {previewData.proratedAmount !== undefined && (
-                  <div data-prorated-amount className="flex justify-between text-sm text-gray-600">
+                  <div data-prorated-amount className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                     <span data-prorated-explanation>Prorated charge (today):</span>
                     <span className="font-semibold">${previewData.proratedAmount.toFixed(2)}</span>
                   </div>
@@ -824,7 +824,7 @@ export default function PricingPage() {
 
           {/* CTA Buttons */}
           <div className="flex gap-3">
-            <button onClick={handleCloseModal} className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <button onClick={handleCloseModal} className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
               Cancel
             </button>
             <button
@@ -858,18 +858,18 @@ export default function PricingPage() {
         onClick={handleCancelCheckout}
       >
         <div
-          className="bg-white rounded-lg max-w-md w-full p-6"
+          className="bg-white dark:bg-gray-900 rounded-lg max-w-md w-full p-6"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Checkout Header */}
           <div className="mb-6">
             <h2 className="text-2xl font-bold mb-2">Complete your subscription</h2>
-            <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg">
+            <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
               <div>
                 <div data-checkout-plan-name className="font-semibold">
                   {plan.name} Plan
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   {billingCycle === 'monthly' ? 'Billed monthly' : 'Billed annually'}
                 </div>
               </div>
@@ -879,7 +879,7 @@ export default function PricingPage() {
             </div>
 
             {appliedDiscount && (
-              <div data-discount-applied-badge className="mt-2 text-sm text-green-600 font-semibold">
+              <div data-discount-applied-badge className="mt-2 text-sm text-green-600 dark:text-green-400 font-semibold">
                 ✓ {appliedDiscount.code} applied ({appliedDiscount.discount}% off)
               </div>
             )}
@@ -899,18 +899,18 @@ export default function PricingPage() {
                     setDiscountError('');
                   }}
                   placeholder="Enter code"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                 />
                 <button
                   data-apply-discount-button
                   onClick={handleApplyDiscount}
-                  className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
+                  className="px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200"
                 >
                   Apply
                 </button>
               </div>
               {discountError && (
-                <p data-discount-error className="mt-1 text-sm text-red-600">
+                <p data-discount-error className="mt-1 text-sm text-red-600 dark:text-red-400">
                   {discountError}
                 </p>
               )}
@@ -927,7 +927,7 @@ export default function PricingPage() {
                   type="email"
                   defaultValue={user?.email}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                 />
               </div>
 
@@ -939,7 +939,7 @@ export default function PricingPage() {
                   placeholder="4242 4242 4242 4242"
                   maxLength={19}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                 />
               </div>
 
@@ -952,7 +952,7 @@ export default function PricingPage() {
                     placeholder="MM/YY"
                     maxLength={5}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                   />
                 </div>
                 <div>
@@ -963,7 +963,7 @@ export default function PricingPage() {
                     placeholder="123"
                     maxLength={4}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                   />
                 </div>
               </div>
@@ -974,7 +974,7 @@ export default function PricingPage() {
                   data-cardholder-name-field
                   type="text"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                 />
               </div>
 
@@ -984,13 +984,13 @@ export default function PricingPage() {
                   data-billing-address-field
                   type="text"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                 />
               </div>
             </div>
 
             {/* Error Display */}
-            <div data-payment-error className="hidden mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+            <div data-payment-error className="hidden mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg text-sm">
               Payment declined. Please check your card details.
             </div>
 
@@ -1032,7 +1032,7 @@ export default function PricingPage() {
         onClick={() => setShowQuiz(false)}
       >
         <div
-          className="bg-white rounded-lg max-w-lg w-full p-6"
+          className="bg-white dark:bg-gray-900 rounded-lg max-w-lg w-full p-6"
           onClick={(e) => e.stopPropagation()}
         >
           <h2 className="text-2xl font-bold mb-4">Find Your Perfect Plan</h2>
@@ -1055,13 +1055,13 @@ export default function PricingPage() {
                             setTimeout(handleQuizSubmit, 100);
                           }
                         }}
-                        className="w-full p-4 border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 text-left transition-colors"
+                        className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-left transition-colors"
                       >
                         {option.text}
                       </button>
                     ))}
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     Question {currentQuestionIndex + 1} of {QUIZ_QUESTIONS.length}
                   </div>
                 </>
@@ -1070,11 +1070,11 @@ export default function PricingPage() {
           ) : (
             <div data-recommended-plan>
               <p className="text-lg mb-4">Based on your answers, we recommend:</p>
-              <div className="bg-blue-50 p-6 rounded-lg border-2 border-blue-500 mb-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border-2 border-blue-500 mb-4">
                 <h3 className="text-2xl font-bold mb-2">
                   {PLAN_DATA.find((p) => p.tier === recommendedPlan)?.name} Plan
                 </h3>
-                <p data-recommendation-explanation className="text-gray-700">
+                <p data-recommendation-explanation className="text-gray-700 dark:text-gray-300">
                   {recommendedPlan === 'free' && 'Perfect for getting started with job search basics.'}
                   {recommendedPlan === 'plus' && 'Great for active job seekers who want unlimited resumes and cover letters.'}
                   {recommendedPlan === 'pro' && 'Ideal for accelerating your job search with auto-apply and interview coaching.'}
@@ -1102,14 +1102,14 @@ export default function PricingPage() {
   // ============================================================================
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Header */}
-      <div className="bg-white border-b">
+      <div className="bg-white dark:bg-gray-900 border-b dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <h1 data-page-title className="text-4xl font-bold text-center mb-2">
             Choose Your Plan
           </h1>
-          <p className="text-gray-600 text-center mb-6">
+          <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
             Select the perfect plan to accelerate your job search
           </p>
 
@@ -1118,7 +1118,7 @@ export default function PricingPage() {
             <button
               data-help-me-choose-button
               onClick={handleStartQuiz}
-              className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
             >
               <HelpCircle className="w-5 h-5" />
               Help me choose the right plan
@@ -1132,7 +1132,7 @@ export default function PricingPage() {
               data-active={billingCycle === 'monthly' ? 'true' : 'false'}
               onClick={() => handleBillingCycleToggle('monthly')}
               className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-                billingCycle === 'monthly' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                billingCycle === 'monthly' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               Monthly
@@ -1142,7 +1142,7 @@ export default function PricingPage() {
               data-active={billingCycle === 'annual' ? 'true' : 'false'}
               onClick={() => handleBillingCycleToggle('annual')}
               className={`px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 ${
-                billingCycle === 'annual' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                billingCycle === 'annual' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               Annual
@@ -1187,9 +1187,9 @@ export default function PricingPage() {
       {/* Feature Comparison Matrix */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-2xl font-bold mb-6 text-center">Detailed Feature Comparison</h2>
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Feature</th>
                 {PLAN_DATA.map((plan) => (
@@ -1199,7 +1199,7 @@ export default function PricingPage() {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               <tr>
                 <td className="px-6 py-4 text-sm">Cover Letters</td>
                 {PLAN_DATA.map((plan) => (
@@ -1248,7 +1248,7 @@ export default function PricingPage() {
       {/* FAQ Section */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-2xl font-bold mb-6 text-center">Frequently Asked Questions</h2>
-        <Accordion type="single" collapsible className="bg-white rounded-lg shadow-sm p-4">
+        <Accordion type="single" collapsible className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
           <AccordionItem value="cancel">
             <AccordionTrigger>Can I cancel my subscription anytime?</AccordionTrigger>
             <AccordionContent>

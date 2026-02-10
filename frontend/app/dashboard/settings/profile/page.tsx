@@ -284,9 +284,9 @@ export default function ProfileSettingsPage() {
       </div>
 
       {message && (
-        <Card className={`mb-6 ${message.type === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+        <Card className={`mb-6 ${message.type === 'success' ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20' : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20'}`}>
           <CardContent className="p-4">
-            <p className={`text-sm ${message.type === 'success' ? 'text-green-900' : 'text-red-900'}`}>
+            <p className={`text-sm ${message.type === 'success' ? 'text-green-900 dark:text-green-300' : 'text-red-900 dark:text-red-300'}`}>
               {message.text}
             </p>
           </CardContent>
@@ -495,16 +495,16 @@ export default function ProfileSettingsPage() {
 
             {profile.availability_status === 'open_to_offers' && (
               <div data-testid="availability-badge">
-                <Badge className="bg-blue-100 text-blue-800">Open to Offers</Badge>
+                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">Open to Offers</Badge>
               </div>
             )}
 
             {profile.availability_status === 'actively_looking' && (
-              <p className="text-sm text-green-600">Actively Looking</p>
+              <p className="text-sm text-green-600 dark:text-green-400">Actively Looking</p>
             )}
 
             {profile.availability_status === 'not_looking' && (
-              <p className="text-sm text-gray-600">Not Looking</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Not Looking</p>
             )}
           </CardContent>
         </Card>
@@ -544,7 +544,7 @@ export default function ProfileSettingsPage() {
                           href={item.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm text-blue-600 hover:underline"
+                          className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                         >
                           {item.url}
                         </a>

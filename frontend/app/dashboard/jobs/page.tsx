@@ -168,12 +168,12 @@ export default function JobsPage() {
 
       {/* Error Banner */}
       {error && (
-        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4" role="alert">
+        <div className="mb-6 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4" role="alert">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-medium text-red-800">Error</h3>
-              <p className="text-sm text-red-700">{error}</p>
+              <h3 className="font-medium text-red-800 dark:text-red-300">Error</h3>
+              <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
             </div>
             <Button variant="ghost" size="sm" onClick={clearError} aria-label="Dismiss error">
               <X className="h-4 w-4" />
@@ -272,7 +272,7 @@ export default function JobsPage() {
       {isLoading && jobs.length === 0 && (
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="flex flex-col items-center gap-2">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
             <p className="text-muted-foreground">Finding your best matches...</p>
           </div>
         </div>
@@ -371,11 +371,11 @@ export default function JobsPage() {
 
                   {/* Match Rationale */}
                   {job.match_score?.match_rationale && (
-                    <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                      <h4 className="font-semibold text-sm text-blue-900 mb-1">
+                    <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <h4 className="font-semibold text-sm text-blue-900 dark:text-blue-300 mb-1">
                         Why this matches:
                       </h4>
-                      <p className="text-sm text-blue-700 line-clamp-2">
+                      <p className="text-sm text-blue-700 dark:text-blue-300 line-clamp-2">
                         {job.match_score.match_rationale}
                       </p>
                     </div>

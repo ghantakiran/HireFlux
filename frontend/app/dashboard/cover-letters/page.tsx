@@ -150,9 +150,9 @@ export default function CoverLettersPage() {
 
   const getToneBadge = (tone: CoverLetterTone) => {
     const configs = {
-      formal: { label: 'Formal', className: 'bg-blue-100 text-blue-800' },
-      concise: { label: 'Concise', className: 'bg-purple-100 text-purple-800' },
-      conversational: { label: 'Conversational', className: 'bg-green-100 text-green-800' },
+      formal: { label: 'Formal', className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' },
+      concise: { label: 'Concise', className: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' },
+      conversational: { label: 'Conversational', className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' },
     };
 
     const config = configs[tone];
@@ -203,12 +203,12 @@ export default function CoverLettersPage() {
 
       {/* Error Banner */}
       {error && (
-        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4" role="alert">
+        <div className="mb-6 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4" role="alert">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-medium text-red-800">Error</h3>
-              <p className="text-sm text-red-700">{error}</p>
+              <h3 className="font-medium text-red-800 dark:text-red-300">Error</h3>
+              <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
             </div>
             <Button variant="ghost" size="sm" onClick={clearError} aria-label="Dismiss error">
               <X className="h-4 w-4" />
@@ -222,7 +222,7 @@ export default function CoverLettersPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {stats.total_generated}
               </div>
               <div className="text-sm text-muted-foreground">Total Generated</div>
@@ -230,7 +230,7 @@ export default function CoverLettersPage() {
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {stats.used_in_applications}
               </div>
               <div className="text-sm text-muted-foreground">Used in Applications</div>
@@ -238,7 +238,7 @@ export default function CoverLettersPage() {
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600">
+              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                 {stats.this_month}
               </div>
               <div className="text-sm text-muted-foreground">This Month</div>
@@ -449,7 +449,7 @@ export default function CoverLettersPage() {
                       e.stopPropagation();
                       openDeleteDialog(coverLetter.id);
                     }}
-                    className="text-red-600 hover:text-red-700"
+                    className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   >
                     <Trash2 className="mr-1 h-3 w-3" />
                     Delete

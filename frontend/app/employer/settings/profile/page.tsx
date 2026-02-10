@@ -284,48 +284,48 @@ export default function CompanyProfileSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading company settings...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading company settings...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Company Settings</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Company Settings</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
             Manage your company profile, logo, and preferences
           </p>
         </div>
 
         {/* Success/Error Messages */}
         {successMessage && (
-          <Alert className="mb-6 bg-green-50 border-green-200">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
+          <Alert className="mb-6 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+            <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <AlertDescription className="text-green-800 dark:text-green-300">
               {successMessage}
             </AlertDescription>
           </Alert>
         )}
 
         {errorMessage && (
-          <Alert className="mb-6 bg-red-50 border-red-200">
-            <AlertCircle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">{errorMessage}</AlertDescription>
+          <Alert className="mb-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+            <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+            <AlertDescription className="text-red-800 dark:text-red-300">{errorMessage}</AlertDescription>
           </Alert>
         )}
 
         {/* Unsaved Changes Warning */}
         {hasUnsavedChanges && (
-          <Alert className="mb-6 bg-yellow-50 border-yellow-200">
-            <AlertCircle className="h-4 w-4 text-yellow-600" />
-            <AlertDescription className="text-yellow-800">
+          <Alert className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+            <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+            <AlertDescription className="text-yellow-800 dark:text-yellow-300">
               You have unsaved changes. Remember to save before leaving.
             </AlertDescription>
           </Alert>
@@ -385,7 +385,7 @@ export default function CompanyProfileSettingsPage() {
                     className={errors.name ? 'border-red-500' : ''}
                   />
                   {errors.name && (
-                    <p className="text-sm text-red-600 mt-1">{errors.name}</p>
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.name}</p>
                   )}
                 </div>
 
@@ -401,7 +401,7 @@ export default function CompanyProfileSettingsPage() {
                     className={errors.website ? 'border-red-500' : ''}
                   />
                   {errors.website && (
-                    <p className="text-sm text-red-600 mt-1">{errors.website}</p>
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.website}</p>
                   )}
                 </div>
               </CardContent>
@@ -467,7 +467,7 @@ export default function CompanyProfileSettingsPage() {
                     onChange={(e) => handleInputChange('location', e.target.value)}
                     placeholder="San Francisco, CA or Remote"
                   />
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     Enter city/state or "Remote" for remote-first companies
                   </p>
                 </div>
@@ -481,7 +481,7 @@ export default function CompanyProfileSettingsPage() {
                     maxLength={5000}
                   />
                   {errors.description && (
-                    <p className="text-sm text-red-600 mt-1">{errors.description}</p>
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.description}</p>
                   )}
                 </div>
               </CardContent>
@@ -515,7 +515,7 @@ export default function CompanyProfileSettingsPage() {
                     className={errors.linkedin_url ? 'border-red-500' : ''}
                   />
                   {errors.linkedin_url && (
-                    <p className="text-sm text-red-600 mt-1">{errors.linkedin_url}</p>
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.linkedin_url}</p>
                   )}
                 </div>
 
@@ -536,7 +536,7 @@ export default function CompanyProfileSettingsPage() {
                     className={errors.twitter_url ? 'border-red-500' : ''}
                   />
                   {errors.twitter_url && (
-                    <p className="text-sm text-red-600 mt-1">{errors.twitter_url}</p>
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.twitter_url}</p>
                   )}
                 </div>
               </CardContent>
@@ -603,11 +603,11 @@ export default function CompanyProfileSettingsPage() {
         </Tabs>
 
         {/* Save Button (Sticky Footer) */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 py-4 mt-8 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 py-4 mt-8 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div>
               {hasUnsavedChanges && (
-                <span className="text-sm text-gray-600">You have unsaved changes</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">You have unsaved changes</span>
               )}
             </div>
             <Button

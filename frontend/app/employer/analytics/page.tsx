@@ -37,9 +37,9 @@ const PipelineFunnelChart = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="h-6 bg-gray-200 rounded w-1/3 mb-4 animate-pulse"></div>
-        <div className="h-96 bg-gray-100 rounded animate-pulse"></div>
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4 animate-pulse"></div>
+        <div className="h-96 bg-gray-100 dark:bg-gray-800 rounded animate-pulse"></div>
       </div>
     ),
   }
@@ -50,8 +50,8 @@ const SourcingMetricsCard = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="h-96 bg-gray-100 rounded animate-pulse"></div>
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+        <div className="h-96 bg-gray-100 dark:bg-gray-800 rounded animate-pulse"></div>
       </div>
     ),
   }
@@ -62,8 +62,8 @@ const TimeToHireChart = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="h-96 bg-gray-100 rounded animate-pulse"></div>
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+        <div className="h-96 bg-gray-100 dark:bg-gray-800 rounded animate-pulse"></div>
       </div>
     ),
   }
@@ -74,8 +74,8 @@ const CostMetricsCard = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="h-64 bg-gray-100 rounded animate-pulse"></div>
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+        <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded animate-pulse"></div>
       </div>
     ),
   }
@@ -116,7 +116,7 @@ export default function AnalyticsPage() {
   // Check if user has access to analytics (Growth+ plan)
   if (MOCK_COMPANY_PLAN === 'starter') {
     return (
-      <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div
             className="bg-white rounded-lg shadow p-8 text-center"
@@ -135,10 +135,10 @@ export default function AnalyticsPage() {
                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
               />
             </svg>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               Upgrade to Access Analytics
             </h2>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
               Analytics is available on Growth and Professional plans. Upgrade to unlock insights
               into your hiring pipeline, time-to-hire metrics, and more.
             </p>
@@ -180,14 +180,14 @@ export default function AnalyticsPage() {
     qualityQuery.isLoading
   ) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header skeleton */}
-          <div className="h-12 bg-white rounded-lg shadow animate-pulse"></div>
+          <div className="h-12 bg-white dark:bg-gray-900 rounded-lg shadow animate-pulse"></div>
           {/* Content skeletons */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="h-96 bg-white rounded-lg shadow animate-pulse"></div>
-            <div className="h-96 bg-white rounded-lg shadow animate-pulse"></div>
+            <div className="h-96 bg-white dark:bg-gray-900 rounded-lg shadow animate-pulse"></div>
+            <div className="h-96 bg-white dark:bg-gray-900 rounded-lg shadow animate-pulse"></div>
           </div>
         </div>
       </div>
@@ -197,10 +197,10 @@ export default function AnalyticsPage() {
   // Error state
   if (overviewQuery.isError) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-            <p className="text-red-800 font-medium">Failed to load analytics data</p>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
+            <p className="text-red-800 dark:text-red-300 font-medium">Failed to load analytics data</p>
             <button
               onClick={() => overviewQuery.refetch()}
               className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
@@ -216,7 +216,7 @@ export default function AnalyticsPage() {
   // Empty state
   if (isEmpty) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <AnalyticsEmptyState onCreateJob={() => (window.location.href = '/employer/jobs/new')} />
         </div>
@@ -225,13 +225,13 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-            <p className="text-gray-600 mt-1">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Analytics Dashboard</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
               Track your hiring performance and optimize your recruitment process
             </p>
           </div>
@@ -244,7 +244,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Date Range Picker */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
           <DateRangePicker
             startDate={dateRange.startDate}
             endDate={dateRange.endDate}
