@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,8 +19,18 @@ import {
 import { TagInput } from '@/components/ui/tag-input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
+import { StepProgress } from '@/components/ui/step-progress';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { userApi } from '@/lib/api';
+
+const ONBOARDING_STEPS = [
+  { label: 'Profile' },
+  { label: 'Preferences' },
+  { label: 'Skills' },
+  { label: 'Work Style' },
+];
+
+const STORAGE_KEY = 'onboarding-draft';
 
 const step1Schema = z.object({
   phone: z.string().min(1, 'Phone number is required'),
@@ -50,27 +60,61 @@ type Step2Data = z.infer<typeof step2Schema>;
 type Step3Data = z.infer<typeof step3Schema>;
 type Step4Data = z.infer<typeof step4Schema>;
 
+type FormData = Step1Data & Step2Data & Step3Data & Step4Data;
+
+const DEFAULT_FORM_DATA: FormData = {
+  phone: '',
+  location: '',
+  target_titles: [],
+  salary_min: 0,
+  salary_max: 0,
+  industries: [],
+  skills: [],
+  remote_preference: 'flexible',
+  visa_sponsorship: false,
+  willing_to_relocate: false,
+  preferred_locations: [],
+};
+
+function loadDraft(): { step: number; data: FormData } | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function saveDraft(step: number, data: FormData) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ step, data }));
+  } catch {
+    // storage full or unavailable
+  }
+}
+
+function clearDraft() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 export default function OnboardingPage() {
   const router = useRouter();
   const { user } = useAuthStore();
-  const [currentStep, setCurrentStep] = useState(0);
+
+  // Load saved draft
+  const draft = typeof window !== 'undefined' ? loadDraft() : null;
+
+  const [currentStep, setCurrentStep] = useState(draft?.step ?? 0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [direction, setDirection] = useState<'forward' | 'back'>('forward');
 
-  // Form data storage
-  const [formData, setFormData] = useState({
-    phone: '',
-    location: '',
-    target_titles: [] as string[],
-    salary_min: 0,
-    salary_max: 0,
-    industries: [] as string[],
-    skills: [] as string[],
-    remote_preference: 'flexible' as const,
-    visa_sponsorship: false,
-    willing_to_relocate: false,
-    preferred_locations: [] as string[],
-  });
+  const [formData, setFormData] = useState<FormData>(draft?.data ?? DEFAULT_FORM_DATA);
 
   const step1Form = useForm<Step1Data>({
     resolver: zodResolver(step1Schema),
@@ -111,23 +155,38 @@ export default function OnboardingPage() {
     },
   });
 
+  // Auto-save on step change
+  useEffect(() => {
+    saveDraft(currentStep, formData);
+  }, [currentStep, formData]);
+
+  const goForward = useCallback((step: number) => {
+    setDirection('forward');
+    setCurrentStep(step);
+  }, []);
+
+  const goBack = useCallback((step: number) => {
+    setDirection('back');
+    setCurrentStep(step);
+  }, []);
+
   const handleWelcomeContinue = () => {
-    setCurrentStep(1);
+    goForward(1);
   };
 
   const handleStep1Submit = async (data: Step1Data) => {
-    setFormData({ ...formData, ...data });
-    setCurrentStep(2);
+    setFormData((prev) => ({ ...prev, ...data }));
+    goForward(2);
   };
 
   const handleStep2Submit = async (data: Step2Data) => {
-    setFormData({ ...formData, ...data });
-    setCurrentStep(3);
+    setFormData((prev) => ({ ...prev, ...data }));
+    goForward(3);
   };
 
   const handleStep3Submit = async (data: Step3Data) => {
-    setFormData({ ...formData, ...data });
-    setCurrentStep(4);
+    setFormData((prev) => ({ ...prev, ...data }));
+    goForward(4);
   };
 
   const handleStep4Submit = async (data: Step4Data) => {
@@ -142,6 +201,7 @@ export default function OnboardingPage() {
       };
       await userApi.completeOnboarding(completeData);
 
+      clearDraft();
       router.push('/dashboard');
     } catch (err: any) {
       const errorMessage =
@@ -152,18 +212,22 @@ export default function OnboardingPage() {
     }
   };
 
+  const animationClass = direction === 'forward'
+    ? 'animate-fade-in'
+    : 'animate-fade-in';
+
   const renderWelcome = () => (
     <Card className="w-full max-w-2xl">
       <CardHeader className="text-center">
         <CardTitle className="text-3xl font-bold">Welcome to HireFlux!</CardTitle>
         <CardDescription className="text-lg">
-          Let's set up your profile to find the perfect job matches
+          Let&apos;s set up your profile to find the perfect job matches
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4 text-center">
           <p className="text-muted-foreground">
-            We'll guide you through 4 quick steps to personalize your job search experience:
+            We&apos;ll guide you through 4 quick steps to personalize your job search experience:
           </p>
           <ul className="space-y-2 text-left mx-auto max-w-md">
             <li className="flex items-start gap-2">
@@ -184,9 +248,16 @@ export default function OnboardingPage() {
             </li>
           </ul>
         </div>
+
+        {draft && draft.step > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800 text-center">
+            You have a saved draft from step {draft.step}. We&apos;ll pick up where you left off.
+          </div>
+        )}
+
         <div className="flex justify-center">
           <Button size="lg" onClick={handleWelcomeContinue}>
-            Get Started
+            {draft && draft.step > 0 ? 'Continue Where You Left Off' : 'Get Started'}
           </Button>
         </div>
       </CardContent>
@@ -194,9 +265,9 @@ export default function OnboardingPage() {
   );
 
   const renderStep1 = () => (
-    <Card className="w-full max-w-2xl">
+    <Card className={`w-full max-w-2xl ${animationClass}`}>
       <CardHeader>
-        <div className="text-sm text-muted-foreground mb-2">Step 1 of 4</div>
+        <StepProgress steps={ONBOARDING_STEPS} currentStep={0} className="mb-4" />
         <CardTitle>Basic Profile</CardTitle>
         <CardDescription>Tell us a bit about yourself</CardDescription>
       </CardHeader>
@@ -214,11 +285,10 @@ export default function OnboardingPage() {
               id="phone"
               type="tel"
               placeholder="+1 (555) 123-4567"
+              error={!!step1Form.formState.errors.phone}
+              errorMessage={step1Form.formState.errors.phone?.message}
               {...step1Form.register('phone')}
             />
-            {step1Form.formState.errors.phone && (
-              <p className="text-sm text-red-600">{step1Form.formState.errors.phone.message}</p>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -227,19 +297,18 @@ export default function OnboardingPage() {
               id="location"
               type="text"
               placeholder="San Francisco, CA"
+              error={!!step1Form.formState.errors.location}
+              errorMessage={step1Form.formState.errors.location?.message}
               {...step1Form.register('location')}
             />
-            {step1Form.formState.errors.location && (
-              <p className="text-sm text-red-600">{step1Form.formState.errors.location.message}</p>
-            )}
           </div>
 
           <div className="flex justify-between pt-4">
-            <Button type="button" variant="outline" onClick={() => setCurrentStep(0)}>
+            <Button type="button" variant="outline" onClick={() => goBack(0)}>
               Back
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Saving...' : 'Continue'}
+            <Button type="submit">
+              Continue
             </Button>
           </div>
         </form>
@@ -248,9 +317,9 @@ export default function OnboardingPage() {
   );
 
   const renderStep2 = () => (
-    <Card className="w-full max-w-2xl">
+    <Card className={`w-full max-w-2xl ${animationClass}`}>
       <CardHeader>
-        <div className="text-sm text-muted-foreground mb-2">Step 2 of 4</div>
+        <StepProgress steps={ONBOARDING_STEPS} currentStep={1} className="mb-4" />
         <CardTitle>Job Preferences</CardTitle>
         <CardDescription>What kind of roles are you looking for?</CardDescription>
       </CardHeader>
@@ -289,11 +358,10 @@ export default function OnboardingPage() {
                 id="salary_min"
                 type="number"
                 placeholder="100000"
+                error={!!step2Form.formState.errors.salary_min}
+                errorMessage={step2Form.formState.errors.salary_min?.message}
                 {...step2Form.register('salary_min', { valueAsNumber: true })}
               />
-              {step2Form.formState.errors.salary_min && (
-                <p className="text-sm text-red-600">{step2Form.formState.errors.salary_min.message}</p>
-              )}
             </div>
 
             <div className="space-y-2">
@@ -302,11 +370,10 @@ export default function OnboardingPage() {
                 id="salary_max"
                 type="number"
                 placeholder="150000"
+                error={!!step2Form.formState.errors.salary_max}
+                errorMessage={step2Form.formState.errors.salary_max?.message}
                 {...step2Form.register('salary_max', { valueAsNumber: true })}
               />
-              {step2Form.formState.errors.salary_max && (
-                <p className="text-sm text-red-600">{step2Form.formState.errors.salary_max.message}</p>
-              )}
             </div>
           </div>
 
@@ -331,11 +398,11 @@ export default function OnboardingPage() {
           </div>
 
           <div className="flex justify-between pt-4">
-            <Button type="button" variant="outline" onClick={() => setCurrentStep(1)}>
+            <Button type="button" variant="outline" onClick={() => goBack(1)}>
               Back
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Saving...' : 'Continue'}
+            <Button type="submit">
+              Continue
             </Button>
           </div>
         </form>
@@ -344,9 +411,9 @@ export default function OnboardingPage() {
   );
 
   const renderStep3 = () => (
-    <Card className="w-full max-w-2xl">
+    <Card className={`w-full max-w-2xl ${animationClass}`}>
       <CardHeader>
-        <div className="text-sm text-muted-foreground mb-2">Step 3 of 4</div>
+        <StepProgress steps={ONBOARDING_STEPS} currentStep={2} className="mb-4" />
         <CardTitle>Skills & Expertise</CardTitle>
         <CardDescription>Add your technical and professional skills</CardDescription>
       </CardHeader>
@@ -379,11 +446,11 @@ export default function OnboardingPage() {
           </div>
 
           <div className="flex justify-between pt-4">
-            <Button type="button" variant="outline" onClick={() => setCurrentStep(2)}>
+            <Button type="button" variant="outline" onClick={() => goBack(2)}>
               Back
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Saving...' : 'Continue'}
+            <Button type="submit">
+              Continue
             </Button>
           </div>
         </form>
@@ -392,9 +459,9 @@ export default function OnboardingPage() {
   );
 
   const renderStep4 = () => (
-    <Card className="w-full max-w-2xl">
+    <Card className={`w-full max-w-2xl ${animationClass}`}>
       <CardHeader>
-        <div className="text-sm text-muted-foreground mb-2">Step 4 of 4</div>
+        <StepProgress steps={ONBOARDING_STEPS} currentStep={3} className="mb-4" />
         <CardTitle>Work Preferences</CardTitle>
         <CardDescription>Tell us about your work preferences</CardDescription>
       </CardHeader>
@@ -463,7 +530,7 @@ export default function OnboardingPage() {
                 )}
               />
               <Label htmlFor="willing_to_relocate" className="font-normal">
-                I'm willing to relocate
+                I&apos;m willing to relocate
               </Label>
             </div>
           </div>
@@ -485,11 +552,11 @@ export default function OnboardingPage() {
           </div>
 
           <div className="flex justify-between pt-4">
-            <Button type="button" variant="outline" onClick={() => setCurrentStep(3)}>
+            <Button type="button" variant="outline" onClick={() => goBack(3)}>
               Back
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Completing...' : 'Complete Onboarding'}
+            <Button type="submit" loading={isLoading} loadingText="Completing...">
+              Complete Onboarding
             </Button>
           </div>
         </form>

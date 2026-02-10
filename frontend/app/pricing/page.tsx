@@ -33,6 +33,13 @@ import {
   HelpCircle,
   Gift,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 // ============================================================================
 // TypeScript Interfaces
@@ -989,22 +996,24 @@ export default function PricingPage() {
 
             {/* Action Buttons */}
             <div className="flex gap-3">
-              <button
+              <Button
                 data-cancel-checkout-button
                 type="button"
+                variant="outline"
                 onClick={handleCancelCheckout}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="flex-1"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 data-subscribe-button
                 type="submit"
-                disabled={isProcessingPayment}
-                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                loading={isProcessingPayment}
+                loadingText="Processing..."
+                className="flex-1"
               >
-                {isProcessingPayment ? 'Processing...' : `Subscribe - $${finalPrice}`}
-              </button>
+                Subscribe - ${finalPrice}
+              </Button>
             </div>
           </form>
         </div>
@@ -1234,6 +1243,50 @@ export default function PricingPage() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* FAQ Section */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h2 className="text-2xl font-bold mb-6 text-center">Frequently Asked Questions</h2>
+        <Accordion type="single" collapsible className="bg-white rounded-lg shadow-sm p-4">
+          <AccordionItem value="cancel">
+            <AccordionTrigger>Can I cancel my subscription anytime?</AccordionTrigger>
+            <AccordionContent>
+              Yes, you can cancel your subscription at any time. Your access continues until the end
+              of your current billing period. No questions asked.
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="switch">
+            <AccordionTrigger>Can I switch plans mid-cycle?</AccordionTrigger>
+            <AccordionContent>
+              Absolutely. Upgrades take effect immediately with prorated billing. Downgrades take
+              effect at the end of your current billing period so you keep your features until then.
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="credits">
+            <AccordionTrigger>What happens to unused auto-apply credits?</AccordionTrigger>
+            <AccordionContent>
+              Unused credits reset each month and do not roll over. If a credit is used on an
+              invalid or mismatched job (e.g., the listing was taken down or below your threshold),
+              we automatically refund the credit.
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="refund">
+            <AccordionTrigger>Do you offer refunds?</AccordionTrigger>
+            <AccordionContent>
+              We offer a 7-day money-back guarantee on all paid plans. If you&apos;re not satisfied,
+              contact support within 7 days of your first payment for a full refund.
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="enterprise">
+            <AccordionTrigger>Do you offer team or enterprise plans?</AccordionTrigger>
+            <AccordionContent>
+              Yes! For employer accounts and teams, we have separate plans starting at $99/month.
+              For enterprise needs with custom SLAs, API access, and dedicated support, please
+              contact our sales team.
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
 
       {/* Modals */}
