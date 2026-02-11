@@ -48,10 +48,10 @@ export default function ProfileCompletenessMeter({
 }: ProfileCompletenessMeterProps) {
   // Determine color based on completion percentage
   const getColor = () => {
-    if (percentage >= 100) return 'text-green-600';
-    if (percentage >= 75) return 'text-blue-600';
-    if (percentage >= 50) return 'text-yellow-600';
-    return 'text-red-600';
+    if (percentage >= 100) return 'text-green-600 dark:text-green-400';
+    if (percentage >= 75) return 'text-blue-600 dark:text-blue-400';
+    if (percentage >= 50) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   // Determine progress bar color
@@ -66,7 +66,7 @@ export default function ProfileCompletenessMeter({
   const getMessage = () => {
     if (isComplete) {
       return {
-        icon: <CheckCircle2 className="h-5 w-5 text-green-600" />,
+        icon: <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />,
         title: '🎉 Your profile is complete!',
         description: 'Employers love complete profiles. You stand out from the crowd!',
         variant: 'default' as const,
@@ -75,7 +75,7 @@ export default function ProfileCompletenessMeter({
 
     if (percentage >= 75) {
       return {
-        icon: <Target className="h-5 w-5 text-blue-600" />,
+        icon: <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />,
         title: 'Almost there!',
         description: `Add ${missingFields.length} more field${
           missingFields.length !== 1 ? 's' : ''
@@ -86,7 +86,7 @@ export default function ProfileCompletenessMeter({
 
     if (percentage >= 50) {
       return {
-        icon: <Target className="h-5 w-5 text-yellow-600" />,
+        icon: <Target className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />,
         title: 'Good progress!',
         description: 'Keep going! Employers prefer profiles above 75% complete.',
         variant: 'default' as const,
@@ -94,7 +94,7 @@ export default function ProfileCompletenessMeter({
     }
 
     return {
-      icon: <AlertCircle className="h-5 w-5 text-red-600" />,
+      icon: <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />,
       title: 'Complete your profile',
       description: 'Profiles below 50% get significantly fewer views. Fill out key fields!',
       variant: 'destructive' as const,

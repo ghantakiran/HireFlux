@@ -221,7 +221,7 @@ export function MobileHamburgerMenu({ role = 'job_seeker' }: MobileNavProps) {
               <Button
                 variant="ghost"
                 onClick={handleSignOut}
-                className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-600"
+                className="w-full justify-start text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400"
                 data-drawer-nav-sign-out
               >
                 <LogOut className="mr-2 h-5 w-5" />

@@ -240,8 +240,8 @@ export function TourBottomSheet({
 
           {/* Swipe Hint (only show on first step) */}
           {stepNumber === 1 && (
-            <div className="mb-4 p-3 bg-blue-50 rounded-lg text-center">
-              <p className="text-xs text-blue-800">
+            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center">
+              <p className="text-xs text-blue-800 dark:text-blue-300">
                 👆 Swipe left/right to navigate • Swipe down to close
               </p>
             </div>

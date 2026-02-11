@@ -284,7 +284,7 @@ export default function PortfolioManagement({
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:underline flex items-center gap-1 mt-0.5"
+                        className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 mt-0.5"
                       >
                         <span className="truncate">{item.url}</span>
                         <ExternalLink className="h-3 w-3 flex-shrink-0" />

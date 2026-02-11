@@ -49,7 +49,7 @@ export default function ProfilePrivacyControls({
       {/* Header */}
       <div>
         <div className="flex items-center gap-2">
-          <Shield className="h-5 w-5 text-blue-600" />
+          <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           <h3 className="text-lg font-semibold">Privacy Controls</h3>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -118,7 +118,7 @@ export default function ProfilePrivacyControls({
                   : 'Contact via HireFlux only - email is hidden'}
               </p>
               {!settings.showContact && (
-                <p className="text-xs text-blue-600 mt-1">
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                   ✓ Recommended for privacy and spam protection
                 </p>
               )}
@@ -170,7 +170,7 @@ export default function ProfilePrivacyControls({
         <ul className="space-y-1.5 text-sm text-muted-foreground">
           <li className="flex items-center gap-2">
             {settings.showSalary ? (
-              <Eye className="h-4 w-4 text-green-600" />
+              <Eye className="h-4 w-4 text-green-600 dark:text-green-400" />
             ) : (
               <EyeOff className="h-4 w-4 text-gray-400" />
             )}
@@ -178,7 +178,7 @@ export default function ProfilePrivacyControls({
           </li>
           <li className="flex items-center gap-2">
             {settings.showContact ? (
-              <Eye className="h-4 w-4 text-green-600" />
+              <Eye className="h-4 w-4 text-green-600 dark:text-green-400" />
             ) : (
               <EyeOff className="h-4 w-4 text-gray-400" />
             )}
@@ -186,7 +186,7 @@ export default function ProfilePrivacyControls({
           </li>
           <li className="flex items-center gap-2">
             {settings.showLocation ? (
-              <Eye className="h-4 w-4 text-green-600" />
+              <Eye className="h-4 w-4 text-green-600 dark:text-green-400" />
             ) : (
               <EyeOff className="h-4 w-4 text-gray-400" />
             )}

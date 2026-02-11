@@ -67,7 +67,7 @@ export default function ProfileVisibilityToggle({
         <div className="flex items-center justify-between">
           <div className="flex items-start gap-4 flex-1">
             {isPublic ? (
-              <Globe className="h-6 w-6 text-green-600 mt-0.5" />
+              <Globe className="h-6 w-6 text-green-600 dark:text-green-400 mt-0.5" />
             ) : (
               <Lock className="h-6 w-6 text-gray-400 mt-0.5" />
             )}
@@ -144,7 +144,7 @@ export default function ProfileVisibilityToggle({
       {!isPublic && canBePublic && (
         <div className="rounded-lg bg-green-50 dark:bg-green-950/20 p-4">
           <div className="flex items-start gap-3">
-            <Eye className="h-5 w-5 text-green-600 mt-0.5" />
+            <Eye className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
             <div>
               <h4 className="text-sm font-medium text-green-900 dark:text-green-100 mb-2">
                 ✨ Ready to go public!

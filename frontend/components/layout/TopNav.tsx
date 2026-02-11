@@ -151,7 +151,7 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => setSignOutDialogOpen(true)}
-                  className="text-red-600 focus:text-red-600"
+                  className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
                   data-menu-sign-out
                 >
                   <LogOut className="h-4 w-4 mr-2" />
