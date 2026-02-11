@@ -42,16 +42,16 @@ export function InstallPrompt() {
       data-install-prompt
       className="fixed bottom-20 left-4 right-4 z-50 animate-in slide-in-from-bottom-5 lg:left-auto lg:right-4 lg:w-96"
     >
-      <div className="bg-white rounded-lg shadow-2xl border border-gray-200 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 p-4">
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Download className="h-6 w-6 text-blue-600" />
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Download className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">Install HireFlux</h3>
-              <p className="text-sm text-gray-600">Get quick access from your home screen</p>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Install HireFlux</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Get quick access from your home screen</p>
             </div>
           </div>
           <Button
@@ -69,8 +69,8 @@ export function InstallPrompt() {
         {/* iOS Instructions */}
         {showIOSInstructions && isIOSDevice ? (
           <div data-ios-install-instructions className="space-y-3 animate-in fade-in">
-            <p className="text-sm text-gray-700 font-medium">To install on iOS:</p>
-            <ol className="text-sm text-gray-600 space-y-2 list-decimal list-inside">
+            <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">To install on iOS:</p>
+            <ol className="text-sm text-gray-600 dark:text-gray-400 space-y-2 list-decimal list-inside">
               <li className="flex items-start gap-2">
                 <span className="flex-1">
                   Tap the <Share className="inline h-4 w-4 mx-1" /> Share button in Safari

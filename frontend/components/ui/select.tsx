@@ -61,7 +61,7 @@ export function SelectTrigger({ className = '', children, ...props }: SelectTrig
       type="button"
       onClick={() => !disabled && setOpen(!open)}
       disabled={disabled}
-      className={`flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`flex h-10 w-full items-center justify-between rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
       {...props}
     >
       {children}
@@ -122,7 +122,7 @@ export function SelectContent({ className = '', children }: SelectContentProps) 
   return (
     <div
       ref={contentRef}
-      className={`absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 shadow-lg ${className}`}
+      className={`absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-1 shadow-lg ${className}`}
     >
       {children}
     </div>
@@ -150,7 +150,7 @@ export function SelectItem({ value, children, disabled, className = '' }: Select
   return (
     <div
       onClick={handleClick}
-      className={`relative flex cursor-pointer select-none items-center px-3 py-2 text-sm hover:bg-gray-100 ${
+      className={`relative flex cursor-pointer select-none items-center px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 ${
         isSelected ? 'bg-blue-50 text-blue-600 font-medium' : ''
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
     >

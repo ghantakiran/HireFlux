@@ -206,7 +206,7 @@ export function SwipeCard({ job, index, onSwipe, onViewDetails, isTop }: SwipeCa
       data-card-index={index}
       data-swiping={swipeDirection}
       className={`
-        absolute inset-0 rounded-2xl bg-white shadow-xl overflow-hidden
+        absolute inset-0 rounded-2xl bg-white dark:bg-gray-900 shadow-xl overflow-hidden
         cursor-grab active:cursor-grabbing
         select-none
         ${isExiting ? 'transition-transform duration-300 ease-out' : ''}
@@ -270,7 +270,7 @@ export function SwipeCard({ job, index, onSwipe, onViewDetails, isTop }: SwipeCa
         <div className="mb-4">
           <div
             data-company-logo
-            className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden relative"
+            className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden relative"
           >
             {job.logo ? (
               <Image
@@ -283,30 +283,30 @@ export function SwipeCard({ job, index, onSwipe, onViewDetails, isTop }: SwipeCa
                 quality={85}
               />
             ) : (
-              <span className="text-2xl font-bold text-gray-600">{job.company[0]}</span>
+              <span className="text-2xl font-bold text-gray-600 dark:text-gray-400">{job.company[0]}</span>
             )}
           </div>
         </div>
 
         {/* Job Title */}
-        <h2 data-job-title className="text-2xl font-bold text-gray-900 mb-2 leading-tight">
+        <h2 data-job-title className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 leading-tight">
           {job.title}
         </h2>
 
         {/* Company Name */}
-        <p data-company-name className="text-lg text-gray-700 mb-4">
+        <p data-company-name className="text-lg text-gray-700 dark:text-gray-300 mb-4">
           {job.company}
         </p>
 
         {/* Location */}
-        <div data-job-location className="flex items-center gap-2 text-gray-600 mb-4">
+        <div data-job-location className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-4">
           <MapPin className="h-4 w-4" />
           <span className="text-sm">{job.location}</span>
         </div>
 
         {/* Salary Range */}
         {job.salary && (
-          <div data-salary-range className="flex items-center gap-2 text-gray-900 font-semibold mb-4">
+          <div data-salary-range className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold mb-4">
             <DollarSign className="h-5 w-5" />
             <span>
               ${(job.salary.min / 1000).toFixed(0)}k - ${(job.salary.max / 1000).toFixed(0)}k {job.salary.currency}
@@ -316,8 +316,8 @@ export function SwipeCard({ job, index, onSwipe, onViewDetails, isTop }: SwipeCa
 
         {/* Fit Index */}
         <div data-fit-index className="flex items-center gap-2 mb-6">
-          <TrendingUp className="h-5 w-5 text-green-600" />
-          <span className="text-lg font-bold text-green-600">{job.fitIndex}% Match</span>
+          <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+          <span className="text-lg font-bold text-green-600 dark:text-green-400">{job.fitIndex}% Match</span>
         </div>
 
         {/* Tags */}

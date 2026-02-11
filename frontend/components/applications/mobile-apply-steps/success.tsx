@@ -79,27 +79,27 @@ export function SuccessScreen({
         </div>
 
         {/* Success Message */}
-        <h1 data-success-message className="text-2xl font-bold text-gray-900 mb-2">
+        <h1 data-success-message className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           Application Submitted!
         </h1>
 
-        <p className="text-base text-gray-600 mb-6">
+        <p className="text-base text-gray-600 dark:text-gray-400 mb-6">
           Your application for <strong>{jobTitle}</strong> at{' '}
           <strong>{companyName}</strong> has been successfully submitted.
         </p>
 
         {/* Reference Number */}
-        <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg w-full max-w-sm mb-8">
-          <p className="text-xs text-gray-500 mb-1">Application Reference</p>
-          <p data-ref-number className="text-lg font-mono font-semibold text-gray-900">
+        <div className="p-4 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg w-full max-w-sm mb-8">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Application Reference</p>
+          <p data-ref-number className="text-lg font-mono font-semibold text-gray-900 dark:text-gray-100">
             {referenceNumber}
           </p>
         </div>
 
         {/* What Happens Next */}
-        <div className="w-full max-w-sm text-left p-4 bg-blue-50 border border-blue-200 rounded-lg mb-6">
-          <h3 className="text-sm font-semibold text-blue-900 mb-2">What happens next?</h3>
-          <ul className="text-xs text-blue-800 space-y-1">
+        <div className="w-full max-w-sm text-left p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg mb-6">
+          <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">What happens next?</h3>
+          <ul className="text-xs text-blue-800 dark:text-blue-300 space-y-1">
             <li>✅ You'll receive a confirmation email shortly</li>
             <li>👀 The hiring team will review your application</li>
             <li>📞 They'll contact you if there's a match</li>

@@ -54,7 +54,7 @@ export interface TableFooterProps extends React.HTMLAttributes<HTMLTableSectionE
 
 export function TableFooter({ children, className = '', ...props }: TableFooterProps) {
   return (
-    <tfoot className={`border-t bg-gray-50/50 font-medium ${className}`} {...props}>
+    <tfoot className={`border-t bg-gray-50/50 dark:bg-gray-950/50 font-medium ${className}`} {...props}>
       {children}
     </tfoot>
   );
@@ -67,7 +67,7 @@ export interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement>
 export function TableRow({ children, className = '', ...props }: TableRowProps) {
   return (
     <tr
-      className={`border-b transition-colors hover:bg-gray-50/50 data-[state=selected]:bg-gray-50 ${className}`}
+      className={`border-b transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/50 data-[state=selected]:bg-gray-50 dark:data-[state=selected]:bg-gray-800 ${className}`}
       {...props}
     >
       {children}
@@ -82,7 +82,7 @@ export interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElem
 export function TableHead({ children, className = '', ...props }: TableHeadProps) {
   return (
     <th
-      className={`h-12 px-4 text-left align-middle font-medium text-gray-600 [&:has([role=checkbox])]:pr-0 ${className}`}
+      className={`h-12 px-4 text-left align-middle font-medium text-gray-600 dark:text-gray-400 [&:has([role=checkbox])]:pr-0 ${className}`}
       {...props}
     >
       {children}
@@ -111,7 +111,7 @@ export interface TableCaptionProps extends React.HTMLAttributes<HTMLTableCaption
 
 export function TableCaption({ children, className = '', ...props }: TableCaptionProps) {
   return (
-    <caption className={`mt-4 text-sm text-gray-600 ${className}`} {...props}>
+    <caption className={`mt-4 text-sm text-gray-600 dark:text-gray-400 ${className}`} {...props}>
       {children}
     </caption>
   );

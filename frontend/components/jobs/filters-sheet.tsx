@@ -43,13 +43,13 @@ export function FiltersSheet({ isOpen, onClose, onApply }: FiltersSheetProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         data-filters-sheet
-        className="fixed inset-0 z-50 w-full h-full max-w-none m-0 p-0 rounded-none bg-white"
+        className="fixed inset-0 z-50 w-full h-full max-w-none m-0 p-0 rounded-none bg-white dark:bg-gray-900"
         style={{
           paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)',
         }}
       >
         {/* Header */}
-        <header className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <header className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Filters</h2>
           <Button variant="ghost" size="icon" onClick={onClose} className="h-10 w-10">
             <X className="h-5 w-5" />
@@ -94,7 +94,7 @@ export function FiltersSheet({ isOpen, onClose, onApply }: FiltersSheetProps) {
                 step={10}
                 className="w-full"
               />
-              <p className="text-sm text-gray-600 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
                 ${salaryMin}k+ per year
               </p>
             </div>
@@ -103,12 +103,12 @@ export function FiltersSheet({ isOpen, onClose, onApply }: FiltersSheetProps) {
           {/* Location (Placeholder) */}
           <div data-filter="location" className="space-y-2">
             <Label className="text-base font-medium">Location</Label>
-            <p className="text-sm text-gray-500">Coming soon...</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Coming soon...</p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 py-4 space-y-3"
+        <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 space-y-3"
           style={{
             paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)',
           }}

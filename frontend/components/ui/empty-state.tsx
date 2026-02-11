@@ -49,10 +49,10 @@ export function EmptyState({
       ) : null}
 
       {/* Title */}
-      <h3 className="text-2xl font-semibold text-gray-900 mb-2">{title}</h3>
+      <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{title}</h3>
 
       {/* Description */}
-      <p className="text-gray-600 max-w-md mb-8">{description}</p>
+      <p className="text-gray-600 dark:text-gray-400 max-w-md mb-8">{description}</p>
 
       {/* Actions */}
       {(action || secondaryAction) && (

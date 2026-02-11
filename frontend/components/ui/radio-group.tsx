@@ -52,7 +52,7 @@ export function RadioGroupItem({
         checked={checked}
         onChange={onSelect}
         aria-label={ariaLabel}
-        className="h-4 w-4 border-gray-300 text-primary focus:ring-2 focus:ring-primary"
+        className="h-4 w-4 border-gray-300 dark:border-gray-600 text-primary focus:ring-2 focus:ring-primary"
       />
       <label htmlFor={id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
         {children}

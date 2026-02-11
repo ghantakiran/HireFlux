@@ -227,7 +227,7 @@ export function MobileApplyModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
         data-application-modal
-        className="fixed inset-0 z-50 w-full h-full max-w-none m-0 p-0 rounded-none bg-white"
+        className="fixed inset-0 z-50 w-full h-full max-w-none m-0 p-0 rounded-none bg-white dark:bg-gray-900"
         style={{
           paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)',
         }}
@@ -259,7 +259,7 @@ export function MobileApplyModal({
             {/* Fixed Header */}
             <header
               data-modal-header
-              className="fixed top-0 left-0 right-0 z-10 bg-white border-b border-gray-200"
+              className="fixed top-0 left-0 right-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
               style={{
                 paddingTop: 'max(env(safe-area-inset-top, 0px), 16px)',
               }}
@@ -291,7 +291,7 @@ export function MobileApplyModal({
                 )}
 
                 {/* Title */}
-                <h1 className="text-lg font-semibold text-gray-900">
+                <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   Apply to {companyName}
                 </h1>
 
@@ -336,7 +336,7 @@ export function MobileApplyModal({
                                   ? 'bg-blue-600 text-white'
                                   : isCompleted
                                   ? 'bg-green-600 text-white'
-                                  : 'bg-gray-200 text-gray-500'
+                                  : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                               }
                             `}
                           >
@@ -354,10 +354,10 @@ export function MobileApplyModal({
                               text-xs font-medium hidden sm:block
                               ${
                                 isActive
-                                  ? 'text-blue-600'
+                                  ? 'text-blue-600 dark:text-blue-400'
                                   : isCompleted
-                                  ? 'text-green-600'
-                                  : 'text-gray-500'
+                                  ? 'text-green-600 dark:text-green-400'
+                                  : 'text-gray-500 dark:text-gray-400'
                               }
                             `}
                           >
@@ -370,10 +370,10 @@ export function MobileApplyModal({
                               text-xs sm:hidden
                               ${
                                 isActive
-                                  ? 'text-blue-600 font-semibold'
+                                  ? 'text-blue-600 dark:text-blue-400 font-semibold'
                                   : isCompleted
-                                  ? 'text-green-600'
-                                  : 'text-gray-500'
+                                  ? 'text-green-600 dark:text-green-400'
+                                  : 'text-gray-500 dark:text-gray-400'
                               }
                             `}
                           >
@@ -390,7 +390,7 @@ export function MobileApplyModal({
                               ${
                                 currentStep > step.id
                                   ? 'bg-green-600'
-                                  : 'bg-gray-200'
+                                  : 'bg-gray-200 dark:bg-gray-700'
                               }
                             `}
                           />
@@ -401,7 +401,7 @@ export function MobileApplyModal({
                 </div>
 
                 {/* Step Text */}
-                <p className="text-xs text-gray-600 text-center mt-2">
+                <p className="text-xs text-gray-600 dark:text-gray-400 text-center mt-2">
                   Step {currentStep} of {STEPS.length}
                 </p>
               </div>
@@ -455,7 +455,7 @@ export function MobileApplyModal({
             {/* Fixed Footer with Action Buttons */}
             <footer
               data-modal-footer
-              className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3"
+              className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-3"
               style={{
                 paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 12px)',
               }}

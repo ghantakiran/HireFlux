@@ -45,7 +45,7 @@ const NOTIFICATION_COLORS: Record<NotificationType, string> = {
   message: 'text-green-600',
   interview: 'text-purple-600',
   offer: 'text-yellow-600',
-  system: 'text-gray-600',
+  system: 'text-gray-600 dark:text-gray-400',
   reminder: 'text-orange-600',
 };
 
@@ -75,10 +75,10 @@ function NotificationItem({
       data-action-url={notification.actionUrl || ''}
       className={`
         group
-        relative px-4 py-3 border-b border-gray-100
+        relative px-4 py-3 border-b border-gray-100 dark:border-gray-800
         transition-colors duration-200
-        hover:bg-gray-50 cursor-pointer
-        ${!notification.read ? 'bg-blue-50/50' : 'bg-white'}
+        hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer
+        ${!notification.read ? 'bg-blue-50/50 dark:bg-blue-900/20' : 'bg-white dark:bg-gray-900'}
       `}
       onClick={() => onClick(notification)}
     >
@@ -93,7 +93,7 @@ function NotificationItem({
           <div className="flex items-start justify-between gap-2">
             <p
               data-notification-title
-              className={`text-sm font-medium text-gray-900 ${
+              className={`text-sm font-medium text-gray-900 dark:text-gray-100 ${
                 !notification.read ? 'font-semibold' : ''
               }`}
             >
@@ -108,7 +108,7 @@ function NotificationItem({
 
           <p
             data-notification-message
-            className="mt-1 text-sm text-gray-600 line-clamp-2"
+            className="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2"
           >
             {notification.message}
           </p>
@@ -116,7 +116,7 @@ function NotificationItem({
           <time
             data-notification-timestamp
             dateTime={notification.timestamp}
-            className="mt-1 text-xs text-gray-500"
+            className="mt-1 text-xs text-gray-500 dark:text-gray-400"
           >
             {formatDistanceToNow(new Date(notification.timestamp), { addSuffix: true })}
           </time>
@@ -254,7 +254,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
       data-notification-dropdown
       className={`
         absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)]
-        bg-white rounded-lg shadow-lg border border-gray-200
+        bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700
         z-50 overflow-hidden
         animate-in fade-in slide-in-from-top-2 duration-200
         ${className}
@@ -263,9 +263,9 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
       {/* Header */}
       <div
         data-header
-        className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50"
+        className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-950"
       >
-        <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Notifications</h2>
 
         <div className="flex items-center gap-2">
           {/* Mark all as read */}
@@ -312,7 +312,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
       {/* Filters */}
       <div
         data-notification-filters
-        className="flex items-center gap-2 px-4 py-2 border-b border-gray-200 overflow-x-auto"
+        className="flex items-center gap-2 px-4 py-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto"
       >
         {[
           { key: 'all', label: 'All', count: countByType.all },
@@ -332,7 +332,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
               ${
                 filters.type === filter.key
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }
             `}
           >
@@ -344,7 +344,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
                 ${
                   filters.type === filter.key
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-gray-700'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                 }
               `}
             >
@@ -368,7 +368,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
             ${
               filters.read === false
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
             }
           `}
         >
@@ -383,7 +383,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
             role="list"
             aria-label="Notifications"
             data-notification-list
-            className="divide-y divide-gray-100"
+            className="divide-y divide-gray-100 dark:divide-gray-800"
           >
             {filteredNotifications.slice(0, 10).map((notification) => (
               <NotificationItem
@@ -401,8 +401,8 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
             className="flex flex-col items-center justify-center h-64 text-center px-4"
           >
             <Bell className="h-12 w-12 text-gray-300 mb-3" />
-            <p className="text-sm font-medium text-gray-900 mb-1">No notifications</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No notifications</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               You're all caught up! We'll notify you when something new happens.
             </p>
           </div>
@@ -411,12 +411,12 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
 
       {/* Footer */}
       {filteredNotifications.length > 0 && (
-        <div className="border-t border-gray-200 px-4 py-3 bg-gray-50">
+        <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-3 bg-gray-50 dark:bg-gray-950">
           <Link
             href="/dashboard/notifications"
             data-view-all-notifications
             onClick={closeDropdown}
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium"
           >
             View all notifications →
           </Link>

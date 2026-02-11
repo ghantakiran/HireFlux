@@ -186,17 +186,17 @@ export function CommandPalette({ isOpen, onClose, role = 'job_seeker' }: Command
         aria-modal="true"
         aria-labelledby="command-palette-title"
         data-testid="command-palette"
-        className="fixed left-1/2 top-[20%] -translate-x-1/2 z-[9999] w-full max-w-2xl bg-white rounded-lg shadow-2xl overflow-hidden"
+        className="fixed left-1/2 top-[20%] -translate-x-1/2 z-[9999] w-full max-w-2xl bg-white dark:bg-gray-900 rounded-lg shadow-2xl overflow-hidden"
       >
         {/* Title */}
         <div className="px-4 pt-4 pb-2">
-          <h2 id="command-palette-title" className="text-lg font-semibold text-gray-900">
+          <h2 id="command-palette-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Command Palette
           </h2>
         </div>
 
         {/* Search Input */}
-        <div className="px-4 pb-4 border-b border-gray-200">
+        <div className="px-4 pb-4 border-b border-gray-200 dark:border-gray-700">
           <input
             ref={inputRef}
             type="text"
@@ -229,12 +229,12 @@ export function CommandPalette({ isOpen, onClose, role = 'job_seeker' }: Command
                   onMouseEnter={() => setSelectedIndex(index)}
                   className={`
                     w-full flex items-center justify-between px-4 py-3 text-left
-                    ${index === selectedIndex ? 'bg-blue-50 text-blue-900' : 'text-gray-900 hover:bg-gray-50'}
+                    ${index === selectedIndex ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-900 dark:text-blue-300' : 'text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'}
                   `}
                 >
                   <span className="text-sm font-medium">{command.name}</span>
                   {command.shortcut && (
-                    <kbd className="inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-100 px-2 py-1 text-xs font-mono text-gray-600">
+                    <kbd className="inline-flex items-center gap-1 rounded border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 px-2 py-1 text-xs font-mono text-gray-600 dark:text-gray-400">
                       {command.shortcut}
                     </kbd>
                   )}
@@ -249,17 +249,17 @@ export function CommandPalette({ isOpen, onClose, role = 'job_seeker' }: Command
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-4 py-3 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
+        <div className="bg-gray-50 dark:bg-gray-950 px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-4">
             <span>
-              <kbd className="px-1 py-0.5 bg-white border border-gray-300 rounded">↑↓</kbd> Navigate
+              <kbd className="px-1 py-0.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded">↑↓</kbd> Navigate
             </span>
             <span>
-              <kbd className="px-1 py-0.5 bg-white border border-gray-300 rounded">Enter</kbd> Select
+              <kbd className="px-1 py-0.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded">Enter</kbd> Select
             </span>
           </div>
           <span>
-            <kbd className="px-1 py-0.5 bg-white border border-gray-300 rounded">Esc</kbd> Close
+            <kbd className="px-1 py-0.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded">Esc</kbd> Close
           </span>
         </div>
       </div>

@@ -21,7 +21,7 @@ export function LoadingSpinner({ size = 'md', className = '' }: LoadingSpinnerPr
   return (
     <div className={`flex items-center justify-center ${className}`}>
       <div
-        className={`${sizeClasses[size]} animate-spin rounded-full border-4 border-gray-300 border-t-blue-600`}
+        className={`${sizeClasses[size]} animate-spin rounded-full border-4 border-gray-300 dark:border-gray-600 border-t-blue-600`}
         role="status"
         aria-label="Loading"
       >
@@ -36,7 +36,7 @@ export function PageLoadingSpinner() {
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
         <LoadingSpinner size="lg" />
-        <p className="mt-4 text-gray-600">Loading...</p>
+        <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
       </div>
     </div>
   );

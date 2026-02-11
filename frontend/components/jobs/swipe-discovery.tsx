@@ -181,13 +181,13 @@ export function SwipeDiscovery() {
   // Desktop fallback
   if (!isMobile) {
     return (
-      <div data-mobile-only-message className="flex items-center justify-center min-h-screen p-6 bg-gray-50">
+      <div data-mobile-only-message className="flex items-center justify-center min-h-screen p-6 bg-gray-50 dark:bg-gray-950">
         <div className="text-center max-w-md">
-          <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Heart className="h-10 w-10 text-blue-600" />
+          <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Heart className="h-10 w-10 text-blue-600 dark:text-blue-400" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Mobile Only</h1>
-          <p className="text-gray-600 mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Mobile Only</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
             The swipe interface is optimized for mobile devices. Please visit on your phone or use the desktop view.
           </p>
           <Button
@@ -204,13 +204,13 @@ export function SwipeDiscovery() {
   // Empty state
   if (currentIndex >= jobs.length) {
     return (
-      <div data-empty-state className="flex items-center justify-center min-h-screen p-6 bg-gray-50">
+      <div data-empty-state className="flex items-center justify-center min-h-screen p-6 bg-gray-50 dark:bg-gray-950">
         <div className="text-center max-w-md">
-          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
             <Heart className="h-10 w-10 text-gray-400" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">All Done!</h1>
-          <p data-empty-message className="text-gray-600 mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">All Done!</h1>
+          <p data-empty-message className="text-gray-600 dark:text-gray-400 mb-6">
             You've reviewed all available jobs. Check back later for more opportunities!
           </p>
           <div className="space-y-3">
@@ -240,7 +240,7 @@ export function SwipeDiscovery() {
     <>
       <div
         data-swipe-container
-        className="relative h-screen w-full bg-gray-50 overflow-hidden"
+        className="relative h-screen w-full bg-gray-50 dark:bg-gray-950 overflow-hidden"
         style={{
           paddingTop: 'max(env(safe-area-inset-top, 0px), 16px)',
           paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)',
@@ -249,8 +249,8 @@ export function SwipeDiscovery() {
         {/* Header */}
         <header className="absolute top-0 left-0 right-0 z-20 px-4 py-3 flex items-center justify-between bg-gradient-to-b from-white to-transparent">
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-gray-900">Discover</h1>
-            <span data-card-count className="text-sm text-gray-600">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Discover</h1>
+            <span data-card-count className="text-sm text-gray-600 dark:text-gray-400">
               {currentIndex + 1} of {jobs.length}
             </span>
           </div>
@@ -310,7 +310,7 @@ export function SwipeDiscovery() {
               disabled={history.length === 0}
               variant="outline"
               size="lg"
-              className="w-12 h-12 rounded-full border-2 border-gray-300 text-gray-600 hover:bg-gray-50 active:scale-95 transition-transform disabled:opacity-30"
+              className="w-12 h-12 rounded-full border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 transition-transform disabled:opacity-30"
               aria-label={`Undo ${history.length > 0 ? `(${history.length})` : ''}`}
             >
               <RotateCcw className="h-5 w-5" />

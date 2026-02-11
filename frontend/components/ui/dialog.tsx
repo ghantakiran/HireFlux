@@ -210,7 +210,7 @@ export function DialogContent({ className, children, showCloseButton = true, ...
     <div
       ref={dialogRef}
       className={cn(
-        'relative z-50 w-full max-w-lg rounded-lg bg-white p-6 shadow-lg',
+        'relative z-50 w-full max-w-lg rounded-lg bg-white dark:bg-gray-900 p-6 shadow-lg',
         className
       )}
       role="dialog"

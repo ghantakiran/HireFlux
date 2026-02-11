@@ -62,38 +62,38 @@ export function ReviewStep({
     <div data-application-review className="p-4 space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">Review Application</h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Review Application</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Please review your details before submitting
         </p>
       </div>
 
       {/* Job Details Section */}
-      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3">
-        <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-          <Briefcase className="h-5 w-5 text-gray-600" />
+      <div className="p-4 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg space-y-3">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <Briefcase className="h-5 w-5 text-gray-600 dark:text-gray-400" />
           Job Details
         </h3>
 
         <div className="space-y-2">
           <div>
-            <p className="text-xs text-gray-500">Position</p>
-            <p data-review-job-title className="text-sm font-medium text-gray-900">
+            <p className="text-xs text-gray-500 dark:text-gray-400">Position</p>
+            <p data-review-job-title className="text-sm font-medium text-gray-900 dark:text-gray-100">
               {jobTitle}
             </p>
           </div>
 
           <div>
-            <p className="text-xs text-gray-500">Company</p>
-            <p data-review-company className="text-sm font-medium text-gray-900">
+            <p className="text-xs text-gray-500 dark:text-gray-400">Company</p>
+            <p data-review-company className="text-sm font-medium text-gray-900 dark:text-gray-100">
               {companyName}
             </p>
           </div>
 
           {location && (
             <div>
-              <p className="text-xs text-gray-500">Location</p>
-              <p data-review-location className="text-sm font-medium text-gray-900 flex items-center gap-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Location</p>
+              <p data-review-location className="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-1">
                 <MapPin className="h-3 w-3" />
                 {location}
               </p>
@@ -103,10 +103,10 @@ export function ReviewStep({
       </div>
 
       {/* Resume Section */}
-      <div className="p-4 bg-white border border-gray-200 rounded-lg">
+      <div className="p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg">
         <div className="flex items-start justify-between mb-3">
-          <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-            <FileText className="h-5 w-5 text-blue-600" />
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             Resume
           </h3>
           <Button
@@ -121,15 +121,15 @@ export function ReviewStep({
           </Button>
         </div>
 
-        <div data-review-resume className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-          <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-            <FileText className="h-5 w-5 text-blue-600" />
+        <div data-review-resume className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
+          <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+            <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
               {getResumeName()}
             </p>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-gray-600 dark:text-gray-400">
               {applicationData.resumeFile
                 ? `${(applicationData.resumeFile.size / 1024).toFixed(0)} KB`
                 : 'PDF document'}
@@ -139,9 +139,9 @@ export function ReviewStep({
       </div>
 
       {/* Applicant Details Section */}
-      <div className="p-4 bg-white border border-gray-200 rounded-lg">
+      <div className="p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg">
         <div className="flex items-start justify-between mb-3">
-          <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <User className="h-5 w-5 text-purple-600" />
             Your Details
           </h3>
@@ -163,8 +163,8 @@ export function ReviewStep({
               <User className="h-4 w-4 text-purple-600" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Full Name</p>
-              <p data-review-name className="text-sm font-medium text-gray-900">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Full Name</p>
+              <p data-review-name className="text-sm font-medium text-gray-900 dark:text-gray-100">
                 {applicationData.fullName}
               </p>
             </div>
@@ -175,8 +175,8 @@ export function ReviewStep({
               <Mail className="h-4 w-4 text-green-600" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Email</p>
-              <p data-review-email className="text-sm font-medium text-gray-900 break-all">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
+              <p data-review-email className="text-sm font-medium text-gray-900 dark:text-gray-100 break-all">
                 {applicationData.email}
               </p>
             </div>
@@ -187,24 +187,24 @@ export function ReviewStep({
               <Phone className="h-4 w-4 text-orange-600" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Phone</p>
-              <p data-review-phone className="text-sm font-medium text-gray-900">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Phone</p>
+              <p data-review-phone className="text-sm font-medium text-gray-900 dark:text-gray-100">
                 {applicationData.phone}
               </p>
             </div>
           </div>
 
           {applicationData.coverLetter && (
-            <div className="pt-3 border-t border-gray-200">
+            <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
                   <MessageSquare className="h-4 w-4 text-indigo-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-gray-500 mb-1">Cover Letter</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Cover Letter</p>
                   <div
                     data-review-cover-letter
-                    className="text-sm text-gray-900 max-h-32 overflow-y-auto p-2 bg-gray-50 rounded-lg"
+                    className="text-sm text-gray-900 dark:text-gray-100 max-h-32 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-950 rounded-lg"
                   >
                     {applicationData.coverLetter}
                   </div>
@@ -216,7 +216,7 @@ export function ReviewStep({
       </div>
 
       {/* Terms and Conditions */}
-      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+      <div className="p-4 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg">
         <label className="flex items-start gap-3 cursor-pointer">
           <Checkbox
             data-terms-checkbox
@@ -225,7 +225,7 @@ export function ReviewStep({
             className="mt-1"
           />
           <div>
-            <p data-terms-label className="text-sm text-gray-900">
+            <p data-terms-label className="text-sm text-gray-900 dark:text-gray-100">
               I agree to the{' '}
               <a href="/terms" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
                 Terms of Service
@@ -235,14 +235,14 @@ export function ReviewStep({
                 Privacy Policy
               </a>
             </p>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
               By submitting, you consent to sharing your information with {companyName}.
             </p>
           </div>
         </label>
 
         {!applicationData.termsAccepted && submissionError && (
-          <p data-error="terms" role="alert" aria-live="polite" className="text-sm text-red-600 mt-2">
+          <p data-error="terms" role="alert" aria-live="polite" className="text-sm text-red-600 dark:text-red-400 mt-2">
             Please accept the terms and conditions to continue
           </p>
         )}
@@ -250,8 +250,8 @@ export function ReviewStep({
 
       {/* Submission Error */}
       {submissionError && (
-        <div data-application-error className="p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-900 mb-3">{submissionError}</p>
+        <div data-application-error className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-900 dark:text-red-300 mb-3">{submissionError}</p>
 
           {submissionError.includes('session') || submissionError.includes('login') ? (
             <Button
@@ -279,7 +279,7 @@ export function ReviewStep({
               onClick={onRetry}
               size="sm"
               variant="outline"
-              className="w-full border-red-300 text-red-700 hover:bg-red-100"
+              className="w-full border-red-300 text-red-700 dark:text-red-400 hover:bg-red-100"
             >
               Try Again
             </Button>
@@ -288,8 +288,8 @@ export function ReviewStep({
       )}
 
       {/* Info Note */}
-      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <p className="text-xs text-blue-900">
+      <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg">
+        <p className="text-xs text-blue-900 dark:text-blue-300">
           🔒 Your information is secure and will only be shared with {companyName}.
         </p>
       </div>

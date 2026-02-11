@@ -267,7 +267,7 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
               <Button
                 data-capture-button
                 onClick={handleCapture}
-                className="w-20 h-20 rounded-full bg-white hover:bg-gray-200 mx-auto flex items-center justify-center p-0"
+                className="w-20 h-20 rounded-full bg-white hover:bg-gray-200 dark:hover:bg-gray-700 mx-auto flex items-center justify-center p-0"
               >
                 <div className="w-16 h-16 rounded-full border-4 border-black" />
               </Button>

@@ -131,17 +131,17 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
         role="dialog"
         aria-modal="true"
         aria-labelledby="shortcuts-title"
-        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-full max-w-2xl max-h-[80vh] overflow-y-auto bg-white rounded-lg shadow-2xl"
+        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-full max-w-2xl max-h-[80vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-lg shadow-2xl"
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 id="shortcuts-title" className="text-xl font-semibold text-gray-900">
+        <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+          <h2 id="shortcuts-title" className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             Keyboard Shortcuts
           </h2>
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="rounded-md p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-md p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="Close keyboard shortcuts"
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -154,17 +154,17 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
         <div className="px-6 py-6 space-y-8">
           {shortcutGroups.map((group) => (
             <div key={group.category}>
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+              <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
                 {group.category}
               </h3>
               <div className="space-y-2">
                 {group.shortcuts.map((shortcut, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-gray-50"
+                    className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <span className="text-sm text-gray-700">{shortcut.description}</span>
-                    <kbd className="inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-100 px-2 py-1 text-xs font-mono text-gray-600">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{shortcut.description}</span>
+                    <kbd className="inline-flex items-center gap-1 rounded border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 px-2 py-1 text-xs font-mono text-gray-600 dark:text-gray-400">
                       {shortcut.keys}
                     </kbd>
                   </div>
@@ -175,9 +175,9 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4">
-          <p className="text-xs text-gray-500 text-center">
-            Press <kbd className="px-1 py-0.5 bg-white border border-gray-300 rounded text-gray-600">Esc</kbd> to close
+        <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            Press <kbd className="px-1 py-0.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded text-gray-600 dark:text-gray-400">Esc</kbd> to close
           </p>
         </div>
       </div>

@@ -137,8 +137,8 @@ ${applicationData.fullName}`;
     <div data-application-form className="p-4 space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">Your Details</h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Your Details</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Tell us about yourself
         </p>
       </div>
@@ -163,7 +163,7 @@ ${applicationData.fullName}`;
             aria-describedby={errors.fullName ? 'error-fullName' : undefined}
           />
           {errors.fullName && (
-            <p id="error-fullName" data-error="fullName" role="alert" aria-live="polite" className="text-sm text-red-600 mt-1">
+            <p id="error-fullName" data-error="fullName" role="alert" aria-live="polite" className="text-sm text-red-600 dark:text-red-400 mt-1">
               {errors.fullName}
             </p>
           )}
@@ -188,7 +188,7 @@ ${applicationData.fullName}`;
             aria-describedby={errors.email ? 'error-email' : undefined}
           />
           {errors.email && (
-            <p id="error-email" data-error="email" role="alert" aria-live="polite" className="text-sm text-red-600 mt-1">
+            <p id="error-email" data-error="email" role="alert" aria-live="polite" className="text-sm text-red-600 dark:text-red-400 mt-1">
               {errors.email}
             </p>
           )}
@@ -213,7 +213,7 @@ ${applicationData.fullName}`;
             aria-describedby={errors.phone ? 'error-phone' : undefined}
           />
           {errors.phone && (
-            <p id="error-phone" data-error="phone" role="alert" aria-live="polite" className="text-sm text-red-600 mt-1">
+            <p id="error-phone" data-error="phone" role="alert" aria-live="polite" className="text-sm text-red-600 dark:text-red-400 mt-1">
               {errors.phone}
             </p>
           )}
@@ -259,7 +259,7 @@ ${applicationData.fullName}`;
           />
 
           {/* Character Count */}
-          <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+          <div className="flex items-center justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
             <p data-char-count>
               {coverLetterLength} / {maxCoverLetterLength} characters
             </p>
@@ -272,16 +272,16 @@ ${applicationData.fullName}`;
 
           {/* Generation Error */}
           {generationError && (
-            <div data-generation-error className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-900">{generationError}</p>
+            <div data-generation-error className="mt-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-900 dark:text-red-300">{generationError}</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Info Note */}
-      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <p className="text-xs text-blue-900">
+      <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg">
+        <p className="text-xs text-blue-900 dark:text-blue-300">
           💡 <strong>Tip:</strong> A personalized cover letter can increase your chances of getting noticed by 40%.
         </p>
       </div>
