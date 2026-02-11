@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { authApi, userApi } from '../api';
+import { setAuthCookie, clearAuthCookie } from '../auth-cookies';
 
 export interface User {
   id: string;
@@ -57,6 +58,7 @@ export const useAuthStore = create<AuthState>()(
         if (typeof window !== 'undefined') {
           localStorage.setItem('access_token', accessToken);
           localStorage.setItem('refresh_token', refreshToken);
+          setAuthCookie(accessToken);
         }
       },
 
@@ -103,6 +105,7 @@ export const useAuthStore = create<AuthState>()(
           if (typeof window !== 'undefined') {
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
+            clearAuthCookie();
           }
           set({
             user: null,
@@ -127,6 +130,7 @@ export const useAuthStore = create<AuthState>()(
           set({ accessToken: access_token });
           if (typeof window !== 'undefined') {
             localStorage.setItem('access_token', access_token);
+            setAuthCookie(access_token);
           }
         } catch (error) {
           // Refresh failed, log out user
@@ -146,9 +150,13 @@ export const useAuthStore = create<AuthState>()(
             typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null;
 
           if (!accessToken || !refreshToken) {
+            clearAuthCookie();
             set({ isInitialized: true, isLoading: false });
             return;
           }
+
+          // Sync localStorage token to cookie for middleware route protection
+          setAuthCookie(accessToken);
 
           // In E2E test mode (mock tokens), skip API validation and use persisted state
           const isMockToken = accessToken && accessToken.startsWith('mock-');
