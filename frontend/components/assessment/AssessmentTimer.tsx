@@ -106,11 +106,11 @@ export function AssessmentTimer({
   // Determine color based on time remaining
   const getColorClass = (): string => {
     if (timeRemaining > 600) {
-      return 'text-green-600'; // > 10 minutes
+      return 'text-green-600 dark:text-green-400'; // > 10 minutes
     } else if (timeRemaining > 300) {
-      return 'text-yellow-600'; // 5-10 minutes
+      return 'text-yellow-600 dark:text-yellow-400'; // 5-10 minutes
     } else {
-      return 'text-red-600'; // < 5 minutes
+      return 'text-red-600 dark:text-red-400'; // < 5 minutes
     }
   };
 

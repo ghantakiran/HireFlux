@@ -50,7 +50,7 @@ export default function ATSViewToggle({ view, onToggle }: ATSViewToggleProps) {
       <button
         onClick={handleToggle}
         aria-label={`Toggle view (current: ${view}). Press Alt+V to toggle.`}
-        className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+        className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
         title={`Switch to ${view === 'list' ? 'Kanban' : 'List'} view (Alt+V)`}
       >
         {view === 'list' ? (

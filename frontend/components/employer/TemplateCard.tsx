@@ -45,14 +45,14 @@ export default function TemplateCard({
   const isPublic = template.visibility === 'public';
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-5">
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-5">
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
             {template.name}
           </h3>
-          <div className="flex items-center text-sm text-gray-600">
+          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
             <Briefcase className="w-4 h-4 mr-1" />
             <span>{template.title}</span>
           </div>
@@ -64,7 +64,7 @@ export default function TemplateCard({
             {isEditable && onEdit && (
               <button
                 onClick={() => onEdit(template)}
-                className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                 title="Edit template"
               >
                 <Pencil className="w-4 h-4" />
@@ -73,7 +73,7 @@ export default function TemplateCard({
             {isDeletable && onDelete && (
               <button
                 onClick={() => onDelete(template)}
-                className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                 title="Delete template"
               >
                 <Trash2 className="w-4 h-4" />
@@ -98,8 +98,8 @@ export default function TemplateCard({
         <span
           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
             isPublic
-              ? 'bg-green-100 text-green-800'
-              : 'bg-gray-100 text-gray-800'
+              ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
           }`}
         >
           {isPublic ? (
@@ -113,13 +113,13 @@ export default function TemplateCard({
 
       {/* Description Preview */}
       {template.description && (
-        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
           {template.description}
         </p>
       )}
 
       {/* Metadata */}
-      <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-4">
         <span>{formatUsageCount(template.usage_count)}</span>
         {template.department && (
           <span className="text-gray-400">• {template.department}</span>
@@ -130,7 +130,7 @@ export default function TemplateCard({
       <div className="flex items-center space-x-2">
         <button
           onClick={() => onPreview(template)}
-          className="flex-1 flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+          className="flex-1 flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
         >
           <Eye className="w-4 h-4 mr-2" />
           Preview

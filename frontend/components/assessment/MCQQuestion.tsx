@@ -70,15 +70,15 @@ export function MCQQuestion({
       {/* Question Header */}
       <div className="space-y-2">
         <div className="flex items-start justify-between">
-          <h3 id={questionId} className="text-lg font-medium text-gray-900">
+          <h3 id={questionId} className="text-lg font-medium text-gray-900 dark:text-gray-100">
             {question.question_text}
             {required && <span className="text-red-500 ml-1">*</span>}
           </h3>
-          <span className="text-sm text-gray-500 font-medium">{question.points} points</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">{question.points} points</span>
         </div>
 
         {error && (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-sm text-red-600 dark:text-red-400" role="alert">
             {error}
           </p>
         )}
@@ -90,7 +90,7 @@ export function MCQQuestion({
           role="group"
           aria-labelledby={questionId}
           className={`space-y-3 rounded-lg border p-4 ${
-            hasError ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-gray-50'
+            hasError ? 'border-red-300 bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-950'
           }`}
         >
           {isSingleChoice ? (
@@ -109,7 +109,7 @@ export function MCQQuestion({
                       value={option}
                       checked={isSelected}
                       onChange={(e) => handleSingleChoiceChange(e.target.value)}
-                      className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      className="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500"
                     />
                     <Label
                       htmlFor={optionId}
@@ -135,7 +135,7 @@ export function MCQQuestion({
                       id={optionId}
                       checked={isChecked}
                       onChange={(e) => handleMultipleChoiceChange(option, e.target.checked)}
-                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500"
                     />
                     <Label
                       htmlFor={optionId}
@@ -153,7 +153,7 @@ export function MCQQuestion({
 
       {/* Hint for multiple choice */}
       {!isSingleChoice && (
-        <p className="text-xs text-gray-500 italic">
+        <p className="text-xs text-gray-500 dark:text-gray-400 italic">
           Select all that apply
         </p>
       )}

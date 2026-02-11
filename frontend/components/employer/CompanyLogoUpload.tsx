@@ -196,7 +196,7 @@ export function CompanyLogoUpload({
         {/* Logo Preview */}
         <div className="flex-shrink-0">
           {currentLogoUrl ? (
-            <div className="relative w-32 h-32 border-2 border-gray-200 rounded-lg overflow-hidden bg-white">
+            <div className="relative w-32 h-32 border-2 border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
               <Image
                 src={currentLogoUrl}
                 alt="Company logo"
@@ -205,7 +205,7 @@ export function CompanyLogoUpload({
               />
             </div>
           ) : (
-            <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
+            <div className="w-32 h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-gray-950">
               <ImageIcon className="h-12 w-12 text-gray-400" />
             </div>
           )}
@@ -220,12 +220,12 @@ export function CompanyLogoUpload({
             onDrop={handleDrop}
             className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
               isDragging
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-gray-400'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
             }`}
           >
             <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-            <p className="text-sm text-gray-600 mb-1">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
               Drag and drop your logo here, or
             </p>
             <Button
@@ -243,7 +243,7 @@ export function CompanyLogoUpload({
               onChange={handleFileInputChange}
               className="hidden"
             />
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               PNG, JPG or SVG (max 5MB). Images will be resized to 400x400px
             </p>
           </div>
@@ -266,9 +266,9 @@ export function CompanyLogoUpload({
 
       {/* Error Message */}
       {error && (
-        <Alert className="bg-red-50 border-red-200">
-          <AlertCircle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">{error}</AlertDescription>
+        <Alert className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+          <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+          <AlertDescription className="text-red-800 dark:text-red-300">{error}</AlertDescription>
         </Alert>
       )}
 
@@ -285,7 +285,7 @@ export function CompanyLogoUpload({
 
           {previewUrl && (
             <div className="flex justify-center py-4">
-              <div className="relative w-64 h-64 border-2 border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+              <div className="relative w-64 h-64 border-2 border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-950">
                 <Image
                   src={previewUrl}
                   alt="Logo preview"
@@ -297,7 +297,7 @@ export function CompanyLogoUpload({
           )}
 
           {selectedFile && (
-            <div className="text-sm text-gray-600 space-y-1">
+            <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
               <p>
                 <strong>File name:</strong> {selectedFile.name}
               </p>

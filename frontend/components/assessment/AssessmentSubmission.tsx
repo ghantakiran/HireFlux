@@ -79,21 +79,21 @@ export function AssessmentSubmission({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Progress Summary */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">Submission Summary</h3>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6 space-y-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Submission Summary</h3>
 
         {/* Progress Bar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-700">{answeredCount} of {totalQuestions} questions answered</span>
-            <span className="font-medium text-gray-900">{completionPercentage}%</span>
+            <span className="text-gray-700 dark:text-gray-300">{answeredCount} of {totalQuestions} questions answered</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">{completionPercentage}%</span>
           </div>
           <div
             role="progressbar"
             aria-valuenow={completionPercentage}
             aria-valuemin={0}
             aria-valuemax={100}
-            className="w-full bg-gray-200 rounded-full h-2 overflow-hidden"
+            className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden"
           >
             <div
               className={`h-full transition-all duration-300 ${
@@ -107,12 +107,12 @@ export function AssessmentSubmission({
         {/* Status Messages */}
         <div className="space-y-2">
           {allAnswered ? (
-            <div className="flex items-center gap-2 text-green-700 bg-green-50 border border-green-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20 border border-green-200 rounded-lg p-3">
               <CheckCircle className="w-5 h-5 flex-shrink-0" />
               <span className="text-sm font-medium">All questions answered</span>
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 rounded-lg p-3">
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <span className="text-sm font-medium">{unansweredCount} question{unansweredCount !== 1 ? 's' : ''} unanswered</span>
             </div>
@@ -120,7 +120,7 @@ export function AssessmentSubmission({
 
           {/* Time Spent */}
           {timeSpentSeconds !== undefined && (
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
               <Clock className="w-4 h-4" />
               <span className="text-sm">Time spent: {formatTime(timeSpentSeconds)}</span>
             </div>
@@ -147,11 +147,11 @@ export function AssessmentSubmission({
         {/* Error Message */}
         {submissionError && (
           <div className="space-y-3">
-            <div className="flex items-start gap-2 text-red-700 bg-red-50 border border-red-200 rounded-lg p-3">
+            <div className="flex items-start gap-2 text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-3">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-medium">Submission failed</p>
-                <p className="text-sm text-red-600 mt-1">{submissionError}</p>
+                <p className="text-sm text-red-600 dark:text-red-400 mt-1">{submissionError}</p>
               </div>
             </div>
             <Button onClick={handleRetry} variant="outline" className="w-full">
@@ -167,35 +167,35 @@ export function AssessmentSubmission({
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
           onClick={(e) => e.target === e.currentTarget && handleCancel()}
         >
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4">
-            <h2 className="text-xl font-semibold text-gray-900">Confirm Submission</h2>
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-md w-full p-6 space-y-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Confirm Submission</h2>
 
             <div className="space-y-3">
-              <p className="text-gray-700">
+              <p className="text-gray-700 dark:text-gray-300">
                 You are about to submit your assessment. Once submitted, you cannot make changes.
               </p>
 
               {/* Progress Info */}
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
+              <div className="bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg p-3 space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Questions answered:</span>
-                  <span className="font-medium text-gray-900">{answeredCount} of {totalQuestions}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Questions answered:</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{answeredCount} of {totalQuestions}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Completion:</span>
-                  <span className="font-medium text-gray-900">{completionPercentage}%</span>
+                  <span className="text-gray-600 dark:text-gray-400">Completion:</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{completionPercentage}%</span>
                 </div>
                 {timeSpentSeconds !== undefined && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Time spent:</span>
-                    <span className="font-medium text-gray-900">{formatTime(timeSpentSeconds)}</span>
+                    <span className="text-gray-600 dark:text-gray-400">Time spent:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{formatTime(timeSpentSeconds)}</span>
                   </div>
                 )}
               </div>
 
               {/* Warning for incomplete */}
               {!allAnswered && (
-                <div className="flex items-start gap-2 text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <div className="flex items-start gap-2 text-yellow-700 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 rounded-lg p-3">
                   <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                   <div className="text-sm">
                     <p className="font-medium">Incomplete assessment</p>
@@ -207,7 +207,7 @@ export function AssessmentSubmission({
 
             {/* Submission Status */}
             {isSubmitting && (
-              <div role="status" aria-live="polite" className="flex items-center justify-center gap-2 text-blue-600 bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div role="status" aria-live="polite" className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg p-3">
                 <Loader2 className="w-5 h-5 animate-spin" />
                 <span className="text-sm font-medium">Submitting your assessment...</span>
               </div>

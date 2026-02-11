@@ -76,22 +76,22 @@ export default function ApplicantListWithFiltering({
 
   // Get fit score color
   const getFitScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-700 bg-green-50';
-    if (score >= 60) return 'text-yellow-700 bg-yellow-50';
-    return 'text-red-700 bg-red-50';
+    if (score >= 80) return 'text-green-700 bg-green-50 dark:bg-green-900/20 dark:text-green-400';
+    if (score >= 60) return 'text-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400';
+    return 'text-red-700 bg-red-50 dark:bg-red-900/20 dark:text-red-400';
   };
 
   // Get status badge color
   const getStatusBadgeColor = (status: string) => {
     const color = STATUS_COLORS[status as keyof typeof STATUS_COLORS] || 'gray';
     const colorMap: Record<string, string> = {
-      blue: 'bg-blue-100 text-blue-700',
-      yellow: 'bg-yellow-100 text-yellow-700',
-      purple: 'bg-purple-100 text-purple-700',
-      green: 'bg-green-100 text-green-700',
-      emerald: 'bg-emerald-100 text-emerald-700',
-      red: 'bg-red-100 text-red-700',
-      gray: 'bg-gray-100 text-gray-700',
+      blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+      yellow: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
+      purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
+      green: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+      emerald: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+      red: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+      gray: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
     };
     return colorMap[color] || colorMap.gray;
   };
@@ -114,7 +114,7 @@ export default function ApplicantListWithFiltering({
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-2" />
-          <p className="text-sm text-gray-600">Loading applicants...</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Loading applicants...</p>
         </div>
       </div>
     );
@@ -125,8 +125,8 @@ export default function ApplicantListWithFiltering({
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-sm text-red-600 mb-2">Failed to load applicants</p>
-          <p className="text-xs text-gray-500">{error}</p>
+          <p className="text-sm text-red-600 dark:text-red-400 mb-2">Failed to load applicants</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{error}</p>
         </div>
       </div>
     );
@@ -138,8 +138,8 @@ export default function ApplicantListWithFiltering({
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <Inbox className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No applicants found</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">No applicants found</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             {filters.search
               ? 'Try adjusting your search or filters'
               : 'No applications have been received yet'}
@@ -153,18 +153,18 @@ export default function ApplicantListWithFiltering({
     <div className="flex flex-col h-full">
       {/* Table */}
       <div className="flex-1 overflow-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50 sticky top-0 z-10">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-950 sticky top-0 z-10">
             <tr>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
               >
                 Candidate
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
                 onClick={() => handleSort('fitIndex')}
               >
                 <div className="flex items-center gap-1">
@@ -174,13 +174,13 @@ export default function ApplicantListWithFiltering({
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
               >
                 Status
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
                 onClick={() => handleSort('appliedDate')}
               >
                 <div className="flex items-center gap-1">
@@ -190,26 +190,26 @@ export default function ApplicantListWithFiltering({
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
               >
                 Location
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             {applications.map((application) => (
               <tr
                 key={application.id}
                 onClick={() => handleApplicantClick(application.id)}
-                className="hover:bg-gray-50 cursor-pointer transition-colors"
+                className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
               >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {application.candidate.first_name} {application.candidate.last_name}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         {application.candidate.email}
                       </div>
                     </div>
@@ -233,12 +233,12 @@ export default function ApplicantListWithFiltering({
                     {STATUS_LABELS[application.status]}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {formatDistanceToNow(new Date(application.applied_at), {
                     addSuffix: true,
                   })}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {application.candidate.location || '-'}
                 </td>
               </tr>
@@ -248,9 +248,9 @@ export default function ApplicantListWithFiltering({
       </div>
 
       {/* Pagination */}
-      <div className="border-t border-gray-200 bg-white px-6 py-4">
+      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-gray-700 dark:text-gray-300">
             Showing <span className="font-medium">{startItem}</span> to{' '}
             <span className="font-medium">{endItem}</span> of{' '}
             <span className="font-medium">{totalCount}</span> results
@@ -260,7 +260,7 @@ export default function ApplicantListWithFiltering({
             <button
               onClick={handleFirstPage}
               disabled={page === 1}
-              className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="First page"
             >
               <ChevronsLeft className="w-4 h-4" />
@@ -268,20 +268,20 @@ export default function ApplicantListWithFiltering({
             <button
               onClick={handlePrevPage}
               disabled={page === 1}
-              className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Previous page"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <span className="text-sm text-gray-700 px-4">
+            <span className="text-sm text-gray-700 dark:text-gray-300 px-4">
               Page {page} of {totalPages}
             </span>
 
             <button
               onClick={handleNextPage}
               disabled={!hasMore}
-              className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Next page"
             >
               <ChevronRight className="w-4 h-4" />
@@ -289,7 +289,7 @@ export default function ApplicantListWithFiltering({
             <button
               onClick={handleLastPage}
               disabled={!hasMore}
-              className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Last page"
             >
               <ChevronsRight className="w-4 h-4" />

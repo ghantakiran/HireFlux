@@ -37,10 +37,10 @@ export function AssessmentProgress({
     <div className={`space-y-3 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between text-sm">
-        <span className="text-gray-600">
+        <span className="text-gray-600 dark:text-gray-400">
           Question {currentQuestionIndex + 1} of {totalQuestions}
         </span>
-        <span className={`font-medium ${isComplete ? 'text-green-600' : 'text-gray-900'}`}>
+        <span className={`font-medium ${isComplete ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-gray-100'}`}>
           {answeredQuestions} / {totalQuestions} answered
           {isComplete && ' ✓'}
         </span>
@@ -50,11 +50,11 @@ export function AssessmentProgress({
       <Progress value={progressPercentage} max={100} className="h-2" />
 
       {/* Progress Text */}
-      <div className="flex items-center gap-2 text-xs text-gray-500">
+      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
         {isComplete ? (
           <>
-            <CheckCircle className="w-4 h-4 text-green-600" />
-            <span className="text-green-600 font-medium">All questions answered</span>
+            <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+            <span className="text-green-600 dark:text-green-400 font-medium">All questions answered</span>
           </>
         ) : (
           <>
@@ -98,7 +98,7 @@ export function QuestionNavigator({
 }: QuestionNavigatorProps) {
   return (
     <div className={`space-y-2 ${className}`}>
-      <h3 className="text-sm font-semibold text-gray-700 mb-3">Questions</h3>
+      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Questions</h3>
       <div className="grid grid-cols-5 gap-2">
         {Array.from({ length: totalQuestions }, (_, index) => {
           const isAnswered = answeredQuestions.has(index);
@@ -115,8 +115,8 @@ export function QuestionNavigator({
                   isCurrent
                     ? 'bg-blue-600 text-white ring-2 ring-blue-600 ring-offset-2'
                     : isAnswered
-                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 hover:bg-green-200'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
                 }
               `}
               aria-label={`Question ${index + 1}${isAnswered ? ' (answered)' : ''}${

@@ -76,18 +76,18 @@ export function UsageLimitsDashboard({ 'data-testid': dataTestId }: UsageLimitsD
     return (
       <div className="flex items-center justify-center py-12" data-testid={`${dataTestId}-loading`}>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-        <span className="ml-3 text-gray-600">Loading usage data...</span>
+        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading usage data...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-lg" data-testid={`${dataTestId}-error`}>
-        <p className="text-sm text-red-800">{error}</p>
+      <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-gray-700 rounded-lg" data-testid={`${dataTestId}-error`}>
+        <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
         <button
           onClick={fetchUsageLimits}
-          className="mt-2 text-sm text-red-700 font-medium underline hover:text-red-900"
+          className="mt-2 text-sm text-red-700 dark:text-red-400 font-medium underline hover:text-red-900 dark:hover:text-red-300"
         >
           Retry
         </button>
@@ -186,11 +186,11 @@ export function UsageLimitsDashboard({ 'data-testid': dataTestId }: UsageLimitsD
       </div>
 
       {/* Current Plan Info */}
-      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+      <div className="p-4 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-gray-700">Current Plan</h3>
-            <p className="text-lg font-bold text-gray-900 capitalize" data-testid={`${dataTestId}-plan`}>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Current Plan</h3>
+            <p className="text-lg font-bold text-gray-900 dark:text-gray-100 capitalize" data-testid={`${dataTestId}-plan`}>
               {usageLimits.plan}
             </p>
           </div>

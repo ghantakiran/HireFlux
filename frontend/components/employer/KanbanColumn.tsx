@@ -48,21 +48,21 @@ export default function KanbanColumn({
   const getColorClasses = () => {
     switch (color) {
       case 'blue':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+        return 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200';
       case 'yellow':
-        return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+        return 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200';
       case 'green':
-        return 'bg-green-50 text-green-700 border-green-200';
+        return 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200';
       case 'purple':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
+        return 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 border-purple-200';
       case 'orange':
-        return 'bg-orange-50 text-orange-700 border-orange-200';
+        return 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 border-orange-200';
       case 'red':
-        return 'bg-red-50 text-red-700 border-red-200';
+        return 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200';
       case 'gray':
-        return 'bg-gray-50 text-gray-700 border-gray-200';
+        return 'bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
       default:
-        return 'bg-gray-50 text-gray-700 border-gray-200';
+        return 'bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -74,8 +74,8 @@ export default function KanbanColumn({
       data-column={id}
       data-drop-zone="true"
       data-drag-over={isOver ? 'true' : 'false'}
-      className={`flex flex-col bg-gray-50 rounded-lg border-2 transition-all duration-200 ${
-        isOver ? 'ring-2 ring-blue-500 border-blue-500 bg-blue-50/50 shadow-lg' : 'border-gray-200'
+      className={`flex flex-col bg-gray-50 dark:bg-gray-950 rounded-lg border-2 transition-all duration-200 ${
+        isOver ? 'ring-2 ring-blue-500 border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 shadow-lg' : 'border-gray-200 dark:border-gray-700'
       }`}
       style={{ minWidth: '280px', maxWidth: '320px' }}
     >
@@ -99,7 +99,7 @@ export default function KanbanColumn({
         </div>
 
         {/* Candidate Count Badge */}
-        <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-white text-xs font-semibold">
+        <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-white dark:bg-gray-900 text-xs font-semibold">
           {candidates.length}
         </span>
       </div>
@@ -114,7 +114,7 @@ export default function KanbanColumn({
           {candidates.length === 0 ? (
             // Empty State
             <div className="flex flex-col items-center justify-center h-full text-center py-8">
-              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+              <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
                 <svg
                   className="w-8 h-8 text-gray-400"
                   fill="none"
@@ -129,8 +129,8 @@ export default function KanbanColumn({
                   />
                 </svg>
               </div>
-              <p className="text-sm font-medium text-gray-600">No candidates in this stage</p>
-              <p className="text-xs text-gray-500 mt-1">Drag candidates here to move them</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">No candidates in this stage</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Drag candidates here to move them</p>
             </div>
           ) : (
             // Candidate Cards

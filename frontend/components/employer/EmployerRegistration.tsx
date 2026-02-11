@@ -481,9 +481,9 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
   const renderStep1 = () => (
     <div className="space-y-4">
       <div className="text-center mb-6">
-        <Mail className="w-12 h-12 text-blue-600 mx-auto mb-3" />
-        <h2 className="text-2xl font-bold text-gray-900">Create your employer account</h2>
-        <p className="text-gray-600 mt-2">Enter your company email to get started</p>
+        <Mail className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-3" />
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Create your employer account</h2>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">Enter your company email to get started</p>
       </div>
 
       <div>
@@ -499,7 +499,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
           aria-describedby={errors.email ? 'email-error' : undefined}
         />
         {errors.email && (
-          <p id="email-error" className="text-sm text-red-600 mt-1 flex items-center gap-1">
+          <p id="email-error" className="text-sm text-red-600 dark:text-red-400 mt-1 flex items-center gap-1">
             <AlertCircle className="w-4 h-4" />
             {errors.email}
           </p>
@@ -507,15 +507,15 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
       </div>
 
       {companyDomain && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <p className="text-sm text-blue-900">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg p-3">
+          <p className="text-sm text-blue-900 dark:text-blue-300">
             <strong>Detected domain:</strong> {companyDomain}
           </p>
         </div>
       )}
 
       {isPersonalEmail && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 rounded-lg p-3">
           <p className="text-sm text-yellow-900 flex items-start gap-2">
             <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <span>
@@ -530,9 +530,9 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
   const renderStep2 = () => (
     <div className="space-y-4">
       <div className="text-center mb-6">
-        <Mail className="w-12 h-12 text-blue-600 mx-auto mb-3" />
-        <h2 className="text-2xl font-bold text-gray-900">Verify your email</h2>
-        <p className="text-gray-600 mt-2">
+        <Mail className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-3" />
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Verify your email</h2>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
           We've sent a 6-digit code to <strong>{email}</strong>
         </p>
       </div>
@@ -557,7 +557,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
           ))}
         </div>
         {errors.verification && (
-          <p className="text-sm text-red-600 mt-2 flex items-center gap-1">
+          <p className="text-sm text-red-600 dark:text-red-400 mt-2 flex items-center gap-1">
             <AlertCircle className="w-4 h-4" />
             {errors.verification}
           </p>
@@ -568,7 +568,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
         <button
           type="button"
           onClick={handleResendCode}
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium"
           aria-label="Resend code"
         >
           Didn't receive the code? Resend
@@ -583,9 +583,9 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
     return (
       <div className="space-y-4">
         <div className="text-center mb-6">
-          <Lock className="w-12 h-12 text-blue-600 mx-auto mb-3" />
-          <h2 className="text-2xl font-bold text-gray-900">Create a password</h2>
-          <p className="text-gray-600 mt-2">Choose a strong password for your account</p>
+          <Lock className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-3" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Create a password</h2>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Choose a strong password for your account</p>
         </div>
 
         <div>
@@ -603,7 +603,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -613,7 +613,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
           {strength && (
             <div className="mt-2">
               <div className="flex items-center gap-2 mb-1">
-                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div
                     className={`h-full ${strength.color} transition-all duration-300`}
                     style={{ width: `${((strength.score + 1) / 4) * 100}%` }}
@@ -625,13 +625,13 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
           )}
 
           {errors.password && (
-            <p id="password-error" className="text-sm text-red-600 mt-1 flex items-start gap-1">
+            <p id="password-error" className="text-sm text-red-600 dark:text-red-400 mt-1 flex items-start gap-1">
               <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
               <span>{errors.password}</span>
             </p>
           )}
 
-          <div id="password-requirements" className="mt-2 text-sm text-gray-600 space-y-1">
+          <div id="password-requirements" className="mt-2 text-sm text-gray-600 dark:text-gray-400 space-y-1">
             <p>Password must contain:</p>
             <ul className="list-disc list-inside space-y-1 ml-2">
               <li>At least 8 characters</li>
@@ -658,14 +658,14 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
             >
               {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
           {errors.confirmPassword && (
-            <p id="confirm-password-error" className="text-sm text-red-600 mt-1 flex items-center gap-1">
+            <p id="confirm-password-error" className="text-sm text-red-600 dark:text-red-400 mt-1 flex items-center gap-1">
               <AlertCircle className="w-4 h-4" />
               {errors.confirmPassword}
             </p>
@@ -678,9 +678,9 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
   const renderStep4 = () => (
     <div className="space-y-4">
       <div className="text-center mb-6">
-        <Building2 className="w-12 h-12 text-blue-600 mx-auto mb-3" />
-        <h2 className="text-2xl font-bold text-gray-900">Tell us about your company</h2>
-        <p className="text-gray-600 mt-2">Help us personalize your experience</p>
+        <Building2 className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-3" />
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Tell us about your company</h2>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">Help us personalize your experience</p>
       </div>
 
       <div>
@@ -694,7 +694,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
           aria-invalid={!!errors.companyName}
         />
         {errors.companyName && (
-          <p className="text-sm text-red-600 mt-1">{errors.companyName}</p>
+          <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.companyName}</p>
         )}
       </div>
 
@@ -704,7 +704,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
           id="industry"
           value={industry}
           onChange={(e) => setIndustry(e.target.value)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="mt-1 w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
           aria-invalid={!!errors.industry}
         >
           <option value="">Select an industry</option>
@@ -715,7 +715,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
           ))}
         </select>
         {errors.industry && (
-          <p className="text-sm text-red-600 mt-1">{errors.industry}</p>
+          <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.industry}</p>
         )}
       </div>
 
@@ -725,7 +725,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
           id="companySize"
           value={companySize}
           onChange={(e) => setCompanySize(e.target.value)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="mt-1 w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
           aria-invalid={!!errors.companySize}
         >
           <option value="">Select company size</option>
@@ -736,7 +736,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
           ))}
         </select>
         {errors.companySize && (
-          <p className="text-sm text-red-600 mt-1">{errors.companySize}</p>
+          <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.companySize}</p>
         )}
       </div>
 
@@ -752,7 +752,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
           aria-invalid={!!errors.location}
         />
         {errors.location && (
-          <p className="text-sm text-red-600 mt-1">{errors.location}</p>
+          <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.location}</p>
         )}
       </div>
 
@@ -768,7 +768,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
           aria-invalid={!!errors.website}
         />
         {errors.website && (
-          <p className="text-sm text-red-600 mt-1">{errors.website}</p>
+          <p className="text-sm text-red-600 dark:text-red-400 mt-1">{errors.website}</p>
         )}
       </div>
 
@@ -780,11 +780,11 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
             type="file"
             accept="image/*"
             onChange={(e) => setLogo(e.target.files?.[0] || null)}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/20 file:text-blue-700 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/30"
           />
           {logo && (
-            <p className="text-sm text-gray-600 mt-2 flex items-center gap-1">
-              <Check className="w-4 h-4 text-green-600" />
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-1">
+              <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
               {logo.name}
             </p>
           )}
@@ -796,8 +796,8 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
   const renderStep5 = () => (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Choose your plan</h2>
-        <p className="text-gray-600 mt-2">Select the plan that best fits your hiring needs</p>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Choose your plan</h2>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">Select the plan that best fits your hiring needs</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
@@ -808,8 +808,8 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
             aria-label={`Select ${plan.name} plan`}
             className={`relative border-2 rounded-lg p-6 cursor-pointer transition-all text-left ${
               selectedPlan === plan.id
-                ? 'border-blue-600 bg-blue-50'
-                : 'border-gray-200 hover:border-blue-300'
+                ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+                : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
             } ${plan.recommended ? 'ring-2 ring-blue-600' : ''}`}
             onClick={() => setSelectedPlan(plan.id)}
           >
@@ -820,7 +820,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
             )}
 
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{plan.name}</h3>
               {selectedPlan === plan.id && (
                 <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
                   <Check className="w-4 h-4 text-white" />
@@ -829,16 +829,16 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
             </div>
 
             <div className="mb-2">
-              <span className="text-3xl font-bold text-gray-900">{plan.priceLabel}</span>
-              {plan.price > 0 && <span className="text-gray-600 text-sm"> /month</span>}
+              <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">{plan.priceLabel}</span>
+              {plan.price > 0 && <span className="text-gray-600 dark:text-gray-400 text-sm"> /month</span>}
             </div>
 
-            <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{plan.description}</p>
 
             <ul className="space-y-2">
               {plan.features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                  <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                <li key={index} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                  <Check className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
                   <span>{feature}</span>
                 </li>
               ))}
@@ -852,9 +852,9 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
   const renderStep6 = () => (
     <div className="space-y-4">
       <div className="text-center mb-6">
-        <CreditCard className="w-12 h-12 text-blue-600 mx-auto mb-3" />
-        <h2 className="text-2xl font-bold text-gray-900">Payment Information</h2>
-        <p className="text-gray-600 mt-2">
+        <CreditCard className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-3" />
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Payment Information</h2>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
           {selectedPlan === 'growth' ? '$99/month' : '$299/month'} - Cancel anytime
         </p>
       </div>
@@ -910,14 +910,14 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
       </div>
 
       {errors.payment && (
-        <p className="text-sm text-red-600 flex items-center gap-1">
+        <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
           <AlertCircle className="w-4 h-4" />
           {errors.payment}
         </p>
       )}
 
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-4">
-        <p className="text-sm text-gray-700">
+      <div className="bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-4">
+        <p className="text-sm text-gray-700 dark:text-gray-300">
           Your payment information is secure and encrypted. You can cancel your subscription at any time.
         </p>
       </div>
@@ -925,16 +925,16 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
           {/* Progress indicator */}
           <div className="mb-8">
-            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
               <span>Step {currentStep} of 6</span>
               <span>{Math.round((currentStep / 6) * 100)}% complete</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${(currentStep / 6) * 100}%` }}
@@ -958,8 +958,8 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
 
           {/* Error message */}
           {errors.submit && (
-            <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-800 flex items-center gap-2">
+            <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-800 dark:text-red-300 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />
                 {errors.submit}
               </p>

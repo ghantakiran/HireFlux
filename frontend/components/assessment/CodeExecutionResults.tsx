@@ -57,22 +57,22 @@ export function CodeExecutionResults({ results, className = '' }: CodeExecutionR
         role="status"
         aria-live="polite"
         className={`border rounded-lg p-4 ${
-          statusColor === 'green' ? 'bg-green-50 border-green-200' :
-          statusColor === 'red' ? 'bg-red-50 border-red-200' :
-          'bg-yellow-50 border-yellow-200'
+          statusColor === 'green' ? 'bg-green-50 dark:bg-green-900/20 border-green-200' :
+          statusColor === 'red' ? 'bg-red-50 dark:bg-red-900/20 border-red-200' :
+          'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200'
         }`}
       >
         <div className="flex items-start gap-3">
-          {status === 'success' && <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" />}
-          {status === 'failure' && <XCircle className="w-6 h-6 text-red-600 flex-shrink-0" />}
-          {status === 'error' && <AlertTriangle className="w-6 h-6 text-yellow-600 flex-shrink-0" />}
+          {status === 'success' && <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0" />}
+          {status === 'failure' && <XCircle className="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0" />}
+          {status === 'error' && <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />}
 
           <div className="flex-1">
             <h3
               className={`text-lg font-semibold ${
-                statusColor === 'green' ? 'text-green-900' :
-                statusColor === 'red' ? 'text-red-900' :
-                'text-yellow-900'
+                statusColor === 'green' ? 'text-green-900 dark:text-green-300' :
+                statusColor === 'red' ? 'text-red-900 dark:text-red-300' :
+                'text-yellow-900 dark:text-yellow-300'
               }`}
             >
               {status === 'success' && 'All Tests Passed!'}
@@ -84,14 +84,14 @@ export function CodeExecutionResults({ results, className = '' }: CodeExecutionR
             <div className="mt-2 space-y-1">
               <div className="flex items-center gap-4 text-sm">
                 <span className={`font-medium ${
-                  statusColor === 'green' ? 'text-green-700' :
-                  statusColor === 'red' ? 'text-red-700' :
-                  'text-yellow-700'
+                  statusColor === 'green' ? 'text-green-700 dark:text-green-300' :
+                  statusColor === 'red' ? 'text-red-700 dark:text-red-400' :
+                  'text-yellow-700 dark:text-yellow-300'
                 }`}>
                   {passedTests} passed, {failedTests} failed
                 </span>
-                <span className="text-gray-600">Score: {percentage}%</span>
-                <span className="flex items-center gap-1 text-gray-600">
+                <span className="text-gray-600 dark:text-gray-400">Score: {percentage}%</span>
+                <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
                   <Clock className="w-3 h-3" />
                   {executionTime}ms
                 </span>
@@ -100,8 +100,8 @@ export function CodeExecutionResults({ results, className = '' }: CodeExecutionR
 
             {/* Compilation Error */}
             {status === 'error' && error && (
-              <div className="mt-3 p-3 bg-white border border-yellow-300 rounded text-sm">
-                <p className="font-mono text-red-600">{error}</p>
+              <div className="mt-3 p-3 bg-white dark:bg-gray-900 border border-yellow-300 rounded text-sm">
+                <p className="font-mono text-red-600 dark:text-red-400">{error}</p>
               </div>
             )}
           </div>
@@ -110,22 +110,22 @@ export function CodeExecutionResults({ results, className = '' }: CodeExecutionR
 
       {/* Test Cases */}
       {testCases.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-lg">
-          <div className="px-4 py-3 border-b border-gray-200">
-            <h4 className="text-md font-semibold text-gray-900">Test Cases</h4>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+            <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100">Test Cases</h4>
           </div>
 
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {testCases.map((testCase, index) => (
               <div key={index} className="p-4 space-y-3">
                 {/* Test Name and Status */}
                 <div className="flex items-center justify-between">
-                  <h5 className="font-medium text-gray-900">{testCase.name}</h5>
+                  <h5 className="font-medium text-gray-900 dark:text-gray-100">{testCase.name}</h5>
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
                       testCase.passed
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-red-100 text-red-700'
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                        : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                     }`}
                   >
                     {testCase.passed ? (
@@ -146,16 +146,16 @@ export function CodeExecutionResults({ results, className = '' }: CodeExecutionR
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   {/* Input */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Input</label>
-                    <pre className="bg-gray-50 border border-gray-200 rounded p-2 text-xs overflow-x-auto">
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Input</label>
+                    <pre className="bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded p-2 text-xs overflow-x-auto">
                       <code>{testCase.input}</code>
                     </pre>
                   </div>
 
                   {/* Expected Output */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Expected</label>
-                    <pre className="bg-gray-50 border border-gray-200 rounded p-2 text-xs overflow-x-auto">
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Expected</label>
+                    <pre className="bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded p-2 text-xs overflow-x-auto">
                       <code>{testCase.expected}</code>
                     </pre>
                   </div>
@@ -164,8 +164,8 @@ export function CodeExecutionResults({ results, className = '' }: CodeExecutionR
                 {/* Actual Output (for failed tests) */}
                 {!testCase.passed && testCase.actual !== undefined && (
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Actual Output</label>
-                    <pre className="bg-red-50 border border-red-200 rounded p-2 text-xs overflow-x-auto">
+                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Actual Output</label>
+                    <pre className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded p-2 text-xs overflow-x-auto">
                       <code>{testCase.actual}</code>
                     </pre>
                   </div>
@@ -173,7 +173,7 @@ export function CodeExecutionResults({ results, className = '' }: CodeExecutionR
 
                 {/* Error Message */}
                 {testCase.error && (
-                  <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded p-2">
+                  <div className="flex items-start gap-2 text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded p-2">
                     <XCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                     <span>{testCase.error}</span>
                   </div>

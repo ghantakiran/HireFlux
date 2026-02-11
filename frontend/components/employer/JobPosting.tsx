@@ -220,10 +220,10 @@ export function JobPosting({
   // Preview mode
   if (mode === 'preview') {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{formData.title}</h1>
-          <div className="flex flex-wrap gap-4 text-gray-600 mb-6">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6">
+        <div className="max-w-4xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{formData.title}</h1>
+          <div className="flex flex-wrap gap-4 text-gray-600 dark:text-gray-400 mb-6">
             <span className="flex items-center gap-2">
               <MapPin className="w-4 h-4" />
               {formData.location}
@@ -260,7 +260,7 @@ export function JobPosting({
                 <h2>Skills</h2>
                 <div className="flex flex-wrap gap-2">
                   {formData.skills.map((skill, i) => (
-                    <span key={i} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                    <span key={i} className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm">
                       {skill}
                     </span>
                   ))}
@@ -274,14 +274,14 @@ export function JobPosting({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             {mode === 'edit' ? 'Edit Job Posting' : 'Create Job Posting'}
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
             Step {currentStep} of 4 • {['Basic Information', 'Job Description', 'Requirements & Skills', 'Review'][currentStep - 1]}
           </p>
         </div>
@@ -300,7 +300,7 @@ export function JobPosting({
                       ? 'bg-blue-600 text-white'
                       : step < currentStep
                       ? 'bg-green-600 text-white'
-                      : 'bg-gray-200 text-gray-600'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                   }`}
                 >
                   {step}
@@ -308,7 +308,7 @@ export function JobPosting({
                 {step < 4 && (
                   <div
                     className={`h-1 flex-1 mx-2 ${
-                      step < currentStep ? 'bg-green-600' : 'bg-gray-200'
+                      step < currentStep ? 'bg-green-600' : 'bg-gray-200 dark:bg-gray-700'
                     }`}
                   />
                 )}
@@ -318,20 +318,20 @@ export function JobPosting({
         </div>
 
         {/* Form Content */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
           {/* Global AI Generation Loading Indicator */}
           {generatingDescription && currentStep !== 2 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg p-4 mb-6">
               <div className="flex items-center gap-3">
                 <div className="inline-block animate-spin rounded-full h-5 w-5 border-3 border-blue-600 border-t-transparent"></div>
-                <p className="text-blue-900 font-medium">Generating job description with AI...</p>
+                <p className="text-blue-900 dark:text-blue-300 font-medium">Generating job description with AI...</p>
               </div>
             </div>
           )}
 
           {/* Global AI Generation Error Indicator */}
           {generationError && currentStep !== 2 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-700 text-sm">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-4 mb-6 text-red-700 dark:text-red-400 text-sm">
               {generationError}
             </div>
           )}
@@ -340,7 +340,7 @@ export function JobPosting({
           {currentStep === 1 && (
             <div className="space-y-6">
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Job Title *
                 </label>
                 <input
@@ -348,16 +348,16 @@ export function JobPosting({
                   type="text"
                   value={formData.title}
                   onChange={(e) => updateFormData('title', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                   placeholder="e.g. Senior Software Engineer"
                 />
                 {validationErrors.title && (
-                  <p role="alert" className="mt-1 text-sm text-red-600">{validationErrors.title}</p>
+                  <p role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors.title}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="department" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Department
                 </label>
                 <input
@@ -365,13 +365,13 @@ export function JobPosting({
                   type="text"
                   value={formData.department}
                   onChange={(e) => updateFormData('department', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                   placeholder="e.g. Engineering"
                 />
               </div>
 
               <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Location *
                 </label>
                 <input
@@ -379,23 +379,23 @@ export function JobPosting({
                   type="text"
                   value={formData.location}
                   onChange={(e) => updateFormData('location', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                   placeholder="e.g. San Francisco, CA"
                 />
                 {validationErrors.location && (
-                  <p role="alert" className="mt-1 text-sm text-red-600">{validationErrors.location}</p>
+                  <p role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors.location}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="locationType" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="locationType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Workplace Type
                 </label>
                 <select
                   id="locationType"
                   value={formData.locationType}
                   onChange={(e) => updateFormData('locationType', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                 >
                   <option value="remote">Remote</option>
                   <option value="hybrid">Hybrid</option>
@@ -404,14 +404,14 @@ export function JobPosting({
               </div>
 
               <div>
-                <label htmlFor="employmentType" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="employmentType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Employment Type
                 </label>
                 <select
                   id="employmentType"
                   value={formData.employmentType}
                   onChange={(e) => updateFormData('employmentType', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                 >
                   <option value="full_time">Full-time</option>
                   <option value="part_time">Part-time</option>
@@ -421,14 +421,14 @@ export function JobPosting({
               </div>
 
               <div>
-                <label htmlFor="experienceLevel" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="experienceLevel" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Experience Level
                 </label>
                 <select
                   id="experienceLevel"
                   value={formData.experienceLevel}
                   onChange={(e) => updateFormData('experienceLevel', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                 >
                   <option value="entry">Entry Level</option>
                   <option value="mid">Mid Level</option>
@@ -440,7 +440,7 @@ export function JobPosting({
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="salaryMin" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="salaryMin" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Minimum Salary
                   </label>
                   <input
@@ -448,12 +448,12 @@ export function JobPosting({
                     type="number"
                     value={formData.salaryMin || ''}
                     onChange={(e) => updateFormData('salaryMin', parseInt(e.target.value) || 0)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                     placeholder="100000"
                   />
                 </div>
                 <div>
-                  <label htmlFor="salaryMax" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="salaryMax" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Maximum Salary
                   </label>
                   <input
@@ -461,11 +461,11 @@ export function JobPosting({
                     type="number"
                     value={formData.salaryMax || ''}
                     onChange={(e) => updateFormData('salaryMax', parseInt(e.target.value) || 0)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                     placeholder="150000"
                   />
                   {validationErrors.salaryMax && (
-                    <p role="alert" className="mt-1 text-sm text-red-600">{validationErrors.salaryMax}</p>
+                    <p role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors.salaryMax}</p>
                   )}
                 </div>
               </div>
@@ -475,11 +475,11 @@ export function JobPosting({
           {/* Step 2: Job Description */}
           {currentStep === 2 && (
             <div className="space-y-6">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg p-4 mb-6">
                 <div className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
                   <div className="flex-1">
-                    <h3 className="font-medium text-blue-900 mb-1">AI-Powered Description</h3>
+                    <h3 className="font-medium text-blue-900 dark:text-blue-300 mb-1">AI-Powered Description</h3>
                     <p className="text-sm text-blue-700 mb-3">
                       Let AI generate a professional job description based on your job details
                     </p>
@@ -498,7 +498,7 @@ export function JobPosting({
               </div>
 
               {generationError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm">
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-4 text-red-700 dark:text-red-400 text-sm">
                   {generationError}
                 </div>
               )}
@@ -506,12 +506,12 @@ export function JobPosting({
               {generatingDescription && (
                 <div className="text-center py-8">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-                  <p className="mt-4 text-gray-600">Generating job description...</p>
+                  <p className="mt-4 text-gray-600 dark:text-gray-400">Generating job description...</p>
                 </div>
               )}
 
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Job Description *
                 </label>
                 <textarea
@@ -519,11 +519,11 @@ export function JobPosting({
                   value={formData.description}
                   onChange={(e) => updateFormData('description', e.target.value)}
                   rows={12}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                   placeholder="Describe the role, responsibilities, and what makes this opportunity unique..."
                 />
                 {validationErrors.description && (
-                  <p role="alert" className="mt-1 text-sm text-red-600">{validationErrors.description}</p>
+                  <p role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{validationErrors.description}</p>
                 )}
               </div>
             </div>
@@ -569,15 +569,15 @@ export function JobPosting({
           {/* Step 4: Review */}
           {currentStep === 4 && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Review Your Job Posting</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Review Your Job Posting</h2>
 
-              <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+              <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-6 space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{formData.title}</h3>
-                  <p className="text-gray-600">{formData.department}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{formData.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400">{formData.department}</p>
                 </div>
 
-                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
                   <span className="flex items-center gap-1">
                     <MapPin className="w-4 h-4" />
                     {formData.location} • {formData.locationType}
@@ -593,14 +593,14 @@ export function JobPosting({
                 </div>
 
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                  <p className="text-gray-700 whitespace-pre-wrap">{formData.description}</p>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Description</h4>
+                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{formData.description}</p>
                 </div>
 
                 {formData.requirements && formData.requirements.length > 0 && (
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Requirements</h4>
-                    <ul className="list-disc list-inside space-y-1 text-gray-700">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Requirements</h4>
+                    <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
                       {formData.requirements.map((req, i) => (
                         <li key={i}>{req}</li>
                       ))}
@@ -610,10 +610,10 @@ export function JobPosting({
 
                 {formData.skills && formData.skills.length > 0 && (
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Skills</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Skills</h4>
                     <div className="flex flex-wrap gap-2">
                       {formData.skills.map((skill, i) => (
-                        <span key={i} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                        <span key={i} className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm">
                           {skill}
                         </span>
                       ))}
@@ -623,7 +623,7 @@ export function JobPosting({
               </div>
 
               {validationErrors.general && (
-                <div role="alert" className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+                <div role="alert" className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-4 text-red-700 dark:text-red-400">
                   {validationErrors.general}
                 </div>
               )}
@@ -688,9 +688,9 @@ export function JobPosting({
       {/* Cancel Confirmation Dialog */}
       {showCancelConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Unsaved Changes</h3>
-            <p className="text-gray-600 mb-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-md w-full">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Unsaved Changes</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               You have unsaved changes. Are you sure you want to cancel?
             </p>
             <div className="flex justify-end gap-3">
@@ -744,7 +744,7 @@ function ArrayInput({ label, items, onAdd, onRemove, placeholder }: ArrayInputPr
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{label}</label>
 
       <div className="flex gap-2 mb-3">
         <input
@@ -752,7 +752,7 @@ function ArrayInput({ label, items, onAdd, onRemove, placeholder }: ArrayInputPr
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
           placeholder={placeholder}
         />
         <Button
@@ -770,13 +770,13 @@ function ArrayInput({ label, items, onAdd, onRemove, placeholder }: ArrayInputPr
           {items.map((item, index) => (
             <div
               key={index}
-              className="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-2 border border-gray-200"
+              className="flex items-center justify-between bg-gray-50 dark:bg-gray-950 rounded-lg px-4 py-2 border border-gray-200 dark:border-gray-700"
             >
-              <span className="text-gray-700">{item}</span>
+              <span className="text-gray-700 dark:text-gray-300">{item}</span>
               <button
                 type="button"
                 onClick={() => onRemove(index)}
-                className="text-red-600 hover:text-red-700"
+                className="text-red-600 dark:text-red-400 hover:text-red-700"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

@@ -126,12 +126,12 @@ export default function EditNoteModal({
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <form onSubmit={handleSubmit}>
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-3">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   Edit Note
                 </h3>
 
@@ -140,8 +140,8 @@ export default function EditNoteModal({
                   <div
                     className={`flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium ${
                       remainingTime < 60
-                        ? 'bg-red-100 text-red-700'
-                        : 'bg-blue-100 text-blue-700'
+                        ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                        : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
                     }`}
                   >
                     <Clock className="w-3 h-3" />
@@ -150,7 +150,7 @@ export default function EditNoteModal({
                 )}
 
                 {remainingTime <= 0 && (
-                  <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">
+                  <span className="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded text-xs font-medium">
                     Expired
                   </span>
                 )}
@@ -159,7 +159,7 @@ export default function EditNoteModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -179,7 +179,7 @@ export default function EditNoteModal({
                   placeholder="Note content..."
                   rows={6}
                   maxLength={charLimit}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none dark:bg-gray-900 dark:text-gray-100"
                   disabled={submitting || remainingTime <= 0}
                   autoFocus
                 />
@@ -189,30 +189,30 @@ export default function EditNoteModal({
                   <span
                     className={`text-xs ${
                       charRemaining < 100
-                        ? 'text-red-600 font-medium'
-                        : 'text-gray-500'
+                        ? 'text-red-600 dark:text-red-400 font-medium'
+                        : 'text-gray-500 dark:text-gray-400'
                     }`}
                   >
                     {charRemaining} characters remaining
                   </span>
 
                   {hasChanges && (
-                    <span className="text-xs text-blue-600">Unsaved changes</span>
+                    <span className="text-xs text-blue-600 dark:text-blue-400">Unsaved changes</span>
                   )}
                 </div>
               </div>
 
               {/* Note metadata (read-only) */}
-              <div className="bg-gray-50 border border-gray-200 rounded p-3 space-y-1">
+              <div className="bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded p-3 space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-500">Visibility:</span>
-                  <span className="font-medium text-gray-700">
+                  <span className="text-gray-500 dark:text-gray-400">Visibility:</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
                     {note.visibility === 'private' ? 'Private' : 'Team'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-500">Type:</span>
-                  <span className="font-medium text-gray-700">
+                  <span className="text-gray-500 dark:text-gray-400">Type:</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
                     {note.note_type === 'internal'
                       ? 'Internal'
                       : note.note_type === 'feedback'
@@ -220,25 +220,25 @@ export default function EditNoteModal({
                       : 'Interview Notes'}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 italic mt-2">
+                <p className="text-xs text-gray-500 dark:text-gray-400 italic mt-2">
                   Note: Visibility and type cannot be changed after creation
                 </p>
               </div>
 
               {/* Error message */}
               {error && (
-                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-3">
+                <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-gray-700 rounded p-3">
                   {error}
                 </div>
               )}
             </div>
 
             {/* Footer */}
-            <div className="flex justify-end space-x-2 p-4 border-t border-gray-200">
+            <div className="flex justify-end space-x-2 p-4 border-t border-gray-200 dark:border-gray-700">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 disabled={submitting}
               >
                 Cancel

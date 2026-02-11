@@ -78,23 +78,23 @@ export function CodingQuestion({
       {/* Question Header */}
       <div className="space-y-2">
         <div className="flex items-start justify-between">
-          <h3 id={questionId} className="text-lg font-medium text-gray-900">
+          <h3 id={questionId} className="text-lg font-medium text-gray-900 dark:text-gray-100">
             {question.question_text}
             {required && <span className="text-red-500 ml-1">*</span>}
           </h3>
-          <span className="text-sm text-gray-500 font-medium">{question.points} points</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">{question.points} points</span>
         </div>
 
         {/* Language Badge */}
         <div className="flex items-center gap-2">
-          <Code className="w-4 h-4 text-blue-600" />
-          <span className="text-sm font-medium text-blue-600">
+          <Code className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
             {languageNames[question.programming_language] || question.programming_language}
           </span>
         </div>
 
         {error && (
-          <p id={errorId} className="text-sm text-red-600" role="alert">
+          <p id={errorId} className="text-sm text-red-600 dark:text-red-400" role="alert">
             {error}
           </p>
         )}
@@ -103,7 +103,7 @@ export function CodingQuestion({
       {/* Code Editor */}
       <div
         className={`rounded-lg border overflow-hidden ${
-          hasError ? 'border-red-300 error' : 'border-gray-300'
+          hasError ? 'border-red-300 error' : 'border-gray-300 dark:border-gray-600'
         }`}
       >
         <Editor
@@ -136,14 +136,14 @@ export function CodingQuestion({
       {question.test_cases && question.test_cases.length > 0 && (
         <>
           {/* Instructions */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-sm text-blue-800">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-lg p-3">
+            <p className="text-sm text-blue-800 dark:text-blue-300">
               <strong>Note:</strong> Your code will be tested against the test cases shown below.
             </p>
           </div>
         <div className="space-y-3">
-          <h4 className="text-md font-semibold text-gray-900 flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-green-600" />
+          <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
             Test Cases
           </h4>
 
@@ -153,18 +153,18 @@ export function CodingQuestion({
               {visibleTestCases.map((testCase, index) => (
                 <div
                   key={index}
-                  className="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2"
+                  className="bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg p-3 space-y-2"
                 >
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-xs text-gray-600 font-semibold">Input</Label>
-                      <pre className="mt-1 text-sm bg-white border border-gray-200 rounded p-2 overflow-x-auto">
+                      <Label className="text-xs text-gray-600 dark:text-gray-400 font-semibold">Input</Label>
+                      <pre className="mt-1 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 overflow-x-auto">
                         <code>{testCase.input}</code>
                       </pre>
                     </div>
                     <div>
-                      <Label className="text-xs text-gray-600 font-semibold">Expected Output</Label>
-                      <pre className="mt-1 text-sm bg-white border border-gray-200 rounded p-2 overflow-x-auto">
+                      <Label className="text-xs text-gray-600 dark:text-gray-400 font-semibold">Expected Output</Label>
+                      <pre className="mt-1 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-2 overflow-x-auto">
                         <code>{testCase.expected_output}</code>
                       </pre>
                     </div>
@@ -176,9 +176,9 @@ export function CodingQuestion({
 
           {/* Hidden Test Cases Indicator */}
           {hiddenTestCasesCount > 0 && (
-            <div className="bg-gray-100 border border-gray-300 rounded-lg p-3 flex items-center gap-2">
-              <EyeOff className="w-4 h-4 text-gray-600" />
-              <span className="text-sm text-gray-700">
+            <div className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-3 flex items-center gap-2">
+              <EyeOff className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
                 {hiddenTestCasesCount} hidden test case{hiddenTestCasesCount > 1 ? 's' : ''}
               </span>
             </div>

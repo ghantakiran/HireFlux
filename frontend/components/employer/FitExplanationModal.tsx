@@ -94,14 +94,14 @@ export default function FitExplanationModal({
         className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
       >
         <div
-          className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+          className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
         >
           {/* Header */}
-          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
             <h2
               id="fit-explanation-title"
-              className="text-2xl font-bold text-gray-900"
+              className="text-2xl font-bold text-gray-900 dark:text-gray-100"
             >
               Fit Index Explanation
             </h2>
@@ -119,31 +119,31 @@ export default function FitExplanationModal({
             {loading && (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                <span className="ml-3 text-gray-600">Loading explanation...</span>
+                <span className="ml-3 text-gray-600 dark:text-gray-400">Loading explanation...</span>
               </div>
             )}
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-red-800">{error}</p>
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <p className="text-red-800 dark:text-red-300">{error}</p>
               </div>
             )}
 
             {fitData && !loading && !error && (
               <>
                 {/* Overall Fit Score */}
-                <div className="bg-gray-50 rounded-lg p-6">
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Overall Fit Index</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Overall Fit Index</p>
                       <div
                         data-testid="overall-fit-score"
                         className="flex items-baseline gap-2"
                       >
-                        <span className="text-4xl font-bold text-gray-900">
+                        <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">
                           {fitData.fit_index}
                         </span>
-                        <span className="text-xl text-gray-500">/ 100</span>
+                        <span className="text-xl text-gray-500 dark:text-gray-400">/ 100</span>
                       </div>
                     </div>
                     <div
@@ -158,7 +158,7 @@ export default function FitExplanationModal({
                   </div>
 
                   {fitData.cached && (
-                    <p className="mt-3 text-xs text-gray-500">
+                    <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                       Calculated {new Date(fitData.calculated_at).toLocaleString()}
                       {' • '}
                       <span className="font-medium">Cached result</span>
@@ -168,48 +168,48 @@ export default function FitExplanationModal({
 
                 {/* Breakdown Table */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
                     Factor Breakdown
                   </h3>
                   <div className="overflow-x-auto">
                     <table
                       data-testid="breakdown-table"
-                      className="w-full border border-gray-200 rounded-lg"
+                      className="w-full border border-gray-200 dark:border-gray-700 rounded-lg"
                     >
-                      <thead className="bg-gray-50">
+                      <thead className="bg-gray-50 dark:bg-gray-950">
                         <tr>
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
                             Factor
                           </th>
-                          <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                          <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">
                             Score
                           </th>
-                          <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                          <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">
                             Weight
                           </th>
-                          <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                          <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">
                             Rating
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {(Object.keys(fitData.breakdown) as Array<keyof typeof fitData.breakdown>).map(
                           (factor) => {
                             const score = fitData.breakdown[factor];
                             const weight = weights[factor];
 
                             return (
-                              <tr key={factor} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 text-sm text-gray-900">
+                              <tr key={factor} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                                   {getComponentName(factor)}
                                 </td>
                                 <td className="px-4 py-3 text-center">
-                                  <span className="text-sm font-semibold text-gray-900">
+                                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                                     {Math.round(score)}
                                   </span>
                                 </td>
                                 <td className="px-4 py-3 text-center">
-                                  <span className="text-sm text-gray-600">{weight}%</span>
+                                  <span className="text-sm text-gray-600 dark:text-gray-400">{weight}%</span>
                                 </td>
                                 <td className="px-4 py-3 text-center">
                                   <span
@@ -217,12 +217,12 @@ export default function FitExplanationModal({
                                       inline-block px-2 py-0.5 rounded text-xs font-medium
                                       ${
                                         score >= 80
-                                          ? 'bg-green-100 text-green-800'
+                                          ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
                                           : score >= 60
-                                          ? 'bg-yellow-100 text-yellow-800'
+                                          ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'
                                           : score >= 40
-                                          ? 'bg-orange-100 text-orange-800'
-                                          : 'bg-red-100 text-red-800'
+                                          ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300'
+                                          : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
                                       }
                                     `}
                                   >
@@ -243,7 +243,7 @@ export default function FitExplanationModal({
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <TrendingUp className="w-5 h-5 text-green-600" />
-                      <h3 className="text-lg font-semibold text-gray-900">Strengths</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Strengths</h3>
                     </div>
                     <ul className="space-y-2" data-testid="strengths-section">
                       {fitData.strengths.map((strength, idx) => (
@@ -253,7 +253,7 @@ export default function FitExplanationModal({
                           className="flex items-start gap-2"
                         >
                           <span className="flex-shrink-0 w-1.5 h-1.5 bg-green-600 rounded-full mt-2" />
-                          <span className="text-sm text-gray-700">{strength}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{strength}</span>
                         </li>
                       ))}
                     </ul>
@@ -265,7 +265,7 @@ export default function FitExplanationModal({
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <AlertTriangle className="w-5 h-5 text-orange-600" />
-                      <h3 className="text-lg font-semibold text-gray-900">Concerns</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Concerns</h3>
                     </div>
                     <ul className="space-y-2" data-testid="concerns-section">
                       {fitData.concerns.map((concern, idx) => (
@@ -275,7 +275,7 @@ export default function FitExplanationModal({
                           className="flex items-start gap-2"
                         >
                           <span className="flex-shrink-0 w-1.5 h-1.5 bg-orange-600 rounded-full mt-2" />
-                          <span className="text-sm text-gray-700">{concern}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{concern}</span>
                         </li>
                       ))}
                     </ul>
@@ -286,10 +286,10 @@ export default function FitExplanationModal({
           </div>
 
           {/* Footer */}
-          <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end">
+          <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-end">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
             >
               Close
             </button>

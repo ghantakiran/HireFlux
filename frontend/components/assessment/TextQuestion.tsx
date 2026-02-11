@@ -61,16 +61,16 @@ export function TextQuestion({
 
   // Word limit styling
   const getWordCountColor = () => {
-    if (!question.max_words) return 'text-gray-500';
+    if (!question.max_words) return 'text-gray-500 dark:text-gray-400';
 
     const percentage = (wordCount / question.max_words) * 100;
 
     if (wordCount > question.max_words) {
-      return 'text-red-600'; // Over limit
+      return 'text-red-600 dark:text-red-400'; // Over limit
     } else if (percentage >= 90) {
-      return 'text-yellow-600'; // Warning (90%+)
+      return 'text-yellow-600 dark:text-yellow-400'; // Warning (90%+)
     } else {
-      return 'text-gray-500'; // Normal
+      return 'text-gray-500 dark:text-gray-400'; // Normal
     }
   };
 
@@ -91,15 +91,15 @@ export function TextQuestion({
       {/* Question Header */}
       <div className="space-y-2">
         <div className="flex items-start justify-between">
-          <h3 id={questionId} className="text-lg font-medium text-gray-900">
+          <h3 id={questionId} className="text-lg font-medium text-gray-900 dark:text-gray-100">
             {question.question_text}
             {required && <span className="text-red-500 ml-1">*</span>}
           </h3>
-          <span className="text-sm text-gray-500 font-medium">{question.points} points</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">{question.points} points</span>
         </div>
 
         {error && (
-          <p id={errorId} className="text-sm text-red-600" role="alert">
+          <p id={errorId} className="text-sm text-red-600 dark:text-red-400" role="alert">
             {error}
           </p>
         )}
@@ -112,10 +112,10 @@ export function TextQuestion({
           <textarea
             {...commonInputProps}
             rows={6}
-            className={`w-full px-3 py-2 border rounded-lg resize-y min-h-32 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full px-3 py-2 border rounded-lg resize-y min-h-32 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 ${
               hasError
                 ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                : 'border-gray-300'
+                : 'border-gray-300 dark:border-gray-600'
             }`}
           />
 
@@ -126,7 +126,7 @@ export function TextQuestion({
               {question.max_words ? ` / ${question.max_words}` : ''} word{wordCount !== 1 ? 's' : ''}
             </span>
             {question.max_words && wordCount > question.max_words && (
-              <span className="text-red-600 font-medium">
+              <span className="text-red-600 dark:text-red-400 font-medium">
                 Exceeds word limit by {wordCount - question.max_words}
               </span>
             )}
@@ -138,15 +138,15 @@ export function TextQuestion({
           <input
             type="text"
             {...commonInputProps}
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 ${
               hasError
                 ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                : 'border-gray-300'
+                : 'border-gray-300 dark:border-gray-600'
             }`}
           />
 
           {/* Character Count */}
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-500 dark:text-gray-400">
             {charCount} character{charCount !== 1 ? 's' : ''}
           </div>
         </div>

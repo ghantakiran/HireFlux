@@ -31,24 +31,24 @@ export function LimitWarning({
 
   const severityStyles = {
     error: {
-      bg: 'bg-red-50',
-      border: 'border-red-200',
+      bg: 'bg-red-50 dark:bg-red-900/20',
+      border: 'border-red-200 dark:border-gray-700',
       icon: 'text-red-500',
-      text: 'text-red-800',
+      text: 'text-red-800 dark:text-red-300',
       button: 'bg-red-600 hover:bg-red-700 text-white'
     },
     warning: {
-      bg: 'bg-orange-50',
-      border: 'border-orange-200',
+      bg: 'bg-orange-50 dark:bg-orange-900/20',
+      border: 'border-orange-200 dark:border-gray-700',
       icon: 'text-orange-500',
-      text: 'text-orange-800',
+      text: 'text-orange-800 dark:text-orange-300',
       button: 'bg-orange-600 hover:bg-orange-700 text-white'
     },
     info: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
+      bg: 'bg-blue-50 dark:bg-blue-900/20',
+      border: 'border-blue-200 dark:border-gray-700',
       icon: 'text-blue-500',
-      text: 'text-blue-800',
+      text: 'text-blue-800 dark:text-blue-300',
       button: 'bg-blue-600 hover:bg-blue-700 text-white'
     }
   };

@@ -142,7 +142,7 @@ export function NotificationSettings({ settings, onChange }: NotificationSetting
       {/* Email Notifications */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-lg font-semibold">
-          <Mail className="h-5 w-5 text-blue-600" />
+          <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           <h3>Email Notifications</h3>
         </div>
 
@@ -153,7 +153,7 @@ export function NotificationSettings({ settings, onChange }: NotificationSetting
               <Label htmlFor="email-new-application" className="text-base font-medium">
                 New Application
               </Label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Receive email when a candidate applies to your job posting
               </p>
             </div>
@@ -172,7 +172,7 @@ export function NotificationSettings({ settings, onChange }: NotificationSetting
               <Label htmlFor="email-stage-change" className="text-base font-medium">
                 Application Stage Change
               </Label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Receive email when an application moves to a different stage
               </p>
             </div>
@@ -189,7 +189,7 @@ export function NotificationSettings({ settings, onChange }: NotificationSetting
               <Label htmlFor="email-team-mention" className="text-base font-medium">
                 Team Mention
               </Label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Receive email when a team member mentions you in a note or comment
               </p>
             </div>
@@ -206,7 +206,7 @@ export function NotificationSettings({ settings, onChange }: NotificationSetting
               <Label htmlFor="email-weekly-digest" className="text-base font-medium">
                 Weekly Digest
               </Label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Receive a summary email every Monday with key metrics and updates
               </p>
             </div>
@@ -220,12 +220,12 @@ export function NotificationSettings({ settings, onChange }: NotificationSetting
       </div>
 
       {/* Divider */}
-      <div className="border-t border-gray-200" />
+      <div className="border-t border-gray-200 dark:border-gray-700" />
 
       {/* In-App Notifications */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-lg font-semibold">
-          <Bell className="h-5 w-5 text-green-600" />
+          <Bell className="h-5 w-5 text-green-600 dark:text-green-400" />
           <h3>In-App Notifications</h3>
         </div>
 
@@ -236,7 +236,7 @@ export function NotificationSettings({ settings, onChange }: NotificationSetting
               <Label htmlFor="inapp-new-application" className="text-base font-medium">
                 New Application
               </Label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Show notification badge when a candidate applies
               </p>
             </div>
@@ -255,7 +255,7 @@ export function NotificationSettings({ settings, onChange }: NotificationSetting
               <Label htmlFor="inapp-team-activity" className="text-base font-medium">
                 Team Activity
               </Label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Show notifications for team member actions (notes, status changes, etc.)
               </p>
             </div>
@@ -272,7 +272,7 @@ export function NotificationSettings({ settings, onChange }: NotificationSetting
               <Label htmlFor="inapp-stage-change" className="text-base font-medium">
                 Application Stage Change
               </Label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Show notification when an application moves to a different stage
               </p>
             </div>
@@ -286,7 +286,7 @@ export function NotificationSettings({ settings, onChange }: NotificationSetting
       </div>
 
       {/* Information Note */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-gray-700 rounded-lg p-4 text-sm text-blue-800 dark:text-blue-300">
         <p className="font-medium mb-1">About Notifications</p>
         <p>
           These preferences apply to all members of your company. Individual team members

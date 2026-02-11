@@ -60,11 +60,11 @@ export default function TemplatePreviewModal({
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
-          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
             <div className="flex-1 pr-4">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                 {template.name}
               </h2>
               <div className="flex items-center space-x-2">
@@ -81,8 +81,8 @@ export default function TemplatePreviewModal({
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     isPublic
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
                   }`}
                 >
                   {isPublic ? (
@@ -93,7 +93,7 @@ export default function TemplatePreviewModal({
                   {getVisibilityLabel(template.visibility)}
                 </span>
 
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {formatUsageCount(template.usage_count)}
                 </span>
               </div>
@@ -111,13 +111,13 @@ export default function TemplatePreviewModal({
           <div className="px-6 py-6 space-y-6">
             {/* Job Title */}
             <div>
-              <div className="flex items-center text-gray-500 mb-2">
+              <div className="flex items-center text-gray-500 dark:text-gray-400 mb-2">
                 <Briefcase className="w-4 h-4 mr-2" />
                 <h3 className="text-sm font-medium uppercase tracking-wide">
                   Job Title
                 </h3>
               </div>
-              <p className="text-lg font-semibold text-gray-900">
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {template.title}
               </p>
             </div>
@@ -126,28 +126,28 @@ export default function TemplatePreviewModal({
             <div className="grid grid-cols-2 gap-4">
               {template.department && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Department
                   </h4>
-                  <p className="text-gray-900">{template.department}</p>
+                  <p className="text-gray-900 dark:text-gray-100">{template.department}</p>
                 </div>
               )}
               {template.employment_type && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Employment Type
                   </h4>
-                  <p className="text-gray-900 capitalize">
+                  <p className="text-gray-900 dark:text-gray-100 capitalize">
                     {template.employment_type.replace(/_/g, ' ')}
                   </p>
                 </div>
               )}
               {template.experience_level && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Experience Level
                   </h4>
-                  <p className="text-gray-900 capitalize">
+                  <p className="text-gray-900 dark:text-gray-100 capitalize">
                     {template.experience_level}
                   </p>
                 </div>
@@ -157,10 +157,10 @@ export default function TemplatePreviewModal({
             {/* Description */}
             {template.description && (
               <div>
-                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
                   Description
                 </h3>
-                <p className="text-gray-700 whitespace-pre-wrap">
+                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                   {template.description}
                 </p>
               </div>
@@ -169,14 +169,14 @@ export default function TemplatePreviewModal({
             {/* Requirements */}
             {template.requirements && template.requirements.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
                   Requirements
                 </h3>
                 <ul className="space-y-2">
                   {template.requirements.map((req, index) => (
                     <li key={index} className="flex items-start">
-                      <span className="text-blue-600 mr-2">•</span>
-                      <span className="text-gray-700">{req}</span>
+                      <span className="text-blue-600 dark:text-blue-400 mr-2">•</span>
+                      <span className="text-gray-700 dark:text-gray-300">{req}</span>
                     </li>
                   ))}
                 </ul>
@@ -186,14 +186,14 @@ export default function TemplatePreviewModal({
             {/* Responsibilities */}
             {template.responsibilities && template.responsibilities.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
                   Responsibilities
                 </h3>
                 <ul className="space-y-2">
                   {template.responsibilities.map((resp, index) => (
                     <li key={index} className="flex items-start">
-                      <span className="text-green-600 mr-2">•</span>
-                      <span className="text-gray-700">{resp}</span>
+                      <span className="text-green-600 dark:text-green-400 mr-2">•</span>
+                      <span className="text-gray-700 dark:text-gray-300">{resp}</span>
                     </li>
                   ))}
                 </ul>
@@ -203,14 +203,14 @@ export default function TemplatePreviewModal({
             {/* Skills */}
             {template.skills && template.skills.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
                   Skills
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {template.skills.map((skill, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800"
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
                     >
                       {skill}
                     </span>
@@ -221,10 +221,10 @@ export default function TemplatePreviewModal({
           </div>
 
           {/* Footer */}
-          <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 flex items-center justify-end space-x-3">
+          <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-end space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               Close
             </button>

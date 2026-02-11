@@ -94,15 +94,15 @@ export default function NoteItem({
   // Get badge colors
   const typeBadgeColor = getNoteTypeBadgeColor(note.note_type);
   const typeColors: Record<string, string> = {
-    gray: 'bg-gray-100 text-gray-700',
-    blue: 'bg-blue-100 text-blue-700',
-    green: 'bg-green-100 text-green-700',
+    gray: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
+    blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+    green: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
   };
 
   // Highlight @mentions in content
   const highlightedContent = note.content.replace(
     /(?<![a-zA-Z0-9])(@[a-zA-Z0-9_]+)/g,
-    '<span class="text-blue-600 font-medium">$1</span>'
+    '<span class="text-blue-600 dark:text-blue-400 font-medium">$1</span>'
   );
 
   // Format timestamp
@@ -120,23 +120,23 @@ export default function NoteItem({
 
   return (
     <>
-      <div className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
         {/* Header */}
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center space-x-2">
             {/* Author avatar */}
-            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-              <span className="text-xs font-medium text-gray-600">
+            <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
                 {note.author?.name?.charAt(0).toUpperCase() || 'U'}
               </span>
             </div>
 
             {/* Author info */}
             <div>
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                 {note.author?.name || 'Unknown User'}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 {formatDate(note.created_at)}
                 {note.updated_at !== note.created_at && (
                   <span className="ml-1">(edited)</span>
@@ -150,7 +150,7 @@ export default function NoteItem({
             <div className="flex items-center space-x-2">
               {/* Countdown timer */}
               {remainingTime > 0 && (
-                <div className="flex items-center space-x-1 text-xs text-gray-500">
+                <div className="flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-400">
                   <Clock className="w-3 h-3" />
                   <span>{formatRemainingTime(remainingTime)}</span>
                 </div>
@@ -159,7 +159,7 @@ export default function NoteItem({
               {/* Edit button */}
               <button
                 onClick={() => setShowEditModal(true)}
-                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                 title="Edit note"
               >
                 <Edit2 className="w-4 h-4" />
@@ -169,7 +169,7 @@ export default function NoteItem({
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
+                className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors disabled:opacity-50"
                 title="Delete note"
               >
                 <Trash2 className="w-4 h-4" />
@@ -179,7 +179,7 @@ export default function NoteItem({
 
           {/* Non-author message */}
           {!isAuthor && isWithinEditWindow(note.created_at) && (
-            <div className="text-xs text-gray-400 italic">
+            <div className="text-xs text-gray-400 dark:text-gray-400 italic">
               Only author can edit
             </div>
           )}
@@ -189,12 +189,12 @@ export default function NoteItem({
         <div className="flex flex-wrap gap-2 mb-2">
           {/* Visibility badge */}
           {note.visibility === 'private' ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
               <Lock className="w-3 h-3 mr-1" />
               Private
             </span>
           ) : (
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
               <Users className="w-3 h-3 mr-1" />
               Team
             </span>
@@ -212,13 +212,13 @@ export default function NoteItem({
 
         {/* Content */}
         <div
-          className="text-sm text-gray-700 whitespace-pre-wrap break-words"
+          className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words"
           dangerouslySetInnerHTML={{ __html: highlightedContent }}
         />
 
         {/* Delete error */}
         {deleteError && (
-          <div className="mt-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded p-2">
+          <div className="mt-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-gray-700 rounded p-2">
             {deleteError}
           </div>
         )}

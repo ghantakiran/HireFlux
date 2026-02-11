@@ -387,7 +387,7 @@ export default function ApplicantKanbanBoard({
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading candidates...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading candidates...</p>
         </div>
       </div>
     );
@@ -397,7 +397,7 @@ export default function ApplicantKanbanBoard({
   if (applicants.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-96 text-center">
-        <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+        <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
           <svg
             className="w-10 h-10 text-gray-400"
             fill="none"
@@ -412,8 +412,8 @@ export default function ApplicantKanbanBoard({
             />
           </svg>
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">No candidates yet</h3>
-        <p className="text-gray-600 max-w-md">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No candidates yet</h3>
+        <p className="text-gray-600 dark:text-gray-400 max-w-md">
           Post this job to start receiving applications from qualified candidates.
         </p>
       </div>
@@ -424,7 +424,7 @@ export default function ApplicantKanbanBoard({
     <div className="w-full h-full">
       {/* Offline Banner */}
       {!isOnline && (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 mb-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg
@@ -440,7 +440,7 @@ export default function ApplicantKanbanBoard({
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-yellow-700">
+              <p className="text-sm text-yellow-700 dark:text-yellow-400">
                 You are currently offline. Changes will sync when online.
               </p>
             </div>
@@ -450,7 +450,7 @@ export default function ApplicantKanbanBoard({
 
       {/* Error Banner */}
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4 mb-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg
@@ -466,7 +466,7 @@ export default function ApplicantKanbanBoard({
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-700">{error}</p>
+              <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
             </div>
           </div>
         </div>
@@ -484,7 +484,7 @@ export default function ApplicantKanbanBoard({
             aria-label="Sort candidates"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortOption)}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="fit-desc">Fit Index (High to Low)</option>
             <option value="fit-asc">Fit Index (Low to High)</option>
@@ -496,7 +496,7 @@ export default function ApplicantKanbanBoard({
           <button
             onClick={() => setShowFilters(!showFilters)}
             aria-label="Filter candidates"
-            className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <Filter className="w-4 h-4 mr-2" />
             Filter
@@ -505,7 +505,7 @@ export default function ApplicantKanbanBoard({
 
         {/* Keyboard Instructions */}
         {isDragging && (
-          <div className="text-sm text-gray-600 bg-blue-50 px-3 py-2 rounded-md">
+          <div className="text-sm text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-md">
             Press arrow keys to move. Press Space to drop. Press Esc to cancel.
           </div>
         )}
@@ -513,11 +513,11 @@ export default function ApplicantKanbanBoard({
 
       {/* Filter Panel */}
       {showFilters && (
-        <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4 space-y-3">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4 space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Assignee Filter */}
             <div>
-              <label htmlFor="assignee-filter" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="assignee-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Filter by assignee
               </label>
               <select
@@ -530,7 +530,7 @@ export default function ApplicantKanbanBoard({
                     assignee: e.target.value || undefined,
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">All assignees</option>
                 <option value="recruiter-1">Recruiter 1</option>
@@ -540,7 +540,7 @@ export default function ApplicantKanbanBoard({
 
             {/* Tags Filter */}
             <div>
-              <label htmlFor="tags-filter" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="tags-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Filter by tags
               </label>
               <input
@@ -558,13 +558,13 @@ export default function ApplicantKanbanBoard({
                     tags: tags.length > 0 ? tags : undefined,
                   });
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             {/* Fit Index Range */}
             <div>
-              <label htmlFor="min-fit-filter" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="min-fit-filter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Minimum fit index
               </label>
               <input
@@ -580,7 +580,7 @@ export default function ApplicantKanbanBoard({
                     minFitIndex: e.target.value ? parseInt(e.target.value) : undefined,
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>

@@ -83,15 +83,15 @@ export default function ApplicantFilterSidebar({
   const activeCount = activeFilterCount();
 
   return (
-    <div className="w-80 border-r border-gray-200 bg-white overflow-y-auto">
+    <div className="w-80 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-y-auto">
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-gray-200 p-4 z-10">
+      <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 z-10">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <Filter className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+            <Filter className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Filters</h2>
             {activeCount > 0 && (
-              <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+              <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full">
                 {activeCount}
               </span>
             )}
@@ -99,10 +99,10 @@ export default function ApplicantFilterSidebar({
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1 hover:bg-gray-100 rounded-md lg:hidden"
+              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md lg:hidden"
               aria-label="Close filters"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             </button>
           )}
         </div>
@@ -111,7 +111,7 @@ export default function ApplicantFilterSidebar({
         {activeCount > 0 && (
           <button
             onClick={handleClearAll}
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium"
           >
             Clear all filters
           </button>
@@ -126,11 +126,11 @@ export default function ApplicantFilterSidebar({
             onClick={() => setStatusExpanded(!statusExpanded)}
             className="flex items-center justify-between w-full text-left"
           >
-            <span className="text-sm font-medium text-gray-900">Status</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Status</span>
             {statusExpanded ? (
-              <ChevronUp className="w-4 h-4 text-gray-500" />
+              <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
+              <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             )}
           </button>
 
@@ -151,10 +151,10 @@ export default function ApplicantFilterSidebar({
                       onChange={() => handleStatusToggle(status)}
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
-                    <span className="flex-1 text-sm text-gray-700 group-hover:text-gray-900">
+                    <span className="flex-1 text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100">
                       {STATUS_LABELS[status]}
                     </span>
-                    <span className="text-xs text-gray-500">{count}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{count}</span>
                   </label>
                 );
               })}
@@ -168,11 +168,11 @@ export default function ApplicantFilterSidebar({
             onClick={() => setFitIndexExpanded(!fitIndexExpanded)}
             className="flex items-center justify-between w-full text-left"
           >
-            <span className="text-sm font-medium text-gray-900">Fit Score</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Fit Score</span>
             {fitIndexExpanded ? (
-              <ChevronUp className="w-4 h-4 text-gray-500" />
+              <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
+              <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             )}
           </button>
 
@@ -193,21 +193,21 @@ export default function ApplicantFilterSidebar({
                       onClick={() => handleFitIndexChange(range.min, range.max)}
                       className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md border transition-colors ${
                         isActive
-                          ? 'bg-blue-50 border-blue-200 text-blue-700'
-                          : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                          ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 text-blue-700 dark:text-blue-400'
+                          : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                       }`}
                     >
                       <span>{range.label}</span>
-                      <span className="text-xs text-gray-500">{count}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{count}</span>
                     </button>
                   );
                 })}
               </div>
 
               {/* Custom range inputs */}
-              <div className="space-y-2 pt-2 border-t border-gray-200">
+              <div className="space-y-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                 <label className="block">
-                  <span className="text-xs text-gray-600">Min Score</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">Min Score</span>
                   <input
                     type="number"
                     min="0"
@@ -220,11 +220,11 @@ export default function ApplicantFilterSidebar({
                       )
                     }
                     placeholder="0"
-                    className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   />
                 </label>
                 <label className="block">
-                  <span className="text-xs text-gray-600">Max Score</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">Max Score</span>
                   <input
                     type="number"
                     min="0"
@@ -237,7 +237,7 @@ export default function ApplicantFilterSidebar({
                       )
                     }
                     placeholder="100"
-                    className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   />
                 </label>
               </div>
@@ -251,32 +251,32 @@ export default function ApplicantFilterSidebar({
             onClick={() => setDateExpanded(!dateExpanded)}
             className="flex items-center justify-between w-full text-left"
           >
-            <span className="text-sm font-medium text-gray-900">Application Date</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Application Date</span>
             {dateExpanded ? (
-              <ChevronUp className="w-4 h-4 text-gray-500" />
+              <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
+              <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             )}
           </button>
 
           {dateExpanded && (
             <div className="space-y-2">
               <label className="block">
-                <span className="text-xs text-gray-600">From</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">From</span>
                 <input
                   type="date"
                   value={filters.appliedAfter || ''}
                   onChange={(e) => handleDateChange('after', e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 />
               </label>
               <label className="block">
-                <span className="text-xs text-gray-600">To</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">To</span>
                 <input
                   type="date"
                   value={filters.appliedBefore || ''}
                   onChange={(e) => handleDateChange('before', e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 />
               </label>
             </div>
@@ -289,11 +289,11 @@ export default function ApplicantFilterSidebar({
             onClick={() => setAssignmentExpanded(!assignmentExpanded)}
             className="flex items-center justify-between w-full text-left"
           >
-            <span className="text-sm font-medium text-gray-900">Assignment</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Assignment</span>
             {assignmentExpanded ? (
-              <ChevronUp className="w-4 h-4 text-gray-500" />
+              <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-gray-500" />
+              <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             )}
           </button>
 
@@ -306,10 +306,10 @@ export default function ApplicantFilterSidebar({
                   onChange={handleUnassignedToggle}
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
-                <span className="flex-1 text-sm text-gray-700 group-hover:text-gray-900">
+                <span className="flex-1 text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100">
                   Unassigned only
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   {filterStats?.unassigned_count || 0}
                 </span>
               </label>
@@ -319,9 +319,9 @@ export default function ApplicantFilterSidebar({
 
         {/* Summary */}
         {filterStats && (
-          <div className="pt-4 border-t border-gray-200">
-            <div className="text-xs text-gray-600">
-              Showing <span className="font-medium text-gray-900">{filterStats.total_count}</span>{' '}
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-xs text-gray-600 dark:text-gray-400">
+              Showing <span className="font-medium text-gray-900 dark:text-gray-100">{filterStats.total_count}</span>{' '}
               applicants
             </div>
           </div>

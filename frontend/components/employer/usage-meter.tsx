@@ -56,19 +56,19 @@ export function UsageMeter({
 
   return (
     <div
-      className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm"
+      className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
       data-testid={dataTestId}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-gray-700">{label}</h3>
+        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</h3>
         <span
           className={`text-xs font-semibold px-2 py-1 rounded ${
             warningLevel === 'error'
-              ? 'bg-red-100 text-red-700'
+              ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
               : warningLevel === 'warning'
-              ? 'bg-orange-100 text-orange-700'
-              : 'bg-gray-100 text-gray-600'
+              ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
           }`}
           data-testid={`${dataTestId}-status`}
         >
@@ -79,20 +79,20 @@ export function UsageMeter({
       {/* Usage Text */}
       <div className="flex items-baseline justify-between mb-3">
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-bold text-gray-900" data-testid={`${dataTestId}-used`}>
+          <span className="text-2xl font-bold text-gray-900 dark:text-gray-100" data-testid={`${dataTestId}-used`}>
             {used}
           </span>
           {!unlimited && (
             <>
-              <span className="text-sm text-gray-500">/</span>
-              <span className="text-lg font-semibold text-gray-600" data-testid={`${dataTestId}-limit`}>
+              <span className="text-sm text-gray-500 dark:text-gray-400">/</span>
+              <span className="text-lg font-semibold text-gray-600 dark:text-gray-400" data-testid={`${dataTestId}-limit`}>
                 {limit}
               </span>
             </>
           )}
         </div>
         {!unlimited && (
-          <span className="text-sm font-medium text-gray-600" data-testid={`${dataTestId}-percentage`}>
+          <span className="text-sm font-medium text-gray-600 dark:text-gray-400" data-testid={`${dataTestId}-percentage`}>
             {percentage.toFixed(0)}%
           </span>
         )}
@@ -101,7 +101,7 @@ export function UsageMeter({
       {/* Progress Bar */}
       {!unlimited && (
         <div className="mb-3">
-          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
             <div
               className={`h-full transition-all duration-300 ease-in-out ${getBarColor()}`}
               style={{ width: `${Math.min(percentage, 100)}%` }}
@@ -117,8 +117,8 @@ export function UsageMeter({
 
       {/* Warning Messages & Upgrade CTA */}
       {warningLevel === 'error' && onUpgrade && (
-        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-800 mb-2">
+        <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-gray-700 rounded-md">
+          <p className="text-sm text-red-800 dark:text-red-300 mb-2">
             You've reached your {label.toLowerCase()} limit. Upgrade to continue.
           </p>
           <button
@@ -132,13 +132,13 @@ export function UsageMeter({
       )}
 
       {warningLevel === 'warning' && onUpgrade && (
-        <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
-          <p className="text-sm text-orange-800 mb-2">
+        <div className="mt-3 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-gray-700 rounded-md">
+          <p className="text-sm text-orange-800 dark:text-orange-300 mb-2">
             You're at {percentage.toFixed(0)}% of your {label.toLowerCase()} limit.
           </p>
           <button
             onClick={onUpgrade}
-            className="text-sm text-orange-700 font-medium hover:text-orange-900 underline"
+            className="text-sm text-orange-700 dark:text-orange-400 font-medium hover:text-orange-900 dark:hover:text-orange-300 underline"
             data-testid={`${dataTestId}-upgrade-link`}
           >
             Consider upgrading
@@ -147,7 +147,7 @@ export function UsageMeter({
       )}
 
       {unlimited && (
-        <div className="mt-2 flex items-center gap-2 text-green-700">
+        <div className="mt-2 flex items-center gap-2 text-green-700 dark:text-green-400">
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
           </svg>

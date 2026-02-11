@@ -127,14 +127,14 @@ export default function ApplicationNotes({
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-white border border-gray-200 rounded-lg p-4 animate-pulse"
+            className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 animate-pulse"
           >
             <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+              <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
               </div>
             </div>
           </div>
@@ -148,9 +148,9 @@ export default function ApplicationNotes({
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <h3 className="text-lg font-semibold text-gray-900">Notes</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Notes</h3>
           {refreshing && (
-            <RefreshCw className="w-4 h-4 text-gray-400 animate-spin" />
+            <RefreshCw className="w-4 h-4 text-gray-400 dark:text-gray-400 animate-spin" />
           )}
         </div>
         <button
@@ -164,13 +164,13 @@ export default function ApplicationNotes({
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 items-center">
-        <Filter className="w-4 h-4 text-gray-500" />
+        <Filter className="w-4 h-4 text-gray-500 dark:text-gray-400" />
 
         {/* Visibility filter */}
         <select
           value={visibilityFilter}
           onChange={(e) => setVisibilityFilter(e.target.value as VisibilityFilter)}
-          className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100"
         >
           <option value="all">All Visibility</option>
           <option value="team">Team Notes</option>
@@ -181,7 +181,7 @@ export default function ApplicationNotes({
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
-          className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100"
         >
           <option value="all">All Types</option>
           <option value="internal">Internal</option>
@@ -190,7 +190,7 @@ export default function ApplicationNotes({
         </select>
 
         {/* Note count */}
-        <span className="text-sm text-gray-500 ml-auto">
+        <span className="text-sm text-gray-500 dark:text-gray-400 ml-auto">
           {filteredNotes.length} note{filteredNotes.length !== 1 ? 's' : ''}
         </span>
       </div>
@@ -206,17 +206,17 @@ export default function ApplicationNotes({
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex items-start">
             <div className="flex-1">
-              <p className="text-sm font-medium text-red-800">
+              <p className="text-sm font-medium text-red-800 dark:text-red-300">
                 Failed to load notes
               </p>
-              <p className="text-sm text-red-600 mt-1">{error}</p>
+              <p className="text-sm text-red-600 dark:text-red-400 mt-1">{error}</p>
             </div>
             <button
               onClick={() => fetchNotes()}
-              className="ml-3 text-sm font-medium text-red-600 hover:text-red-500"
+              className="ml-3 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-500"
             >
               Retry
             </button>
@@ -227,20 +227,20 @@ export default function ApplicationNotes({
       {/* Notes List */}
       {filteredNotes.length === 0 ? (
         // Empty state
-        <div className="text-center py-12 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg">
-          <div className="w-12 h-12 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4">
-            <Plus className="w-6 h-6 text-gray-400" />
+        <div className="text-center py-12 bg-gray-50 dark:bg-gray-950 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+          <div className="w-12 h-12 mx-auto bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+            <Plus className="w-6 h-6 text-gray-400 dark:text-gray-400" />
           </div>
-          <h4 className="text-sm font-medium text-gray-900 mb-1">
+          <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
             No notes yet
           </h4>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             Be the first to add a note about this candidate
           </p>
           {!showAddForm && (
             <button
               onClick={() => setShowAddForm(true)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Note

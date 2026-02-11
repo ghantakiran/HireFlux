@@ -301,12 +301,12 @@ export function getNoteTypeBadgeColor(
   noteType: 'internal' | 'feedback' | 'interview_notes'
 ): string {
   const colors = {
-    internal: 'gray',
-    feedback: 'blue',
-    interview_notes: 'green',
+    internal: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200',
+    feedback: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
+    interview_notes: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
   };
 
-  return colors[noteType] || 'gray';
+  return colors[noteType] || 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200';
 }
 
 /**

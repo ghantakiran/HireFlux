@@ -469,12 +469,12 @@ export function formatSalaryRange(
  */
 export function getStatusBadgeColor(status: JobStatus | string): string {
   const colors: Record<string, string> = {
-    [JobStatus.DRAFT]: "bg-gray-100 text-gray-800",
-    [JobStatus.ACTIVE]: "bg-green-100 text-green-800",
-    [JobStatus.PAUSED]: "bg-yellow-100 text-yellow-800",
-    [JobStatus.CLOSED]: "bg-red-100 text-red-800",
+    [JobStatus.DRAFT]: "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200",
+    [JobStatus.ACTIVE]: "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300",
+    [JobStatus.PAUSED]: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300",
+    [JobStatus.CLOSED]: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300",
   };
-  return colors[status] || "bg-gray-100 text-gray-800";
+  return colors[status] || "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200";
 }
 
 /**

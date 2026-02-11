@@ -198,26 +198,26 @@ export function getFitIndexColor(fitIndex: number): {
 } {
   if (fitIndex >= 80) {
     return {
-      bg: "bg-green-100",
-      text: "text-green-800",
+      bg: "bg-green-100 dark:bg-green-900/30",
+      text: "text-green-800 dark:text-green-300",
       label: "Excellent fit",
     };
   } else if (fitIndex >= 60) {
     return {
-      bg: "bg-yellow-100",
-      text: "text-yellow-800",
+      bg: "bg-yellow-100 dark:bg-yellow-900/30",
+      text: "text-yellow-800 dark:text-yellow-300",
       label: "Good fit",
     };
   } else if (fitIndex >= 40) {
     return {
-      bg: "bg-orange-100",
-      text: "text-orange-800",
+      bg: "bg-orange-100 dark:bg-orange-900/30",
+      text: "text-orange-800 dark:text-orange-300",
       label: "Fair fit",
     };
   } else {
     return {
-      bg: "bg-red-100",
-      text: "text-red-800",
+      bg: "bg-red-100 dark:bg-red-900/30",
+      text: "text-red-800 dark:text-red-300",
       label: "Poor fit",
     };
   }

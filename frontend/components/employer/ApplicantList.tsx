@@ -85,9 +85,9 @@ const SORT_OPTIONS = [
  * Get color class for fit index badge
  */
 function getFitIndexColor(fitIndex: number): string {
-  if (fitIndex > 80) return 'bg-green-100 text-green-800 border-green-300';
-  if (fitIndex >= 60) return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-  return 'bg-red-100 text-red-800 border-red-300';
+  if (fitIndex > 80) return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-300';
+  if (fitIndex >= 60) return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-300';
+  return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-300';
 }
 
 /**
@@ -233,7 +233,7 @@ export function ApplicantList({
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600">Loading applicants...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading applicants...</p>
         </div>
       </div>
     );
@@ -241,11 +241,11 @@ export function ApplicantList({
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3" role="alert">
-        <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-4 flex items-start gap-3" role="alert">
+        <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
         <div>
-          <h3 className="font-semibold text-red-900">Error loading applicants</h3>
-          <p className="text-sm text-red-700 mt-1">{error}</p>
+          <h3 className="font-semibold text-red-900 dark:text-red-300">Error loading applicants</h3>
+          <p className="text-sm text-red-700 dark:text-red-400 mt-1">{error}</p>
         </div>
       </div>
     );
@@ -253,10 +253,10 @@ export function ApplicantList({
 
   if (applicants.length === 0) {
     return (
-      <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+      <div className="text-center py-12 bg-gray-50 dark:bg-gray-950 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
         <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">No applicants yet</h3>
-        <p className="text-gray-600 mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No applicants yet</h3>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
           When candidates apply to "{jobTitle}", they'll appear here.
         </p>
       </div>
@@ -275,8 +275,8 @@ export function ApplicantList({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Applicants</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Applicants</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             {applicants.length} applicant{applicants.length === 1 ? '' : 's'} for {jobTitle}
           </p>
         </div>
@@ -299,10 +299,10 @@ export function ApplicantList({
       </div>
 
       {/* Controls */}
-      <div className="flex items-center gap-4 bg-white border border-gray-200 rounded-lg p-4">
+      <div className="flex items-center gap-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
         {/* Sort */}
         <div className="flex items-center gap-2">
-          <label htmlFor="sort-select" className="text-sm font-medium text-gray-700">
+          <label htmlFor="sort-select" className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Sort by:
           </label>
           <select
@@ -310,7 +310,7 @@ export function ApplicantList({
             aria-label="Sort by"
             value={sortBy}
             onChange={(e) => handleSortChange(e.target.value)}
-            className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             {SORT_OPTIONS.map(option => (
               <option key={option.value} value={option.value}>
@@ -322,7 +322,7 @@ export function ApplicantList({
 
         {/* Filter by Stage */}
         <div className="flex items-center gap-2">
-          <label htmlFor="stage-filter" className="text-sm font-medium text-gray-700">
+          <label htmlFor="stage-filter" className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Stage:
           </label>
           <select
@@ -330,7 +330,7 @@ export function ApplicantList({
             aria-label="Filter by stage"
             value={filters.stage || ''}
             onChange={(e) => handleFilterChange({ ...filters, stage: e.target.value || undefined })}
-            className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">All Stages</option>
             {STAGES.map(stage => (
@@ -343,7 +343,7 @@ export function ApplicantList({
 
         {/* Filter by Min Fit Index */}
         <div className="flex items-center gap-2">
-          <label htmlFor="fit-filter" className="text-sm font-medium text-gray-700">
+          <label htmlFor="fit-filter" className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Min Fit Index:
           </label>
           <input
@@ -357,7 +357,7 @@ export function ApplicantList({
               const value = e.target.value ? parseInt(e.target.value) : undefined;
               handleFilterChange({ ...filters, minFitIndex: value });
             }}
-            className="w-20 text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-20 text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="0"
           />
         </div>
@@ -366,7 +366,7 @@ export function ApplicantList({
         {(filters.stage || filters.minFitIndex) && (
           <button
             onClick={() => handleFilterChange({})}
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium"
           >
             Clear filters
           </button>
@@ -374,10 +374,10 @@ export function ApplicantList({
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full" role="table">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-700">
               <tr>
                 <th className="w-12 px-4 py-3 text-left">
                   <input
@@ -391,30 +391,30 @@ export function ApplicantList({
                     className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Candidate
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Fit Index
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Stage
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Applied
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Tags
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Assigned
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {applicants.map((applicant) => {
                 const isSelected = selectedIds.includes(applicant.id);
                 const isActive = activeApplicantId === applicant.id;
@@ -433,10 +433,10 @@ export function ApplicantList({
                     }}
                     className={`cursor-pointer transition-colors ${
                       isActive
-                        ? 'bg-blue-100 hover:bg-blue-100 highlighted'
+                        ? 'bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/30 highlighted'
                         : isSelected
-                        ? 'bg-blue-50 hover:bg-blue-100'
-                        : 'hover:bg-gray-50'
+                        ? 'bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
                     {/* Checkbox */}
@@ -453,10 +453,10 @@ export function ApplicantList({
                     {/* Candidate Name & Email */}
                     <td className="px-4 py-3">
                       <div>
-                        <p className="font-medium text-gray-900" data-testid="applicant-name">
+                        <p className="font-medium text-gray-900 dark:text-gray-100" data-testid="applicant-name">
                           {applicant.candidateName}
                         </p>
-                        <p className="text-sm text-gray-600">{applicant.candidateEmail}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{applicant.candidateEmail}</p>
                       </div>
                     </td>
 
@@ -476,13 +476,13 @@ export function ApplicantList({
                     {/* Stage (Issue #58 - opens StatusChangeModal) */}
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-700">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           {getStageLabel(applicant.stage)}
                         </span>
                         <button
                           onClick={() => handleOpenStatusModal(applicant)}
                           data-testid="status-dropdown"
-                          className="text-xs px-2 py-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors"
+                          className="text-xs px-2 py-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                           aria-label={`Change status for ${applicant.candidateName}`}
                         >
                           Change
@@ -492,7 +492,7 @@ export function ApplicantList({
 
                     {/* Applied Date */}
                     <td className="px-4 py-3">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
                         {formatRelativeTime(applicant.appliedAt)}
                       </span>
                     </td>
@@ -504,25 +504,25 @@ export function ApplicantList({
                           {applicant.tags.slice(0, 2).map(tag => (
                             <span
                               key={tag}
-                              className="inline-block px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 rounded"
+                              className="inline-block px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded"
                             >
                               {tag}
                             </span>
                           ))}
                           {applicant.tags.length > 2 && (
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
                               +{applicant.tags.length - 2}
                             </span>
                           )}
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-400">-</span>
+                        <span className="text-sm text-gray-400 dark:text-gray-500">-</span>
                       )}
                     </td>
 
                     {/* Assigned To */}
                     <td className="px-4 py-3">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
                         {applicant.assignedTo || '-'}
                       </span>
                     </td>
@@ -531,7 +531,7 @@ export function ApplicantList({
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => onViewApplicant(applicant.id)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                         aria-label={`View details for ${applicant.candidateName}`}
                       >
                         <Eye className="h-4 w-4" />
@@ -547,7 +547,7 @@ export function ApplicantList({
       </div>
 
       {/* Footer Stats */}
-      <div className="flex items-center justify-between text-sm text-gray-600 px-2">
+      <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 px-2">
         <p>
           Showing {applicants.length} applicant{applicants.length === 1 ? '' : 's'}
         </p>

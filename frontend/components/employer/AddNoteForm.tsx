@@ -81,15 +81,15 @@ export default function AddNoteForm({
   };
 
   return (
-    <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm">
+    <div className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg p-4 shadow-sm">
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-medium text-gray-900">Add Note</h4>
+          <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Add Note</h4>
           <button
             type="button"
             onClick={onCancel}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -107,7 +107,7 @@ export default function AddNoteForm({
             placeholder="Add your note here... Use @username to mention team members"
             rows={4}
             maxLength={charLimit}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none dark:bg-gray-900 dark:text-gray-100"
             disabled={submitting}
           />
 
@@ -116,8 +116,8 @@ export default function AddNoteForm({
             <span
               className={`text-xs ${
                 charRemaining < 100
-                  ? 'text-red-600 font-medium'
-                  : 'text-gray-500'
+                  ? 'text-red-600 dark:text-red-400 font-medium'
+                  : 'text-gray-500 dark:text-gray-400'
               }`}
             >
               {charRemaining} characters remaining
@@ -125,7 +125,7 @@ export default function AddNoteForm({
 
             {/* @mention hint */}
             {content.includes('@') && (
-              <span className="text-xs text-blue-600">
+              <span className="text-xs text-blue-600 dark:text-blue-400">
                 @mentions will notify team members
               </span>
             )}
@@ -138,7 +138,7 @@ export default function AddNoteForm({
           <div>
             <label
               htmlFor="visibility"
-              className="block text-xs font-medium text-gray-700 mb-1"
+              className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Visibility
             </label>
@@ -149,7 +149,7 @@ export default function AddNoteForm({
                 onChange={(e) =>
                   setVisibility(e.target.value as 'private' | 'team')
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none dark:bg-gray-900 dark:text-gray-100"
                 disabled={submitting}
               >
                 <option value="team">Team - Visible to all team members</option>
@@ -169,7 +169,7 @@ export default function AddNoteForm({
           <div>
             <label
               htmlFor="note-type"
-              className="block text-xs font-medium text-gray-700 mb-1"
+              className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Note Type
             </label>
@@ -181,7 +181,7 @@ export default function AddNoteForm({
                   e.target.value as 'internal' | 'feedback' | 'interview_notes'
                 )
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-gray-100"
               disabled={submitting}
             >
               <option value="internal">Internal</option>
@@ -193,7 +193,7 @@ export default function AddNoteForm({
 
         {/* Error message */}
         {error && (
-          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
+          <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-gray-700 rounded p-2">
             {error}
           </div>
         )}
@@ -203,7 +203,7 @@ export default function AddNoteForm({
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             disabled={submitting}
           >
             Cancel
