@@ -365,7 +365,7 @@ export default function InterviewSchedulingPage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Calendar className="h-8 w-8" />
@@ -394,7 +394,7 @@ export default function InterviewSchedulingPage() {
 
       {/* Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 w-full overflow-x-auto">
           <TabsTrigger value="upcoming">
             Upcoming ({upcomingInterviews.length})
           </TabsTrigger>
@@ -422,14 +422,15 @@ export default function InterviewSchedulingPage() {
                   <p className="text-gray-500">No upcoming interviews</p>
                 </div>
               ) : (
+                <div className="overflow-x-auto -mx-4 sm:mx-0">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Candidate</TableHead>
                       <TableHead>Job</TableHead>
-                      <TableHead>Type</TableHead>
+                      <TableHead className="hidden lg:table-cell">Type</TableHead>
                       <TableHead>Date & Time</TableHead>
-                      <TableHead>Platform</TableHead>
+                      <TableHead className="hidden lg:table-cell">Platform</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -446,7 +447,7 @@ export default function InterviewSchedulingPage() {
                             </div>
                           </TableCell>
                           <TableCell>{interview.job_title}</TableCell>
-                          <TableCell>
+                          <TableCell className="hidden lg:table-cell">
                             <Badge className="bg-purple-100 text-purple-800">
                               {formatInterviewType(interview.interview_type)}
                             </Badge>
@@ -457,7 +458,7 @@ export default function InterviewSchedulingPage() {
                               <p className="text-sm text-gray-500">{time}</p>
                             </div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="hidden lg:table-cell">
                             {interview.meeting_platform ? (
                               <div className="flex items-center gap-2">
                                 <Video className="h-4 w-4" />
@@ -472,7 +473,7 @@ export default function InterviewSchedulingPage() {
                               {interview.status}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-right space-x-2">
+                          <TableCell className="text-right space-x-2 whitespace-nowrap">
                             <Button
                               size="sm"
                               variant="outline"
@@ -498,6 +499,7 @@ export default function InterviewSchedulingPage() {
                     })}
                   </TableBody>
                 </Table>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -519,12 +521,13 @@ export default function InterviewSchedulingPage() {
                   <p className="text-gray-500">No interviews scheduled</p>
                 </div>
               ) : (
+                <div className="overflow-x-auto -mx-4 sm:mx-0">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Candidate</TableHead>
                       <TableHead>Type</TableHead>
-                      <TableHead>Round</TableHead>
+                      <TableHead className="hidden md:table-cell">Round</TableHead>
                       <TableHead>Scheduled</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -544,7 +547,7 @@ export default function InterviewSchedulingPage() {
                           <TableCell>
                             {formatInterviewType(interview.interview_type)}
                           </TableCell>
-                          <TableCell>Round {interview.interview_round}</TableCell>
+                          <TableCell className="hidden md:table-cell">Round {interview.interview_round}</TableCell>
                           <TableCell>
                             <div>
                               <p>{date}</p>
@@ -586,6 +589,7 @@ export default function InterviewSchedulingPage() {
                     })}
                   </TableBody>
                 </Table>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -661,7 +665,7 @@ export default function InterviewSchedulingPage() {
                 onChange={(e) => setScheduleForm({ ...scheduleForm, application_id: e.target.value })}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="interview-type">Interview Type</Label>
                 <Select
@@ -691,7 +695,7 @@ export default function InterviewSchedulingPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="scheduled-at">Date & Time</Label>
                 <Input
@@ -711,7 +715,7 @@ export default function InterviewSchedulingPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="platform">Meeting Platform</Label>
                 <Select
@@ -819,7 +823,7 @@ export default function InterviewSchedulingPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="overall-rating">Overall Rating</Label>
                 <Select
@@ -857,7 +861,7 @@ export default function InterviewSchedulingPage() {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="communication-rating">Communication Rating</Label>
                 <Select

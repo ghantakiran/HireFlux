@@ -570,7 +570,7 @@ export default function BulkJobUploadPage() {
           </Card>
 
           {/* Actions */}
-          <div className="flex justify-between">
+          <div className="flex flex-col sm:flex-row justify-between gap-4">
             <Button
               variant="outline"
               onClick={() => {
@@ -581,7 +581,7 @@ export default function BulkJobUploadPage() {
             >
               Upload Another File
             </Button>
-            <div className="space-x-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 variant="outline"
                 onClick={() => router.push('/employer/jobs')}

@@ -74,10 +74,9 @@ export default function KanbanColumn({
       data-column={id}
       data-drop-zone="true"
       data-drag-over={isOver ? 'true' : 'false'}
-      className={`flex flex-col bg-gray-50 dark:bg-gray-950 rounded-lg border-2 transition-all duration-200 ${
+      className={`flex flex-col bg-gray-50 dark:bg-gray-950 rounded-lg border-2 transition-all duration-200 min-w-[260px] sm:min-w-[280px] max-w-[320px] ${
         isOver ? 'ring-2 ring-blue-500 border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 shadow-lg' : 'border-gray-200 dark:border-gray-700'
       }`}
-      style={{ minWidth: '280px', maxWidth: '320px' }}
     >
       {/* Column Header */}
       <div className={`flex items-center justify-between p-4 border-b-2 ${colorClasses} rounded-t-lg`}>
@@ -108,7 +107,7 @@ export default function KanbanColumn({
       {!isCollapsed && (
         <div
           ref={setNodeRef}
-          className="flex-1 p-2 space-y-2 min-h-[200px] max-h-[calc(100vh-300px)] overflow-y-auto"
+          className="flex-1 p-2 space-y-2 min-h-[200px] max-h-[calc(100vh-200px)] sm:max-h-[calc(100vh-300px)] overflow-y-auto"
           style={{ scrollbarWidth: 'thin' }}
         >
           {candidates.length === 0 ? (

@@ -296,7 +296,7 @@ export default function EmployerJobsPage() {
       {/* Header */}
       <div className="bg-white dark:bg-gray-900 border-b dark:border-gray-700">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Job Postings</h1>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
@@ -499,7 +499,7 @@ export default function EmployerJobsPage() {
               {sortedJobs.map((job) => (
                 <Card key={job.id} className="hover:shadow-md transition-shadow" data-job-card>
                   <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
                       <div className="flex-1">
                         {/* Title & Status */}
                         <div className="flex items-center gap-3 mb-2">

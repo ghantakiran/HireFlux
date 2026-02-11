@@ -273,7 +273,7 @@ export function ApplicantList({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Applicants</h2>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -299,7 +299,7 @@ export function ApplicantList({
       </div>
 
       {/* Controls */}
-      <div className="flex items-center gap-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-wrap bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
         {/* Sort */}
         <div className="flex items-center gap-2">
           <label htmlFor="sort-select" className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -400,13 +400,13 @@ export function ApplicantList({
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Stage
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                <th className="hidden lg:table-cell px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Applied
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Tags
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                   Assigned
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -492,14 +492,14 @@ export function ApplicantList({
                     </td>
 
                     {/* Applied Date */}
-                    <td className="px-4 py-3">
+                    <td className="hidden lg:table-cell px-4 py-3">
                       <span className="text-sm text-gray-600 dark:text-gray-400">
                         {formatRelativeTime(applicant.appliedAt)}
                       </span>
                     </td>
 
                     {/* Tags */}
-                    <td className="px-4 py-3">
+                    <td className="hidden md:table-cell px-4 py-3">
                       {applicant.tags && applicant.tags.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {applicant.tags.slice(0, 2).map(tag => (
@@ -522,7 +522,7 @@ export function ApplicantList({
                     </td>
 
                     {/* Assigned To */}
-                    <td className="px-4 py-3">
+                    <td className="hidden md:table-cell px-4 py-3">
                       <span className="text-sm text-gray-600 dark:text-gray-400">
                         {applicant.assignedTo || '-'}
                       </span>

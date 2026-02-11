@@ -214,7 +214,7 @@ export default function AssessmentsPage() {
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                       {assessment.title}
                     </h3>
@@ -234,7 +234,7 @@ export default function AssessmentsPage() {
                     </span>
                   </div>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">{assessment.description}</p>
-                  <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-sm text-gray-500 dark:text-gray-400">
                     <span>{assessment.total_attempts} attempts</span>
                     <span>Avg Score: {assessment.avg_score}%</span>
                     <span>Pass Rate: {assessment.pass_rate}%</span>

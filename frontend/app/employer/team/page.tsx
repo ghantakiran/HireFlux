@@ -326,7 +326,7 @@ export default function TeamManagementPage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Users className="h-8 w-8" />
@@ -357,7 +357,7 @@ export default function TeamManagementPage() {
 
       {/* Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 w-full overflow-x-auto">
           <TabsTrigger value="members">
             Members ({members.length})
           </TabsTrigger>
@@ -373,7 +373,7 @@ export default function TeamManagementPage() {
         <TabsContent value="members">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <CardTitle>Team Members</CardTitle>
                   <CardDescription>
@@ -400,15 +400,16 @@ export default function TeamManagementPage() {
                   <p className="text-gray-500">No team members found</p>
                 </div>
               ) : (
+                <div className="overflow-x-auto -mx-4 sm:mx-0">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
+                      <TableHead className="hidden md:table-cell">Email</TableHead>
                       <TableHead>Role</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Last Active</TableHead>
-                      <TableHead>Joined</TableHead>
+                      <TableHead className="hidden md:table-cell">Last Active</TableHead>
+                      <TableHead className="hidden md:table-cell">Joined</TableHead>
                       {canManageTeam && <TableHead className="text-right">Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
@@ -416,7 +417,7 @@ export default function TeamManagementPage() {
                     {members.map((member) => (
                       <TableRow key={member.id}>
                         <TableCell className="font-medium">{member.full_name}</TableCell>
-                        <TableCell>{member.email}</TableCell>
+                        <TableCell className="hidden md:table-cell">{member.email}</TableCell>
                         <TableCell>
                           <Badge className={getRoleBadgeColor(member.role)}>
                             {formatRole(member.role)}
@@ -429,12 +430,12 @@ export default function TeamManagementPage() {
                             <Badge className="bg-red-100 text-red-800">Suspended</Badge>
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden md:table-cell">
                           {member.last_active_at
                             ? formatTimestamp(member.last_active_at)
                             : 'Never'}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden md:table-cell">
                           {new Date(member.joined_at).toLocaleDateString()}
                         </TableCell>
                         {canManageTeam && member.role !== 'owner' && (
@@ -487,6 +488,7 @@ export default function TeamManagementPage() {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -508,12 +510,13 @@ export default function TeamManagementPage() {
                   <p className="text-gray-500">No pending invitations</p>
                 </div>
               ) : (
+                <div className="overflow-x-auto -mx-4 sm:mx-0">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Email</TableHead>
                       <TableHead>Role</TableHead>
-                      <TableHead>Expires</TableHead>
+                      <TableHead className="hidden md:table-cell">Expires</TableHead>
                       <TableHead>Status</TableHead>
                       {canManageTeam && <TableHead className="text-right">Actions</TableHead>}
                     </TableRow>
@@ -527,7 +530,7 @@ export default function TeamManagementPage() {
                             {formatRole(invitation.role)}
                           </Badge>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden md:table-cell">
                           {new Date(invitation.expires_at).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
@@ -566,6 +569,7 @@ export default function TeamManagementPage() {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               )}
             </CardContent>
           </Card>

@@ -562,7 +562,7 @@ export default function CompanyProfileSetupPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Company Profile</h1>
               <p className="mt-1 text-gray-600 dark:text-gray-400">Manage your company information and public profile</p>
@@ -596,7 +596,7 @@ export default function CompanyProfileSetupPage() {
             </div>
 
             {/* Section Status */}
-            <div data-section-status-list className="mt-4 grid grid-cols-2 gap-2">
+            <div data-section-status-list className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
               {['Basic Information', 'Logo', 'Culture & Benefits', 'Office Locations', 'Social Media'].map((section) => (
                 <div key={section} className="flex items-center gap-2">
                   {getSectionStatus(section) ? (
@@ -829,7 +829,7 @@ export default function CompanyProfileSetupPage() {
           <div data-logo-section className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-semibold mb-6">Company Logo</h2>
 
-            <div className="flex items-start gap-6">
+            <div className="flex flex-col sm:flex-row items-start gap-6">
               {/* Logo Preview or Placeholder */}
               <div className="flex-shrink-0">
                 {profile.logo ? (
@@ -1308,11 +1308,11 @@ export default function CompanyProfileSetupPage() {
           )}
 
           {/* Submit Button */}
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row justify-between gap-4">
             <button
               data-save-button
               type="submit"
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
+              className="w-full sm:w-auto flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
             >
               Save Profile
             </button>
@@ -1320,7 +1320,7 @@ export default function CompanyProfileSetupPage() {
               data-nav-dashboard
               type="button"
               onClick={() => router.push('/employer/dashboard')}
-              className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold"
+              className="w-full sm:w-auto px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold"
             >
               Cancel
             </button>
@@ -1331,7 +1331,7 @@ export default function CompanyProfileSetupPage() {
       {/* Confirmation Dialog */}
       {showDeleteConfirm && (
         <div data-confirm-dialog className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-md">
+          <div className="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-md w-full">
             <p data-confirm-message className="text-lg mb-4">
               {confirmType === 'logo'
                 ? 'Are you sure you want to remove the logo?'
@@ -1363,7 +1363,7 @@ export default function CompanyProfileSetupPage() {
       {completionPercentage < 50 && (
         <div
           data-profile-completion-prompt
-          className="fixed bottom-4 right-4 bg-white dark:bg-gray-900 rounded-lg shadow-lg p-4 max-w-sm border border-gray-200 dark:border-gray-700"
+          className="fixed bottom-4 right-4 left-4 sm:left-auto bg-white dark:bg-gray-900 rounded-lg shadow-lg p-4 max-w-sm border border-gray-200 dark:border-gray-700"
         >
           <p className="font-medium mb-2">Complete your company profile to attract better candidates</p>
           <a

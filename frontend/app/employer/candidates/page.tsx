@@ -495,7 +495,7 @@ export default function CandidateSearchPage() {
                       )}
                     </div>
 
-                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-sm text-muted-foreground">
                       <div className="flex gap-4">
                         {candidate.years_experience && (
                           <span className="flex items-center gap-1">
