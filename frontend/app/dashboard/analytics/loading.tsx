@@ -1,15 +1,16 @@
-import { CardSkeleton, ListSkeleton } from '@/components/ui/skeleton-templates';
+import { Skeleton } from '@/components/ui/skeleton';
+import { CardSkeleton } from '@/components/ui/skeleton-templates';
 import { StatsRowSkeleton } from '@/components/skeletons/stats-skeleton';
 
-export default function DashboardLoading() {
+export default function AnalyticsLoading() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
-      <StatsRowSkeleton count={5} />
+      <Skeleton className="h-8 w-48" />
+      <StatsRowSkeleton count={4} />
       <div className="grid gap-6 md:grid-cols-2">
         <CardSkeleton />
         <CardSkeleton />
       </div>
-      <ListSkeleton rows={3} showAvatar={false} />
     </div>
   );
 }
