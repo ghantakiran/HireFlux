@@ -179,7 +179,7 @@ export default function NoteItem({
 
           {/* Non-author message */}
           {!isAuthor && isWithinEditWindow(note.created_at) && (
-            <div className="text-xs text-gray-400 dark:text-gray-400 italic">
+            <div className="text-xs text-gray-500 dark:text-gray-400 italic">
               Only author can edit
             </div>
           )}

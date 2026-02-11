@@ -464,7 +464,7 @@ export default function InterviewSchedulingPage() {
                                 {interview.meeting_platform}
                               </div>
                             ) : (
-                              <span className="text-gray-400">-</span>
+                              <span className="text-gray-500">-</span>
                             )}
                           </TableCell>
                           <TableCell>

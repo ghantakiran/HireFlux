@@ -262,7 +262,7 @@ export function LeftSidebar({ role = 'job_seeker' }: LeftSidebarProps) {
             <div className="mb-4">
               <div className="flex items-center gap-1.5 px-3 mb-2">
                 <Clock className="h-3 w-3 text-gray-400" />
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Recent
                 </span>
               </div>
@@ -305,7 +305,7 @@ export function LeftSidebar({ role = 'job_seeker' }: LeftSidebarProps) {
                       className="flex items-center justify-between w-full px-3 py-1 group"
                       aria-expanded={!isSectionCollapsed}
                     >
-                      <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                         {group.label}
                       </span>
                       <ChevronDown

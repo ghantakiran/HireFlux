@@ -517,7 +517,7 @@ export function ApplicantList({
                           )}
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-400 dark:text-gray-500">-</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-500">-</span>
                       )}
                     </td>
 

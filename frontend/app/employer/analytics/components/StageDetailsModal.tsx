@@ -102,7 +102,7 @@ export function StageDetailsModal({ isOpen, onClose, stage, stageData }: StageDe
                 <p className="text-gray-500 text-sm">
                   Application list would be loaded here from the API
                 </p>
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-gray-500 mt-2">
                   Showing {stageData.count} candidates in this stage
                 </p>
               </div>

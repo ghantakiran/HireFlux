@@ -99,12 +99,12 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                 Showing results for "{searchQuery}"
               </p>
               {/* Placeholder for search results */}
-              <div className="text-sm text-gray-400 py-8 text-center">
+              <div className="text-sm text-gray-500 py-8 text-center">
                 Search implementation coming soon...
               </div>
             </div>
           ) : (
-            <div className="text-sm text-gray-400 py-8 text-center">
+            <div className="text-sm text-gray-500 py-8 text-center">
               Type to search across jobs, applications, and candidates
             </div>
           )}

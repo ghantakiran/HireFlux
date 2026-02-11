@@ -347,7 +347,7 @@ export default function ApplicantsPage() {
                         </div>
                         <div className="text-sm text-gray-500">{app.candidate.email}</div>
                         {app.candidate.headline && (
-                          <div className="text-xs text-gray-400 mt-1">{app.candidate.headline}</div>
+                          <div className="text-xs text-gray-500 mt-1">{app.candidate.headline}</div>
                         )}
                       </div>
                     </td>
