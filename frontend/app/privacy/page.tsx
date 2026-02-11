@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Shield, Download, Trash2, FileText, Cookie } from "lucide-react"
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'HireFlux privacy policy. Learn how we collect, use, and protect your personal information.',
+};
 
 export default function PrivacyPage() {
   return (

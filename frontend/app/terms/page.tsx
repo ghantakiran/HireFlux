@@ -1,7 +1,13 @@
+import type { Metadata } from 'next';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { FileText, Scale, Shield, AlertTriangle } from "lucide-react"
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'HireFlux terms of service. Review the terms and conditions for using our AI-powered recruiting platform.',
+};
 
 export default function TermsPage() {
   return (

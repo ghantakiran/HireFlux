@@ -31,13 +31,32 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://hireflux.com'),
   title: {
     default: 'HireFlux - AI-Powered Job Application Copilot',
     template: '%s | HireFlux',
   },
   description:
     'Streamline your job search with AI-powered resume generation, job matching, and automated applications.',
-  keywords: ['job search', 'resume builder', 'AI', 'career', 'job application'],
+  keywords: ['job search', 'resume builder', 'AI', 'career', 'job application', 'ATS optimization', 'cover letter generator', 'job matching'],
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'HireFlux',
+    title: 'HireFlux - AI-Powered Job Application Copilot',
+    description:
+      'Streamline your job search with AI-powered resume generation, job matching, and automated applications.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'HireFlux - AI-Powered Job Application Copilot',
+    description:
+      'Streamline your job search with AI-powered resume generation, job matching, and automated applications.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   // Performance hints
   other: {
     'format-detection': 'telephone=no',
