@@ -33,7 +33,7 @@ function MainContent({ children }: MainContentProps) {
       ref={mainRef}
       role="main"
       aria-label="Main content"
-      tabIndex={-1}
+      tabIndex={-1} // WCAG 2.4.1: tabIndex={-1} is correct for skip-link target - allows programmatic focus without adding to tab order
       className="min-h-screen focus:outline-none"
       data-main-content
     >

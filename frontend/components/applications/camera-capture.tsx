@@ -224,11 +224,12 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
             autoPlay
             playsInline
             muted
+            aria-label="Camera preview for resume capture"
             className="w-full h-full object-cover"
           />
 
           {/* Canvas for capture (hidden) */}
-          <canvas ref={canvasRef} className="hidden" />
+          <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
 
           {/* Overlay UI */}
           <div className="absolute inset-0 flex flex-col">

@@ -154,7 +154,8 @@ export function ApplicationPipeline({
               <div
                 key={stage.id}
                 data-stage={stage.id}
-                aria-label={`${stage.label} stage with ${stageApplications.length} applications`}
+                role="group"
+                aria-labelledby={`stage-heading-${stage.id}`}
                 className={cn(
                   'flex-shrink-0 flex flex-col',
                   isCompact ? 'w-64' : 'w-80'
@@ -169,7 +170,7 @@ export function ApplicationPipeline({
                   )}
                 >
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-foreground">
+                    <h3 id={`stage-heading-${stage.id}`} className="font-semibold text-foreground">
                       {stage.label}
                     </h3>
                     {showCount && (

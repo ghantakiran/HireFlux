@@ -24,6 +24,7 @@ export function NotificationButton() {
         size="icon"
         data-notification-button
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+        aria-haspopup="true"
         aria-expanded={isOpen}
         onClick={toggleDropdown}
         className="relative"

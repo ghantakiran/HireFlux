@@ -423,6 +423,7 @@ export function ApplicantList({
                   <tr
                     key={applicant.id}
                     data-testid="applicant-row"
+                    aria-label={`${applicant.candidateName}, fit index ${applicant.fitIndex}, stage ${getStageLabel(applicant.stage)}`}
                     tabIndex={0}
                     onClick={() => handleRowClick(applicant.id)}
                     onKeyDown={(e) => {

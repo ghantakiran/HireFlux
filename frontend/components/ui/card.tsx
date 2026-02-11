@@ -19,12 +19,20 @@ const cardVariants = cva('rounded-lg border bg-card text-card-foreground shadow-
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof cardVariants>
->(({ className, variant, ...props }, ref) => (
+>(({ className, variant, onClick, onKeyDown, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(cardVariants({ variant, className }))}
     {...(variant === 'interactive' ? { tabIndex: 0, role: 'button' } : {})}
     data-interactive={variant === 'interactive' || undefined}
+    onClick={onClick}
+    onKeyDown={variant === 'interactive' && onClick ? (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+      }
+      onKeyDown?.(e);
+    } : onKeyDown}
     {...props}
   />
 ));

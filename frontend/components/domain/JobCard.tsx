@@ -164,6 +164,7 @@ export function JobCard({
       data-job-card
       data-variant={variant}
       role="article"
+      aria-label={isClickable ? `${job.title} at ${job.company}${job.fitIndex !== undefined ? `, fit index ${job.fitIndex}` : ''}. Click to view details` : undefined}
       tabIndex={isClickable ? 0 : undefined}
       onClick={isClickable ? handleCardClick : undefined}
       onKeyDown={isClickable ? handleKeyDown : undefined}

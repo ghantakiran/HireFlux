@@ -112,6 +112,7 @@ export function EmptyState({
       data-variant={variant}
       data-state={state}
       role="status"
+      aria-live="polite"
       aria-label={ariaLabel}
       className={containerClasses}
     >

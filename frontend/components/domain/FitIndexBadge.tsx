@@ -80,7 +80,7 @@ export function FitIndexBadge({
       data-fit-index
       data-variant={variant}
       role="status"
-      aria-label={`Fit index: ${clampedScore}% - ${label}`}
+      aria-label={`Fit index: ${clampedScore} out of 100, rated ${label}`}
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full font-semibold transition-colors',
         colorClasses,

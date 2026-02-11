@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { Upload } from 'lucide-react';
 
 interface FileUploadProps {
@@ -14,6 +14,7 @@ export function FileUpload({ accept, maxSizeMb = 10, onFileSelected, className }
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const errorId = useId();
 
   function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -43,12 +44,14 @@ export function FileUpload({ accept, maxSizeMb = 10, onFileSelected, className }
       }}
       role="region"
       aria-label="File upload"
+      aria-describedby={error ? errorId : undefined}
     >
       <input
         ref={inputRef}
         type="file"
         accept={accept}
         className="sr-only"
+        aria-label="Choose file to upload"
         onChange={(e) => handleFiles(e.target.files)}
       />
       <div className="flex flex-col items-center gap-3">
@@ -65,7 +68,7 @@ export function FileUpload({ accept, maxSizeMb = 10, onFileSelected, className }
         </div>
         {accept && <p className="text-xs text-muted-foreground">Accepted: {accept}</p>}
         <p className="text-xs text-muted-foreground">Max size: {maxSizeMb}MB</p>
-        {error && <p className="text-xs text-destructive">{error}</p>}
+        {error && <p id={errorId} role="alert" className="text-xs text-destructive">{error}</p>}
       </div>
     </div>
   );

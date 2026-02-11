@@ -243,6 +243,8 @@ export function LeftSidebar({ role = 'job_seeker' }: LeftSidebarProps) {
             onClick={toggleCollapse}
             data-sidebar-collapse-button
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-controls="sidebar-nav-content"
+            aria-expanded={!collapsed}
             tabIndex={0}
           >
             {collapsed ? (
@@ -254,7 +256,7 @@ export function LeftSidebar({ role = 'job_seeker' }: LeftSidebarProps) {
         </div>
 
         {/* Navigation Items */}
-        <div className="flex-1 overflow-y-auto py-4 px-2">
+        <div id="sidebar-nav-content" className="flex-1 overflow-y-auto py-4 px-2">
           {/* Recent Pages (expanded mode only) */}
           {!collapsed && recentPages.length > 0 && (
             <div className="mb-4">

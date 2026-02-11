@@ -82,7 +82,7 @@ export function TopNav({ role = 'job_seeker' }: TopNavProps) {
           </Link>
 
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-md" data-search-bar>
+          <form onSubmit={handleSearch} className="flex-1 max-w-md" data-search-bar role="search" aria-label="Site search">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <Input

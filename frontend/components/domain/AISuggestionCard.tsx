@@ -197,6 +197,7 @@ export function AISuggestionCard({
             onClick={() => setShowReasoning(!showReasoning)}
             className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
             aria-expanded={showReasoning}
+            aria-controls={`reasoning-${suggestion.id}`}
           >
             <span data-reasoning-icon data-expanded={showReasoning}>
               {showReasoning ? (
@@ -210,6 +211,7 @@ export function AISuggestionCard({
 
           {showReasoning && (
             <div
+              id={`reasoning-${suggestion.id}`}
               className="mt-2 rounded-md bg-muted p-3 text-sm text-muted-foreground break-words"
               aria-live="polite"
             >

@@ -16,7 +16,15 @@ interface StepProgressProps {
 
 export function StepProgress({ steps, currentStep, className }: StepProgressProps) {
   return (
-    <div className={cn('w-full', className)} data-step-progress>
+    <div
+      className={cn('w-full', className)}
+      data-step-progress
+      role="progressbar"
+      aria-valuenow={currentStep + 1}
+      aria-valuemin={1}
+      aria-valuemax={steps.length}
+      aria-label={`Step ${currentStep + 1} of ${steps.length}: ${steps[currentStep]?.label ?? ''}`}
+    >
       <div className="flex items-center justify-between">
         {steps.map((step, index) => {
           const isCompleted = index < currentStep;
@@ -31,10 +39,11 @@ export function StepProgress({ steps, currentStep, className }: StepProgressProp
                     'flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-medium transition-all duration-300',
                     isCompleted && 'border-blue-600 bg-blue-600 text-white',
                     isActive && 'border-blue-600 bg-white dark:bg-gray-900 text-blue-600 ring-4 ring-blue-100',
-                    !isCompleted && !isActive && 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-400'
+                    !isCompleted && !isActive && 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-500'
                   )}
                   data-step={index}
                   data-step-status={isCompleted ? 'completed' : isActive ? 'active' : 'upcoming'}
+                  aria-current={isActive ? 'step' : undefined}
                 >
                   {isCompleted ? (
                     <Check className="h-4 w-4" />
@@ -47,7 +56,7 @@ export function StepProgress({ steps, currentStep, className }: StepProgressProp
                     'text-xs font-medium transition-colors duration-300 text-center max-w-[80px]',
                     isCompleted && 'text-blue-600',
                     isActive && 'text-blue-600',
-                    !isCompleted && !isActive && 'text-gray-400'
+                    !isCompleted && !isActive && 'text-gray-500'
                   )}
                 >
                   {step.label}
