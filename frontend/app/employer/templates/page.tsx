@@ -25,6 +25,7 @@ import {
   TemplateError,
 } from '@/lib/api/jobTemplates';
 import { EmptyState } from '@/components/domain/EmptyState';
+import { toast } from 'sonner';
 import TemplateCard from '@/components/employer/TemplateCard';
 import TemplatePreviewModal from '@/components/employer/TemplatePreviewModal';
 
@@ -97,10 +98,11 @@ export default function TemplatesPage() {
       // Redirect to job creation page with template data
       // For now, store in sessionStorage and redirect
       sessionStorage.setItem('templateData', JSON.stringify(response.template_data));
+      toast.success('Template created');
       router.push('/employer/jobs/new');
     } catch (err) {
       const error = err as TemplateError;
-      alert(`Failed to load template: ${error.detail}`);
+      toast.error('Failed to update template. Please try again.');
     }
   }
 
@@ -120,9 +122,10 @@ export default function TemplatesPage() {
       await deleteJobTemplate(template.id);
       // Refresh templates list
       await fetchTemplates();
+      toast.success('Template deleted');
     } catch (err) {
       const error = err as TemplateError;
-      alert(`Failed to delete template: ${error.detail}`);
+      toast.error('Failed to update template. Please try again.');
     }
   }
 

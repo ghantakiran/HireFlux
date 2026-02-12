@@ -63,6 +63,7 @@ import {
   Plus,
   MessageSquare,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 // Types
 type Tone = 'formal' | 'conversational';
@@ -233,9 +234,11 @@ export default function CoverLetterGeneratorPage() {
         console.warn('Generation took longer than expected:', duration, 'seconds');
       }
 
+      toast.success('Cover letter created successfully');
       setIsGenerating(false);
     } catch (err) {
       setError('Failed to generate cover letter. Please try again.');
+      toast.error('Failed to create cover letter. Please try again.');
       setIsGenerating(false);
     }
   };
@@ -446,47 +449,55 @@ export default function CoverLetterGeneratorPage() {
 
   // Handle export
   const handleExport = async (format: ExportFormat) => {
-    const content = generatedContent;
-    const filename = `cover-letter-${jobDetails.company || 'untitled'}-${Date.now()}`;
+    try {
+      const content = generatedContent;
+      const filename = `cover-letter-${jobDetails.company || 'untitled'}-${Date.now()}`;
 
-    if (format === 'txt') {
-      const blob = new Blob([content], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${filename}.txt`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } else if (format === 'pdf') {
-      // Mock PDF export (in production, use a library like jsPDF or server-side generation)
-      const blob = new Blob([content], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${filename}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } else if (format === 'docx') {
-      // Mock DOCX export (in production, use a library like docx or server-side generation)
-      const blob = new Blob([content], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${filename}.docx`;
-      a.click();
-      URL.revokeObjectURL(url);
+      if (format === 'txt') {
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else if (format === 'pdf') {
+        // Mock PDF export (in production, use a library like jsPDF or server-side generation)
+        const blob = new Blob([content], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else if (format === 'docx') {
+        // Mock DOCX export (in production, use a library like docx or server-side generation)
+        const blob = new Blob([content], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.docx`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      toast.success(`Cover letter exported as ${format.toUpperCase()}`);
+      setExportMenuOpen(false);
+    } catch (err) {
+      toast.error('Failed to export cover letter. Please try again.');
+      setExportMenuOpen(false);
     }
-
-    setExportMenuOpen(false);
   };
 
   const handleCopyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(generatedContent);
       setCopied(true);
+      toast.success('Copied to clipboard');
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy to clipboard:', err);
+      toast.error('Failed to copy to clipboard. Please try again.');
     }
   };
 

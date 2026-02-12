@@ -17,6 +17,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import {
   Search,
@@ -107,6 +108,7 @@ export default function EmployerJobsPage() {
       ...job,
       title: `Copy of ${job.title}`,
     }));
+    toast.success('Job duplicated');
     router.push('/employer/jobs/new?duplicate=true');
   };
 
@@ -175,9 +177,10 @@ export default function EmployerJobsPage() {
       await apiUpdateJobStatus(jobId, newStatus as any);
       // Refresh job list
       fetchJobs();
+      toast.success('Job status updated');
     } catch (err) {
       console.error('Status update error:', err);
-      alert('Failed to update job status');
+      toast.error('Failed to update job. Please try again.');
     }
   };
 
@@ -191,9 +194,10 @@ export default function EmployerJobsPage() {
       fetchJobs();
       setDeleteDialogOpen(false);
       setJobToDelete(null);
+      toast.success('Job deleted');
     } catch (err) {
       console.error('Delete error:', err);
-      alert(err instanceof Error ? err.message : 'Failed to delete job');
+      toast.error('Failed to update job. Please try again.');
     }
   };
 

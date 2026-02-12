@@ -39,6 +39,7 @@ import {
   type CoverLetterLength,
 } from '@/lib/stores/cover-letter-store';
 import { useResumeStore } from '@/lib/stores/resume-store';
+import { toast } from 'sonner';
 
 export default function CoverLetterDetailPage() {
   const router = useRouter();
@@ -83,9 +84,10 @@ export default function CoverLetterDetailPage() {
     try {
       setIsDeleting(true);
       await deleteCoverLetter(id);
+      toast.success('Cover letter deleted');
       router.push('/dashboard/cover-letters');
     } catch (err) {
-      // Error handled by store
+      toast.error('Failed to delete cover letter. Please try again.');
       setIsDeleting(false);
     }
   };

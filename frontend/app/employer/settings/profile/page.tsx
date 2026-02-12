@@ -45,6 +45,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import { CompanyLogoUpload } from '@/components/employer/CompanyLogoUpload';
+import { toast } from 'sonner';
 import { RichTextEditor } from '@/components/employer/RichTextEditor';
 import { NotificationSettings } from '@/components/employer/NotificationSettings';
 
@@ -250,6 +251,7 @@ export default function CompanyProfileSettingsPage() {
       setFormData(updatedCompany);
       setHasUnsavedChanges(false);
       setSuccessMessage('Profile updated successfully');
+      toast.success('Settings saved successfully');
 
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -257,6 +259,7 @@ export default function CompanyProfileSettingsPage() {
       setErrorMessage(
         error instanceof Error ? error.message : 'Failed to update profile'
       );
+      toast.error('Failed to save settings. Please try again.');
     } finally {
       setIsSaving(false);
     }

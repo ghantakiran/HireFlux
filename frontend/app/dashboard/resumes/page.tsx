@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { ResumeCardSkeleton } from '@/components/skeletons/card-skeleton';
 import { EmptyState } from '@/components/domain/EmptyState';
+import { toast } from 'sonner';
 
 export default function ResumesPage() {
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
@@ -84,8 +85,9 @@ export default function ResumesPage() {
       await deleteResume(resumeToDelete);
       setDeleteDialogOpen(false);
       setResumeToDelete(null);
+      toast.success('Resume deleted successfully');
     } catch (err) {
-      // Error is handled by the store
+      toast.error('Failed to delete resume. Please try again.');
     } finally {
       setDeletingId(null);
     }
@@ -100,8 +102,9 @@ export default function ResumesPage() {
     e.stopPropagation();
     try {
       await setDefaultResume(id);
+      toast.success('Default resume updated');
     } catch (err) {
-      // Error is handled by the store
+      toast.error('Failed to set default resume. Please try again.');
     }
   };
 
@@ -109,8 +112,9 @@ export default function ResumesPage() {
     e.stopPropagation();
     try {
       await downloadResume(id);
+      toast.success('Resume downloaded');
     } catch (err) {
-      // Error is handled by the store
+      toast.error('Failed to download resume. Please try again.');
     }
   };
 

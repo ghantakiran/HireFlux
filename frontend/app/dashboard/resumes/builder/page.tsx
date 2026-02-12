@@ -46,6 +46,7 @@ import {
 } from 'lucide-react';
 import { useResumeStore, type ParsedResumeData } from '@/lib/stores/resume-store';
 import { resumeApi } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface WorkExperienceForm {
   company: string;
@@ -302,8 +303,10 @@ export default function ResumeBuilderPage() {
       };
 
       setGeneratedContent(parsedData);
+      toast.success('Resume generated successfully');
     } catch (err: any) {
       setError(err?.response?.data?.detail || 'Failed to generate resume');
+      toast.error('Failed to generate resume. Please try again.');
     } finally {
       setIsGenerating(false);
     }
@@ -328,11 +331,14 @@ export default function ResumeBuilderPage() {
       // Refresh resumes list
       await fetchResumes();
 
+      toast.success('Resume saved successfully');
+
       // Redirect to resume detail page
       const resumeId = response.data.data.id;
       router.push(`/dashboard/resumes/${resumeId}`);
     } catch (err: any) {
       setError(err?.response?.data?.detail || 'Failed to save resume');
+      toast.error('Failed to save resume. Please try again.');
       setIsSaving(false);
     }
   };

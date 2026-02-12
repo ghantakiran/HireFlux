@@ -37,6 +37,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { OptimizedImage } from '@/components/ui/optimized-image';
+import { toast } from 'sonner';
 
 // ============================================================================
 // Types & Interfaces
@@ -471,9 +472,11 @@ export default function CompanyProfileSetupPage() {
       localStorage.removeItem('company-profile-draft');
       setIsDraft(false);
       setTimeout(() => setSuccessMessage(''), 3000);
+      toast.success('Company profile updated');
     } catch (error) {
       setFormError('Failed to save profile. Please try again.');
       setTimeout(() => setFormError(''), 5000);
+      toast.error('Failed to update company profile. Please try again.');
     }
   };
 

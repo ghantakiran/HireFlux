@@ -56,6 +56,7 @@ import {
   type ApplicationStatus,
   type ApplicationDetail,
 } from '@/lib/stores/application-store';
+import { toast } from 'sonner';
 
 export default function ApplicationDetailPage() {
   const params = useParams();
@@ -102,8 +103,9 @@ export default function ApplicationDetailPage() {
       setUpdating(true);
       await updateApplication(applicationId, { status: selectedStatus });
       setUpdateDialogOpen(false);
+      toast.success('Status updated');
     } catch (err) {
-      // Error handled by store
+      toast.error('Failed to update application. Please try again.');
     } finally {
       setUpdating(false);
     }
@@ -114,8 +116,9 @@ export default function ApplicationDetailPage() {
       setUpdating(true);
       await updateApplication(applicationId, { notes });
       setNotesDialogOpen(false);
+      toast.success('Notes saved');
     } catch (err) {
-      // Error handled by store
+      toast.error('Failed to update application. Please try again.');
     } finally {
       setUpdating(false);
     }
@@ -125,9 +128,10 @@ export default function ApplicationDetailPage() {
     try {
       setDeleting(true);
       await deleteApplication(applicationId);
+      toast.success('Application deleted');
       router.push('/dashboard/applications');
     } catch (err) {
-      // Error handled by store
+      toast.error('Failed to delete application. Please try again.');
     } finally {
       setDeleting(false);
     }

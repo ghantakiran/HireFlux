@@ -54,6 +54,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { EmptyState } from '@/components/domain/EmptyState';
+import { toast } from 'sonner';
 
 // Types
 interface TeamMember {
@@ -201,8 +202,10 @@ export default function TeamManagementPage() {
       setInviteEmail('');
       setInviteRole('recruiter');
       await loadTeamData();
+      toast.success('Invitation sent');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to send invitation');
+      toast.error('Failed to update team. Please try again.');
     } finally {
       setInviting(false);
     }
@@ -213,8 +216,10 @@ export default function TeamManagementPage() {
       setError(null);
       await teamCollaborationApi.resendInvitation(invitationId);
       await loadTeamData();
+      toast.success('Invitation resent');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to resend invitation');
+      toast.error('Failed to update team. Please try again.');
     }
   };
 
@@ -223,8 +228,10 @@ export default function TeamManagementPage() {
       setError(null);
       await teamCollaborationApi.revokeInvitation(invitationId);
       await loadTeamData();
+      toast.success('Invitation revoked');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to revoke invitation');
+      toast.error('Failed to update team. Please try again.');
     }
   };
 
@@ -242,8 +249,10 @@ export default function TeamManagementPage() {
       setSelectedMember(null);
       setNewRole('');
       await loadTeamData();
+      toast.success('Role updated');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to update role');
+      toast.error('Failed to update team. Please try again.');
     } finally {
       setUpdatingRole(false);
     }
@@ -254,8 +263,10 @@ export default function TeamManagementPage() {
       setError(null);
       await teamCollaborationApi.suspendMember(memberId, {});
       await loadTeamData();
+      toast.success('Team member suspended');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to suspend member');
+      toast.error('Failed to update team. Please try again.');
     }
   };
 
@@ -264,8 +275,10 @@ export default function TeamManagementPage() {
       setError(null);
       await teamCollaborationApi.reactivateMember(memberId);
       await loadTeamData();
+      toast.success('Team member reactivated');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to reactivate member');
+      toast.error('Failed to update team. Please try again.');
     }
   };
 
@@ -276,8 +289,10 @@ export default function TeamManagementPage() {
       setError(null);
       await teamCollaborationApi.removeMember(memberId);
       await loadTeamData();
+      toast.success('Team member removed');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to remove member');
+      toast.error('Failed to update team. Please try again.');
     }
   };
 

@@ -15,6 +15,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { candidateProfileApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { Loader2, Eye, EyeOff, Trash2, Plus, X, Github, Globe, FileText, Briefcase } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface PortfolioItem {
   type: 'github' | 'website' | 'article' | 'project';
@@ -137,6 +138,7 @@ export default function ProfileSettingsPage() {
       if (hasProfile) {
         await candidateProfileApi.update(profile);
         setMessage({ type: 'success', text: 'Profile updated successfully' });
+        toast.success('Profile updated successfully');
       } else {
         await candidateProfileApi.create({
           headline: profile.headline || '',
@@ -153,6 +155,7 @@ export default function ProfileSettingsPage() {
           visibility: profile.visibility,
         });
         setMessage({ type: 'success', text: 'Profile created successfully' });
+        toast.success('Profile created successfully');
         setHasProfile(true);
         await loadProfile();
       }
@@ -162,6 +165,7 @@ export default function ProfileSettingsPage() {
         type: 'error',
         text: error.response?.data?.detail || 'Failed to save profile'
       });
+      toast.error('Failed to update profile. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -178,12 +182,14 @@ export default function ProfileSettingsPage() {
         type: 'success',
         text: `Profile is now ${newVisibility}`
       });
+      toast.success(`Profile is now ${newVisibility}`);
     } catch (error: any) {
       console.error('Failed to update visibility:', error);
       setMessage({
         type: 'error',
         text: 'Failed to update visibility'
       });
+      toast.error('Failed to update visibility. Please try again.');
     }
   };
 
@@ -195,9 +201,11 @@ export default function ProfileSettingsPage() {
       });
       setProfile({ ...profile, availability_status: status });
       setMessage({ type: 'success', text: 'Availability updated' });
+      toast.success('Availability updated');
     } catch (error: any) {
       console.error('Failed to update availability:', error);
       setMessage({ type: 'error', text: 'Failed to update availability' });
+      toast.error('Failed to update availability. Please try again.');
     }
   };
 
@@ -224,12 +232,14 @@ export default function ProfileSettingsPage() {
     try {
       await candidateProfileApi.addPortfolioItem(portfolioForm);
       setMessage({ type: 'success', text: 'Portfolio item added' });
+      toast.success('Portfolio item added');
       setShowPortfolioDialog(false);
       setPortfolioForm({ type: 'github', title: '', description: '', url: '' });
       await loadProfile();
     } catch (error: any) {
       console.error('Failed to add portfolio item:', error);
       setMessage({ type: 'error', text: 'Failed to add portfolio item' });
+      toast.error('Failed to add portfolio item. Please try again.');
     }
   };
 
@@ -237,10 +247,12 @@ export default function ProfileSettingsPage() {
     try {
       await candidateProfileApi.removePortfolioItem(index);
       setMessage({ type: 'success', text: 'Portfolio item removed' });
+      toast.success('Portfolio item removed');
       await loadProfile();
     } catch (error: any) {
       console.error('Failed to remove portfolio item:', error);
       setMessage({ type: 'error', text: 'Failed to remove portfolio item' });
+      toast.error('Failed to remove portfolio item. Please try again.');
     }
   };
 
@@ -248,11 +260,13 @@ export default function ProfileSettingsPage() {
     try {
       await candidateProfileApi.delete();
       setMessage({ type: 'success', text: 'Profile deleted' });
+      toast.success('Profile deleted');
       setShowDeleteDialog(false);
       router.push('/dashboard');
     } catch (error: any) {
       console.error('Failed to delete profile:', error);
       setMessage({ type: 'error', text: 'Failed to delete profile' });
+      toast.error('Failed to delete profile. Please try again.');
     }
   };
 

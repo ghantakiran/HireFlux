@@ -13,6 +13,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Bell, Mail, Monitor, Volume2, VolumeX, Check, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -145,8 +146,10 @@ export default function NotificationSettingsPage() {
       // Show success toast
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
+      toast.success('Notification preferences saved');
     } catch (error) {
       console.error('Error saving preferences:', error);
+      toast.error('Failed to save preferences. Please try again.');
     } finally {
       setIsSaving(false);
     }

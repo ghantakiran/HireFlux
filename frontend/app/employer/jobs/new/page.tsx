@@ -16,6 +16,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   createJob,
@@ -302,9 +303,11 @@ export default function NewJobPage() {
       }));
 
       setAiDialogOpen(false);
+      toast.success('Description generated');
     } catch (err) {
       console.error('AI generation error:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate job description');
+      toast.error('Failed to generate description. Please try again.');
     } finally {
       setAiLoading(false);
     }
@@ -350,12 +353,13 @@ export default function NewJobPage() {
 
       await createJob(jobData as JobCreateRequest);
 
-      alert('Job saved as draft');
+      toast.success('Job saved as draft');
       localStorage.removeItem('job_draft');
       router.push('/employer/jobs');
     } catch (err) {
       console.error('Save error:', err);
       setError(err instanceof Error ? err.message : 'Failed to save job');
+      toast.error('Failed to create job. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -398,12 +402,13 @@ export default function NewJobPage() {
 
       await createJob(jobData as JobCreateRequest);
 
-      alert('Job posted successfully!');
+      toast.success('Job posted successfully');
       localStorage.removeItem('job_draft');
       router.push('/employer/jobs');
     } catch (err) {
       console.error('Publish error:', err);
       setError(err instanceof Error ? err.message : 'Failed to publish job');
+      toast.error('Failed to create job. Please try again.');
     } finally {
       setIsSaving(false);
     }

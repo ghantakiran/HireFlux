@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -75,6 +76,7 @@ export default function FeedbackPage() {
         }
       } catch (error) {
         console.error('Failed to fetch feedback:', error);
+        toast.error('Failed to load feedback. Please try again.');
       } finally {
         setIsLoading(false);
       }

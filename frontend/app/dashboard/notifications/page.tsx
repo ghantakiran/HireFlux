@@ -46,6 +46,7 @@ import {
 import { EmptyState } from '@/components/domain/EmptyState';
 import type { Notification, NotificationType } from '@/lib/types/notifications';
 import { MOCK_NOTIFICATIONS } from '@/lib/mock-data/notifications';
+import { toast } from 'sonner';
 
 // Notification type icons
 const NOTIFICATION_ICONS: Record<NotificationType, React.ElementType> = {
@@ -244,19 +245,23 @@ export default function NotificationsHistoryPage() {
 
   const markAllAsRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    toast.success('All notifications marked as read');
   };
 
   const deleteSelected = () => {
+    const count = selectedIds.size;
     setNotifications((prev) =>
       prev.filter((n) => !selectedIds.has(n.id))
     );
     setSelectedIds(new Set());
     setShowDeleteDialog(false);
+    toast.success(`${count} notification${count !== 1 ? 's' : ''} deleted`);
   };
 
   const clearReadNotifications = () => {
     setNotifications((prev) => prev.filter((n) => !n.read));
     setShowClearReadDialog(false);
+    toast.success('All read notifications cleared');
   };
 
   const handleNotificationClick = (notification: Notification) => {

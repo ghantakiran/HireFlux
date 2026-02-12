@@ -29,6 +29,7 @@ import {
   CheckCircle2,
   X,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 // Form validation schema
 const resumeSchema = z.object({
@@ -197,12 +198,14 @@ export default function ResumeEditPage() {
       setSaving(true);
       await updateParsedData(resumeId, data as ParsedResumeData);
       setSaveSuccess(true);
+      toast.success('Resume updated successfully');
 
       setTimeout(() => {
         router.push(`/dashboard/resumes/${resumeId}`);
       }, 1000);
     } catch (err) {
       console.error('Save failed:', err);
+      toast.error('Failed to update resume. Please try again.');
     } finally {
       setSaving(false);
     }

@@ -30,6 +30,7 @@ import {
   Target,
 } from 'lucide-react';
 import { useJobStore } from '@/lib/stores/job-store';
+import { toast } from 'sonner';
 
 export default function JobDetailsPage() {
   const router = useRouter();
@@ -69,11 +70,13 @@ export default function JobDetailsPage() {
       setIsSaving(true);
       if (isSaved(jobId)) {
         await unsaveJob(jobId);
+        toast.success('Job removed from saved');
       } else {
         await saveJob(jobId);
+        toast.success('Job saved');
       }
     } catch (err) {
-      // Error handled by store
+      toast.error('Failed to save job. Please try again.');
     } finally {
       setIsSaving(false);
     }

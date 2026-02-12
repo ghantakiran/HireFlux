@@ -34,6 +34,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { EmptyState } from '@/components/domain/EmptyState';
+import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -223,8 +224,10 @@ export default function InterviewSchedulingPage() {
       resetScheduleForm();
       await loadInterviews();
       await loadUpcomingInterviews();
+      toast.success('Interview scheduled');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to schedule interview');
+      toast.error('Failed to update interview. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -243,8 +246,10 @@ export default function InterviewSchedulingPage() {
       resetRescheduleForm();
       await loadInterviews();
       await loadUpcomingInterviews();
+      toast.success('Interview updated');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to reschedule interview');
+      toast.error('Failed to update interview. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -258,8 +263,10 @@ export default function InterviewSchedulingPage() {
       await interviewSchedulingApi.cancelInterview(interviewId, {});
       await loadInterviews();
       await loadUpcomingInterviews();
+      toast.success('Interview cancelled');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to cancel interview');
+      toast.error('Failed to update interview. Please try again.');
     }
   };
 
@@ -275,8 +282,10 @@ export default function InterviewSchedulingPage() {
       setSelectedInterview(null);
       resetFeedbackForm();
       await loadInterviews();
+      toast.success('Feedback submitted');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to submit feedback');
+      toast.error('Failed to update interview. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -290,9 +299,10 @@ export default function InterviewSchedulingPage() {
         duration_minutes: 30,
         timezone: 'America/New_York',
       });
-      alert('Availability request sent to candidate');
+      toast.success('Availability request sent to candidate');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to request availability');
+      toast.error('Failed to update interview. Please try again.');
     }
   };
 

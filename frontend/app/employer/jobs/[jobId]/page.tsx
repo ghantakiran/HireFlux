@@ -14,6 +14,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { useRouter, useParams } from 'next/navigation';
 import {
   Edit,
@@ -101,6 +102,7 @@ export default function JobDetailPage() {
       } catch (err) {
         console.error('Job fetch error:', err);
         setError(err instanceof Error ? err.message : 'Failed to load job');
+        toast.error('Failed to load job details. Please try again.');
       } finally {
         setIsLoading(false);
       }

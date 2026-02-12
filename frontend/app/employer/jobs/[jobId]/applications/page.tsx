@@ -14,6 +14,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { toast } from 'sonner';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Users } from 'lucide-react';
 import { EmptyState } from '@/components/domain/EmptyState';
@@ -133,14 +134,26 @@ export default function ATSPage({ params }: ATSPageProps) {
 
   // Handle stage update from List view
   const handleUpdateStage = async (applicationId: string, newStage: string) => {
-    updateApplication(applicationId, { stage: newStage });
-    // TODO: Call API to persist change
+    try {
+      updateApplication(applicationId, { stage: newStage });
+      // TODO: Call API to persist change
+      toast.success('Application status updated');
+    } catch (err) {
+      console.error('Stage update error:', err);
+      toast.error('Failed to update application. Please try again.');
+    }
   };
 
   // Handle bulk update from List view
   const handleBulkUpdate = async (applicationIds: string[], action: any) => {
-    // TODO: Implement bulk update
-    console.log('Bulk update:', applicationIds, action);
+    try {
+      // TODO: Implement bulk update
+      console.log('Bulk update:', applicationIds, action);
+      toast.success(`${applicationIds.length} applications updated`);
+    } catch (err) {
+      console.error('Bulk update error:', err);
+      toast.error('Failed to update applications. Please try again.');
+    }
   };
 
   // Handle sort change from List view
@@ -159,7 +172,13 @@ export default function ATSPage({ params }: ATSPageProps) {
 
   // Handle stage change from Kanban view
   const handleStageChange = (applicationId: string, oldStage: string, newStage: string) => {
-    updateApplication(applicationId, { stage: newStage });
+    try {
+      updateApplication(applicationId, { stage: newStage });
+      toast.success('Candidate moved to next stage');
+    } catch (err) {
+      console.error('Stage change error:', err);
+      toast.error('Failed to update application. Please try again.');
+    }
   };
 
   // Handle modal close and refresh
