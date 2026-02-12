@@ -53,6 +53,7 @@ import {
   Clock,
   AlertCircle,
 } from 'lucide-react';
+import { EmptyState } from '@/components/domain/EmptyState';
 
 // Types
 interface TeamMember {
@@ -395,10 +396,13 @@ export default function TeamManagementPage() {
             </CardHeader>
             <CardContent>
               {members.length === 0 ? (
-                <div className="text-center py-12">
-                  <Users className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-500">No team members found</p>
-                </div>
+                <EmptyState
+                  title="No team members"
+                  description="Invite team members to collaborate on hiring and candidate evaluation."
+                  icon={<Users className="h-12 w-12 text-muted-foreground" />}
+                  actionLabel="Invite Member"
+                  onAction={() => setInviteModalOpen(true)}
+                />
               ) : (
                 <div className="overflow-x-auto -mx-4 sm:mx-0">
                 <Table>

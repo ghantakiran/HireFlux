@@ -33,6 +33,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { EmptyState } from '@/components/domain/EmptyState';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -417,10 +418,11 @@ export default function InterviewSchedulingPage() {
             </CardHeader>
             <CardContent>
               {upcomingInterviews.length === 0 ? (
-                <div className="text-center py-12">
-                  <Calendar className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-500">No upcoming interviews</p>
-                </div>
+                <EmptyState
+                  title="No interviews scheduled"
+                  description="Interview schedules will appear here when you advance candidates through your pipeline."
+                  icon={<Calendar className="h-12 w-12 text-muted-foreground" />}
+                />
               ) : (
                 <div className="overflow-x-auto -mx-4 sm:mx-0">
                 <Table>
@@ -516,10 +518,11 @@ export default function InterviewSchedulingPage() {
             </CardHeader>
             <CardContent>
               {interviews.length === 0 ? (
-                <div className="text-center py-12">
-                  <Calendar className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-500">No interviews scheduled</p>
-                </div>
+                <EmptyState
+                  title="No interviews scheduled"
+                  description="Interview schedules will appear here when you advance candidates through your pipeline."
+                  icon={<Calendar className="h-12 w-12 text-muted-foreground" />}
+                />
               ) : (
                 <div className="overflow-x-auto -mx-4 sm:mx-0">
                 <Table>
@@ -606,10 +609,11 @@ export default function InterviewSchedulingPage() {
             </CardHeader>
             <CardContent>
               {interviews.filter(i => i.status === 'completed').length === 0 ? (
-                <div className="text-center py-12">
-                  <CheckCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-500">No completed interviews</p>
-                </div>
+                <EmptyState
+                  title="No interviews scheduled"
+                  description="Interview schedules will appear here when you advance candidates through your pipeline."
+                  icon={<Calendar className="h-12 w-12 text-muted-foreground" />}
+                />
               ) : (
                 <div className="space-y-4">
                   {interviews

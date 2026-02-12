@@ -15,7 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Bug, Lightbulb, MessageCircle, Filter, ChevronRight } from 'lucide-react';
+import { Bug, Lightbulb, MessageCircle, MessageSquare, Filter, ChevronRight } from 'lucide-react';
+import { EmptyState } from '@/components/domain/EmptyState';
 import {
   Dialog,
   DialogContent,
@@ -164,11 +165,11 @@ export default function FeedbackPage() {
 
       {/* Empty State */}
       {!isLoading && filteredList.length === 0 && (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No feedback yet</h3>
-          <p className="text-gray-600 mb-4">You haven't submitted any feedback yet</p>
-        </div>
+        <EmptyState
+          title="No feedback yet"
+          description="Your feedback helps us improve HireFlux. Share your thoughts anytime."
+          icon={<MessageSquare className="h-12 w-12 text-muted-foreground" />}
+        />
       )}
 
       {/* Feedback List */}

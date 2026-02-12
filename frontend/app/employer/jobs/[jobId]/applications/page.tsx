@@ -15,6 +15,8 @@
 
 import React, { useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { Users } from 'lucide-react';
+import { EmptyState } from '@/components/domain/EmptyState';
 import { useATSStore } from '@/hooks/useATSStore';
 import ATSViewToggle from '@/components/employer/ATSViewToggle';
 import ApplicantList from '@/components/employer/ApplicantList';
@@ -214,29 +216,11 @@ export default function ATSPage({ params }: ATSPageProps) {
   } else if (!loading && filteredApplications.length === 0 && applications.length === 0) {
     // Empty state
     content = (
-      <div className="flex flex-col items-center justify-center h-96">
-        <div className="text-center">
-          <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4 mx-auto">
-            <svg
-              className="w-10 h-10 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No applications yet</h3>
-          <p className="text-gray-600 max-w-md">
-            Post this job to start receiving applications from qualified candidates.
-          </p>
-        </div>
-      </div>
+      <EmptyState
+        title="No applications yet"
+        description="Applications will appear here as candidates apply to this position."
+        icon={<Users className="h-12 w-12 text-muted-foreground" />}
+      />
     );
   } else {
     // Main content - List or Kanban view

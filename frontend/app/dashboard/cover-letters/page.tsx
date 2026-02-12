@@ -53,6 +53,7 @@ import {
   type CoverLetterTone,
 } from '@/lib/stores/cover-letter-store';
 import { toast } from 'sonner';
+import { EmptyState } from '@/components/domain/EmptyState';
 
 export default function CoverLettersPage() {
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
@@ -306,32 +307,23 @@ export default function CoverLettersPage() {
 
       {/* Empty State */}
       {!isLoading && coverLetters.length === 0 && (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <FileText className="h-16 w-16 text-muted-foreground mb-4" />
-            <p className="text-lg font-medium text-muted-foreground">
-              No cover letters yet
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground text-center max-w-md">
-              {activeFiltersCount > 0
-                ? 'No cover letters match your filters. Try adjusting your filters.'
-                : 'Generate your first AI-powered cover letter to get started.'}
-            </p>
-            {activeFiltersCount > 0 ? (
-              <Button className="mt-4" variant="outline" onClick={handleClearFilters}>
-                Clear Filters
-              </Button>
-            ) : (
-              <Button
-                className="mt-4"
-                onClick={() => router.push('/dashboard/cover-letters/new')}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Generate Cover Letter
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+        activeFiltersCount > 0 ? (
+          <EmptyState
+            title="No cover letters found"
+            description="No cover letters match your filters. Try adjusting your filters."
+            icon={<FileText className="h-12 w-12 text-muted-foreground" />}
+            actionLabel="Clear Filters"
+            onAction={handleClearFilters}
+          />
+        ) : (
+          <EmptyState
+            title="No cover letters yet"
+            description="Generate personalized cover letters tailored to each job application."
+            icon={<FileText className="h-12 w-12 text-muted-foreground" />}
+            actionLabel="Create Cover Letter"
+            onAction={() => router.push('/dashboard/cover-letters/new')}
+          />
+        )
       )}
 
       {/* Cover Letters Grid */}

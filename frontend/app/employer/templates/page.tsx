@@ -13,7 +13,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Grid3x3, List, Search } from 'lucide-react';
+import { Plus, Grid3x3, List, Search, FileText } from 'lucide-react';
 import {
   listJobTemplates,
   deleteJobTemplate,
@@ -24,6 +24,7 @@ import {
   getCategoryOptions,
   TemplateError,
 } from '@/lib/api/jobTemplates';
+import { EmptyState } from '@/components/domain/EmptyState';
 import TemplateCard from '@/components/employer/TemplateCard';
 import TemplatePreviewModal from '@/components/employer/TemplatePreviewModal';
 
@@ -262,28 +263,13 @@ export default function TemplatesPage() {
 
         {/* Empty State */}
         {!loading && !error && filteredTemplates.length === 0 && (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-              <Grid3x3 className="w-8 h-8 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">
-              No templates found
-            </h3>
-            <p className="text-gray-500 mb-4">
-              {searchQuery
-                ? 'Try adjusting your search or filters'
-                : visibilityFilter === 'private'
-                ? "You haven't created any templates yet"
-                : 'Get started by creating your first template'}
-            </p>
-            <button
-              onClick={() => router.push('/employer/templates/new')}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create Template
-            </button>
-          </div>
+          <EmptyState
+            title="No templates yet"
+            description="Create reusable job description templates for faster posting."
+            icon={<FileText className="h-12 w-12 text-muted-foreground" />}
+            actionLabel="Create Template"
+            onAction={() => router.push('/employer/templates/new')}
+          />
         )}
 
         {/* Templates Grid */}

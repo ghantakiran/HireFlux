@@ -11,9 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { TagInput } from "@/components/ui/tag-input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { candidateSearchApi } from '@/lib/api';
-import { Search, MapPin, DollarSign, Briefcase, Star, Eye, Save, Filter, X } from 'lucide-react';
+import { Search, MapPin, DollarSign, Briefcase, Star, Eye, Save, Filter, X, Users } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
+import { EmptyState } from '@/components/domain/EmptyState';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface CandidateProfile {
   id: string;
@@ -57,6 +59,8 @@ const LOCATION_TYPES = ['remote', 'hybrid', 'onsite', 'any'];
 const AVAILABILITY_STATUSES = ['actively_looking', 'open_to_offers', 'not_looking'];
 
 export default function CandidateSearchPage() {
+  const router = useRouter();
+
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
   // Client-side fallback to ensure title is always set (resolves SSR/hydration timing issues)
   useEffect(() => {
@@ -530,14 +534,13 @@ export default function CandidateSearchPage() {
               ))}
             </div>
           ) : (
-            <Card>
-              <CardContent className="p-12 text-center">
-                <p className="text-muted-foreground mb-4">
-                  No candidates found matching your criteria.
-                </p>
-                <p className="text-sm">Try adjusting your filters or search with different criteria.</p>
-              </CardContent>
-            </Card>
+            <EmptyState
+              title="No candidates found"
+              description="Candidates will appear here once you've posted jobs and received applications."
+              icon={<Users className="h-12 w-12 text-muted-foreground" />}
+              actionLabel="Post a Job"
+              onAction={() => router.push('/employer/jobs/new')}
+            />
           )}
 
           {/* Pagination */}

@@ -1,3 +1,6 @@
+'use client';
+
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -6,8 +9,36 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Zap, TrendingUp, Clock, CheckCircle, AlertCircle, Pause, Play } from "lucide-react"
+import { EmptyState } from '@/components/domain/EmptyState';
 
 export default function AutoApplyPage() {
+  const router = useRouter();
+
+  // TODO: Replace with actual data fetching
+  const autoApplyJobs: any[] = [];
+  if (autoApplyJobs.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Zap className="h-6 w-6" />
+            <h1 className="text-3xl font-bold">Auto Apply To Jobs</h1>
+          </div>
+          <p className="text-muted-foreground">
+            Let AI apply to thousands of jobs for you automatically. Save time and get hired faster.
+          </p>
+        </div>
+        <EmptyState
+          title="No auto-apply jobs"
+          description="Set up auto-apply to automatically submit applications to matching jobs."
+          icon={<Zap className="h-12 w-12 text-muted-foreground" />}
+          actionLabel="Browse Jobs"
+          onAction={() => router.push('/dashboard/jobs')}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">

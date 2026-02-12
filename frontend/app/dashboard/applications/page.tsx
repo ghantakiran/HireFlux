@@ -24,8 +24,11 @@ import {
   Filter,
   Download,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  Send
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { EmptyState } from '@/components/domain/EmptyState';
 
 // Pipeline stages configuration
 const PIPELINE_STAGES: PipelineStage[] = [
@@ -48,6 +51,8 @@ export default function ApplicationTrackingDashboardPage() {
   useEffect(() => {
     document.title = 'My Applications | HireFlux';
   }, []);
+
+  const router = useRouter();
 
   // State
   const [applications, setApplications] = useState<Application[]>([]);
@@ -444,17 +449,27 @@ export default function ApplicationTrackingDashboardPage() {
       </div>
 
       {/* Application Pipeline */}
-      <ApplicationPipeline
-        applications={filteredApplications}
-        stages={PIPELINE_STAGES}
-        onStageChange={handleStageChange}
-        onApplicationClick={handleApplicationClick}
-        showFitIndex
-        showDate
-        showCount
-        loading={loading}
-        emptyMessage="No applications yet. Start applying to jobs!"
-      />
+      {!loading && applications.length === 0 ? (
+        <EmptyState
+          title="No applications yet"
+          description="Start your job search by applying to roles that match your skills and experience."
+          icon={<Send className="h-12 w-12 text-muted-foreground" />}
+          actionLabel="Browse Jobs"
+          onAction={() => router.push('/dashboard/jobs')}
+        />
+      ) : (
+        <ApplicationPipeline
+          applications={filteredApplications}
+          stages={PIPELINE_STAGES}
+          onStageChange={handleStageChange}
+          onApplicationClick={handleApplicationClick}
+          showFitIndex
+          showDate
+          showCount
+          loading={loading}
+          emptyMessage="No applications yet. Start applying to jobs!"
+        />
+      )}
     </div>
   );
 }

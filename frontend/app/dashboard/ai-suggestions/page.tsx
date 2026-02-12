@@ -8,7 +8,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { AISuggestionCard, AISuggestion } from '@/components/domain/AISuggestionCard';
+import { EmptyState } from '@/components/domain/EmptyState';
 import { AnalyticsChart, ChartDataPoint } from '@/components/domain/AnalyticsChart';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -74,6 +76,8 @@ interface ProfileImprovement {
 }
 
 export default function AISuggestionsPage() {
+  const router = useRouter();
+
   // State - Suggestions
   const [allSuggestions, setAllSuggestions] = useState<AISuggestion[]>([]);
   const [filteredSuggestions, setFilteredSuggestions] = useState<AISuggestion[]>([]);
@@ -628,30 +632,13 @@ export default function AISuggestionsPage() {
           </p>
         </div>
 
-        <Card className="max-w-2xl mx-auto">
-          <CardContent className="pt-12 pb-12 text-center">
-            <CheckCircle2 className="mx-auto h-16 w-16 text-success mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">
-              Congratulations! Your profile is optimized
-            </h2>
-            <p className="text-muted-foreground mb-4">
-              You have no pending suggestions at this time.
-            </p>
-            <div className="mb-6">
-              <p className="text-sm text-muted-foreground mb-2">Profile Strength</p>
-              <div className="flex items-center gap-4 justify-center">
-                <Progress value={profileStrength} className="w-48" />
-                <span className="text-2xl font-bold text-success">
-                  {profileStrength}%
-                </span>
-              </div>
-            </div>
-            <Button onClick={handleReAnalyze}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Re-analyze Profile
-            </Button>
-          </CardContent>
-        </Card>
+        <EmptyState
+          title="No suggestions yet"
+          description="AI suggestions will appear here once you've added your resume and preferences."
+          icon={<Sparkles className="h-12 w-12 text-muted-foreground" />}
+          actionLabel="Create Resume"
+          onAction={() => router.push('/dashboard/resumes/builder')}
+        />
       </div>
     );
   }

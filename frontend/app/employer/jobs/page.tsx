@@ -34,6 +34,7 @@ import {
   TrendingUp,
   Copy,
   X,
+  Briefcase,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,6 +54,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { EmptyState } from '@/components/domain/EmptyState';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -477,21 +479,13 @@ export default function EmployerJobsPage() {
 
         {/* Empty State */}
         {jobs.length === 0 && !isLoading ? (
-          <Card className="text-center py-12" data-empty-state>
-            <CardContent>
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">No jobs posted yet</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Get started by posting your first job listing
-              </p>
-              <Button onClick={() => router.push('/employer/jobs/new')} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Create Your First Job
-              </Button>
-            </CardContent>
-          </Card>
+          <EmptyState
+            title="No jobs posted yet"
+            description="Create your first job posting with AI-powered description generation."
+            icon={<Briefcase className="h-12 w-12 text-muted-foreground" />}
+            actionLabel="Post a Job"
+            onAction={() => router.push('/employer/jobs/new')}
+          />
         ) : (
           <>
             {/* Job List */}

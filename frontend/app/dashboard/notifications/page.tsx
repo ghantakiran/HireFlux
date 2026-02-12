@@ -43,6 +43,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { EmptyState } from '@/components/domain/EmptyState';
 import type { Notification, NotificationType } from '@/lib/types/notifications';
 import { MOCK_NOTIFICATIONS } from '@/lib/mock-data/notifications';
 
@@ -549,20 +550,15 @@ export default function NotificationsHistoryPage() {
         </>
       ) : (
         /* Empty State */
-        <div
-          data-notification-empty
-          className="flex flex-col items-center justify-center py-16 text-center"
-        >
-          <Bell className="h-16 w-16 text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No notifications
-          </h3>
-          <p className="text-sm text-muted-foreground max-w-sm">
-            {searchQuery
+        <EmptyState
+          title="No notifications"
+          description={
+            searchQuery
               ? `No notifications matching "${searchQuery}"`
-              : "You're all caught up! We'll notify you when something new happens."}
-          </p>
-        </div>
+              : "You're all caught up! Notifications about job matches and application updates will appear here."
+          }
+          icon={<Bell className="h-12 w-12 text-muted-foreground" />}
+        />
       )}
 
       {/* Delete Confirmation Dialog */}

@@ -32,6 +32,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { ResumeCardSkeleton } from '@/components/skeletons/card-skeleton';
+import { EmptyState } from '@/components/domain/EmptyState';
 
 export default function ResumesPage() {
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
@@ -226,19 +227,13 @@ export default function ResumesPage() {
 
       {/* Empty State */}
       {resumes.length === 0 && !isLoading ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <FileText className="h-16 w-16 text-muted-foreground mb-4" />
-            <p className="text-lg font-medium text-muted-foreground">No resumes yet</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Upload your resume to get started with AI-powered job matching
-            </p>
-            <Button className="mt-6" onClick={handleUploadClick}>
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Your First Resume
-            </Button>
-          </CardContent>
-        </Card>
+        <EmptyState
+          title="No resumes yet"
+          description="Create your first AI-optimized resume to start applying for jobs."
+          icon={<FileText className="h-12 w-12 text-muted-foreground" />}
+          actionLabel="Create Resume"
+          onAction={() => router.push('/dashboard/resumes/builder')}
+        />
       ) : (
         /* Resume Grid */
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
