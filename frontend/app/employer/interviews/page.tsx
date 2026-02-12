@@ -38,6 +38,16 @@ import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Calendar,
   Clock,
   Video,
@@ -158,6 +168,10 @@ export default function InterviewSchedulingPage() {
 
   const [submitting, setSubmitting] = useState(false);
 
+  // Cancel interview dialog state
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [interviewToCancel, setInterviewToCancel] = useState<string | null>(null);
+
   // Load data
   useEffect(() => {
     loadInterviews();
@@ -255,18 +269,26 @@ export default function InterviewSchedulingPage() {
     }
   };
 
-  const handleCancelInterview = async (interviewId: string) => {
-    if (!confirm('Are you sure you want to cancel this interview?')) return;
+  const handleCancelInterviewClick = (interviewId: string) => {
+    setInterviewToCancel(interviewId);
+    setCancelDialogOpen(true);
+  };
+
+  const handleCancelInterviewConfirm = async () => {
+    if (!interviewToCancel) return;
 
     try {
       setError(null);
-      await interviewSchedulingApi.cancelInterview(interviewId, {});
+      await interviewSchedulingApi.cancelInterview(interviewToCancel, {});
       await loadInterviews();
       await loadUpcomingInterviews();
       toast.success('Interview cancelled');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to cancel interview');
       toast.error('Failed to update interview. Please try again.');
+    } finally {
+      setCancelDialogOpen(false);
+      setInterviewToCancel(null);
     }
   };
 
@@ -500,7 +522,7 @@ export default function InterviewSchedulingPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleCancelInterview(interview.id)}
+                              onClick={() => handleCancelInterviewClick(interview.id)}
                             >
                               <X className="h-3 w-3 mr-1" />
                               Cancel
@@ -959,6 +981,24 @@ export default function InterviewSchedulingPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Cancel Interview Confirmation Dialog */}
+      <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Interview</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this interview? The candidate will be notified.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCancelInterviewConfirm} className="bg-red-600 hover:bg-red-700">
+              Cancel Interview
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

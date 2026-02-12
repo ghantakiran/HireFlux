@@ -28,6 +28,16 @@ import { EmptyState } from '@/components/domain/EmptyState';
 import { toast } from 'sonner';
 import TemplateCard from '@/components/employer/TemplateCard';
 import TemplatePreviewModal from '@/components/employer/TemplatePreviewModal';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function TemplatesPage() {
   const router = useRouter();
@@ -46,6 +56,10 @@ export default function TemplatesPage() {
   // Preview modal
   const [previewTemplate, setPreviewTemplate] = useState<JobTemplate | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  // Delete template dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<JobTemplate | null>(null);
 
   // Company ID (from user context - simplified for now)
   const [companyId] = useState('current-company-id'); // TODO: Get from auth context
@@ -113,19 +127,25 @@ export default function TemplatesPage() {
   }
 
   // Handle delete template
-  async function handleDelete(template: JobTemplate) {
-    if (!confirm(`Are you sure you want to delete "${template.name}"?`)) {
-      return;
-    }
+  function handleDeleteClick(template: JobTemplate) {
+    setTemplateToDelete(template);
+    setDeleteDialogOpen(true);
+  }
+
+  async function handleDeleteConfirm() {
+    if (!templateToDelete) return;
 
     try {
-      await deleteJobTemplate(template.id);
+      await deleteJobTemplate(templateToDelete.id);
       // Refresh templates list
       await fetchTemplates();
       toast.success('Template deleted');
     } catch (err) {
       const error = err as TemplateError;
       toast.error('Failed to update template. Please try again.');
+    } finally {
+      setDeleteDialogOpen(false);
+      setTemplateToDelete(null);
     }
   }
 
@@ -292,7 +312,7 @@ export default function TemplatesPage() {
                 onPreview={handlePreview}
                 onUse={handleUseTemplate}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                onDelete={handleDeleteClick}
               />
             ))}
           </div>
@@ -316,6 +336,24 @@ export default function TemplatesPage() {
         }}
         onUseTemplate={handleUseTemplate}
       />
+
+      {/* Delete Template Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Template</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &quot;{templateToDelete?.name}&quot;? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

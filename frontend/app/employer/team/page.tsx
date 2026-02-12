@@ -29,6 +29,16 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -132,6 +142,10 @@ export default function TeamManagementPage() {
   const [updatingRole, setUpdatingRole] = useState(false);
 
   const [activityDays, setActivityDays] = useState(7);
+
+  // Remove member dialog state
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState<string | null>(null);
 
   // Load data
   useEffect(() => {
@@ -282,17 +296,25 @@ export default function TeamManagementPage() {
     }
   };
 
-  const handleRemoveMember = async (memberId: string) => {
-    if (!confirm('Are you sure you want to remove this team member?')) return;
+  const handleRemoveMemberClick = (memberId: string) => {
+    setMemberToRemove(memberId);
+    setRemoveDialogOpen(true);
+  };
+
+  const handleRemoveMemberConfirm = async () => {
+    if (!memberToRemove) return;
 
     try {
       setError(null);
-      await teamCollaborationApi.removeMember(memberId);
+      await teamCollaborationApi.removeMember(memberToRemove);
       await loadTeamData();
       toast.success('Team member removed');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to remove member');
       toast.error('Failed to update team. Please try again.');
+    } finally {
+      setRemoveDialogOpen(false);
+      setMemberToRemove(null);
     }
   };
 
@@ -493,7 +515,7 @@ export default function TeamManagementPage() {
                                 )}
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                  onClick={() => handleRemoveMember(member.id)}
+                                  onClick={() => handleRemoveMemberClick(member.id)}
                                   className="text-red-600"
                                 >
                                   <Trash2 className="h-4 w-4 mr-2" />
@@ -731,6 +753,24 @@ export default function TeamManagementPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Remove Member Confirmation Dialog */}
+      <AlertDialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove this team member? They will lose access to the employer dashboard.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRemoveMemberConfirm} className="bg-red-600 hover:bg-red-700">
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

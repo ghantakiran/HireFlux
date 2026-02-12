@@ -21,6 +21,16 @@ import {
   HelpCircle,
   Zap,
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useTour } from '@/components/tours/tour-provider';
 import { tourRegistry } from '@/lib/tours/tour-registry';
 import { TourConfig, TourProgress } from '@/lib/tours/types';
@@ -39,6 +49,7 @@ export default function OnboardingSettingsPage() {
 
   const [allTours, setAllTours] = useState<TourConfig[]>([]);
   const [tourProgress, setTourProgress] = useState<Map<string, TourProgress>>(new Map());
+  const [showResetAllDialog, setShowResetAllDialog] = useState(false);
   const [stats, setStats] = useState({
     completed: 0,
     inProgress: 0,
@@ -163,11 +174,14 @@ export default function OnboardingSettingsPage() {
   };
 
   const handleResetAll = () => {
-    if (confirm('Are you sure you want to reset all tours? This will clear your progress.')) {
-      resetAllTours();
-      toast.success('All tours reset!');
-      window.location.reload();
-    }
+    setShowResetAllDialog(true);
+  };
+
+  const handleConfirmResetAll = () => {
+    resetAllTours();
+    toast.success('All tours reset!');
+    setShowResetAllDialog(false);
+    window.location.reload();
   };
 
   return (
@@ -483,6 +497,27 @@ export default function OnboardingSettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Reset All Tours Confirmation Dialog */}
+      <AlertDialog open={showResetAllDialog} onOpenChange={setShowResetAllDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset All Tours</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to reset all tours? This will clear your progress and show all guided tours again.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmResetAll}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Reset Tours
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -29,6 +29,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import {
   Loader2,
@@ -224,6 +234,15 @@ export default function AIJobDescriptionGenerator() {
 
   // Manual Editor State
   const [useManualEditor, setUseManualEditor] = useState(false);
+
+  // Shared Confirm Dialog State
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    action: () => void;
+    actionLabel: string;
+  }>({ open: false, title: '', description: '', action: () => {}, actionLabel: '' });
 
   // ------------------------------------------------------------------------
   // COMPUTED VALUES
@@ -554,13 +573,15 @@ export default function AIJobDescriptionGenerator() {
   const handleRegenerate = () => {
     if (!generatedJD) return;
 
-    const confirmed = window.confirm(
-      'Are you sure you want to regenerate? This will replace the current job description.'
-    );
-
-    if (confirmed) {
-      handleGenerate();
-    }
+    setConfirmDialog({
+      open: true,
+      title: 'Discard Changes',
+      description: 'Are you sure you want to regenerate? This will replace the current job description.',
+      action: () => {
+        handleGenerate();
+      },
+      actionLabel: 'Discard',
+    });
   };
 
   // ------------------------------------------------------------------------
@@ -617,16 +638,21 @@ export default function AIJobDescriptionGenerator() {
     const version = versions.find((v) => v.id === versionId);
     if (!version) return;
 
-    const confirmed = window.confirm(`Delete version "${version.name}"?`);
-    if (!confirmed) return;
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Version',
+      description: `Are you sure you want to delete version "${version.name}"?`,
+      action: () => {
+        setVersions(versions.filter((v) => v.id !== versionId));
+        if (currentVersionId === versionId) {
+          setCurrentVersionId(null);
+        }
 
-    setVersions(versions.filter((v) => v.id !== versionId));
-    if (currentVersionId === versionId) {
-      setCurrentVersionId(null);
-    }
-
-    toast.success('Version deleted', {
-      description: `"${version.name}" has been removed`,
+        toast.success('Version deleted', {
+          description: `"${version.name}" has been removed`,
+        });
+      },
+      actionLabel: 'Delete',
     });
   };
 
@@ -693,13 +719,18 @@ export default function AIJobDescriptionGenerator() {
     const template = templates.find((t) => t.id === templateId);
     if (!template) return;
 
-    const confirmed = window.confirm(`Delete template "${template.name}"?`);
-    if (!confirmed) return;
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Template',
+      description: `Are you sure you want to delete template "${template.name}"?`,
+      action: () => {
+        setTemplates(templates.filter((t) => t.id !== templateId));
 
-    setTemplates(templates.filter((t) => t.id !== templateId));
-
-    toast.success('Template deleted', {
-      description: `"${template.name}" has been removed from your library`,
+        toast.success('Template deleted', {
+          description: `"${template.name}" has been removed from your library`,
+        });
+      },
+      actionLabel: 'Delete',
     });
   };
 
@@ -1286,6 +1317,22 @@ export default function AIJobDescriptionGenerator() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Shared Confirm Dialog */}
+        <AlertDialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{confirmDialog.title}</AlertDialogTitle>
+              <AlertDialogDescription>{confirmDialog.description}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDialog.action} className="bg-red-600 hover:bg-red-700">
+                {confirmDialog.actionLabel}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }
@@ -1962,6 +2009,22 @@ export default function AIJobDescriptionGenerator() {
           )}
         </div>
       </div>
+
+      {/* Shared Confirm Dialog */}
+      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmDialog.title}</AlertDialogTitle>
+            <AlertDialogDescription>{confirmDialog.description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDialog.action} className="bg-red-600 hover:bg-red-700">
+              {confirmDialog.actionLabel}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -45,6 +45,16 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Sparkles,
   Download,
   Copy,
@@ -154,6 +164,15 @@ export default function CoverLetterGeneratorPage() {
     length: 0,
   });
   const [showQualityBreakdown, setShowQualityBreakdown] = useState(false);
+
+  // Shared Confirm Dialog State
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    action: () => void;
+    actionLabel: string;
+  }>({ open: false, title: '', description: '', action: () => {}, actionLabel: '' });
 
   // State - Counts
   const [charCount, setCharCount] = useState(0);
@@ -503,9 +522,15 @@ export default function CoverLetterGeneratorPage() {
 
   // Handle regenerate
   const handleRegenerate = () => {
-    if (confirm('Are you sure you want to regenerate? The current version will be discarded.')) {
-      handleGenerate();
-    }
+    setConfirmDialog({
+      open: true,
+      title: 'Regenerate Cover Letter',
+      description: 'Are you sure you want to regenerate? The current version will be discarded.',
+      action: () => {
+        handleGenerate();
+      },
+      actionLabel: 'Regenerate',
+    });
   };
 
   const getConfidenceLabel = (confidence: number): string => {
@@ -785,9 +810,15 @@ export default function CoverLetterGeneratorPage() {
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (confirm('Delete this version?')) {
-                              handleDeleteVersion(version.id);
-                            }
+                            setConfirmDialog({
+                              open: true,
+                              title: 'Delete Version',
+                              description: 'Are you sure you want to delete this version? This action cannot be undone.',
+                              action: () => {
+                                handleDeleteVersion(version.id);
+                              },
+                              actionLabel: 'Delete',
+                            });
                           }}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -1093,6 +1124,22 @@ export default function CoverLetterGeneratorPage() {
           )}
         </div>
       </div>
+
+      {/* Shared Confirm Dialog */}
+      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmDialog.title}</AlertDialogTitle>
+            <AlertDialogDescription>{confirmDialog.description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDialog.action} className="bg-red-600 hover:bg-red-700">
+              {confirmDialog.actionLabel}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
