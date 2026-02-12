@@ -9,6 +9,7 @@ import { KeyboardShortcutsModal } from '../keyboard-shortcuts-modal';
 import { GlobalSearchModal } from '../global-search-modal';
 import { CommandPalette } from '../command-palette';
 import { useKeyboardShortcuts, createGlobalShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { AutoBreadcrumbs } from './AutoBreadcrumbs';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -42,6 +43,7 @@ function MainContent({ children }: MainContentProps) {
         <div className="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-4 md:gap-6">
           {/* Content spans all columns */}
           <div className="col-span-4 md:col-span-8 lg:col-span-12">
+            <AutoBreadcrumbs />
             {children}
           </div>
         </div>
