@@ -53,6 +53,7 @@ import { EmptyState } from '@/components/domain/EmptyState';
 import { Pagination } from '@/components/ui/pagination';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { formatDate } from '@/lib/utils';
 
 // Import API client and types
 import {
@@ -229,16 +230,6 @@ export default function EmployerJobsPage() {
     // For now, infer from is_active until backend adds status field
     if (!job.is_active) return 'closed';
     return 'active';  // Simplified - backend should return actual status
-  };
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(date);
   };
 
   // Sync useColumnSort when URL params change (e.g. on initial load from URL)

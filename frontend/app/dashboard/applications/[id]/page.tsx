@@ -60,6 +60,7 @@ import { toast } from 'sonner';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { PageLoader } from '@/components/ui/page-loader';
+import { formatDateLong } from '@/lib/utils';
 
 export default function ApplicationDetailPage() {
   const params = useParams();
@@ -175,14 +176,6 @@ export default function ApplicationDetailPage() {
     );
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
   const formatSalary = (min?: number, max?: number) => {
     if (!min && !max) return 'Not disclosed';
     const formatNum = (num: number) =>
@@ -293,7 +286,7 @@ export default function ApplicationDetailPage() {
                     <div>
                       <p className="font-medium">Application Submitted</p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDate(application.applied_at)}
+                        {formatDateLong(application.applied_at)}
                       </p>
                     </div>
                   </div>
@@ -305,7 +298,7 @@ export default function ApplicationDetailPage() {
                   <div>
                     <p className="font-medium">Application Saved</p>
                     <p className="text-sm text-muted-foreground">
-                      {formatDate(application.created_at)}
+                      {formatDateLong(application.created_at)}
                     </p>
                   </div>
                 </div>
@@ -339,7 +332,7 @@ export default function ApplicationDetailPage() {
                     <Badge variant="outline">{job.employment_type}</Badge>
                     {job.posted_at && (
                       <Badge variant="secondary">
-                        Posted: {formatDate(job.posted_at)}
+                        Posted: {formatDateLong(job.posted_at)}
                       </Badge>
                     )}
                   </div>
@@ -498,19 +491,19 @@ export default function ApplicationDetailPage() {
 
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Created</p>
-                <p className="font-medium">{formatDate(application.created_at)}</p>
+                <p className="font-medium">{formatDateLong(application.created_at)}</p>
               </div>
 
               {application.applied_at && (
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Applied</p>
-                  <p className="font-medium">{formatDate(application.applied_at)}</p>
+                  <p className="font-medium">{formatDateLong(application.applied_at)}</p>
                 </div>
               )}
 
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Last Updated</p>
-                <p className="font-medium">{formatDate(application.updated_at)}</p>
+                <p className="font-medium">{formatDateLong(application.updated_at)}</p>
               </div>
             </CardContent>
           </Card>

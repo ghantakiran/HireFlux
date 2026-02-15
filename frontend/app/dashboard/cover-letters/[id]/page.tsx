@@ -35,6 +35,7 @@ import {
 } from '@/lib/stores/cover-letter-store';
 import { useResumeStore } from '@/lib/stores/resume-store';
 import { toast } from 'sonner';
+import { formatDateTimeLong } from '@/lib/utils';
 
 export default function CoverLetterDetailPage() {
   const router = useRouter();
@@ -115,17 +116,6 @@ export default function CoverLetterDetailPage() {
         {config.label}
       </Badge>
     );
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   const getResumeTitle = (resumeVersionId: string) => {
@@ -364,12 +354,12 @@ export default function CoverLetterDetailPage() {
             <CardContent className="space-y-3">
               <div>
                 <p className="text-sm text-muted-foreground">Created</p>
-                <p className="text-sm">{formatDate(currentCoverLetter.created_at)}</p>
+                <p className="text-sm">{formatDateTimeLong(currentCoverLetter.created_at)}</p>
               </div>
 
               <div>
                 <p className="text-sm text-muted-foreground">Last Modified</p>
-                <p className="text-sm">{formatDate(currentCoverLetter.updated_at)}</p>
+                <p className="text-sm">{formatDateTimeLong(currentCoverLetter.updated_at)}</p>
               </div>
             </CardContent>
           </Card>

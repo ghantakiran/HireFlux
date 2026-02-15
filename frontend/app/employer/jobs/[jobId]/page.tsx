@@ -36,6 +36,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
+import { formatDateLong } from '@/lib/utils';
 
 // Types
 interface Job {
@@ -156,14 +157,6 @@ export default function JobDetailPage() {
     }
     if (job.salary_min) return `${currency} ${(job.salary_min / 1000).toFixed(0)}K+`;
     return `Up to ${currency} ${(job.salary_max! / 1000).toFixed(0)}K`;
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(new Date(dateString));
   };
 
   return (
@@ -311,7 +304,7 @@ export default function JobDetailPage() {
 
             <Separator />
             <div className="text-sm text-gray-500">
-              Posted on {formatDate(job.posted_date || job.created_at)}
+              Posted on {formatDateLong(job.posted_date || job.created_at)}
             </div>
           </CardContent>
         </Card>

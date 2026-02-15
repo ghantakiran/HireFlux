@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { PageLoader } from '@/components/ui/page-loader';
+import { formatDateLong } from '@/lib/utils';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
@@ -123,15 +124,6 @@ export default function ResumeDetailPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
   if (isLoading || !currentResume) {
     return <PageLoader message="Loading resume..." fullScreen />;
   }
@@ -156,7 +148,7 @@ export default function ResumeDetailPage() {
               {isDefault && <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />}
             </div>
             <p className="text-muted-foreground">
-              Uploaded on {formatDate(resume.created_at)}
+              Uploaded on {formatDateLong(resume.created_at)}
             </p>
           </div>
 

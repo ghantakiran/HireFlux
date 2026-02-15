@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import { useBillingStore } from '@/lib/stores/billing-store';
 import { toast } from 'sonner';
+import { formatDateTime } from '@/lib/utils';
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { PageLoader } from '@/components/ui/page-loader';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -128,17 +129,6 @@ export default function CreditsPage() {
         description: 'Please try again or contact support.',
       });
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   const getCreditTypeIcon = (type: string) => {
@@ -377,7 +367,7 @@ export default function CreditsPage() {
               </p>
               {credits.last_reset && (
                 <p className="text-sm font-medium mt-2">
-                  Last reset: {formatDate(credits.last_reset)}
+                  Last reset: {formatDateTime(credits.last_reset)}
                 </p>
               )}
             </CardContent>
@@ -413,7 +403,7 @@ export default function CreditsPage() {
                 {creditHistory.map((transaction) => (
                   <TableRow key={transaction.id}>
                     <TableCell className="text-sm">
-                      {formatDate(transaction.created_at)}
+                      {formatDateTime(transaction.created_at)}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">

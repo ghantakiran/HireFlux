@@ -10,9 +10,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Format a date to a human-readable string
+ * Format a date to a short human-readable string (e.g., "Jan 15, 2026")
  */
-export function formatDate(date: Date | string): string {
+export function formatDate(date: Date | string | null): string {
+  if (!date) return 'N/A';
   const d = typeof date === 'string' ? new Date(date) : date;
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
@@ -22,7 +23,50 @@ export function formatDate(date: Date | string): string {
 }
 
 /**
- * Format a relative time (e.g., "2 hours ago")
+ * Format a date to a long human-readable string (e.g., "January 15, 2026")
+ */
+export function formatDateLong(date: Date | string | null): string {
+  if (!date) return 'N/A';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(d);
+}
+
+/**
+ * Format a date with time, short month (e.g., "Jan 15, 2026, 2:30 PM")
+ */
+export function formatDateTime(date: Date | string | null): string {
+  if (!date) return 'N/A';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(d);
+}
+
+/**
+ * Format a date with time, long month (e.g., "January 15, 2026, 2:30 PM")
+ */
+export function formatDateTimeLong(date: Date | string | null): string {
+  if (!date) return 'N/A';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(d);
+}
+
+/**
+ * Format a relative time (e.g., "2 hours ago", "Yesterday", "3d ago")
  */
 export function formatRelativeTime(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date;

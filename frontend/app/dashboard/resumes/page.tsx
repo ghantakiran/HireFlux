@@ -35,6 +35,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { usePagination } from '@/hooks/usePagination';
 import { useColumnSort } from '@/hooks/useColumnSort';
 import { useURLState } from '@/hooks/useURLState';
+import { formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const RESUMES_URL_CONFIG = {
@@ -155,15 +156,6 @@ export default function ResumesPage() {
     } catch (err) {
       toast.error('Failed to download resume. Please try again.');
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
   };
 
   const formatFileSize = (bytes: number) => {

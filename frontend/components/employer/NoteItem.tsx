@@ -26,6 +26,7 @@ import {
 } from '@/lib/api/applicationNotes';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import EditNoteModal from './EditNoteModal';
+import { formatRelativeTime } from '@/lib/utils';
 
 interface NoteItemProps {
   note: ApplicationNote;
@@ -105,19 +106,6 @@ export default function NoteItem({
     '<span class="text-blue-600 dark:text-blue-400 font-medium">$1</span>'
   );
 
-  // Format timestamp
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 1000 / 60);
-
-    if (diffMins < 1) return 'just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
-    return date.toLocaleDateString();
-  };
-
   return (
     <>
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
@@ -137,7 +125,7 @@ export default function NoteItem({
                 {note.author?.name || 'Unknown User'}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {formatDate(note.created_at)}
+                {formatRelativeTime(note.created_at)}
                 {note.updated_at !== note.created_at && (
                   <span className="ml-1">(edited)</span>
                 )}

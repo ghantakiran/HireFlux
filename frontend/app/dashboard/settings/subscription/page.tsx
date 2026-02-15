@@ -46,6 +46,7 @@ import {
   type SubscriptionPlan,
   type BillingInterval,
 } from '@/lib/stores/billing-store';
+import { formatDateLong } from '@/lib/utils';
 import { toast } from 'sonner';
 
 export default function SubscriptionPage() {
@@ -150,16 +151,6 @@ export default function SubscriptionPage() {
   const isPastDue = subscription?.status === 'past_due';
   const willCancelAtPeriodEnd = subscription?.cancel_at_period_end || false;
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
   const getStatusBadge = () => {
     if (!subscription || currentPlan === 'free') {
       return (
@@ -262,15 +253,15 @@ export default function SubscriptionPage() {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Current Period</span>
                       <span className="font-medium">
-                        {formatDate(subscription.current_period_start)} -{' '}
-                        {formatDate(subscription.current_period_end)}
+                        {formatDateLong(subscription.current_period_start)} -{' '}
+                        {formatDateLong(subscription.current_period_end)}
                       </span>
                     </div>
                     {willCancelAtPeriodEnd && (
                       <div className="flex justify-between text-orange-600">
                         <span>Cancels On</span>
                         <span className="font-medium">
-                          {formatDate(subscription.current_period_end)}
+                          {formatDateLong(subscription.current_period_end)}
                         </span>
                       </div>
                     )}

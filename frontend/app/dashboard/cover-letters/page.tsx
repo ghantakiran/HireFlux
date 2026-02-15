@@ -40,6 +40,7 @@ import {
   type CoverLetterTone,
 } from '@/lib/stores/cover-letter-store';
 import { toast } from 'sonner';
+import { formatRelativeTime } from '@/lib/utils';
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Pagination } from '@/components/ui/pagination';
@@ -146,19 +147,6 @@ export default function CoverLettersPage() {
         {config.label}
       </Badge>
     );
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return `${Math.floor(diffDays / 30)} months ago`;
   };
 
   const searchFilteredLetters = useMemo(() => {
@@ -380,7 +368,7 @@ export default function CoverLettersPage() {
                 <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    <span>{formatDate(coverLetter.created_at)}</span>
+                    <span>{formatRelativeTime(coverLetter.created_at)}</span>
                   </div>
                   <Badge variant="outline">
                     {coverLetter.length === 'short'
