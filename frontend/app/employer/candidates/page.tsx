@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { candidateSearchApi } from '@/lib/api';
 import { Search, MapPin, DollarSign, Briefcase, Star, Eye, Save, Filter, X, Users } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
+import { Pagination } from '@/components/ui/pagination';
 import { EmptyState } from '@/components/domain/EmptyState';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -543,25 +544,11 @@ export default function CandidateSearchPage() {
             />
           )}
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => handlePageChange(filters.page - 1)}
-                disabled={filters.page === 1}
-              >
-                Previous Page
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => handlePageChange(filters.page + 1)}
-                disabled={filters.page === totalPages}
-              >
-                Next Page
-              </Button>
-            </div>
-          )}
+          <Pagination
+            currentPage={filters.page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
 

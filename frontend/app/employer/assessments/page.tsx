@@ -28,6 +28,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { assessmentApi } from '@/lib/api';
+import { Pagination } from '@/components/ui/pagination';
+import { usePagination } from '@/hooks/usePagination';
 
 interface Assessment {
   id: string;
@@ -50,6 +52,14 @@ export default function AssessmentsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedItems: paginatedAssessments,
+    pageInfo,
+  } = usePagination({ items: assessments, itemsPerPage: 10 });
 
   // Set page metadata
   useEffect(() => {
@@ -202,7 +212,7 @@ export default function AssessmentsPage() {
             onAction={() => router.push('/employer/assessments/new')}
           />
         ) : (
-          assessments.map((assessment) => (
+          paginatedAssessments.map((assessment) => (
             <div
               key={assessment.id}
               data-testid="assessment-item"
@@ -263,6 +273,13 @@ export default function AssessmentsPage() {
             </div>
           ))
         )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={pageInfo.totalItems}
+            itemsPerPage={10}
+          />
       </div>
     </div>
   );

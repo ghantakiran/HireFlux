@@ -60,6 +60,8 @@ import {
   MessageSquare,
   Star,
 } from 'lucide-react';
+import { Pagination } from '@/components/ui/pagination';
+import { usePagination } from '@/hooks/usePagination';
 
 // Types
 interface Interview {
@@ -165,6 +167,14 @@ export default function InterviewSchedulingPage() {
     recommendation: 'maybe',
     next_steps: '',
   });
+
+  const {
+    currentPage: interviewPage,
+    setCurrentPage: setInterviewPage,
+    totalPages: interviewTotalPages,
+    paginatedItems: paginatedInterviews,
+    pageInfo: interviewPageInfo,
+  } = usePagination({ items: interviews, itemsPerPage: 10 });
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -561,6 +571,7 @@ export default function InterviewSchedulingPage() {
                   icon={<Calendar className="h-12 w-12 text-muted-foreground" />}
                 />
               ) : (
+                <>
                 <div className="overflow-x-auto -mx-4 sm:mx-0">
                 <Table>
                   <TableHeader>
@@ -574,7 +585,7 @@ export default function InterviewSchedulingPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {interviews.map((interview) => {
+                    {paginatedInterviews.map((interview) => {
                       const { date, time } = formatDateTime(interview.scheduled_at);
                       return (
                         <TableRow key={interview.id}>
@@ -630,6 +641,14 @@ export default function InterviewSchedulingPage() {
                   </TableBody>
                 </Table>
                 </div>
+              <Pagination
+                currentPage={interviewPage}
+                totalPages={interviewTotalPages}
+                onPageChange={setInterviewPage}
+                totalItems={interviewPageInfo.totalItems}
+                itemsPerPage={10}
+              />
+              </>
               )}
             </CardContent>
           </Card>

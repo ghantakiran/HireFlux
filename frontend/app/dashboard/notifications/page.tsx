@@ -43,6 +43,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Pagination } from '@/components/ui/pagination';
+import { usePagination } from '@/hooks/usePagination';
 import { EmptyState } from '@/components/ui/empty-state';
 import type { Notification, NotificationType } from '@/lib/types/notifications';
 import { MOCK_NOTIFICATIONS } from '@/lib/mock-data/notifications';
@@ -121,8 +123,6 @@ export default function NotificationsHistoryPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showClearReadDialog, setShowClearReadDialog] = useState(false);
-  const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 20;
 
   // Load notifications on mount
   useEffect(() => {
@@ -178,15 +178,21 @@ export default function NotificationsHistoryPage() {
     return result;
   }, [notifications, activeFilter, searchQuery]);
 
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedItems: paginatedNotifications,
+    pageInfo,
+  } = usePagination({
+    items: filteredNotifications,
+    itemsPerPage: 20,
+  });
+
   // Group filtered notifications by date
   const groupedNotifications = useMemo(() => {
-    return groupByDate(filteredNotifications);
-  }, [filteredNotifications]);
-
-  // Paginated notifications
-  const paginatedNotifications = useMemo(() => {
-    return filteredNotifications.slice(0, page * ITEMS_PER_PAGE);
-  }, [filteredNotifications, page]);
+    return groupByDate(paginatedNotifications);
+  }, [paginatedNotifications]);
 
   // Stats
   const stats = useMemo(() => {
@@ -276,11 +282,6 @@ export default function NotificationsHistoryPage() {
     if (notification.actionUrl) {
       router.push(notification.actionUrl);
     }
-  };
-
-  // Load more (infinite scroll)
-  const loadMore = () => {
-    setPage((prev) => prev + 1);
   };
 
   if (isLoading) {
@@ -546,14 +547,13 @@ export default function NotificationsHistoryPage() {
             ))}
           </ul>
 
-          {/* Pagination / Load More */}
-          {paginatedNotifications.length < filteredNotifications.length && (
-            <div data-pagination className="mt-6 flex justify-center">
-              <Button variant="outline" onClick={loadMore}>
-                Load More
-              </Button>
-            </div>
-          )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={pageInfo.totalItems}
+            itemsPerPage={20}
+          />
         </>
       ) : (
         /* Empty State */

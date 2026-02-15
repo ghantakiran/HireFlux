@@ -35,6 +35,7 @@ import {
 import { useJobStore, type JobSearchFilters } from '@/lib/stores/job-store';
 import { CompanyLogo } from '@/components/ui/optimized-image';
 import { NoJobsEmptyState } from '@/components/ui/empty-state';
+import { Pagination } from '@/components/ui/pagination';
 
 export default function JobsPage() {
   const router = useRouter();
@@ -425,53 +426,14 @@ export default function JobsPage() {
         </div>
       )}
 
-      {/* Pagination */}
-      {pagination.total_pages > 1 && (
-        <div className="mt-8 flex justify-center">
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              disabled={pagination.page === 1 || isLoading}
-              onClick={() => handlePageChange(pagination.page - 1)}
-            >
-              Previous
-            </Button>
-
-            {/* Page Numbers */}
-            {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
-              let pageNum;
-              if (pagination.total_pages <= 5) {
-                pageNum = i + 1;
-              } else if (pagination.page <= 3) {
-                pageNum = i + 1;
-              } else if (pagination.page >= pagination.total_pages - 2) {
-                pageNum = pagination.total_pages - 4 + i;
-              } else {
-                pageNum = pagination.page - 2 + i;
-              }
-
-              return (
-                <Button
-                  key={pageNum}
-                  variant={pagination.page === pageNum ? 'default' : 'outline'}
-                  onClick={() => handlePageChange(pageNum)}
-                  disabled={isLoading}
-                >
-                  {pageNum}
-                </Button>
-              );
-            })}
-
-            <Button
-              variant="outline"
-              disabled={pagination.page === pagination.total_pages || isLoading}
-              onClick={() => handlePageChange(pagination.page + 1)}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        currentPage={pagination.page}
+        totalPages={pagination.total_pages}
+        onPageChange={handlePageChange}
+        totalItems={pagination.total}
+        itemsPerPage={pagination.limit}
+        disabled={isLoading}
+      />
     </div>
   );
 }

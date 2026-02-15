@@ -33,6 +33,8 @@ import {
 } from 'lucide-react';
 import { ResumeCardSkeleton } from '@/components/skeletons/card-skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
+import { Pagination } from '@/components/ui/pagination';
+import { usePagination } from '@/hooks/usePagination';
 import { toast } from 'sonner';
 
 export default function ResumesPage() {
@@ -54,6 +56,14 @@ export default function ResumesPage() {
     downloadResume,
     clearError,
   } = useResumeStore();
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedItems: paginatedResumes,
+    pageInfo,
+  } = usePagination({ items: resumes, itemsPerPage: 12 });
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [resumeToDelete, setResumeToDelete] = useState<string | null>(null);
@@ -241,9 +251,10 @@ export default function ResumesPage() {
           }}
         />
       ) : (
-        /* Resume Grid */
+        <>
+        {/* Resume Grid */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {resumes.map((resume) => (
+          {paginatedResumes.map((resume) => (
             <Card
               key={resume.id}
               className="cursor-pointer transition-all hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-700"
@@ -323,6 +334,14 @@ export default function ResumesPage() {
             </Card>
           ))}
         </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={pageInfo.totalItems}
+              itemsPerPage={12}
+            />
+        </>
       )}
 
       {/* Delete Confirmation Dialog */}

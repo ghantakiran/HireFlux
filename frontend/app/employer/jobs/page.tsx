@@ -56,6 +56,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { EmptyState } from '@/components/domain/EmptyState';
+import { Pagination } from '@/components/ui/pagination';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -654,50 +655,12 @@ export default function EmployerJobsPage() {
               ))}
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-8">
-                <Button
-                  variant="outline"
-                  onClick={() => setPage(Math.max(1, page - 1))}
-                  disabled={page === 1 || isLoading}
-                >
-                  Previous
-                </Button>
-                <div className="flex items-center gap-2">
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (page <= 3) {
-                      pageNum = i + 1;
-                    } else if (page >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = page - 2 + i;
-                    }
-
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={page === pageNum ? 'default' : 'outline'}
-                        onClick={() => setPage(pageNum)}
-                        disabled={isLoading}
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })}
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => setPage(Math.min(totalPages, page + 1))}
-                  disabled={page === totalPages || isLoading}
-                >
-                  Next
-                </Button>
-              </div>
-            )}
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              disabled={isLoading}
+            />
           </>
         )}
       </div>

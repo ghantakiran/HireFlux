@@ -38,6 +38,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Pagination } from '@/components/ui/pagination';
+import { usePagination } from '@/hooks/usePagination';
 
 export default function TemplatesPage() {
   const router = useRouter();
@@ -103,6 +105,14 @@ export default function TemplatesPage() {
       (template.description && template.description.toLowerCase().includes(query))
     );
   });
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedItems: paginatedTemplates,
+    pageInfo,
+  } = usePagination({ items: filteredTemplates, itemsPerPage: 12 });
 
   // Handle preview
   function handlePreview(template: JobTemplate) {
@@ -309,7 +319,7 @@ export default function TemplatesPage() {
                 : 'space-y-4'
             }
           >
-            {filteredTemplates.map((template) => (
+            {paginatedTemplates.map((template) => (
               <TemplateCard
                 key={template.id}
                 template={template}
@@ -323,11 +333,15 @@ export default function TemplatesPage() {
           </div>
         )}
 
-        {/* Results Count */}
+        {/* Pagination */}
         {!loading && !error && filteredTemplates.length > 0 && (
-          <div className="mt-6 text-center text-sm text-gray-500">
-            Showing {filteredTemplates.length} template{filteredTemplates.length !== 1 ? 's' : ''}
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={pageInfo.totalItems}
+            itemsPerPage={12}
+          />
         )}
       </div>
 
