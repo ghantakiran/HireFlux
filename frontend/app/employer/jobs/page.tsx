@@ -20,7 +20,6 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import {
-  Search,
   Plus,
   Edit,
   Pause,
@@ -28,26 +27,19 @@ import {
   XCircle,
   Trash2,
   MoreVertical,
-  Filter,
   RefreshCw,
   Eye,
   Users,
   TrendingUp,
   Copy,
-  X,
   Briefcase,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { SearchInput } from '@/components/ui/search-input';
+import { FilterBar } from '@/components/ui/filter-bar';
+import { useSearch } from '@/hooks/useSearch';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -95,8 +87,11 @@ export default function EmployerJobsPage() {
   // Filters
   const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'applicants'>('newest');
+  const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, clearSearch, isDebouncing } = useSearch({
+    debounceMs: 300,
+    onSearch: () => { setPage(1); },
+  });
 
   // Delete confirmation
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -117,7 +112,7 @@ export default function EmployerJobsPage() {
   const clearFilters = () => {
     setStatusFilter('all');
     setDepartmentFilter('all');
-    setSearchQuery('');
+    clearSearch();
     setSortBy('newest');
     setPage(1);
   };
@@ -210,19 +205,7 @@ export default function EmployerJobsPage() {
   // Initial load and filter changes
   useEffect(() => {
     fetchJobs();
-  }, [page, statusFilter, departmentFilter]);
-
-  // Search with debounce
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchQuery !== undefined) {
-        setPage(1); // Reset to page 1 on search
-        fetchJobs();
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [page, statusFilter, departmentFilter, debouncedQuery]);
 
   // Helper to get job status from Job object
   const getJobStatus = (job: Job): string => {
@@ -363,108 +346,56 @@ export default function EmployerJobsPage() {
         {/* Filters & Search */}
         <div className="bg-white dark:bg-gray-900 rounded-lg border dark:border-gray-700 p-4 mb-6">
           <div className="space-y-4">
-            {/* Search and Sort Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Search */}
               <div className="md:col-span-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    type="text"
-                    placeholder="Search by job title..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                    data-search-input
-                  />
-                </div>
+                <SearchInput
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  isSearching={isDebouncing}
+                  placeholder="Search by job title..."
+                  data-testid="search-input"
+                />
               </div>
-
-              {/* Sort */}
-              <div>
-                <Select
-                  value={sortBy}
-                  onValueChange={(value: any) => setSortBy(value)}
-                >
-                  <SelectTrigger data-sort-select>
-                    <SelectValue placeholder="Sort by..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="newest" data-sort-option="newest">
-                      Newest First
-                    </SelectItem>
-                    <SelectItem value="oldest" data-sort-option="oldest">
-                      Oldest First
-                    </SelectItem>
-                    <SelectItem value="applicants" data-sort-option="applicants">
-                      Most Applicants
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <FilterBar
+                filters={[
+                  {
+                    type: 'select',
+                    key: 'sort',
+                    label: 'Sort by',
+                    options: [
+                      { value: 'newest', label: 'Newest First' },
+                      { value: 'oldest', label: 'Oldest First' },
+                      { value: 'applicants', label: 'Most Applicants' },
+                    ],
+                    'data-testid': 'sort-select',
+                  },
+                ]}
+                values={{ sort: sortBy }}
+                onChange={(_key, val) => setSortBy(val as 'newest' | 'oldest' | 'applicants')}
+                showClearButton={false}
+              />
             </div>
-
-            {/* Status Filters and Actions Row */}
             <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant={statusFilter === 'all' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => {
-                    setStatusFilter('all');
-                    setPage(1);
-                  }}
-                  data-filter-all
-                >
-                  All
-                </Button>
-                <Button
-                  variant={statusFilter === 'active' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => {
-                    setStatusFilter('active');
-                    setPage(1);
-                  }}
-                  data-filter-active
-                >
-                  Active
-                </Button>
-                <Button
-                  variant={statusFilter === 'draft' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => {
-                    setStatusFilter('draft');
-                    setPage(1);
-                  }}
-                  data-filter-draft
-                >
-                  Draft
-                </Button>
-                <Button
-                  variant={statusFilter === 'closed' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => {
-                    setStatusFilter('closed');
-                    setPage(1);
-                  }}
-                  data-filter-closed
-                >
-                  Closed
-                </Button>
-              </div>
-
-              {(statusFilter !== 'all' || searchQuery || sortBy !== 'newest') && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearFilters}
-                  className="gap-2"
-                  data-clear-filters-button
-                >
-                  <X className="w-4 h-4" />
-                  Clear Filters
-                </Button>
-              )}
+              <FilterBar
+                filters={[
+                  {
+                    type: 'button-group',
+                    key: 'status',
+                    options: [
+                      { value: 'all', label: 'All' },
+                      { value: 'active', label: 'Active' },
+                      { value: 'draft', label: 'Draft' },
+                      { value: 'closed', label: 'Closed' },
+                    ],
+                  },
+                ]}
+                values={{ status: statusFilter }}
+                onChange={(_key, val) => { setStatusFilter(val as FilterStatus); setPage(1); }}
+                onClear={() => { clearSearch(); setStatusFilter('all'); setSortBy('newest'); setPage(1); }}
+                activeCount={
+                  (statusFilter !== 'all' ? 1 : 0) + (searchQuery ? 1 : 0) + (sortBy !== 'newest' ? 1 : 0)
+                }
+              />
             </div>
           </div>
         </div>

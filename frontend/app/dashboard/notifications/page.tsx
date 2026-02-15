@@ -17,7 +17,6 @@ import { useRouter } from 'next/navigation';
 import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
 import {
   Bell,
-  Search,
   Trash2,
   CheckCheck,
   Check,
@@ -32,7 +31,9 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { SearchInput } from '@/components/ui/search-input';
+import { FilterBar } from '@/components/ui/filter-bar';
+import { useSearch } from '@/hooks/useSearch';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -118,7 +119,7 @@ export default function NotificationsHistoryPage() {
   const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery } = useSearch();
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -166,8 +167,8 @@ export default function NotificationsHistoryPage() {
     }
 
     // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
+    if (debouncedQuery.trim()) {
+      const query = debouncedQuery.toLowerCase();
       result = result.filter(
         (n) =>
           n.title.toLowerCase().includes(query) ||
@@ -176,7 +177,7 @@ export default function NotificationsHistoryPage() {
     }
 
     return result;
-  }, [notifications, activeFilter, searchQuery]);
+  }, [notifications, activeFilter, debouncedQuery]);
 
   const {
     currentPage,
@@ -329,14 +330,12 @@ export default function NotificationsHistoryPage() {
 
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            data-notification-search
-            placeholder="Search notifications..."
+        <div className="flex-1">
+          <SearchInput
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            onChange={setSearchQuery}
+            placeholder="Search notifications..."
+            data-testid="notification-search"
           />
         </div>
 
@@ -374,43 +373,23 @@ export default function NotificationsHistoryPage() {
       </div>
 
       {/* Filter Tabs */}
-      <div
-        data-notification-filters
-        className="flex gap-2 mb-6 overflow-x-auto pb-2"
-      >
-        {FILTER_TABS.map((tab) => (
-          <button
-            key={tab.key}
-            data-filter-tab={tab.key}
-            data-active={activeFilter === tab.key ? 'true' : 'false'}
-            onClick={() => setActiveFilter(tab.key)}
-            className={`
-              flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium
-              transition-colors duration-200 whitespace-nowrap
-              ${
-                activeFilter === tab.key
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }
-            `}
-          >
-            {tab.label}
-            <span
-              data-tab-count
-              className={`
-                px-1.5 py-0.5 rounded-full text-xs font-semibold
-                ${
-                  activeFilter === tab.key
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-gray-700'
-                }
-              `}
-            >
-              {countByType[tab.key as keyof typeof countByType]}
-            </span>
-          </button>
-        ))}
-      </div>
+      <FilterBar
+        filters={[
+          {
+            type: 'button-group',
+            key: 'type',
+            options: FILTER_TABS.map((tab) => ({
+              value: tab.key,
+              label: `${tab.label} (${countByType[tab.key as keyof typeof countByType] || 0})`,
+            })),
+            'data-testid': 'notification-filters',
+          },
+        ]}
+        values={{ type: activeFilter }}
+        onChange={(_key, val) => setActiveFilter(val)}
+        showClearButton={false}
+        className="mb-6 overflow-x-auto pb-2"
+      />
 
       {/* Notification List */}
       {filteredNotifications.length > 0 ? (

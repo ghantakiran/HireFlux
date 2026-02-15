@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
+import { SearchInput } from '@/components/ui/search-input';
+import { useSearch } from '@/hooks/useSearch';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -91,6 +93,18 @@ export default function CandidateSearchPage() {
     page: 1,
     limit: 20,
   });
+
+  const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery } = useSearch();
+
+  const searchFilteredCandidates = useMemo(() => {
+    if (!debouncedQuery) return candidates;
+    const q = debouncedQuery.toLowerCase();
+    return candidates.filter((c) =>
+      c.headline?.toLowerCase().includes(q) ||
+      c.location?.toLowerCase().includes(q) ||
+      c.skills?.some((s: string) => s.toLowerCase().includes(q))
+    );
+  }, [candidates, debouncedQuery]);
 
   const handleSearch = async () => {
     try {
@@ -200,6 +214,15 @@ export default function CandidateSearchPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Keyword Search */}
+              <div className="mb-4">
+                <SearchInput
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder="Search candidates..."
+                />
+              </div>
+
               {/* Skills Filter */}
               <div>
                 <Label htmlFor="skills">Skills</Label>
@@ -456,9 +479,9 @@ export default function CandidateSearchPage() {
             <div className="flex justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
-          ) : candidates.length > 0 ? (
+          ) : searchFilteredCandidates.length > 0 ? (
             <div className="space-y-4">
-              {candidates.map((candidate) => (
+              {searchFilteredCandidates.map((candidate) => (
                 <Card
                   key={candidate.id}
                   className="hover:shadow-lg transition-shadow cursor-pointer"

@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { interviewSchedulingApi, teamCollaborationApi } from '@/lib/api';
+import { SearchInput } from '@/components/ui/search-input';
+import { useSearch } from '@/hooks/useSearch';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
@@ -129,6 +131,7 @@ export default function InterviewSchedulingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState('upcoming');
+  const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, isDebouncing } = useSearch();
 
   // Modal states
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
@@ -168,13 +171,31 @@ export default function InterviewSchedulingPage() {
     next_steps: '',
   });
 
+  const searchFilteredInterviews = useMemo(() => {
+    if (!debouncedQuery) return interviews;
+    const q = debouncedQuery.toLowerCase();
+    return interviews.filter((i) =>
+      i.candidate_name?.toLowerCase().includes(q) ||
+      i.job_title?.toLowerCase().includes(q)
+    );
+  }, [interviews, debouncedQuery]);
+
+  const searchFilteredUpcoming = useMemo(() => {
+    if (!debouncedQuery) return upcomingInterviews;
+    const q = debouncedQuery.toLowerCase();
+    return upcomingInterviews.filter((i) =>
+      i.candidate_name?.toLowerCase().includes(q) ||
+      i.job_title?.toLowerCase().includes(q)
+    );
+  }, [upcomingInterviews, debouncedQuery]);
+
   const {
     currentPage: interviewPage,
     setCurrentPage: setInterviewPage,
     totalPages: interviewTotalPages,
     paginatedItems: paginatedInterviews,
     pageInfo: interviewPageInfo,
-  } = usePagination({ items: interviews, itemsPerPage: 10 });
+  } = usePagination({ items: searchFilteredInterviews, itemsPerPage: 10 });
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -440,6 +461,16 @@ export default function InterviewSchedulingPage() {
         </div>
       )}
 
+      {/* Search */}
+      <div className="mb-6">
+        <SearchInput
+          value={searchQuery}
+          onChange={setSearchQuery}
+          isSearching={isDebouncing}
+          placeholder="Search by candidate name or job title..."
+        />
+      </div>
+
       {/* Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
         <TabsList className="mb-6 w-full overflow-x-auto">
@@ -464,7 +495,7 @@ export default function InterviewSchedulingPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {upcomingInterviews.length === 0 ? (
+              {searchFilteredUpcoming.length === 0 ? (
                 <EmptyState
                   title="No interviews scheduled"
                   description="Interview schedules will appear here when you advance candidates through your pipeline."
@@ -485,7 +516,7 @@ export default function InterviewSchedulingPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {upcomingInterviews.map((interview) => {
+                    {searchFilteredUpcoming.map((interview) => {
                       const { date, time } = formatDateTime(interview.scheduled_at);
                       return (
                         <TableRow key={interview.id}>
@@ -564,7 +595,7 @@ export default function InterviewSchedulingPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {interviews.length === 0 ? (
+              {searchFilteredInterviews.length === 0 ? (
                 <EmptyState
                   title="No interviews scheduled"
                   description="Interview schedules will appear here when you advance candidates through your pipeline."
@@ -664,7 +695,7 @@ export default function InterviewSchedulingPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {interviews.filter(i => i.status === 'completed').length === 0 ? (
+              {searchFilteredInterviews.filter(i => i.status === 'completed').length === 0 ? (
                 <EmptyState
                   title="No interviews scheduled"
                   description="Interview schedules will appear here when you advance candidates through your pipeline."
@@ -672,7 +703,7 @@ export default function InterviewSchedulingPage() {
                 />
               ) : (
                 <div className="space-y-4">
-                  {interviews
+                  {searchFilteredInterviews
                     .filter(i => i.status === 'completed')
                     .map((interview) => (
                       <div key={interview.id} className="p-4 border rounded-lg">

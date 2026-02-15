@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,13 +11,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { SearchInput } from '@/components/ui/search-input';
+import { FilterBar } from '@/components/ui/filter-bar';
+import { useSearch } from '@/hooks/useSearch';
 import {
   Dialog,
   DialogContent,
@@ -37,7 +33,6 @@ import {
   Loader2,
   AlertCircle,
   X,
-  Filter,
   Eye,
   ChevronDown,
 } from 'lucide-react';
@@ -80,6 +75,8 @@ export default function CoverLettersPage() {
     clearFilters,
     clearError,
   } = useCoverLetterStore();
+
+  const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, clearSearch } = useSearch();
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCoverLetter, setSelectedCoverLetter] = useState<string | null>(null);
@@ -179,6 +176,15 @@ export default function CoverLettersPage() {
     return `${Math.floor(diffDays / 30)} months ago`;
   };
 
+  const searchFilteredLetters = useMemo(() => {
+    if (!debouncedQuery) return coverLetters;
+    const q = debouncedQuery.toLowerCase();
+    return coverLetters.filter((cl) =>
+      cl.job_title?.toLowerCase().includes(q) ||
+      cl.company_name?.toLowerCase().includes(q)
+    );
+  }, [coverLetters, debouncedQuery]);
+
   const activeFiltersCount = Object.keys(filters).length;
 
   return (
@@ -261,39 +267,34 @@ export default function CoverLettersPage() {
 
       {/* Filters */}
       <Card className="mb-6">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Filters
-              {activeFiltersCount > 0 && (
-                <Badge variant="secondary">{activeFiltersCount} active</Badge>
-              )}
-            </CardTitle>
-            {activeFiltersCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={handleClearFilters}>
-                Clear All
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 items-center">
-            {/* Tone Filter */}
-            <Select
-              value={filters.tone || 'all'}
-              onValueChange={(value) => handleFilterChange('tone', value)}
-            >
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by tone" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Tones</SelectItem>
-                <SelectItem value="formal">Formal</SelectItem>
-                <SelectItem value="concise">Concise</SelectItem>
-                <SelectItem value="conversational">Conversational</SelectItem>
-              </SelectContent>
-            </Select>
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <SearchInput
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search by job title or company..."
+              />
+            </div>
+            <FilterBar
+              filters={[
+                {
+                  type: 'select',
+                  key: 'tone',
+                  label: 'Tone',
+                  options: [
+                    { value: 'all', label: 'All Tones' },
+                    { value: 'formal', label: 'Formal' },
+                    { value: 'concise', label: 'Concise' },
+                    { value: 'conversational', label: 'Conversational' },
+                  ],
+                },
+              ]}
+              values={{ tone: filters.tone || 'all' }}
+              onChange={(_key, val) => handleFilterChange('tone', val)}
+              onClear={() => { handleClearFilters(); clearSearch(); }}
+              activeCount={activeFiltersCount + (debouncedQuery ? 1 : 0)}
+            />
           </div>
         </CardContent>
       </Card>
@@ -335,7 +336,7 @@ export default function CoverLettersPage() {
       {/* Cover Letters Grid */}
       {coverLetters.length > 0 && (
         <div className="grid md:grid-cols-2 gap-6">
-          {coverLetters.map((coverLetter) => (
+          {searchFilteredLetters.map((coverLetter) => (
             <Card
               key={coverLetter.id}
               className="hover:shadow-md transition-shadow cursor-pointer"

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,6 +31,9 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
+import { SearchInput } from '@/components/ui/search-input';
+import { FilterBar } from '@/components/ui/filter-bar';
+import { useSearch } from '@/hooks/useSearch';
 import { ResumeCardSkeleton } from '@/components/skeletons/card-skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Pagination } from '@/components/ui/pagination';
@@ -57,13 +60,24 @@ export default function ResumesPage() {
     clearError,
   } = useResumeStore();
 
+  const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, clearSearch } = useSearch();
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  const filteredResumes = useMemo(() => {
+    return resumes.filter((r) => {
+      const matchesSearch = !debouncedQuery || r.file_name.toLowerCase().includes(debouncedQuery.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || r.parse_status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [resumes, debouncedQuery, statusFilter]);
+
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedItems: paginatedResumes,
     pageInfo,
-  } = usePagination({ items: resumes, itemsPerPage: 12 });
+  } = usePagination({ items: filteredResumes, itemsPerPage: 12 });
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [resumeToDelete, setResumeToDelete] = useState<string | null>(null);
@@ -238,6 +252,43 @@ export default function ResumesPage() {
           Upload Resume
         </Button>
       </div>
+
+      {/* Search & Filter */}
+      {resumes.length > 0 && (
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <SearchInput
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder="Search by filename..."
+                />
+              </div>
+              <FilterBar
+                filters={[
+                  {
+                    type: 'select',
+                    key: 'status',
+                    label: 'Parse Status',
+                    options: [
+                      { value: 'all', label: 'All' },
+                      { value: 'completed', label: 'Parsed' },
+                      { value: 'processing', label: 'Processing' },
+                      { value: 'pending', label: 'Pending' },
+                      { value: 'failed', label: 'Failed' },
+                    ],
+                  },
+                ]}
+                values={{ status: statusFilter }}
+                onChange={(_key, val) => setStatusFilter(val)}
+                onClear={() => { clearSearch(); setStatusFilter('all'); }}
+                activeCount={(statusFilter !== 'all' ? 1 : 0) + (debouncedQuery ? 1 : 0)}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Empty State */}
       {resumes.length === 0 && !isLoading ? (

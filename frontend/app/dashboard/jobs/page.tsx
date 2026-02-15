@@ -11,20 +11,10 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Search,
   MapPin,
   Clock,
   DollarSign,
-  Filter,
   Bookmark,
   BookmarkCheck,
   Loader2,
@@ -32,6 +22,9 @@ import {
   X,
   TrendingUp,
 } from 'lucide-react';
+import { SearchInput } from '@/components/ui/search-input';
+import { FilterBar } from '@/components/ui/filter-bar';
+import { useSearch } from '@/hooks/useSearch';
 import { useJobStore, type JobSearchFilters } from '@/lib/stores/job-store';
 import { CompanyLogo } from '@/components/ui/optimized-image';
 import { NoJobsEmptyState } from '@/components/ui/empty-state';
@@ -55,7 +48,14 @@ export default function JobsPage() {
     fetchSavedJobs,
   } = useJobStore();
 
-  const [searchQuery, setSearchQuery] = useState(filters.query || '');
+  const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, clearSearch, isDebouncing } = useSearch({
+    initialQuery: filters.query || '',
+    debounceMs: 300,
+    onSearch: (q) => {
+      setFilters({ query: q });
+      fetchJobs({ query: q, page: 1 });
+    },
+  });
   const [savingJobId, setSavingJobId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -68,11 +68,6 @@ export default function JobsPage() {
     fetchSavedJobs();
   }, []);
 
-  const handleSearch = () => {
-    setFilters({ query: searchQuery });
-    fetchJobs({ query: searchQuery, page: 1 });
-  };
-
   const handleFilterChange = (key: keyof JobSearchFilters, value: any) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
@@ -80,7 +75,7 @@ export default function JobsPage() {
   };
 
   const handleClearFilters = () => {
-    setSearchQuery('');
+    clearSearch();
     clearFilters();
     fetchJobs({ page: 1 });
   };
@@ -185,86 +180,54 @@ export default function JobsPage() {
 
       {/* Search and Filters */}
       <Card className="mb-6">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Search & Filters
-              {activeFiltersCount > 0 && (
-                <Badge variant="secondary">{activeFiltersCount} active</Badge>
-              )}
-            </CardTitle>
-            {activeFiltersCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={handleClearFilters}>
-                Clear All
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-5 gap-4">
-            {/* Search Input */}
-            <div className="md:col-span-2 relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by title, company, skills..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+        <CardContent className="pt-6">
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="md:col-span-2">
+                <SearchInput
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  isSearching={isDebouncing || isLoading}
+                  placeholder="Search by title, company, skills..."
+                />
+              </div>
+              <FilterBar
+                filters={[
+                  {
+                    type: 'select',
+                    key: 'remote_policy',
+                    label: 'Remote Policy',
+                    options: [
+                      { value: 'any', label: 'Any' },
+                      { value: 'remote', label: 'Remote' },
+                      { value: 'hybrid', label: 'Hybrid' },
+                      { value: 'onsite', label: 'On-site' },
+                    ],
+                  },
+                  {
+                    type: 'select',
+                    key: 'min_fit_index',
+                    label: 'Min Fit Index',
+                    options: [
+                      { value: 'any', label: 'Any Fit' },
+                      { value: '80', label: '80+ (Excellent)' },
+                      { value: '60', label: '60+ (Good)' },
+                      { value: '40', label: '40+ (Fair)' },
+                    ],
+                  },
+                ]}
+                values={{
+                  remote_policy: filters.remote_policy || 'any',
+                  min_fit_index: filters.min_fit_index?.toString() || 'any',
+                }}
+                onChange={(key, val) => {
+                  if (key === 'remote_policy') handleFilterChange('remote_policy', val === 'any' ? undefined : val);
+                  if (key === 'min_fit_index') handleFilterChange('min_fit_index', val === 'any' ? undefined : parseInt(val));
+                }}
+                onClear={handleClearFilters}
+                activeCount={activeFiltersCount}
               />
             </div>
-
-            {/* Remote Policy Filter */}
-            <Select
-              value={filters.remote_policy || 'any'}
-              onValueChange={(value) =>
-                handleFilterChange('remote_policy', value === 'any' ? undefined : value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Remote Policy" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="remote">Remote</SelectItem>
-                <SelectItem value="hybrid">Hybrid</SelectItem>
-                <SelectItem value="onsite">On-site</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Fit Index Filter */}
-            <Select
-              value={filters.min_fit_index?.toString() || 'any'}
-              onValueChange={(value) =>
-                handleFilterChange('min_fit_index', value === 'any' ? undefined : parseInt(value))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Min Fit Index" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any Fit</SelectItem>
-                <SelectItem value="80">80+ (Excellent)</SelectItem>
-                <SelectItem value="60">60+ (Good)</SelectItem>
-                <SelectItem value="40">40+ (Fair)</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Search Button */}
-            <Button onClick={handleSearch} disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Searching...
-                </>
-              ) : (
-                <>
-                  <Search className="mr-2 h-4 w-4" />
-                  Search
-                </>
-              )}
-            </Button>
           </div>
         </CardContent>
       </Card>

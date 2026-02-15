@@ -10,17 +10,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Filter, Search, MoreVertical, ClipboardCheck } from 'lucide-react';
+import { Plus, MoreVertical, ClipboardCheck } from 'lucide-react';
 import { EmptyState } from '@/components/domain/EmptyState';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { SearchInput } from '@/components/ui/search-input';
+import { FilterBar } from '@/components/ui/filter-bar';
+import { useSearch } from '@/hooks/useSearch';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,9 +44,17 @@ export default function AssessmentsPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, isDebouncing } = useSearch({
+    debounceMs: 300,
+  });
+
+  const filteredAssessments = assessments.filter((a) => {
+    if (!debouncedQuery) return true;
+    const q = debouncedQuery.toLowerCase();
+    return a.title.toLowerCase().includes(q) || a.description?.toLowerCase().includes(q);
+  });
 
   const {
     currentPage,
@@ -59,7 +62,7 @@ export default function AssessmentsPage() {
     totalPages,
     paginatedItems: paginatedAssessments,
     pageInfo,
-  } = usePagination({ items: assessments, itemsPerPage: 10 });
+  } = usePagination({ items: filteredAssessments, itemsPerPage: 10 });
 
   // Set page metadata
   useEffect(() => {
@@ -148,40 +151,49 @@ export default function AssessmentsPage() {
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search assessments..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-                data-testid="search-assessments"
-              />
-            </div>
+            <SearchInput
+              value={searchQuery}
+              onChange={setSearchQuery}
+              isSearching={isDebouncing}
+              placeholder="Search assessments..."
+              data-testid="search-assessments"
+            />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[180px]" data-testid="status-filter">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="archived">Archived</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-full sm:w-[180px]" data-testid="type-filter">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="screening">Screening</SelectItem>
-              <SelectItem value="technical">Technical</SelectItem>
-              <SelectItem value="behavioral">Behavioral</SelectItem>
-              <SelectItem value="culture_fit">Culture Fit</SelectItem>
-            </SelectContent>
-          </Select>
+          <FilterBar
+            filters={[
+              {
+                type: 'select',
+                key: 'status',
+                label: 'Status',
+                options: [
+                  { value: 'all', label: 'All Status' },
+                  { value: 'published', label: 'Published' },
+                  { value: 'draft', label: 'Draft' },
+                  { value: 'archived', label: 'Archived' },
+                ],
+                'data-testid': 'status-filter',
+              },
+              {
+                type: 'select',
+                key: 'type',
+                label: 'Type',
+                options: [
+                  { value: 'all', label: 'All Types' },
+                  { value: 'screening', label: 'Screening' },
+                  { value: 'technical', label: 'Technical' },
+                  { value: 'behavioral', label: 'Behavioral' },
+                  { value: 'culture_fit', label: 'Culture Fit' },
+                ],
+                'data-testid': 'type-filter',
+              },
+            ]}
+            values={{ status: statusFilter, type: typeFilter }}
+            onChange={(key, val) => {
+              if (key === 'status') setStatusFilter(val);
+              if (key === 'type') setTypeFilter(val);
+            }}
+            showClearButton={false}
+          />
         </div>
       </div>
 
@@ -210,6 +222,12 @@ export default function AssessmentsPage() {
             icon={<ClipboardCheck className="h-12 w-12 text-muted-foreground" />}
             actionLabel="Create Assessment"
             onAction={() => router.push('/employer/assessments/new')}
+          />
+        ) : filteredAssessments.length === 0 && !error ? (
+          <EmptyState
+            title="No matching assessments"
+            description="Try adjusting your search or filter criteria."
+            icon={<ClipboardCheck className="h-12 w-12 text-muted-foreground" />}
           />
         ) : (
           paginatedAssessments.map((assessment) => (

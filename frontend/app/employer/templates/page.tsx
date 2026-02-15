@@ -13,7 +13,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Grid3x3, List, Search, FileText } from 'lucide-react';
+import { Plus, Grid3x3, List, FileText } from 'lucide-react';
+import { SearchInput } from '@/components/ui/search-input';
+import { FilterBar } from '@/components/ui/filter-bar';
+import { useSearch } from '@/hooks/useSearch';
 import {
   listJobTemplates,
   deleteJobTemplate,
@@ -51,9 +54,9 @@ export default function TemplatesPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<TemplateCategory | ''>('');
   const [visibilityFilter, setVisibilityFilter] = useState<TemplateVisibility | 'all'>('all');
+  const { query: searchQuery, setQuery: setSearchQuery } = useSearch();
 
   // Preview modal
   const [previewTemplate, setPreviewTemplate] = useState<JobTemplate | null>(null);
@@ -191,45 +194,43 @@ export default function TemplatesPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
-            {/* Search */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search templates..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            {/* Filters */}
+            <SearchInput
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search templates..."
+              wrapperClassName="flex-1 max-w-md"
+            />
             <div className="flex items-center space-x-3">
-              {/* Category Filter */}
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value as TemplateCategory | '')}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-              >
-                <option value="">All Categories</option>
-                {getCategoryOptions().map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-
-              {/* Visibility Filter */}
-              <select
-                value={visibilityFilter}
-                onChange={(e) => setVisibilityFilter(e.target.value as TemplateVisibility | 'all')}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-              >
-                <option value="all">All Templates</option>
-                <option value="public">Public Templates</option>
-                <option value="private">My Templates</option>
-              </select>
-
+              <FilterBar
+                filters={[
+                  {
+                    type: 'select',
+                    key: 'category',
+                    label: 'Category',
+                    options: [
+                      { value: '', label: 'All Categories' },
+                      ...getCategoryOptions().map((o) => ({ value: o.value, label: o.label })),
+                    ],
+                    allValue: '',
+                  },
+                  {
+                    type: 'select',
+                    key: 'visibility',
+                    label: 'Visibility',
+                    options: [
+                      { value: 'all', label: 'All Templates' },
+                      { value: 'public', label: 'Public Templates' },
+                      { value: 'private', label: 'My Templates' },
+                    ],
+                  },
+                ]}
+                values={{ category: categoryFilter, visibility: visibilityFilter }}
+                onChange={(key, val) => {
+                  if (key === 'category') setCategoryFilter(val as TemplateCategory | '');
+                  if (key === 'visibility') setVisibilityFilter(val as TemplateVisibility | 'all');
+                }}
+                showClearButton={false}
+              />
               {/* View Mode Toggle */}
               <div className="flex items-center border border-gray-300 rounded-lg">
                 <button
