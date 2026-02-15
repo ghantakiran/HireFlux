@@ -30,8 +30,6 @@ import {
 import {
   Coins,
   Loader2,
-  AlertCircle,
-  X,
   TrendingUp,
   TrendingDown,
   FileText,
@@ -42,6 +40,8 @@ import {
 } from 'lucide-react';
 import { useBillingStore } from '@/lib/stores/billing-store';
 import { toast } from 'sonner';
+import { ErrorBanner } from '@/components/ui/error-banner';
+import { PageLoader } from '@/components/ui/page-loader';
 import { EmptyState } from '@/components/ui/empty-state';
 
 // Credit packages
@@ -170,12 +170,7 @@ export default function CreditsPage() {
   if (isLoadingCredits && !credits) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="flex min-h-[400px] items-center justify-center">
-          <div className="flex flex-col items-center gap-2">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-            <p className="text-muted-foreground">Loading credits...</p>
-          </div>
-        </div>
+        <PageLoader message="Loading credits..." />
       </div>
     );
   }
@@ -197,20 +192,7 @@ export default function CreditsPage() {
       </div>
 
       {/* Error Banner */}
-      {creditsError && (
-        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4" role="alert">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-medium text-red-800">Error</h3>
-              <p className="text-sm text-red-700">{creditsError}</p>
-            </div>
-            <Button variant="ghost" size="sm" onClick={clearErrors}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+      <ErrorBanner error={creditsError} onDismiss={clearErrors} />
 
       {/* Credit Balance Cards */}
       <div className="grid md:grid-cols-4 gap-6 mb-8">

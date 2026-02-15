@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Upload, FileText, AlertCircle, CheckCircle2, XCircle, Download, Sparkles, DollarSign } from 'lucide-react';
+import { ErrorBanner } from '@/components/ui/error-banner';
 
 // Types matching backend schemas
 interface ValidationError {
@@ -273,12 +274,7 @@ export default function BulkJobUploadPage() {
                 />
               </div>
 
-              {errorMessage && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
-                  <AlertCircle className="h-5 w-5 text-red-600 mr-2 mt-0.5" />
-                  <p className="text-red-800">{errorMessage}</p>
-                </div>
-              )}
+              <ErrorBanner error={errorMessage} />
 
               <div className="mt-6 flex justify-between items-center">
                 <Button

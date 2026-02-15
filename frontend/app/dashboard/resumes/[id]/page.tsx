@@ -29,6 +29,8 @@ import {
   Linkedin,
   Globe,
 } from 'lucide-react';
+import { ErrorBanner } from '@/components/ui/error-banner';
+import { PageLoader } from '@/components/ui/page-loader';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
@@ -131,14 +133,7 @@ export default function ResumeDetailPage() {
   };
 
   if (isLoading || !currentResume) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <p className="text-muted-foreground">Loading resume...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading resume..." fullScreen />;
   }
 
   const resume = currentResume;
@@ -193,17 +188,7 @@ export default function ResumeDetailPage() {
       </div>
 
       {/* Error Banner */}
-      {error && (
-        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4" role="alert">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-medium text-red-800">Error</h3>
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
+      <ErrorBanner error={error} />
 
       {/* Status Card */}
       <Card className="mb-6">

@@ -24,12 +24,13 @@ import {
   Briefcase,
   Calendar,
   BarChart3,
-  Loader2,
   FileText,
   Zap,
 } from 'lucide-react';
 import { useApplicationStore } from '@/lib/stores/application-store';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ErrorBanner } from '@/components/ui/error-banner';
+import { PageLoader } from '@/components/ui/page-loader';
 
 export default function AnalyticsPage() {
   const router = useRouter();
@@ -44,14 +45,7 @@ export default function AnalyticsPage() {
   }, []);
 
   if (isLoading || !stats) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <p className="text-muted-foreground">Loading analytics...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading analytics..." fullScreen />;
   }
 
   // Calculate additional metrics
@@ -134,17 +128,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Error State */}
-      {error && (
-        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-red-800">Error Loading Analytics</h3>
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
+      <ErrorBanner error={error} title="Error Loading Analytics" />
 
       {/* Key Metrics Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

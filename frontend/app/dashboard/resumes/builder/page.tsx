@@ -38,12 +38,12 @@ import {
   CheckCircle,
   Zap,
   Loader2,
-  AlertCircle,
   ArrowLeft,
   Plus,
   Trash2,
   Save,
 } from 'lucide-react';
+import { ErrorBanner } from '@/components/ui/error-banner';
 import { useResumeStore, type ParsedResumeData } from '@/lib/stores/resume-store';
 import { resumeApi } from '@/lib/api';
 import { toast } from 'sonner';
@@ -374,20 +374,7 @@ export default function ResumeBuilderPage() {
       </div>
 
       {/* Error Banner */}
-      {error && (
-        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4" role="alert">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-medium text-red-800">Error</h3>
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-            <Button variant="ghost" size="sm" onClick={() => setError(null)}>
-              Dismiss
-            </Button>
-          </div>
-        </div>
-      )}
+      <ErrorBanner error={error} onDismiss={() => setError(null)} />
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Form Column */}

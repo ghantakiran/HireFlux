@@ -30,6 +30,8 @@ import {
   X,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ErrorBanner } from '@/components/ui/error-banner';
+import { PageLoader } from '@/components/ui/page-loader';
 
 // Form validation schema
 const resumeSchema = z.object({
@@ -244,14 +246,7 @@ export default function ResumeEditPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <p className="text-muted-foreground">Loading resume...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading resume..." fullScreen />;
   }
 
   if (!currentResume) {
@@ -317,17 +312,7 @@ export default function ResumeEditPage() {
       )}
 
       {/* Error Message */}
-      {error && (
-        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4">
-          <div className="flex items-start gap-3">
-            <X className="h-5 w-5 text-red-600 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-medium text-red-800">Error</h3>
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
+      <ErrorBanner error={error} />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Tabs defaultValue="contact" className="space-y-4">

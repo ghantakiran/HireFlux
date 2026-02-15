@@ -23,7 +23,6 @@ import {
   Bookmark,
   BookmarkCheck,
   Loader2,
-  AlertCircle,
   TrendingUp,
   CheckCircle,
   XCircle,
@@ -31,6 +30,8 @@ import {
 } from 'lucide-react';
 import { useJobStore } from '@/lib/stores/job-store';
 import { toast } from 'sonner';
+import { ErrorBanner } from '@/components/ui/error-banner';
+import { PageLoader } from '@/components/ui/page-loader';
 
 export default function JobDetailsPage() {
   const router = useRouter();
@@ -126,14 +127,7 @@ export default function JobDetailsPage() {
   };
 
   if (isLoading || !currentJob) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <p className="text-muted-foreground">Loading job details...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading job details..." fullScreen />;
   }
 
   const job = currentJob;
@@ -152,20 +146,7 @@ export default function JobDetailsPage() {
       </div>
 
       {/* Error Banner */}
-      {error && (
-        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4" role="alert">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-medium text-red-800">Error</h3>
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-            <Button variant="ghost" size="sm" onClick={clearError}>
-              Dismiss
-            </Button>
-          </div>
-        </div>
-      )}
+      <ErrorBanner error={error} onDismiss={clearError} />
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Main Content */}

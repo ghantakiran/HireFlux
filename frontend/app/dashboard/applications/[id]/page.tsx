@@ -59,6 +59,7 @@ import {
 import { toast } from 'sonner';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { PageLoader } from '@/components/ui/page-loader';
 
 export default function ApplicationDetailPage() {
   const params = useParams();
@@ -193,14 +194,7 @@ export default function ApplicationDetailPage() {
   };
 
   if (isLoading || !currentApplication) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          <p className="text-muted-foreground">Loading application...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading application..." fullScreen />;
   }
 
   const application = currentApplication;

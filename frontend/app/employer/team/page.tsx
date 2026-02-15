@@ -56,8 +56,8 @@ import {
   UserX,
   Activity,
   Clock,
-  AlertCircle,
 } from 'lucide-react';
+import { ErrorBanner } from '@/components/ui/error-banner';
 import { EmptyState } from '@/components/domain/EmptyState';
 import { toast } from 'sonner';
 
@@ -377,15 +377,7 @@ export default function TeamManagementPage() {
       </div>
 
       {/* Error Alert */}
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-          <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-          <div>
-            <h3 className="font-semibold text-red-900">Error</h3>
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
-        </div>
-      )}
+      <ErrorBanner error={error} />
 
       {/* Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>

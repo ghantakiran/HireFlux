@@ -12,7 +12,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { AlertCircle, Search, Filter, ChevronDown, Eye, CheckSquare, Square } from 'lucide-react';
+import { Search, Filter, ChevronDown, Eye, CheckSquare, Square } from 'lucide-react';
+import { ErrorBanner } from '@/components/ui/error-banner';
 import StatusChangeModal from './StatusChangeModal';
 import BulkActionToolbar from './BulkActionToolbar';
 import BulkStatusChangeModal from './BulkStatusChangeModal';
@@ -240,15 +241,7 @@ export function ApplicantList({
   }
 
   if (error) {
-    return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-4 flex items-start gap-3" role="alert">
-        <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-        <div>
-          <h3 className="font-semibold text-red-900 dark:text-red-300">Error loading applicants</h3>
-          <p className="text-sm text-red-700 dark:text-red-400 mt-1">{error}</p>
-        </div>
-      </div>
-    );
+    return <ErrorBanner error={error} />;
   }
 
   if (applicants.length === 0) {

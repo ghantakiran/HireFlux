@@ -16,11 +16,11 @@ import {
   Upload,
   FileText,
   CheckCircle2,
-  AlertCircle,
   X,
   ArrowLeft,
   Loader2,
 } from 'lucide-react';
+import { ErrorBanner } from '@/components/ui/error-banner';
 
 export default function ResumeUploadPage() {
   const router = useRouter();
@@ -141,20 +141,7 @@ export default function ResumeUploadPage() {
       </div>
 
       {/* Error Banner */}
-      {error && (
-        <div className="mb-6 rounded-md bg-red-50 border border-red-200 p-4" role="alert">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-medium text-red-800">Upload Failed</h3>
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-            <Button variant="ghost" size="sm" onClick={clearError}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+      <ErrorBanner error={error} onDismiss={clearError} />
 
       {/* Success Message */}
       {uploadComplete && (

@@ -25,8 +25,6 @@ import {
   Trash2,
   Download,
   Loader2,
-  AlertCircle,
-  X,
   Eye,
   ChevronDown,
 } from 'lucide-react';
@@ -42,6 +40,7 @@ import {
   type CoverLetterTone,
 } from '@/lib/stores/cover-letter-store';
 import { toast } from 'sonner';
+import { ErrorBanner } from '@/components/ui/error-banner';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Pagination } from '@/components/ui/pagination';
 import { Mail } from 'lucide-react';
@@ -222,20 +221,7 @@ export default function CoverLettersPage() {
       </div>
 
       {/* Error Banner */}
-      {error && (
-        <div className="mb-6 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4" role="alert">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-medium text-red-800 dark:text-red-300">Error</h3>
-              <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
-            </div>
-            <Button variant="ghost" size="sm" onClick={clearError} aria-label="Dismiss error">
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+      <ErrorBanner error={error} onDismiss={clearError} />
 
       {/* Usage Stats */}
       {stats && (
