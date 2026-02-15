@@ -441,6 +441,9 @@ export default function EmployerJobsPage() {
                           <h3
                             className="text-xl font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
                             onClick={() => router.push(`/employer/jobs/${job.id}`)}
+                            tabIndex={0}
+                            role="button"
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/employer/jobs/${job.id}`); } }}
                             data-job-title
                           >
                             {job.title}

@@ -191,7 +191,11 @@ export default function ResumeUploadPage() {
                 ${dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
                 ${isUploading || uploadComplete ? 'opacity-50 pointer-events-none' : 'cursor-pointer hover:border-blue-400'}
               `}
+              tabIndex={0}
+              role="button"
+              aria-label="Upload resume file. Drag and drop or click to browse."
               onClick={handleUploadClick}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleUploadClick(); } }}
             >
               <input
                 ref={fileInputRef}

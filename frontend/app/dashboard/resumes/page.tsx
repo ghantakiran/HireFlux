@@ -309,6 +309,7 @@ export default function ResumesPage() {
             <Card
               key={resume.id}
               className="cursor-pointer transition-all hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-700"
+              variant="interactive"
               data-testid="resume-card"
               onClick={() => handleResumeClick(resume.id)}
             >

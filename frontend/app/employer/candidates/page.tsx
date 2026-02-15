@@ -486,6 +486,7 @@ export default function CandidateSearchPage() {
                   key={candidate.id}
                   className="hover:shadow-lg transition-shadow cursor-pointer"
                   data-testid="candidate-card"
+                  variant="interactive"
                   onClick={() => handleViewProfile(candidate)}
                 >
                   <CardContent className="p-6">

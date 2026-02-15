@@ -349,7 +349,11 @@ export default function DashboardPage() {
                 healthScoreExpanded ? 'ring-2 ring-blue-500' : ''
               }`}
               data-testid="health-score"
+              tabIndex={0}
+              role="button"
+              aria-expanded={healthScoreExpanded}
               onClick={() => setHealthScoreExpanded(!healthScoreExpanded)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setHealthScoreExpanded(!healthScoreExpanded); } }}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Job Search Health Score</h3>

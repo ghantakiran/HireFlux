@@ -719,6 +719,7 @@ export default function CompanyProfileSetupPage() {
                         placeholder="Search..."
                         value={industrySearch}
                         onChange={(e) => setIndustrySearch(e.target.value)}
+                        aria-label="Search industries"
                         className="w-full px-4 py-2 border-b border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
                       <div className="max-h-60 overflow-y-auto">

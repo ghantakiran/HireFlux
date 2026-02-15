@@ -262,6 +262,7 @@ export default function JobsPage() {
               <Card
                 key={job.id}
                 className="hover:shadow-md transition-shadow cursor-pointer"
+                variant="interactive"
                 onClick={() => handleJobClick(job.id)}
                 data-testid="job-card"
               >

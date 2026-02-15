@@ -16,6 +16,7 @@ import { TourProvider } from '@/components/tours/tour-provider';
 import { TourOrchestrator } from '@/components/tours/tour-orchestrator';
 import { TooltipManager } from '@/components/tours/tooltip-manager';
 import { PageTransition } from '@/components/page-transition';
+import { RouteAnnouncer } from '@/components/ui/route-announcer';
 import { NotificationProvider } from '@/components/notifications/notification-provider';
 import { PWAProvider } from '@/components/pwa/pwa-provider';
 import { OfflineIndicator, OnlineIndicator } from '@/components/pwa/offline-indicator';
@@ -134,6 +135,7 @@ export default function RootLayout({
                                 {children}
                               </div>
                             </PageTransition>
+                            <RouteAnnouncer />
                             <Toaster
                               position="top-right"
                               richColors

@@ -796,7 +796,10 @@ export default function CoverLetterGeneratorPage() {
                       className={`p-3 border rounded-lg cursor-pointer hover:bg-accent ${
                         currentVersionId === version.id ? 'border-primary' : ''
                       }`}
+                      tabIndex={0}
+                      role="button"
                       onClick={() => handleSwitchVersion(version.id)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSwitchVersion(version.id); } }}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
@@ -1099,7 +1102,11 @@ export default function CoverLetterGeneratorPage() {
                       <div
                         data-cover-letter-output
                         className="whitespace-pre-wrap text-sm leading-relaxed cursor-text"
+                        tabIndex={0}
+                        role="button"
+                        aria-label="Click to edit cover letter"
                         onClick={handleEnterEditMode}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleEnterEditMode(); } }}
                       >
                         {generatedContent}
                       </div>

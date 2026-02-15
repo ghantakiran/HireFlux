@@ -597,6 +597,9 @@ export default function NewJobPage() {
                     <div
                       key={option}
                       onClick={() => updateField('location_type', option.toLowerCase())}
+                      tabIndex={0}
+                      role="button"
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); updateField('location_type', option.toLowerCase()); } }}
                       className={`p-3 border rounded-lg cursor-pointer transition-all ${
                         formData.location_type === option.toLowerCase()
                           ? 'border-blue-600 bg-blue-50'

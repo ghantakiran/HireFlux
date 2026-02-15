@@ -236,6 +236,9 @@ export default function AssessmentsPage() {
               data-testid="assessment-item"
               className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
               onClick={() => router.push(`/employer/assessments/${assessment.id}`)}
+              tabIndex={0}
+              role="button"
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/employer/assessments/${assessment.id}`); } }}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">

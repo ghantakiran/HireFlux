@@ -183,7 +183,10 @@ export default function FeedbackPage() {
               data-feedback-item
               data-feedback-id={item.id}
               className="bg-white border rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer"
+              tabIndex={0}
+              role="button"
               onClick={() => setSelectedFeedback(item)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedFeedback(item); } }}
             >
               <div className="flex items-start gap-4">
                 {/* Icon */}

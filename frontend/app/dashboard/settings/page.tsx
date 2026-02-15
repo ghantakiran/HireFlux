@@ -90,6 +90,7 @@ export default function SettingsPage() {
                 <Card
                   key={item.href}
                   className="cursor-pointer hover:shadow-md transition-shadow"
+                  variant="interactive"
                   onClick={() => handleNavigation(item.href)}
                 >
                   <CardContent className="p-6">

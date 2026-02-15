@@ -452,6 +452,9 @@ export default function EmployerDashboardPage() {
                       key={job.job_id}
                       className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                       onClick={() => router.push(`/employer/jobs/${job.job_id}`)}
+                      tabIndex={0}
+                      role="button"
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/employer/jobs/${job.job_id}`); } }}
                     >
                       <div className="flex-1">
                         <p className="font-medium text-sm truncate">{job.job_title}</p>

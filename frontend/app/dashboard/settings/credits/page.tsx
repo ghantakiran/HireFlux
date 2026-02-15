@@ -311,6 +311,7 @@ export default function CreditsPage() {
                 className={`cursor-pointer transition-all ${
                   pkg.popular ? 'border-2 border-blue-500' : ''
                 } ${selectedPackage === pkg.amount ? 'bg-blue-50 border-blue-500' : ''}`}
+                variant="interactive"
                 onClick={() => {
                   setSelectedPackage(pkg.amount);
                   setPurchaseDialogOpen(true);

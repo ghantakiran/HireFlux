@@ -340,6 +340,7 @@ export default function CoverLettersPage() {
             <Card
               key={coverLetter.id}
               className="hover:shadow-md transition-shadow cursor-pointer"
+              variant="interactive"
               onClick={() => router.push(`/dashboard/cover-letters/${coverLetter.id}`)}
             >
               <CardHeader>
