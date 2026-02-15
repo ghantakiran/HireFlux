@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ApplicationPipeline, Application, PipelineStage } from '@/components/domain/ApplicationPipeline';
 import { AnalyticsChart, ChartDataPoint } from '@/components/domain/AnalyticsChart';
 import { AISuggestionCard, AISuggestion } from '@/components/domain/AISuggestionCard';
@@ -29,6 +29,8 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { NoApplicationsEmptyState } from '@/components/ui/empty-state';
+import { useColumnSort } from '@/hooks/useColumnSort';
+import { useURLState } from '@/hooks/useURLState';
 
 // Pipeline stages configuration
 const PIPELINE_STAGES: PipelineStage[] = [
@@ -45,6 +47,11 @@ const PIPELINE_STAGES: PipelineStage[] = [
 // Sort options
 type SortOption = 'newest' | 'oldest' | 'fitIndex' | 'company';
 
+const APPLICATIONS_URL_CONFIG = {
+  stage: { defaultValue: 'all' },
+  sort: { defaultValue: 'newest' },
+};
+
 export default function ApplicationTrackingDashboardPage() {
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
   // Client-side fallback to ensure title is always set (resolves SSR/hydration timing issues)
@@ -53,14 +60,16 @@ export default function ApplicationTrackingDashboardPage() {
   }, []);
 
   const router = useRouter();
+  const urlState = useURLState(APPLICATIONS_URL_CONFIG);
 
   // State
   const [applications, setApplications] = useState<Application[]>([]);
-  const [filteredApplications, setFilteredApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<SortOption>('newest');
-  const [filterStage, setFilterStage] = useState<string | 'all'>('all');
+  const sortBy = (urlState.params.sort || 'newest') as SortOption;
+  const setSortBy = (s: SortOption) => urlState.setParam('sort', s);
+  const filterStage = urlState.params.stage || 'all';
+  const setFilterStage = (s: string) => urlState.setParam('stage', s);
 
   // Analytics data
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
@@ -79,33 +88,27 @@ export default function ApplicationTrackingDashboardPage() {
     fetchApplications();
   }, []);
 
-  // Filter and sort applications when dependencies change
-  useEffect(() => {
-    let filtered = [...applications];
+  // Filter applications by stage
+  const stageFilteredApplications = useMemo(() => {
+    if (filterStage === 'all') return applications;
+    return applications.filter((app) => app.stage === filterStage);
+  }, [applications, filterStage]);
 
-    // Apply stage filter
-    if (filterStage !== 'all') {
-      filtered = filtered.filter((app) => app.stage === filterStage);
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'newest':
-          return (b.appliedDate?.getTime() || 0) - (a.appliedDate?.getTime() || 0);
-        case 'oldest':
-          return (a.appliedDate?.getTime() || 0) - (b.appliedDate?.getTime() || 0);
-        case 'fitIndex':
-          return (b.fitIndex || 0) - (a.fitIndex || 0);
-        case 'company':
-          return a.company.localeCompare(b.company);
-        default:
-          return 0;
-      }
-    });
-
-    setFilteredApplications(filtered);
-  }, [applications, sortBy, filterStage]);
+  // Sort applications using useColumnSort with custom comparators
+  const { sortedItems: filteredApplications } = useColumnSort<Application>({
+    items: stageFilteredApplications,
+    defaultSort: {
+      column: sortBy === 'fitIndex' ? 'fitIndex' : sortBy === 'company' ? 'company' : 'appliedDate',
+      direction: sortBy === 'oldest' ? 'asc' : 'desc',
+    },
+    comparators: {
+      newest: (a, b) => (a.appliedDate?.getTime() || 0) - (b.appliedDate?.getTime() || 0),
+      oldest: (a, b) => (a.appliedDate?.getTime() || 0) - (b.appliedDate?.getTime() || 0),
+      appliedDate: (a, b) => (a.appliedDate?.getTime() || 0) - (b.appliedDate?.getTime() || 0),
+      fitIndex: (a, b) => (a.fitIndex || 0) - (b.fitIndex || 0),
+      company: (a, b) => a.company.localeCompare(b.company),
+    },
+  });
 
   // Fetch applications from API
   const fetchApplications = async () => {

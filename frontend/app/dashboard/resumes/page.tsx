@@ -38,7 +38,17 @@ import { ResumeCardSkeleton } from '@/components/skeletons/card-skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Pagination } from '@/components/ui/pagination';
 import { usePagination } from '@/hooks/usePagination';
+import { useColumnSort } from '@/hooks/useColumnSort';
+import { useURLState } from '@/hooks/useURLState';
 import { toast } from 'sonner';
+
+const RESUMES_URL_CONFIG = {
+  status: { defaultValue: 'all' },
+  search: { defaultValue: '' },
+  sort: { defaultValue: 'created_at' },
+  sort_dir: { defaultValue: 'desc' },
+  page: { defaultValue: '1' },
+};
 
 export default function ResumesPage() {
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
@@ -48,6 +58,7 @@ export default function ResumesPage() {
   }, []);
 
   const router = useRouter();
+  const urlState = useURLState(RESUMES_URL_CONFIG);
   const {
     resumes,
     defaultResumeId,
@@ -60,8 +71,12 @@ export default function ResumesPage() {
     clearError,
   } = useResumeStore();
 
-  const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, clearSearch } = useSearch();
-  const [statusFilter, setStatusFilter] = useState('all');
+  const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, clearSearch } = useSearch({
+    initialQuery: urlState.params.search,
+    onSearch: (q) => { urlState.setParams({ search: q, page: '1' }); },
+  });
+  const statusFilter = urlState.params.status || 'all';
+  const setStatusFilter = (s: string) => { urlState.setParams({ status: s, page: '1' }); };
 
   const filteredResumes = useMemo(() => {
     return resumes.filter((r) => {
@@ -71,13 +86,38 @@ export default function ResumesPage() {
     });
   }, [resumes, debouncedQuery, statusFilter]);
 
+  // Sorting
+  const { sortedItems: sortedResumes, setSort } = useColumnSort({
+    items: filteredResumes,
+    defaultSort: {
+      column: urlState.params.sort || 'created_at',
+      direction: (urlState.params.sort_dir || 'desc') as 'asc' | 'desc',
+    },
+  });
+
+  const sortDropdownValue = `${urlState.params.sort}_${urlState.params.sort_dir}`;
+
+  const handleSortChange = (value: string) => {
+    const lastUnderscore = value.lastIndexOf('_');
+    const col = value.substring(0, lastUnderscore);
+    const dir = value.substring(lastUnderscore + 1) as 'asc' | 'desc';
+    setSort(col, dir);
+    urlState.setParams({ sort: col, sort_dir: dir, page: '1' });
+  };
+
+  useEffect(() => {
+    const col = urlState.params.sort || 'created_at';
+    const dir = urlState.params.sort_dir || 'desc';
+    setSort(col, dir as 'asc' | 'desc');
+  }, [urlState.params.sort, urlState.params.sort_dir]);
+
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedItems: paginatedResumes,
     pageInfo,
-  } = usePagination({ items: filteredResumes, itemsPerPage: 12 });
+  } = usePagination({ items: sortedResumes, itemsPerPage: 12 });
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [resumeToDelete, setResumeToDelete] = useState<string | null>(null);
@@ -279,11 +319,25 @@ export default function ResumesPage() {
                       { value: 'failed', label: 'Failed' },
                     ],
                   },
+                  {
+                    type: 'select',
+                    key: 'sort',
+                    label: 'Sort by',
+                    options: [
+                      { value: 'created_at_desc', label: 'Newest First' },
+                      { value: 'created_at_asc', label: 'Oldest First' },
+                      { value: 'file_name_asc', label: 'Name (A-Z)' },
+                      { value: 'file_name_desc', label: 'Name (Z-A)' },
+                    ],
+                  },
                 ]}
-                values={{ status: statusFilter }}
-                onChange={(_key, val) => setStatusFilter(val)}
-                onClear={() => { clearSearch(); setStatusFilter('all'); }}
-                activeCount={(statusFilter !== 'all' ? 1 : 0) + (debouncedQuery ? 1 : 0)}
+                values={{ status: statusFilter, sort: sortDropdownValue }}
+                onChange={(key, val) => {
+                  if (key === 'status') setStatusFilter(val);
+                  if (key === 'sort') handleSortChange(val);
+                }}
+                onClear={() => { clearSearch(); urlState.clearParams(); }}
+                activeCount={(statusFilter !== 'all' ? 1 : 0) + (debouncedQuery ? 1 : 0) + (sortDropdownValue !== 'created_at_desc' ? 1 : 0)}
               />
             </div>
           </CardContent>

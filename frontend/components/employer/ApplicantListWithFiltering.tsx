@@ -21,12 +21,10 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
   Loader2,
   Inbox,
 } from 'lucide-react';
+import { SortableColumnHeader } from '@/components/ui/sortable-column-header';
 import { useApplicantFiltering } from '@/hooks/useApplicantFiltering';
 import { Application, STATUS_LABELS, STATUS_COLORS } from '@/lib/types/applicant-filtering';
 import { formatDistanceToNow } from 'date-fns';
@@ -96,16 +94,11 @@ export default function ApplicantListWithFiltering({
     return colorMap[color] || colorMap.gray;
   };
 
-  // Render sort icon
-  const renderSortIcon = (column: 'fitIndex' | 'appliedDate') => {
-    if (filters.sortBy !== column) {
-      return <ArrowUpDown className="w-4 h-4 text-gray-400" />;
-    }
-    return filters.order === 'desc' ? (
-      <ArrowDown className="w-4 h-4 text-blue-600" />
-    ) : (
-      <ArrowUp className="w-4 h-4 text-blue-600" />
-    );
+  // Map sort state for SortableColumnHeader
+  const currentSortColumn = filters.sortBy || null;
+  const currentSortDirection = filters.order === 'desc' ? 'desc' : filters.order === 'asc' ? 'asc' : 'none';
+  const handleSortColumn = (column: string) => {
+    handleSort(column as 'fitIndex' | 'appliedDate');
   };
 
   // Loading state
@@ -162,32 +155,26 @@ export default function ApplicantListWithFiltering({
               >
                 Candidate
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => handleSort('fitIndex')}
-              >
-                <div className="flex items-center gap-1">
-                  Fit Score
-                  {renderSortIcon('fitIndex')}
-                </div>
-              </th>
+              <SortableColumnHeader
+                column="fitIndex"
+                label="Fit Score"
+                currentSortColumn={currentSortColumn}
+                currentSortDirection={currentSortDirection as any}
+                onSort={handleSortColumn}
+              />
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
               >
                 Status
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => handleSort('appliedDate')}
-              >
-                <div className="flex items-center gap-1">
-                  Applied
-                  {renderSortIcon('appliedDate')}
-                </div>
-              </th>
+              <SortableColumnHeader
+                column="appliedDate"
+                label="Applied"
+                currentSortColumn={currentSortColumn}
+                currentSortDirection={currentSortDirection as any}
+                onSort={handleSortColumn}
+              />
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"

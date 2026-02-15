@@ -51,6 +51,15 @@ import { toast } from 'sonner';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Pagination } from '@/components/ui/pagination';
 import { Mail } from 'lucide-react';
+import { useColumnSort } from '@/hooks/useColumnSort';
+import { useURLState } from '@/hooks/useURLState';
+
+const COVER_LETTERS_URL_CONFIG = {
+  tone: { defaultValue: 'all' },
+  search: { defaultValue: '' },
+  sort: { defaultValue: 'created_at' },
+  sort_dir: { defaultValue: 'desc' },
+};
 
 export default function CoverLettersPage() {
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
@@ -60,6 +69,7 @@ export default function CoverLettersPage() {
   }, []);
 
   const router = useRouter();
+  const urlState = useURLState(COVER_LETTERS_URL_CONFIG);
   const {
     coverLetters,
     stats,
@@ -185,6 +195,31 @@ export default function CoverLettersPage() {
     );
   }, [coverLetters, debouncedQuery]);
 
+  // Sorting
+  const { sortedItems: sortedLetters, setSort } = useColumnSort({
+    items: searchFilteredLetters,
+    defaultSort: {
+      column: urlState.params.sort || 'created_at',
+      direction: (urlState.params.sort_dir || 'desc') as 'asc' | 'desc',
+    },
+  });
+
+  const sortDropdownValue = `${urlState.params.sort}_${urlState.params.sort_dir}`;
+
+  const handleSortDropdownChange = (value: string) => {
+    const lastUnderscore = value.lastIndexOf('_');
+    const col = value.substring(0, lastUnderscore);
+    const dir = value.substring(lastUnderscore + 1) as 'asc' | 'desc';
+    setSort(col, dir);
+    urlState.setParams({ sort: col, sort_dir: dir });
+  };
+
+  useEffect(() => {
+    const col = urlState.params.sort || 'created_at';
+    const dir = urlState.params.sort_dir || 'desc';
+    setSort(col, dir as 'asc' | 'desc');
+  }, [urlState.params.sort, urlState.params.sort_dir]);
+
   const activeFiltersCount = Object.keys(filters).length;
 
   return (
@@ -289,11 +324,28 @@ export default function CoverLettersPage() {
                     { value: 'conversational', label: 'Conversational' },
                   ],
                 },
+                {
+                  type: 'select',
+                  key: 'sort',
+                  label: 'Sort by',
+                  options: [
+                    { value: 'created_at_desc', label: 'Newest First' },
+                    { value: 'created_at_asc', label: 'Oldest First' },
+                    { value: 'job_title_asc', label: 'Job Title (A-Z)' },
+                    { value: 'job_title_desc', label: 'Job Title (Z-A)' },
+                  ],
+                },
               ]}
-              values={{ tone: filters.tone || 'all' }}
-              onChange={(_key, val) => handleFilterChange('tone', val)}
-              onClear={() => { handleClearFilters(); clearSearch(); }}
-              activeCount={activeFiltersCount + (debouncedQuery ? 1 : 0)}
+              values={{ tone: urlState.params.tone || filters.tone || 'all', sort: sortDropdownValue }}
+              onChange={(key, val) => {
+                if (key === 'tone') {
+                  handleFilterChange('tone', val);
+                  urlState.setParam('tone', val);
+                }
+                if (key === 'sort') handleSortDropdownChange(val);
+              }}
+              onClear={() => { handleClearFilters(); clearSearch(); urlState.clearParams(); }}
+              activeCount={activeFiltersCount + (debouncedQuery ? 1 : 0) + (sortDropdownValue !== 'created_at_desc' ? 1 : 0)}
             />
           </div>
         </CardContent>
@@ -336,7 +388,7 @@ export default function CoverLettersPage() {
       {/* Cover Letters Grid */}
       {coverLetters.length > 0 && (
         <div className="grid md:grid-cols-2 gap-6">
-          {searchFilteredLetters.map((coverLetter) => (
+          {sortedLetters.map((coverLetter) => (
             <Card
               key={coverLetter.id}
               className="hover:shadow-md transition-shadow cursor-pointer"

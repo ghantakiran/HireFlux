@@ -29,9 +29,20 @@ import { useJobStore, type JobSearchFilters } from '@/lib/stores/job-store';
 import { CompanyLogo } from '@/components/ui/optimized-image';
 import { NoJobsEmptyState } from '@/components/ui/empty-state';
 import { Pagination } from '@/components/ui/pagination';
+import { useURLState } from '@/hooks/useURLState';
+
+const JOBS_URL_CONFIG = {
+  remote_policy: { defaultValue: 'any' },
+  min_fit_index: { defaultValue: 'any' },
+  search: { defaultValue: '' },
+  sort: { defaultValue: 'fit_index' },
+  sort_dir: { defaultValue: 'desc' },
+  page: { defaultValue: '1' },
+};
 
 export default function JobsPage() {
   const router = useRouter();
+  const urlState = useURLState(JOBS_URL_CONFIG);
   const {
     jobs,
     isLoading,
@@ -49,14 +60,25 @@ export default function JobsPage() {
   } = useJobStore();
 
   const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, clearSearch, isDebouncing } = useSearch({
-    initialQuery: filters.query || '',
+    initialQuery: urlState.params.search || filters.query || '',
     debounceMs: 300,
     onSearch: (q) => {
       setFilters({ query: q });
       fetchJobs({ query: q, page: 1 });
+      urlState.setParams({ search: q, page: '1' });
     },
   });
   const [savingJobId, setSavingJobId] = useState<string | null>(null);
+
+  // Sort dropdown
+  const sortDropdownValue = `${urlState.params.sort}_${urlState.params.sort_dir}`;
+
+  const handleSortChange = (value: string) => {
+    const lastUnderscore = value.lastIndexOf('_');
+    const col = value.substring(0, lastUnderscore);
+    const dir = value.substring(lastUnderscore + 1);
+    urlState.setParams({ sort: col, sort_dir: dir, page: '1' });
+  };
 
   useEffect(() => {
     // Set document title for WCAG 2.1 AA compliance (Issue #148)
@@ -215,16 +237,38 @@ export default function JobsPage() {
                       { value: '40', label: '40+ (Fair)' },
                     ],
                   },
+                  {
+                    type: 'select',
+                    key: 'sort',
+                    label: 'Sort by',
+                    options: [
+                      { value: 'fit_index_desc', label: 'Best Fit First' },
+                      { value: 'posted_at_desc', label: 'Newest First' },
+                      { value: 'posted_at_asc', label: 'Oldest First' },
+                      { value: 'salary_max_desc', label: 'Highest Salary' },
+                    ],
+                  },
                 ]}
                 values={{
-                  remote_policy: filters.remote_policy || 'any',
-                  min_fit_index: filters.min_fit_index?.toString() || 'any',
+                  remote_policy: urlState.params.remote_policy || filters.remote_policy || 'any',
+                  min_fit_index: urlState.params.min_fit_index || filters.min_fit_index?.toString() || 'any',
+                  sort: sortDropdownValue,
                 }}
                 onChange={(key, val) => {
-                  if (key === 'remote_policy') handleFilterChange('remote_policy', val === 'any' ? undefined : val);
-                  if (key === 'min_fit_index') handleFilterChange('min_fit_index', val === 'any' ? undefined : parseInt(val));
+                  if (key === 'remote_policy') {
+                    handleFilterChange('remote_policy', val === 'any' ? undefined : val);
+                    urlState.setParams({ remote_policy: val, page: '1' });
+                  }
+                  if (key === 'min_fit_index') {
+                    handleFilterChange('min_fit_index', val === 'any' ? undefined : parseInt(val));
+                    urlState.setParams({ min_fit_index: val, page: '1' });
+                  }
+                  if (key === 'sort') handleSortChange(val);
                 }}
-                onClear={handleClearFilters}
+                onClear={() => {
+                  handleClearFilters();
+                  urlState.clearParams();
+                }}
                 activeCount={activeFiltersCount}
               />
             </div>

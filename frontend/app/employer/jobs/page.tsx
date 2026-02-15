@@ -19,6 +19,8 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { useColumnSort } from '@/hooks/useColumnSort';
+import { useURLState } from '@/hooks/useURLState';
 import {
   Plus,
   Edit,
@@ -74,23 +76,58 @@ import {
 
 type FilterStatus = 'all' | 'draft' | 'active' | 'paused' | 'closed';
 
+const URL_STATE_CONFIG = {
+  status: { defaultValue: 'all' },
+  search: { defaultValue: '' },
+  sort: { defaultValue: 'created_at' },
+  sort_dir: { defaultValue: 'desc' },
+  page: { defaultValue: '1' },
+};
+
 export default function EmployerJobsPage() {
   const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
   const [limit] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filters
-  const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
-  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'applicants'>('newest');
+  // URL state persistence
+  const urlState = useURLState(URL_STATE_CONFIG);
+  const page = parseInt(urlState.params.page) || 1;
+  const setPage = (p: number) => urlState.setParam('page', String(p));
+  const statusFilter = urlState.params.status as FilterStatus;
+  const setStatusFilter = (s: FilterStatus) => { urlState.setParams({ status: s, page: '1' }); };
+  const departmentFilter = 'all';
+
+  // Sorting via useColumnSort
+  const { sortedItems: sortedJobs, setSort } = useColumnSort<Job>({
+    items: jobs,
+    defaultSort: {
+      column: urlState.params.sort || 'created_at',
+      direction: (urlState.params.sort_dir || 'desc') as 'asc' | 'desc',
+    },
+    comparators: {
+      applications_count: (a, b) => (a.applications_count || 0) - (b.applications_count || 0),
+    },
+  });
+
+  // Derive compound sort value for the dropdown
+  const sortDropdownValue = `${urlState.params.sort}_${urlState.params.sort_dir}`;
+
+  const handleSortChange = (value: string) => {
+    const lastUnderscore = value.lastIndexOf('_');
+    const col = value.substring(0, lastUnderscore);
+    const dir = value.substring(lastUnderscore + 1) as 'asc' | 'desc';
+    setSort(col, dir);
+    urlState.setParams({ sort: col, sort_dir: dir, page: '1' });
+  };
+
   const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, clearSearch, isDebouncing } = useSearch({
+    initialQuery: urlState.params.search,
     debounceMs: 300,
-    onSearch: () => { setPage(1); },
+    onSearch: (q) => { urlState.setParams({ search: q, page: '1' }); },
   });
 
   // Delete confirmation
@@ -110,11 +147,9 @@ export default function EmployerJobsPage() {
 
   // Clear all filters
   const clearFilters = () => {
-    setStatusFilter('all');
-    setDepartmentFilter('all');
     clearSearch();
-    setSortBy('newest');
-    setPage(1);
+    setSort('created_at', 'desc');
+    urlState.clearParams();
   };
 
   // Calculate job statistics from all jobs (would ideally come from API)
@@ -225,19 +260,12 @@ export default function EmployerJobsPage() {
     }).format(date);
   };
 
-  // Sort jobs based on sortBy state
-  const sortedJobs = [...jobs].sort((a, b) => {
-    switch (sortBy) {
-      case 'newest':
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      case 'oldest':
-        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-      case 'applicants':
-        return (b.applications_count || 0) - (a.applications_count || 0);
-      default:
-        return 0;
-    }
-  });
+  // Sync useColumnSort when URL params change (e.g. on initial load from URL)
+  useEffect(() => {
+    const col = urlState.params.sort || 'created_at';
+    const dir = urlState.params.sort_dir || 'desc';
+    setSort(col, dir as 'asc' | 'desc');
+  }, [urlState.params.sort, urlState.params.sort_dir]);
 
   // Loading skeleton
   if (isLoading && jobs.length === 0) {
@@ -363,15 +391,15 @@ export default function EmployerJobsPage() {
                     key: 'sort',
                     label: 'Sort by',
                     options: [
-                      { value: 'newest', label: 'Newest First' },
-                      { value: 'oldest', label: 'Oldest First' },
-                      { value: 'applicants', label: 'Most Applicants' },
+                      { value: 'created_at_desc', label: 'Newest First' },
+                      { value: 'created_at_asc', label: 'Oldest First' },
+                      { value: 'applications_count_desc', label: 'Most Applicants' },
                     ],
                     'data-testid': 'sort-select',
                   },
                 ]}
-                values={{ sort: sortBy }}
-                onChange={(_key, val) => setSortBy(val as 'newest' | 'oldest' | 'applicants')}
+                values={{ sort: sortDropdownValue }}
+                onChange={(_key, val) => handleSortChange(val)}
                 showClearButton={false}
               />
             </div>
@@ -390,10 +418,10 @@ export default function EmployerJobsPage() {
                   },
                 ]}
                 values={{ status: statusFilter }}
-                onChange={(_key, val) => { setStatusFilter(val as FilterStatus); setPage(1); }}
-                onClear={() => { clearSearch(); setStatusFilter('all'); setSortBy('newest'); setPage(1); }}
+                onChange={(_key, val) => { setStatusFilter(val as FilterStatus); }}
+                onClear={clearFilters}
                 activeCount={
-                  (statusFilter !== 'all' ? 1 : 0) + (searchQuery ? 1 : 0) + (sortBy !== 'newest' ? 1 : 0)
+                  (statusFilter !== 'all' ? 1 : 0) + (searchQuery ? 1 : 0) + (sortDropdownValue !== 'created_at_desc' ? 1 : 0)
                 }
               />
             </div>

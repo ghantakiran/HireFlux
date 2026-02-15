@@ -86,7 +86,7 @@ export default function ATSPage({ params }: ATSPageProps) {
     }
   }, [jobId, fetchApplications]);
 
-  // Sync URL with view changes
+  // Sync URL with view changes (using replace to avoid polluting browser history)
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
 
@@ -116,9 +116,11 @@ export default function ATSPage({ params }: ATSPageProps) {
       params.delete('assignee');
     }
 
-    const newUrl = `${pathname}?${params.toString()}`;
-    if (newUrl !== `${pathname}?${searchParams.toString()}`) {
-      router.push(newUrl);
+    const qs = params.toString();
+    const newUrl = qs ? `${pathname}?${qs}` : pathname;
+    const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
+    if (newUrl !== currentUrl) {
+      router.replace(newUrl, { scroll: false });
     }
   }, [view, filters, searchParams, pathname, router]);
 

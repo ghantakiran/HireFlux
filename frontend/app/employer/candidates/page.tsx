@@ -15,6 +15,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { candidateSearchApi } from '@/lib/api';
 import { Search, MapPin, DollarSign, Briefcase, Star, Eye, Save, Filter, X, Users } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
+import { FilterBar } from '@/components/ui/filter-bar';
+import { useColumnSort } from '@/hooks/useColumnSort';
+import { useURLState } from '@/hooks/useURLState';
 import { Pagination } from '@/components/ui/pagination';
 import { EmptyState } from '@/components/domain/EmptyState';
 import Link from 'next/link';
@@ -61,8 +64,17 @@ const EXPERIENCE_LEVELS = ['entry', 'mid', 'senior', 'lead', 'executive'];
 const LOCATION_TYPES = ['remote', 'hybrid', 'onsite', 'any'];
 const AVAILABILITY_STATUSES = ['actively_looking', 'open_to_offers', 'not_looking'];
 
+const CANDIDATE_URL_CONFIG = {
+  sort: { defaultValue: 'updated_at' },
+  sort_dir: { defaultValue: 'desc' },
+  page: { defaultValue: '1' },
+  location_type: { defaultValue: '' },
+  experience_level: { defaultValue: '' },
+};
+
 export default function CandidateSearchPage() {
   const router = useRouter();
+  const urlState = useURLState(CANDIDATE_URL_CONFIG);
 
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
   // Client-side fallback to ensure title is always set (resolves SSR/hydration timing issues)
@@ -105,6 +117,31 @@ export default function CandidateSearchPage() {
       c.skills?.some((s: string) => s.toLowerCase().includes(q))
     );
   }, [candidates, debouncedQuery]);
+
+  // Sorting
+  const { sortedItems: sortedCandidates, setSort } = useColumnSort<CandidateProfile>({
+    items: searchFilteredCandidates,
+    defaultSort: {
+      column: (urlState.params.sort || 'updated_at') as any,
+      direction: (urlState.params.sort_dir || 'desc') as 'asc' | 'desc',
+    },
+  });
+
+  const sortDropdownValue = `${urlState.params.sort}_${urlState.params.sort_dir}`;
+
+  const handleSortChange = (value: string) => {
+    const lastUnderscore = value.lastIndexOf('_');
+    const col = value.substring(0, lastUnderscore);
+    const dir = value.substring(lastUnderscore + 1) as 'asc' | 'desc';
+    setSort(col, dir);
+    urlState.setParams({ sort: col, sort_dir: dir, page: '1' });
+  };
+
+  useEffect(() => {
+    const col = urlState.params.sort || 'updated_at';
+    const dir = urlState.params.sort_dir || 'desc';
+    setSort(col, dir as 'asc' | 'desc');
+  }, [urlState.params.sort, urlState.params.sort_dir]);
 
   const handleSearch = async () => {
     try {
@@ -444,8 +481,26 @@ export default function CandidateSearchPage() {
             </CardContent>
           </Card>
 
-          {/* Results Per Page */}
-          <div className="flex justify-between items-center">
+          {/* Sort & Results Per Page */}
+          <div className="flex justify-between items-center flex-wrap gap-4">
+            <FilterBar
+              filters={[
+                {
+                  type: 'select',
+                  key: 'sort',
+                  label: 'Sort by',
+                  options: [
+                    { value: 'updated_at_desc', label: 'Recently Updated' },
+                    { value: 'updated_at_asc', label: 'Oldest Updated' },
+                    { value: 'years_experience_desc', label: 'Most Experience' },
+                    { value: 'years_experience_asc', label: 'Least Experience' },
+                  ],
+                },
+              ]}
+              values={{ sort: sortDropdownValue }}
+              onChange={(_key, val) => handleSortChange(val)}
+              showClearButton={false}
+            />
             <div className="flex items-center gap-2">
               <Label htmlFor="limit">Results per page:</Label>
               <Select
@@ -479,9 +534,9 @@ export default function CandidateSearchPage() {
             <div className="flex justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
-          ) : searchFilteredCandidates.length > 0 ? (
+          ) : sortedCandidates.length > 0 ? (
             <div className="space-y-4">
-              {searchFilteredCandidates.map((candidate) => (
+              {sortedCandidates.map((candidate) => (
                 <Card
                   key={candidate.id}
                   className="hover:shadow-lg transition-shadow cursor-pointer"

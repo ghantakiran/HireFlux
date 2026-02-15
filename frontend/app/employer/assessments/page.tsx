@@ -25,6 +25,8 @@ import {
 import { assessmentApi } from '@/lib/api';
 import { Pagination } from '@/components/ui/pagination';
 import { usePagination } from '@/hooks/usePagination';
+import { useColumnSort } from '@/hooks/useColumnSort';
+import { useURLState } from '@/hooks/useURLState';
 
 interface Assessment {
   id: string;
@@ -39,15 +41,28 @@ interface Assessment {
   created_at: string;
 }
 
+const ASSESSMENT_URL_CONFIG = {
+  status: { defaultValue: 'all' },
+  type: { defaultValue: 'all' },
+  search: { defaultValue: '' },
+  sort: { defaultValue: 'created_at' },
+  sort_dir: { defaultValue: 'desc' },
+};
+
 export default function AssessmentsPage() {
   const router = useRouter();
+  const urlState = useURLState(ASSESSMENT_URL_CONFIG);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const statusFilter = urlState.params.status || 'all';
+  const setStatusFilter = (s: string) => urlState.setParam('status', s);
+  const typeFilter = urlState.params.type || 'all';
+  const setTypeFilter = (s: string) => urlState.setParam('type', s);
   const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, isDebouncing } = useSearch({
+    initialQuery: urlState.params.search,
     debounceMs: 300,
+    onSearch: (q) => { urlState.setParam('search', q); },
   });
 
   const filteredAssessments = assessments.filter((a) => {
@@ -56,13 +71,38 @@ export default function AssessmentsPage() {
     return a.title.toLowerCase().includes(q) || a.description?.toLowerCase().includes(q);
   });
 
+  // Sorting
+  const { sortedItems: sortedAssessments, setSort } = useColumnSort<Assessment>({
+    items: filteredAssessments,
+    defaultSort: {
+      column: (urlState.params.sort || 'created_at') as any,
+      direction: (urlState.params.sort_dir || 'desc') as 'asc' | 'desc',
+    },
+  });
+
+  const sortDropdownValue = `${urlState.params.sort}_${urlState.params.sort_dir}`;
+
+  const handleSortChange = (value: string) => {
+    const lastUnderscore = value.lastIndexOf('_');
+    const col = value.substring(0, lastUnderscore);
+    const dir = value.substring(lastUnderscore + 1) as 'asc' | 'desc';
+    setSort(col, dir);
+    urlState.setParams({ sort: col, sort_dir: dir });
+  };
+
+  useEffect(() => {
+    const col = urlState.params.sort || 'created_at';
+    const dir = urlState.params.sort_dir || 'desc';
+    setSort(col, dir as 'asc' | 'desc');
+  }, [urlState.params.sort, urlState.params.sort_dir]);
+
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedItems: paginatedAssessments,
     pageInfo,
-  } = usePagination({ items: filteredAssessments, itemsPerPage: 10 });
+  } = usePagination({ items: sortedAssessments, itemsPerPage: 10 });
 
   // Set page metadata
   useEffect(() => {
@@ -186,11 +226,24 @@ export default function AssessmentsPage() {
                 ],
                 'data-testid': 'type-filter',
               },
+              {
+                type: 'select',
+                key: 'sort',
+                label: 'Sort by',
+                options: [
+                  { value: 'created_at_desc', label: 'Newest First' },
+                  { value: 'created_at_asc', label: 'Oldest First' },
+                  { value: 'total_attempts_desc', label: 'Most Attempts' },
+                  { value: 'avg_score_desc', label: 'Highest Avg Score' },
+                ],
+                'data-testid': 'sort-select',
+              },
             ]}
-            values={{ status: statusFilter, type: typeFilter }}
+            values={{ status: statusFilter, type: typeFilter, sort: sortDropdownValue }}
             onChange={(key, val) => {
               if (key === 'status') setStatusFilter(val);
               if (key === 'type') setTypeFilter(val);
+              if (key === 'sort') handleSortChange(val);
             }}
             showClearButton={false}
           />
