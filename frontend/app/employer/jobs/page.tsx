@@ -201,6 +201,11 @@ export default function EmployerJobsPage() {
     }
   };
 
+  // Set page metadata
+  useEffect(() => {
+    document.title = 'Job Postings | HireFlux';
+  }, []);
+
   // Initial load and filter changes
   useEffect(() => {
     fetchJobs();

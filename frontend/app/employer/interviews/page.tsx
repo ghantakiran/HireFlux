@@ -172,6 +172,11 @@ export default function InterviewSchedulingPage() {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [interviewToCancel, setInterviewToCancel] = useState<string | null>(null);
 
+  // Set page metadata
+  useEffect(() => {
+    document.title = 'Interviews | HireFlux';
+  }, []);
+
   // Load data
   useEffect(() => {
     loadInterviews();

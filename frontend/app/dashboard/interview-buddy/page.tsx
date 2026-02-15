@@ -1,9 +1,14 @@
 'use client';
 
-import { Mic } from 'lucide-react';
-import { EmptyState } from '@/components/domain/EmptyState';
+import { useEffect } from 'react';
+import { Users } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default function InterviewCoachPage() {
+  useEffect(() => {
+    document.title = 'Interview Coach | HireFlux';
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -13,11 +18,13 @@ export default function InterviewCoachPage() {
         </p>
       </div>
       <EmptyState
+        icon={Users}
         title="No interview sessions"
-        description="Practice mock interviews with AI-powered feedback to ace your next interview."
-        icon={<Mic className="h-12 w-12 text-muted-foreground" />}
-        actionLabel="Start Practice"
-        onAction={() => console.log('Start practice session')}
+        description="Practice interviews with AI feedback. Build confidence with mock questions tailored to your target roles."
+        action={{
+          label: 'Start Practice Session',
+          onClick: () => console.log('Start practice session'),
+        }}
       />
     </div>
   );

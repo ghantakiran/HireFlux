@@ -162,6 +162,11 @@ export default function CompanyProfileSetupPage() {
   // Effects
   // ============================================================================
 
+  // Set page metadata
+  useEffect(() => {
+    document.title = 'Company Profile | HireFlux';
+  }, []);
+
   // Load draft on mount
   useEffect(() => {
     const draft = localStorage.getItem('company-profile-draft');

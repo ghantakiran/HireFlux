@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Bug, Lightbulb, MessageCircle, MessageSquare, Filter, ChevronRight } from 'lucide-react';
-import { EmptyState } from '@/components/domain/EmptyState';
+import { EmptyState } from '@/components/ui/empty-state';
 import {
   Dialog,
   DialogContent,
@@ -168,9 +168,9 @@ export default function FeedbackPage() {
       {/* Empty State */}
       {!isLoading && filteredList.length === 0 && (
         <EmptyState
-          title="No feedback yet"
-          description="Your feedback helps us improve HireFlux. Share your thoughts anytime."
-          icon={<MessageSquare className="h-12 w-12 text-muted-foreground" />}
+          icon={MessageSquare}
+          title="No feedback submitted"
+          description="Help us improve HireFlux by sharing your thoughts, reporting bugs, or suggesting features."
         />
       )}
 

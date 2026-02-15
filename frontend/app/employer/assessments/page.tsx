@@ -51,6 +51,11 @@ export default function AssessmentsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
 
+  // Set page metadata
+  useEffect(() => {
+    document.title = 'Assessments | HireFlux';
+  }, []);
+
   useEffect(() => {
     fetchAssessments();
   }, [statusFilter, typeFilter]);

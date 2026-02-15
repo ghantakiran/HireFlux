@@ -64,6 +64,11 @@ export default function TemplatesPage() {
   // Company ID (from user context - simplified for now)
   const [companyId] = useState('current-company-id'); // TODO: Get from auth context
 
+  // Set page metadata
+  useEffect(() => {
+    document.title = 'Job Templates | HireFlux';
+  }, []);
+
   // Fetch templates
   useEffect(() => {
     fetchTemplates();

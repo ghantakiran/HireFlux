@@ -316,6 +316,8 @@ export default function PricingPage() {
   // ============================================================================
 
   useEffect(() => {
+    document.title = 'Pricing Plans | HireFlux';
+
     // Check authentication and load user data
     // In production, this would call an API endpoint
     const loadUser = async () => {

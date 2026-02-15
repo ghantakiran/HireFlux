@@ -10,7 +10,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AISuggestionCard, AISuggestion } from '@/components/domain/AISuggestionCard';
-import { EmptyState } from '@/components/domain/EmptyState';
+import { EmptyState } from '@/components/ui/empty-state';
 import { AnalyticsChart, ChartDataPoint } from '@/components/domain/AnalyticsChart';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -107,6 +107,7 @@ export default function AISuggestionsPage() {
 
   // Fetch data on mount
   useEffect(() => {
+    document.title = 'AI Suggestions | HireFlux';
     fetchSuggestions();
   }, []);
 
@@ -633,11 +634,13 @@ export default function AISuggestionsPage() {
         </div>
 
         <EmptyState
-          title="No suggestions yet"
-          description="AI suggestions will appear here once you've added your resume and preferences."
-          icon={<Sparkles className="h-12 w-12 text-muted-foreground" />}
-          actionLabel="Create Resume"
-          onAction={() => router.push('/dashboard/resumes/builder')}
+          icon={Sparkles}
+          title="No suggestions available yet"
+          description="Complete your profile to unlock AI-powered job recommendations, resume tips, and career insights."
+          action={{
+            label: 'Complete Profile',
+            onClick: () => router.push('/dashboard/settings/profile'),
+          }}
         />
       </div>
     );

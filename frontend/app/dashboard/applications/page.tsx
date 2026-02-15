@@ -28,7 +28,7 @@ import {
   Send
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { EmptyState } from '@/components/domain/EmptyState';
+import { NoApplicationsEmptyState } from '@/components/ui/empty-state';
 
 // Pipeline stages configuration
 const PIPELINE_STAGES: PipelineStage[] = [
@@ -450,13 +450,7 @@ export default function ApplicationTrackingDashboardPage() {
 
       {/* Application Pipeline */}
       {!loading && applications.length === 0 ? (
-        <EmptyState
-          title="No applications yet"
-          description="Start your job search by applying to roles that match your skills and experience."
-          icon={<Send className="h-12 w-12 text-muted-foreground" />}
-          actionLabel="Browse Jobs"
-          onAction={() => router.push('/dashboard/jobs')}
-        />
+        <NoApplicationsEmptyState onCreate={() => router.push('/dashboard/jobs')} />
       ) : (
         <ApplicationPipeline
           applications={filteredApplications}

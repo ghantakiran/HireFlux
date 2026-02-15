@@ -13,6 +13,9 @@ type HeroTab = 'job_seeker' | 'employer';
 
 export default function HomePage() {
   // Note: Page title set via metadata in root layout.tsx for WCAG 2.1 AA compliance (Issue #148)
+  useEffect(() => {
+    document.title = 'HireFlux | AI-Powered Job Search & Resume Builder';
+  }, []);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [heroTab, setHeroTab] = useState<HeroTab>('job_seeker');

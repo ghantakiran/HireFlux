@@ -43,7 +43,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { EmptyState } from '@/components/domain/EmptyState';
+import { EmptyState } from '@/components/ui/empty-state';
 import type { Notification, NotificationType } from '@/lib/types/notifications';
 import { MOCK_NOTIFICATIONS } from '@/lib/mock-data/notifications';
 import { toast } from 'sonner';
@@ -126,6 +126,8 @@ export default function NotificationsHistoryPage() {
 
   // Load notifications on mount
   useEffect(() => {
+    document.title = 'Notifications | HireFlux';
+
     const loadNotifications = async () => {
       setIsLoading(true);
       try {
@@ -556,13 +558,13 @@ export default function NotificationsHistoryPage() {
       ) : (
         /* Empty State */
         <EmptyState
+          icon={Bell}
           title="No notifications"
           description={
             searchQuery
               ? `No notifications matching "${searchQuery}"`
-              : "You're all caught up! Notifications about job matches and application updates will appear here."
+              : "You're all caught up! Notifications for job matches, application updates, and messages will appear here."
           }
-          icon={<Bell className="h-12 w-12 text-muted-foreground" />}
         />
       )}
 

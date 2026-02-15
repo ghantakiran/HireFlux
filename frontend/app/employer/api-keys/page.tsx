@@ -19,6 +19,7 @@ import { apiKeyApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/domain/EmptyState';
 import {
   Table,
   TableBody,
@@ -327,17 +328,13 @@ export default function APIKeysPage() {
               </TableBody>
             </Table>
           ) : (
-            <div className="text-center py-12">
-              <Key className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No API Keys Yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Create your first API key to start using the HireFlux API
-              </p>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Create API Key
-              </Button>
-            </div>
+            <EmptyState
+              title="No API keys generated"
+              description="Create API keys to integrate HireFlux with your ATS or custom applications. Manage access and monitor usage."
+              icon={<Key className="h-12 w-12 text-muted-foreground" />}
+              actionLabel="Generate API Key"
+              onAction={() => setIsCreateDialogOpen(true)}
+            />
           )}
         </CardContent>
       </Card>

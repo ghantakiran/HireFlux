@@ -9,7 +9,7 @@
  * - Charts are deferred until below-the-fold or user scrolls
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format, subDays } from 'date-fns';
 import {
   useAnalyticsOverview,
@@ -87,6 +87,11 @@ const MOCK_USER_ROLE = 'admin'; // owner, admin, hiring_manager, recruiter, inte
 const MOCK_COMPANY_PLAN: 'starter' | 'growth' | 'professional' | 'enterprise' = 'growth';
 
 export default function AnalyticsPage() {
+  // Set page metadata
+  useEffect(() => {
+    document.title = 'Analytics | HireFlux';
+  }, []);
+
   // Date range state (default to last 30 days)
   const [dateRange, setDateRange] = useState({
     startDate: format(subDays(new Date(), 30), 'yyyy-MM-dd'),

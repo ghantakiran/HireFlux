@@ -59,7 +59,7 @@ export default function JobsPage() {
 
   useEffect(() => {
     // Set document title for WCAG 2.1 AA compliance (Issue #148)
-    document.title = 'Job Matches | HireFlux';
+    document.title = 'Job Search | HireFlux';
 
     // Fetch jobs on mount
     fetchJobs();

@@ -32,14 +32,14 @@ import {
   Loader2,
 } from 'lucide-react';
 import { ResumeCardSkeleton } from '@/components/skeletons/card-skeleton';
-import { EmptyState } from '@/components/domain/EmptyState';
+import { EmptyState } from '@/components/ui/empty-state';
 import { toast } from 'sonner';
 
 export default function ResumesPage() {
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
   // Client-side fallback to ensure title is always set (resolves SSR/hydration timing issues)
   useEffect(() => {
-    document.title = 'Resume Builder | HireFlux';
+    document.title = 'My Resumes | HireFlux';
   }, []);
 
   const router = useRouter();
@@ -232,11 +232,13 @@ export default function ResumesPage() {
       {/* Empty State */}
       {resumes.length === 0 && !isLoading ? (
         <EmptyState
+          icon={FileText}
           title="No resumes yet"
-          description="Create your first AI-optimized resume to start applying for jobs."
-          icon={<FileText className="h-12 w-12 text-muted-foreground" />}
-          actionLabel="Create Resume"
-          onAction={() => router.push('/dashboard/resumes/builder')}
+          description="Create your first ATS-optimized resume in minutes. Our AI helps you highlight your achievements and match job requirements."
+          action={{
+            label: 'Create Resume',
+            onClick: () => router.push('/dashboard/resumes/builder'),
+          }}
         />
       ) : (
         /* Resume Grid */

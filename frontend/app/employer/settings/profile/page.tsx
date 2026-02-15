@@ -128,6 +128,11 @@ export default function CompanyProfileSettingsPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [activeTab, setActiveTab] = useState('identity');
 
+  // Set page metadata
+  useEffect(() => {
+    document.title = 'Settings | HireFlux';
+  }, []);
+
   // Fetch company data on mount
   useEffect(() => {
     fetchCompanyData();

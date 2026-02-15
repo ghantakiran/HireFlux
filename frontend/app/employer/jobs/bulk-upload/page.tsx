@@ -12,7 +12,7 @@
  * - Scheduled posting
  */
 
-import { useState, useRef, ChangeEvent, DragEvent } from 'react';
+import { useState, useRef, useEffect, ChangeEvent, DragEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { bulkJobPostingApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -85,6 +85,11 @@ type UploadStage = 'idle' | 'uploading' | 'validating' | 'review' | 'complete' |
 export default function BulkJobUploadPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Set page metadata
+  useEffect(() => {
+    document.title = 'Bulk Upload Jobs | HireFlux';
+  }, []);
 
   // State
   const [uploadStage, setUploadStage] = useState<UploadStage>('idle');

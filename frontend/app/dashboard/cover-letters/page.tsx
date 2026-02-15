@@ -53,7 +53,8 @@ import {
   type CoverLetterTone,
 } from '@/lib/stores/cover-letter-store';
 import { toast } from 'sonner';
-import { EmptyState } from '@/components/domain/EmptyState';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Mail } from 'lucide-react';
 
 export default function CoverLettersPage() {
   // Note: Page title set via metadata in layout.tsx for WCAG 2.1 AA compliance (Issue #148)
@@ -309,19 +310,23 @@ export default function CoverLettersPage() {
       {!isLoading && coverLetters.length === 0 && (
         activeFiltersCount > 0 ? (
           <EmptyState
+            icon={FileText}
             title="No cover letters found"
             description="No cover letters match your filters. Try adjusting your filters."
-            icon={<FileText className="h-12 w-12 text-muted-foreground" />}
-            actionLabel="Clear Filters"
-            onAction={handleClearFilters}
+            action={{
+              label: 'Clear Filters',
+              onClick: handleClearFilters,
+            }}
           />
         ) : (
           <EmptyState
+            icon={Mail}
             title="No cover letters yet"
-            description="Generate personalized cover letters tailored to each job application."
-            icon={<FileText className="h-12 w-12 text-muted-foreground" />}
-            actionLabel="Create Cover Letter"
-            onAction={() => router.push('/dashboard/cover-letters/new')}
+            description="Generate personalized cover letters tailored to each job application. Stand out with compelling narratives."
+            action={{
+              label: 'Create Cover Letter',
+              onClick: () => router.push('/dashboard/cover-letters/new'),
+            }}
           />
         )
       )}

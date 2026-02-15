@@ -29,13 +29,16 @@ import {
   Zap,
 } from 'lucide-react';
 import { useApplicationStore } from '@/lib/stores/application-store';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default function AnalyticsPage() {
   const router = useRouter();
+  const routerNav = useRouter();
   const { stats, isLoading, error, fetchStats, fetchApplications } =
     useApplicationStore();
 
   useEffect(() => {
+    document.title = 'Analytics | HireFlux';
     fetchStats();
     fetchApplications(); // Fetch applications for additional analytics
   }, []);
@@ -65,6 +68,47 @@ export default function AnalyticsPage() {
     stats.by_status.interview > 0
       ? ((stats.by_status.offer / stats.by_status.interview) * 100).toFixed(1)
       : '0.0';
+
+  // Check if user has no applications
+  const hasNoApplications = stats.total_applications === 0;
+
+  if (hasNoApplications && !isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          onClick={() => router.push('/dashboard/applications')}
+          className="mb-6"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Applications
+        </Button>
+
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <BarChart3 className="h-8 w-8 text-blue-600" />
+            <h1 className="text-3xl font-bold">Application Analytics</h1>
+          </div>
+          <p className="text-muted-foreground">
+            Track your job search performance and identify opportunities for improvement
+          </p>
+        </div>
+
+        {/* Empty State */}
+        <EmptyState
+          icon={BarChart3}
+          title="Not enough data yet"
+          description="Start applying to jobs to see insights about your application success rate, response times, and trends."
+          action={{
+            label: 'Browse Jobs',
+            onClick: () => routerNav.push('/dashboard/jobs'),
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

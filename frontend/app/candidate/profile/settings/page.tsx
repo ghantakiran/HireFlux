@@ -60,6 +60,11 @@ export default function ProfileSettingsPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+  // Set page metadata
+  useEffect(() => {
+    document.title = 'Profile Settings | HireFlux';
+  }, []);
+
   // Load profile data on mount
   useEffect(() => {
     loadProfileData();

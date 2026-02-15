@@ -147,6 +147,11 @@ export default function TeamManagementPage() {
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<string | null>(null);
 
+  // Set page metadata
+  useEffect(() => {
+    document.title = 'Team | HireFlux';
+  }, []);
+
   // Load data
   useEffect(() => {
     loadTeamData();

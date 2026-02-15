@@ -155,6 +155,11 @@ export default function OnboardingPage() {
     },
   });
 
+  // Set document title
+  useEffect(() => {
+    document.title = 'Get Started | HireFlux';
+  }, []);
+
   // Auto-save on step change
   useEffect(() => {
     saveDraft(currentStep, formData);

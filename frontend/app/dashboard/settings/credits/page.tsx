@@ -38,9 +38,11 @@ import {
   Briefcase,
   Bot,
   Search,
+  DollarSign,
 } from 'lucide-react';
 import { useBillingStore } from '@/lib/stores/billing-store';
 import { toast } from 'sonner';
+import { EmptyState } from '@/components/ui/empty-state';
 
 // Credit packages
 const CREDIT_PACKAGES = [
@@ -408,9 +410,11 @@ export default function CreditsPage() {
         </CardHeader>
         <CardContent>
           {creditHistory.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No transactions yet
-            </div>
+            <EmptyState
+              icon={DollarSign}
+              title="No transactions yet"
+              description="Your credit purchase and usage history will appear here once you start using premium features."
+            />
           ) : (
             <Table>
               <TableHeader>
