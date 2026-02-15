@@ -42,6 +42,7 @@ import {
 import { toast } from 'sonner';
 import { formatRelativeTime } from '@/lib/utils';
 import { ErrorBanner } from '@/components/ui/error-banner';
+import { ToneBadge } from '@/components/ui/status-badges';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Pagination } from '@/components/ui/pagination';
 import { Mail } from 'lucide-react';
@@ -132,21 +133,6 @@ export default function CoverLettersPage() {
     } finally {
       setDownloadingId(null);
     }
-  };
-
-  const getToneBadge = (tone: CoverLetterTone) => {
-    const configs = {
-      formal: { label: 'Formal', className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' },
-      concise: { label: 'Concise', className: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' },
-      conversational: { label: 'Conversational', className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' },
-    };
-
-    const config = configs[tone];
-    return (
-      <Badge variant="outline" className={config.className}>
-        {config.label}
-      </Badge>
-    );
   };
 
   const searchFilteredLetters = useMemo(() => {
@@ -359,7 +345,7 @@ export default function CoverLettersPage() {
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    {getToneBadge(coverLetter.tone)}
+                    <ToneBadge tone={coverLetter.tone} />
                   </div>
                 </div>
               </CardHeader>

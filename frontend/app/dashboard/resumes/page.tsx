@@ -20,11 +20,8 @@ import {
   Trash2,
   Star,
   Download,
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  Loader2,
 } from 'lucide-react';
+import { ParseStatusBadge } from '@/components/ui/status-badges';
 import { SearchInput } from '@/components/ui/search-input';
 import { FilterBar } from '@/components/ui/filter-bar';
 import { useSearch } from '@/hooks/useSearch';
@@ -164,41 +161,6 @@ export default function ResumesPage() {
     const sizes = ['Bytes', 'KB', 'MB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-  };
-
-  const getStatusBadge = (status: ParseStatus) => {
-    switch (status) {
-      case ParseStatus.COMPLETED:
-        return (
-          <Badge variant="default" className="bg-green-500">
-            <CheckCircle2 className="mr-1 h-3 w-3" />
-            Parsed
-          </Badge>
-        );
-      case ParseStatus.PROCESSING:
-        return (
-          <Badge variant="default" className="bg-blue-500">
-            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-            Processing
-          </Badge>
-        );
-      case ParseStatus.PENDING:
-        return (
-          <Badge variant="secondary">
-            <Clock className="mr-1 h-3 w-3" />
-            Pending
-          </Badge>
-        );
-      case ParseStatus.FAILED:
-        return (
-          <Badge variant="destructive">
-            <AlertCircle className="mr-1 h-3 w-3" />
-            Failed
-          </Badge>
-        );
-      default:
-        return null;
-    }
   };
 
   if (isLoading && resumes.length === 0) {
@@ -341,7 +303,7 @@ export default function ResumesPage() {
                   {/* Status Badge */}
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Status</span>
-                    {getStatusBadge(resume.parse_status)}
+                    <ParseStatusBadge status={resume.parse_status} />
                   </div>
 
                   {/* File Type */}

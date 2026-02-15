@@ -36,12 +36,9 @@ import {
   Clock,
 } from 'lucide-react';
 import { ErrorBanner } from '@/components/ui/error-banner';
+import { ToneBadge } from '@/components/ui/status-badges';
 import { PageLoader } from '@/components/ui/page-loader';
-import {
-  useCoverLetterStore,
-  type CoverLetterTone,
-  type CoverLetterLength,
-} from '@/lib/stores/cover-letter-store';
+import { useCoverLetterStore } from '@/lib/stores/cover-letter-store';
 
 export default function EditCoverLetterPage() {
   const router = useRouter();
@@ -179,24 +176,6 @@ export default function EditCoverLetterPage() {
   // Calculate word and character count
   const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
   const charCount = content.length;
-
-  const getToneBadge = (tone: CoverLetterTone) => {
-    const configs = {
-      formal: { label: 'Formal', className: 'bg-blue-100 text-blue-800' },
-      concise: { label: 'Concise', className: 'bg-purple-100 text-purple-800' },
-      conversational: {
-        label: 'Conversational',
-        className: 'bg-green-100 text-green-800',
-      },
-    };
-
-    const config = configs[tone];
-    return (
-      <Badge variant="outline" className={config.className}>
-        {config.label}
-      </Badge>
-    );
-  };
 
   const formatLastSaved = (date: Date | null) => {
     if (!date) return 'Never';
@@ -337,7 +316,7 @@ export default function EditCoverLetterPage() {
               {/* Settings Badges */}
               {currentCoverLetter && (
                 <div className="flex items-center gap-2">
-                  {getToneBadge(currentCoverLetter.tone)}
+                  <ToneBadge tone={currentCoverLetter.tone} />
                   <Badge variant="outline">
                     {currentCoverLetter.length === 'short'
                       ? 'Short'

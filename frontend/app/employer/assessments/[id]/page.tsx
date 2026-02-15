@@ -50,6 +50,7 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { assessmentApi } from '@/lib/api';
+import { getAssessmentStatusBadgeColor } from '@/lib/badge-helpers';
 
 interface Question {
   id: string;
@@ -284,19 +285,6 @@ export default function AssessmentDetailPage() {
     }
   };
 
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'published':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-      case 'draft':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
-      case 'archived':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
-    }
-  };
-
   if (loading) {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
@@ -347,7 +335,7 @@ export default function AssessmentDetailPage() {
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{assessment.title}</h1>
               <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeColor(
+                className={`px-3 py-1 rounded-full text-sm font-medium ${getAssessmentStatusBadgeColor(
                   assessment.status
                 )}`}
               >

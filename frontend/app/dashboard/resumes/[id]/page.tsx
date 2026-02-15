@@ -21,14 +21,13 @@ import {
   Award,
   Languages,
   AlertCircle,
-  Loader2,
-  CheckCircle2,
   Mail,
   Phone,
   MapPin,
   Linkedin,
   Globe,
 } from 'lucide-react';
+import { ParseStatusBadge } from '@/components/ui/status-badges';
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { PageLoader } from '@/components/ui/page-loader';
 import { formatDateLong } from '@/lib/utils';
@@ -88,39 +87,6 @@ export default function ResumeDetailPage() {
       await setDefaultResume(resumeId);
     } catch (err) {
       // Error handled by store
-    }
-  };
-
-  const getStatusBadge = (status: ParseStatus) => {
-    switch (status) {
-      case ParseStatus.COMPLETED:
-        return (
-          <Badge variant="default" className="bg-green-500">
-            <CheckCircle2 className="mr-1 h-3 w-3" />
-            Parsed Successfully
-          </Badge>
-        );
-      case ParseStatus.PROCESSING:
-        return (
-          <Badge variant="default" className="bg-blue-500">
-            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-            Processing
-          </Badge>
-        );
-      case ParseStatus.PENDING:
-        return (
-          <Badge variant="secondary">
-            <Loader2 className="mr-1 h-3 w-3" />
-            Pending
-          </Badge>
-        );
-      case ParseStatus.FAILED:
-        return (
-          <Badge variant="destructive">
-            <AlertCircle className="mr-1 h-3 w-3" />
-            Parsing Failed
-          </Badge>
-        );
     }
   };
 
@@ -188,7 +154,7 @@ export default function ResumeDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <p className="text-sm text-muted-foreground mb-1">Status</p>
-              {getStatusBadge(resume.parse_status)}
+              <ParseStatusBadge status={resume.parse_status} />
             </div>
             <div>
               <p className="text-sm text-muted-foreground mb-1">File Type</p>

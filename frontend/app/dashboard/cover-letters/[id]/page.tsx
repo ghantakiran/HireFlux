@@ -27,12 +27,9 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import { ErrorBanner } from '@/components/ui/error-banner';
+import { ToneBadge, LengthBadge } from '@/components/ui/status-badges';
 import { PageLoader } from '@/components/ui/page-loader';
-import {
-  useCoverLetterStore,
-  type CoverLetterTone,
-  type CoverLetterLength,
-} from '@/lib/stores/cover-letter-store';
+import { useCoverLetterStore } from '@/lib/stores/cover-letter-store';
 import { useResumeStore } from '@/lib/stores/resume-store';
 import { toast } from 'sonner';
 import { formatDateTimeLong } from '@/lib/utils';
@@ -83,39 +80,6 @@ export default function CoverLetterDetailPage() {
   const handleUseInApplication = () => {
     // TODO: Implement use in application functionality
     alert('Use in application functionality coming soon!');
-  };
-
-  const getToneBadge = (tone: CoverLetterTone) => {
-    const configs = {
-      formal: { label: 'Formal', className: 'bg-blue-100 text-blue-800' },
-      concise: { label: 'Concise', className: 'bg-purple-100 text-purple-800' },
-      conversational: {
-        label: 'Conversational',
-        className: 'bg-green-100 text-green-800',
-      },
-    };
-
-    const config = configs[tone];
-    return (
-      <Badge variant="outline" className={config.className}>
-        {config.label}
-      </Badge>
-    );
-  };
-
-  const getLengthBadge = (length: CoverLetterLength) => {
-    const configs = {
-      short: { label: 'Short (~150 words)', className: 'bg-gray-100 text-gray-800' },
-      medium: { label: 'Medium (~250 words)', className: 'bg-gray-100 text-gray-800' },
-      long: { label: 'Long (~350 words)', className: 'bg-gray-100 text-gray-800' },
-    };
-
-    const config = configs[length];
-    return (
-      <Badge variant="outline" className={config.className}>
-        {config.label}
-      </Badge>
-    );
   };
 
   const getResumeTitle = (resumeVersionId: string) => {
@@ -261,12 +225,12 @@ export default function CoverLetterDetailPage() {
             <CardContent className="space-y-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-2">Tone</p>
-                {getToneBadge(currentCoverLetter.tone)}
+                <ToneBadge tone={currentCoverLetter.tone} />
               </div>
 
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-2">Length</p>
-                {getLengthBadge(currentCoverLetter.length)}
+                <LengthBadge length={currentCoverLetter.length} />
               </div>
 
               <div>

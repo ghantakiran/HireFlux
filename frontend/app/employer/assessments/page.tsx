@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { assessmentApi } from '@/lib/api';
+import { getAssessmentStatusBadgeColor, getAssessmentTypeBadgeColor } from '@/lib/badge-helpers';
 import { Pagination } from '@/components/ui/pagination';
 import { usePagination } from '@/hooks/usePagination';
 import { useColumnSort } from '@/hooks/useColumnSort';
@@ -142,29 +143,6 @@ export default function AssessmentsPage() {
 
   const handleCreateAssessment = () => {
     router.push('/employer/assessments/new');
-  };
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'published':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-      case 'draft':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
-      case 'archived':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
-    }
-  };
-
-  const getTypeBadge = (type: string) => {
-    const colors = {
-      screening: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-      technical: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-      behavioral: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300',
-      culture_fit: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300',
-    };
-    return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
   };
 
   return (
@@ -300,14 +278,14 @@ export default function AssessmentsPage() {
                       {assessment.title}
                     </h3>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getAssessmentStatusBadgeColor(
                         assessment.status
                       )}`}
                     >
                       {assessment.status}
                     </span>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeBadge(
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getAssessmentTypeBadgeColor(
                         assessment.assessment_type
                       )}`}
                     >
