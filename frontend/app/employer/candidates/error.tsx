@@ -27,7 +27,7 @@ export default function EmployerCandidatesError({
         <div className="space-y-2">
           <h2 className="text-2xl font-bold tracking-tight">Something went wrong</h2>
           <p className="text-sm text-muted-foreground">
-            We couldn&apos;t load your candidates. Please try again.
+            We couldn&apos;t load the candidates. Please try again.
           </p>
           {error.digest && (
             <p className="text-xs text-muted-foreground">
@@ -40,8 +40,8 @@ export default function EmployerCandidatesError({
             <RefreshCw className="mr-2 h-4 w-4" /> Try Again
           </Button>
           <Button variant="outline" asChild className="w-full">
-            <Link href="/employer">
-              <Home className="mr-2 h-4 w-4" /> Employer Dashboard
+            <Link href="/employer/dashboard">
+              <Home className="mr-2 h-4 w-4" /> Go to Dashboard
             </Link>
           </Button>
         </div>

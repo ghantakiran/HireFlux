@@ -41,7 +41,7 @@ export default function DashboardError({
           </Button>
           <Button variant="outline" asChild className="w-full">
             <Link href="/">
-              <Home className="mr-2 h-4 w-4" /> Go Home
+              <Home className="mr-2 h-4 w-4" /> Go to Home
             </Link>
           </Button>
         </div>

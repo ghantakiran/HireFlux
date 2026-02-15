@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, RefreshCw, Home, FileText } from 'lucide-react';
+import { AlertCircle, RefreshCw, Home } from 'lucide-react';
 import { captureException } from '@/lib/sentry';
 import Link from 'next/link';
 
@@ -41,12 +41,7 @@ export default function ResumesError({
           </Button>
           <Button variant="outline" asChild className="w-full">
             <Link href="/dashboard">
-              <Home className="mr-2 h-4 w-4" /> Dashboard
-            </Link>
-          </Button>
-          <Button variant="outline" asChild className="w-full">
-            <Link href="/dashboard/resumes">
-              <FileText className="mr-2 h-4 w-4" /> View Resumes
+              <Home className="mr-2 h-4 w-4" /> Go to Dashboard
             </Link>
           </Button>
         </div>

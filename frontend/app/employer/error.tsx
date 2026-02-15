@@ -27,7 +27,7 @@ export default function EmployerError({
         <div className="space-y-2">
           <h2 className="text-2xl font-bold tracking-tight">Something went wrong</h2>
           <p className="text-sm text-muted-foreground">
-            We couldn&apos;t load the employer dashboard. Please try again.
+            We couldn&apos;t load the employer dashboard. This might be a temporary issue.
           </p>
           {error.digest && (
             <p className="text-xs text-muted-foreground">
@@ -41,7 +41,7 @@ export default function EmployerError({
           </Button>
           <Button variant="outline" asChild className="w-full">
             <Link href="/">
-              <Home className="mr-2 h-4 w-4" /> Go Home
+              <Home className="mr-2 h-4 w-4" /> Go to Home
             </Link>
           </Button>
         </div>

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, RefreshCw, Home, Briefcase } from 'lucide-react';
+import { AlertCircle, Briefcase, Home } from 'lucide-react';
 import { captureException } from '@/lib/sentry';
 import Link from 'next/link';
 
@@ -37,16 +37,11 @@ export default function JobsError({
         </div>
         <div className="flex flex-col gap-3">
           <Button onClick={reset} className="w-full">
-            <RefreshCw className="mr-2 h-4 w-4" /> Try Again
+            <Briefcase className="mr-2 h-4 w-4" /> Browse Jobs
           </Button>
           <Button variant="outline" asChild className="w-full">
             <Link href="/dashboard">
-              <Home className="mr-2 h-4 w-4" /> Dashboard
-            </Link>
-          </Button>
-          <Button variant="outline" asChild className="w-full">
-            <Link href="/dashboard/jobs">
-              <Briefcase className="mr-2 h-4 w-4" /> Browse Jobs
+              <Home className="mr-2 h-4 w-4" /> Go to Dashboard
             </Link>
           </Button>
         </div>

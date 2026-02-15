@@ -1,6 +1,6 @@
 import { NotFoundError } from '@/components/error/not-found-error';
 
-export default function EmployerJobNotFound() {
+export default function JobNotFound() {
   return (
     <NotFoundError
       resourceType="job"

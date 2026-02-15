@@ -41,7 +41,7 @@ export default function ApplicationsError({
           </Button>
           <Button variant="outline" asChild className="w-full">
             <Link href="/dashboard">
-              <Home className="mr-2 h-4 w-4" /> Dashboard
+              <Home className="mr-2 h-4 w-4" /> Go to Dashboard
             </Link>
           </Button>
         </div>

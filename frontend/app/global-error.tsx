@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 export default function GlobalError({
   error,
   reset,
@@ -7,125 +9,70 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    console.error('Global error:', error);
+  }, [error]);
+
   return (
-    <html lang="en">
+    <html>
       <body>
-        <div
-          style={{
-            display: 'flex',
-            minHeight: '100vh',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '16px',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            backgroundColor: '#fafafa',
-          }}
-        >
-          <div
-            style={{
-              maxWidth: '400px',
-              width: '100%',
-              textAlign: 'center',
-              padding: '32px',
-              borderRadius: '12px',
-              border: '1px solid #e5e7eb',
-              backgroundColor: '#ffffff',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-            }}
-          >
-            <div
-              style={{
-                width: '64px',
-                height: '64px',
-                margin: '0 auto 24px',
-                borderRadius: '50%',
-                backgroundColor: '#fef2f2',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '32px',
-              }}
-            >
-              ⚠
-            </div>
-            <h1
-              style={{
-                fontSize: '24px',
-                fontWeight: 700,
-                margin: '0 0 8px',
-                color: '#111827',
-              }}
-            >
-              Something went wrong
-            </h1>
-            <p
-              style={{
-                fontSize: '14px',
-                color: '#6b7280',
-                margin: '0 0 24px',
-                lineHeight: 1.5,
-              }}
-            >
-              A critical error occurred. Please try again or reload the page.
+        <div style={{
+          display: 'flex',
+          minHeight: '100vh',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '2rem',
+          fontFamily: 'system-ui, sans-serif'
+        }}>
+          <div style={{ maxWidth: '28rem', textAlign: 'center' }}>
+            <div style={{
+              marginBottom: '1.5rem',
+              fontSize: '3rem'
+            }}>⚠️</div>
+            <h2 style={{
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              marginBottom: '0.5rem'
+            }}>
+              Application Error
+            </h2>
+            <p style={{
+              color: '#666',
+              marginBottom: '1.5rem'
+            }}>
+              Something went wrong with the application. Please try again.
             </p>
             {error.digest && (
-              <p
-                style={{
-                  fontSize: '12px',
-                  color: '#9ca3af',
-                  margin: '0 0 24px',
-                }}
-              >
-                Error ID:{' '}
-                <code
-                  style={{
-                    backgroundColor: '#f3f4f6',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                  }}
-                >
-                  {error.digest}
-                </code>
+              <p style={{ fontSize: '0.875rem', color: '#999', marginBottom: '1.5rem' }}>
+                Error ID: {error.digest}
               </p>
             )}
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-              }}
-            >
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
               <button
                 onClick={reset}
                 style={{
-                  padding: '10px 20px',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  color: '#ffffff',
-                  backgroundColor: '#111827',
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#000',
+                  color: '#fff',
                   border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  width: '100%',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer'
                 }}
               >
                 Try Again
               </button>
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => window.location.href = '/'}
                 style={{
-                  padding: '10px 20px',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  color: '#374151',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  width: '100%',
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#f3f4f6',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer'
                 }}
               >
-                Reload Page
+                Go Home
               </button>
             </div>
           </div>
