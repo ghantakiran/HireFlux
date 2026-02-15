@@ -4,8 +4,11 @@ import { CardSkeleton } from '@/components/ui/skeleton-templates';
 export default function TemplatesLoading() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
-      <Skeleton className="h-8 w-40" />
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Header */}
+      <Skeleton className="h-8 w-48" />
+
+      {/* 4× CardSkeleton in 2-col grid */}
+      <div className="grid gap-6 md:grid-cols-2">
         <CardSkeleton />
         <CardSkeleton />
         <CardSkeleton />

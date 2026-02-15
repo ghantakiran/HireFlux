@@ -5,7 +5,11 @@ import { StatsRowSkeleton } from '@/components/skeletons/stats-skeleton';
 export default function AnalyticsLoading() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
-      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-9 w-32 mb-6" />
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-5 w-96" />
+      </div>
       <StatsRowSkeleton count={4} />
       <div className="grid gap-6 md:grid-cols-2">
         <CardSkeleton />
