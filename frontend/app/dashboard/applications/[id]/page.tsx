@@ -57,6 +57,8 @@ import {
   type ApplicationDetail,
 } from '@/lib/stores/application-store';
 import { toast } from 'sonner';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function ApplicationDetailPage() {
   const params = useParams();
@@ -74,12 +76,17 @@ export default function ApplicationDetailPage() {
   } = useApplicationStore();
 
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<ApplicationStatus>('saved');
   const [notes, setNotes] = useState('');
   const [updating, setUpdating] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+
+  const deleteDialog = useConfirmDialog({
+    onConfirm: async (id) => { await deleteApplication(id); },
+    onSuccess: () => router.push('/dashboard/applications'),
+    successMessage: 'Application deleted',
+    errorMessage: 'Failed to delete application. Please try again.',
+  });
 
   useEffect(() => {
     if (applicationId) {
@@ -121,19 +128,6 @@ export default function ApplicationDetailPage() {
       toast.error('Failed to update application. Please try again.');
     } finally {
       setUpdating(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      setDeleting(true);
-      await deleteApplication(applicationId);
-      toast.success('Application deleted');
-      router.push('/dashboard/applications');
-    } catch (err) {
-      toast.error('Failed to delete application. Please try again.');
-    } finally {
-      setDeleting(false);
     }
   };
 
@@ -278,7 +272,7 @@ export default function ApplicationDetailPage() {
           )}
           <Button
             variant="outline"
-            onClick={() => setDeleteDialogOpen(true)}
+            onClick={() => deleteDialog.open(applicationId)}
             className="text-red-600 hover:text-red-700"
           >
             <Trash2 className="mr-2 h-4 w-4" />
@@ -700,40 +694,14 @@ export default function ApplicationDetailPage() {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Application</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this application? This action cannot be
-              undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-              disabled={deleting}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deleting}
-            >
-              {deleting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={deleteDialog.isOpen}
+        onOpenChange={() => deleteDialog.close()}
+        title="Delete Application"
+        description="Are you sure you want to delete this application? This action cannot be undone."
+        isConfirming={deleteDialog.isConfirming}
+        onConfirm={deleteDialog.confirm}
+      />
     </div>
   );
 }

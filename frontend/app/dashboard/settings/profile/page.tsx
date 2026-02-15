@@ -11,7 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { TagInput } from "@/components/ui/tag-input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { candidateProfileApi } from '@/lib/api';
 import { candidateProfileSchema, portfolioItemSchema } from '@/lib/validations/candidate';
 import { useRouter } from 'next/navigation';
@@ -62,9 +63,26 @@ export default function ProfileSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [hasProfile, setHasProfile] = useState(false);
   const [showVisibilityDialog, setShowVisibilityDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showPortfolioDialog, setShowPortfolioDialog] = useState(false);
-  const [portfolioFormIndex, setPortfolioFormIndex] = useState<number | null>(null);
+
+  // Separate dialogs for delete profile vs remove portfolio item
+  const deleteProfileDialog = useConfirmDialog({
+    onConfirm: async () => {
+      await candidateProfileApi.delete();
+    },
+    onSuccess: () => router.push('/dashboard'),
+    successMessage: 'Profile deleted',
+    errorMessage: 'Failed to delete profile. Please try again.',
+  });
+
+  const removePortfolioDialog = useConfirmDialog({
+    onConfirm: async (indexStr) => {
+      await candidateProfileApi.removePortfolioItem(parseInt(indexStr, 10));
+      await loadProfile();
+    },
+    successMessage: 'Portfolio item removed',
+    errorMessage: 'Failed to remove portfolio item. Please try again.',
+  });
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Form state
@@ -248,33 +266,6 @@ export default function ProfileSettingsPage() {
       console.error('Failed to add portfolio item:', error);
       setMessage({ type: 'error', text: 'Failed to add portfolio item' });
       toast.error('Failed to add portfolio item. Please try again.');
-    }
-  };
-
-  const handleRemovePortfolioItem = async (index: number) => {
-    try {
-      await candidateProfileApi.removePortfolioItem(index);
-      setMessage({ type: 'success', text: 'Portfolio item removed' });
-      toast.success('Portfolio item removed');
-      await loadProfile();
-    } catch (error: any) {
-      console.error('Failed to remove portfolio item:', error);
-      setMessage({ type: 'error', text: 'Failed to remove portfolio item' });
-      toast.error('Failed to remove portfolio item. Please try again.');
-    }
-  };
-
-  const handleDeleteProfile = async () => {
-    try {
-      await candidateProfileApi.delete();
-      setMessage({ type: 'success', text: 'Profile deleted' });
-      toast.success('Profile deleted');
-      setShowDeleteDialog(false);
-      router.push('/dashboard');
-    } catch (error: any) {
-      console.error('Failed to delete profile:', error);
-      setMessage({ type: 'error', text: 'Failed to delete profile' });
-      toast.error('Failed to delete profile. Please try again.');
     }
   };
 
@@ -576,10 +567,7 @@ export default function ProfileSettingsPage() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => {
-                        setPortfolioFormIndex(index);
-                        setShowDeleteDialog(true);
-                      }}
+                      onClick={() => removePortfolioDialog.open(String(index))}
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -664,7 +652,7 @@ export default function ProfileSettingsPage() {
               <Button
                 type="button"
                 variant="destructive"
-                onClick={() => setShowDeleteDialog(true)}
+                onClick={() => deleteProfileDialog.open('profile')}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete Profile
@@ -778,23 +766,27 @@ export default function ProfileSettingsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your candidate profile and all associated data.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={portfolioFormIndex !== null ? () => handleRemovePortfolioItem(portfolioFormIndex) : handleDeleteProfile}>
-              Confirm Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Delete Profile Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteProfileDialog.isOpen}
+        onOpenChange={() => deleteProfileDialog.close()}
+        title="Delete Profile"
+        description="This action cannot be undone. This will permanently delete your candidate profile and all associated data."
+        confirmLabel="Delete"
+        isConfirming={deleteProfileDialog.isConfirming}
+        onConfirm={deleteProfileDialog.confirm}
+      />
+
+      {/* Remove Portfolio Item Confirmation Dialog */}
+      <ConfirmDialog
+        open={removePortfolioDialog.isOpen}
+        onOpenChange={() => removePortfolioDialog.close()}
+        title="Remove Portfolio Item"
+        description="Are you sure you want to remove this portfolio item?"
+        confirmLabel="Remove"
+        isConfirming={removePortfolioDialog.isConfirming}
+        onConfirm={removePortfolioDialog.confirm}
+      />
     </div>
   );
 }

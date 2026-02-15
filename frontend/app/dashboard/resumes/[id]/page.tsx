@@ -29,16 +29,8 @@ import {
   Linkedin,
   Globe,
 } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function ResumeDetailPage() {
   const router = useRouter();
@@ -57,8 +49,10 @@ export default function ResumeDetailPage() {
     clearCurrentResume,
   } = useResumeStore();
 
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const deleteDialog = useConfirmDialog({
+    onConfirm: async (id) => { await deleteResume(id); },
+    onSuccess: () => router.push('/dashboard/resumes'),
+  });
 
   useEffect(() => {
     if (resumeId) {
@@ -91,16 +85,6 @@ export default function ResumeDetailPage() {
       await setDefaultResume(resumeId);
     } catch (err) {
       // Error handled by store
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      setDeleting(true);
-      await deleteResume(resumeId);
-      router.push('/dashboard/resumes');
-    } catch (err) {
-      setDeleting(false);
     }
   };
 
@@ -198,7 +182,7 @@ export default function ResumeDetailPage() {
             </Button>
             <Button
               variant="outline"
-              onClick={() => setShowDeleteDialog(true)}
+              onClick={() => deleteDialog.open(resumeId)}
               className="text-red-600 hover:text-red-700"
             >
               <Trash2 className="mr-2 h-4 w-4" />
@@ -572,34 +556,14 @@ export default function ResumeDetailPage() {
       )}
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Resume</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{resume.file_name}"? This action cannot be
-              undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {deleting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete'
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={deleteDialog.isOpen}
+        onOpenChange={() => deleteDialog.close()}
+        title="Delete Resume"
+        description={`Are you sure you want to delete "${resume.file_name}"? This action cannot be undone.`}
+        isConfirming={deleteDialog.isConfirming}
+        onConfirm={deleteDialog.confirm}
+      />
     </div>
   );
 }

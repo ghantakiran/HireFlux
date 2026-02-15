@@ -31,16 +31,8 @@ import { EmptyState } from '@/components/domain/EmptyState';
 import { toast } from 'sonner';
 import TemplateCard from '@/components/employer/TemplateCard';
 import TemplatePreviewModal from '@/components/employer/TemplatePreviewModal';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Pagination } from '@/components/ui/pagination';
 import { usePagination } from '@/hooks/usePagination';
 
@@ -62,9 +54,15 @@ export default function TemplatesPage() {
   const [previewTemplate, setPreviewTemplate] = useState<JobTemplate | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  // Delete template dialog state
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [templateToDelete, setTemplateToDelete] = useState<JobTemplate | null>(null);
+  // Delete template confirmation
+  const deleteDialog = useConfirmDialog({
+    onConfirm: async (id) => {
+      await deleteJobTemplate(id);
+      await fetchTemplates();
+    },
+    successMessage: 'Template deleted',
+    errorMessage: 'Failed to delete template. Please try again.',
+  });
 
   // Company ID (from user context - simplified for now)
   const [companyId] = useState('current-company-id'); // TODO: Get from auth context
@@ -142,29 +140,6 @@ export default function TemplatesPage() {
   function handleEdit(template: JobTemplate) {
     // TODO: Navigate to edit template page
     router.push(`/employer/templates/${template.id}/edit`);
-  }
-
-  // Handle delete template
-  function handleDeleteClick(template: JobTemplate) {
-    setTemplateToDelete(template);
-    setDeleteDialogOpen(true);
-  }
-
-  async function handleDeleteConfirm() {
-    if (!templateToDelete) return;
-
-    try {
-      await deleteJobTemplate(templateToDelete.id);
-      // Refresh templates list
-      await fetchTemplates();
-      toast.success('Template deleted');
-    } catch (err) {
-      const error = err as TemplateError;
-      toast.error('Failed to update template. Please try again.');
-    } finally {
-      setDeleteDialogOpen(false);
-      setTemplateToDelete(null);
-    }
   }
 
   return (
@@ -328,7 +303,7 @@ export default function TemplatesPage() {
                 onPreview={handlePreview}
                 onUse={handleUseTemplate}
                 onEdit={handleEdit}
-                onDelete={handleDeleteClick}
+                onDelete={(template) => deleteDialog.open(template.id)}
               />
             ))}
           </div>
@@ -358,22 +333,14 @@ export default function TemplatesPage() {
       />
 
       {/* Delete Template Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Template</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete &quot;{templateToDelete?.name}&quot;? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={deleteDialog.isOpen}
+        onOpenChange={() => deleteDialog.close()}
+        title="Delete Template"
+        description={`Are you sure you want to delete "${templates.find(t => t.id === deleteDialog.itemId)?.name || ''}"? This action cannot be undone.`}
+        isConfirming={deleteDialog.isConfirming}
+        onConfirm={deleteDialog.confirm}
+      />
     </div>
   );
 }

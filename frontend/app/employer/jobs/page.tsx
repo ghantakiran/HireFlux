@@ -51,16 +51,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { EmptyState } from '@/components/domain/EmptyState';
 import { Pagination } from '@/components/ui/pagination';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 // Import API client and types
 import {
@@ -131,8 +123,14 @@ export default function EmployerJobsPage() {
   });
 
   // Delete confirmation
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [jobToDelete, setJobToDelete] = useState<Job | null>(null);
+  const deleteDialog = useConfirmDialog({
+    onConfirm: async (id) => {
+      await apiDeleteJob(id);
+      fetchJobs();
+    },
+    successMessage: 'Job deleted',
+    errorMessage: 'Failed to delete job. Please try again.',
+  });
 
   // Duplicate job
   const duplicateJob = (job: Job) => {
@@ -211,23 +209,6 @@ export default function EmployerJobsPage() {
       toast.success('Job status updated');
     } catch (err) {
       console.error('Status update error:', err);
-      toast.error('Failed to update job. Please try again.');
-    }
-  };
-
-  // Delete job
-  const deleteJobHandler = async () => {
-    if (!jobToDelete) return;
-
-    try {
-      await apiDeleteJob(jobToDelete.id);
-      // Refresh job list
-      fetchJobs();
-      setDeleteDialogOpen(false);
-      setJobToDelete(null);
-      toast.success('Job deleted');
-    } catch (err) {
-      console.error('Delete error:', err);
       toast.error('Failed to update job. Please try again.');
     }
   };
@@ -599,10 +580,7 @@ export default function EmployerJobsPage() {
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            onClick={() => {
-                              setJobToDelete(job);
-                              setDeleteDialogOpen(true);
-                            }}
+                            onClick={() => deleteDialog.open(job.id)}
                             className="text-red-600 dark:text-red-400"
                             data-delete-option
                           >
@@ -628,26 +606,14 @@ export default function EmployerJobsPage() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Job Posting</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{jobToDelete?.title}"? This action cannot be
-              undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={deleteJobHandler}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={deleteDialog.isOpen}
+        onOpenChange={() => deleteDialog.close()}
+        title="Delete Job Posting"
+        description={`Are you sure you want to delete "${jobs.find(j => j.id === deleteDialog.itemId)?.title || ''}"? This action cannot be undone.`}
+        isConfirming={deleteDialog.isConfirming}
+        onConfirm={deleteDialog.confirm}
+      />
     </div>
   );
 }

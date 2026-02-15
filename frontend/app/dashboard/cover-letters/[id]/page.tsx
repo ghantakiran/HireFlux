@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,14 +11,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import {
   ArrowLeft,
   Edit,
@@ -58,8 +52,12 @@ export default function CoverLetterDetailPage() {
 
   const { resumes, fetchResumes } = useResumeStore();
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const deleteDialog = useConfirmDialog({
+    onConfirm: async (id) => { await deleteCoverLetter(id); },
+    onSuccess: () => router.push('/dashboard/cover-letters'),
+    successMessage: 'Cover letter deleted',
+    errorMessage: 'Failed to delete cover letter. Please try again.',
+  });
 
   // Fetch cover letter and resumes on mount
   useEffect(() => {
@@ -78,18 +76,6 @@ export default function CoverLetterDetailPage() {
   const handleDownload = () => {
     // TODO: Implement download functionality
     alert('Download functionality coming soon!');
-  };
-
-  const handleDelete = async () => {
-    try {
-      setIsDeleting(true);
-      await deleteCoverLetter(id);
-      toast.success('Cover letter deleted');
-      router.push('/dashboard/cover-letters');
-    } catch (err) {
-      toast.error('Failed to delete cover letter. Please try again.');
-      setIsDeleting(false);
-    }
   };
 
   const handleUseInApplication = () => {
@@ -221,7 +207,7 @@ export default function CoverLetterDetailPage() {
             </Button>
             <Button
               variant="outline"
-              onClick={() => setDeleteDialogOpen(true)}
+              onClick={() => deleteDialog.open(id)}
               className="text-red-600 hover:text-red-700"
             >
               <Trash2 className="mr-2 h-4 w-4" />
@@ -431,35 +417,14 @@ export default function CoverLetterDetailPage() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Cover Letter</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this cover letter? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-              disabled={isDeleting}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
-              {isDeleting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={deleteDialog.isOpen}
+        onOpenChange={() => deleteDialog.close()}
+        title="Delete Cover Letter"
+        description="Are you sure you want to delete this cover letter? This action cannot be undone."
+        isConfirming={deleteDialog.isConfirming}
+        onConfirm={deleteDialog.confirm}
+      />
     </div>
   );
 }

@@ -10,14 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Badge } from '@/components/ui/badge';
 import { useResumeStore, ParseStatus } from '@/lib/stores/resume-store';
 import {
@@ -119,9 +113,11 @@ export default function ResumesPage() {
     pageInfo,
   } = usePagination({ items: sortedResumes, itemsPerPage: 12 });
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [resumeToDelete, setResumeToDelete] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const deleteDialog = useConfirmDialog({
+    onConfirm: async (id) => { await deleteResume(id); },
+    successMessage: 'Resume deleted successfully',
+    errorMessage: 'Failed to delete resume. Please try again.',
+  });
 
   useEffect(() => {
     fetchResumes();
@@ -137,29 +133,7 @@ export default function ResumesPage() {
 
   const handleDeleteClick = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setResumeToDelete(id);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!resumeToDelete) return;
-
-    try {
-      setDeletingId(resumeToDelete);
-      await deleteResume(resumeToDelete);
-      setDeleteDialogOpen(false);
-      setResumeToDelete(null);
-      toast.success('Resume deleted successfully');
-    } catch (err) {
-      toast.error('Failed to delete resume. Please try again.');
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const handleDeleteCancel = () => {
-    setDeleteDialogOpen(false);
-    setResumeToDelete(null);
+    deleteDialog.open(id);
   };
 
   const handleSetDefault = async (id: string, e: React.MouseEvent) => {
@@ -426,13 +400,8 @@ export default function ResumesPage() {
                       variant="ghost"
                       size="sm"
                       onClick={(e) => handleDeleteClick(resume.id, e)}
-                      disabled={deletingId === resume.id}
                     >
-                      {deletingId === resume.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
-                      )}
+                      <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
                     </Button>
                   </div>
                 </div>
@@ -451,35 +420,14 @@ export default function ResumesPage() {
       )}
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Resume</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this resume? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={handleDeleteCancel}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteConfirm}
-              disabled={!!deletingId}
-            >
-              {deletingId ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={deleteDialog.isOpen}
+        onOpenChange={() => deleteDialog.close()}
+        title="Delete Resume"
+        description="Are you sure you want to delete this resume? This action cannot be undone."
+        isConfirming={deleteDialog.isConfirming}
+        onConfirm={deleteDialog.confirm}
+      />
     </div>
   );
 }

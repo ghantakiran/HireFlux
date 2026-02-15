@@ -48,6 +48,8 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { AlertCircle, Copy, Key, Plus, Trash2, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { format } from 'date-fns';
 
 interface APIKey {
@@ -92,7 +94,18 @@ export default function APIKeysPage() {
   const queryClient = useQueryClient();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
-  const [keyToRevoke, setKeyToRevoke] = useState<string | null>(null);
+  // Revoke confirmation
+  const revokeDialog = useConfirmDialog({
+    onConfirm: async (keyId) => {
+      await apiKeyApi.revoke(keyId);
+      queryClient.invalidateQueries({ queryKey: ['apiKeys'] });
+    },
+    successMessage: 'API key revoked successfully',
+    onError: (error) => {
+      const detail = (error as any).response?.data?.detail;
+      toast.error(detail || 'Failed to revoke API key');
+    },
+  });
 
   // Form state for creating API key
   const [formData, setFormData] = useState<CreateAPIKeyData>({
@@ -144,18 +157,6 @@ export default function APIKeysPage() {
     },
   });
 
-  // Revoke API key mutation
-  const revokeMutation = useMutation({
-    mutationFn: (keyId: string) => apiKeyApi.revoke(keyId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['apiKeys'] });
-      setKeyToRevoke(null);
-      toast.success('API key revoked successfully');
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to revoke API key');
-    },
-  });
 
   const handleCreateKey = () => {
     createMutation.mutate(formData);
@@ -317,7 +318,7 @@ export default function APIKeysPage() {
                           variant="ghost"
                           size="sm"
                           disabled={key.status !== 'active'}
-                          onClick={() => setKeyToRevoke(key.id)}
+                          onClick={() => revokeDialog.open(key.id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -516,29 +517,15 @@ export default function APIKeysPage() {
       </Dialog>
 
       {/* Revoke Confirmation Dialog */}
-      <Dialog open={!!keyToRevoke} onOpenChange={() => setKeyToRevoke(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Revoke API Key?</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. The API key will be permanently revoked
-              and will no longer work.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setKeyToRevoke(null)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => keyToRevoke && revokeMutation.mutate(keyToRevoke)}
-              disabled={revokeMutation.isPending}
-            >
-              {revokeMutation.isPending ? 'Revoking...' : 'Revoke Key'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={revokeDialog.isOpen}
+        onOpenChange={() => revokeDialog.close()}
+        title="Revoke API Key?"
+        description="This action cannot be undone. The API key will be permanently revoked and will no longer work."
+        confirmLabel="Revoke Key"
+        isConfirming={revokeDialog.isConfirming}
+        onConfirm={revokeDialog.confirm}
+      />
     </div>
   );
 }

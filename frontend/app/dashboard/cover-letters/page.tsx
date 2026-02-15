@@ -14,14 +14,8 @@ import { Badge } from '@/components/ui/badge';
 import { SearchInput } from '@/components/ui/search-input';
 import { FilterBar } from '@/components/ui/filter-bar';
 import { useSearch } from '@/hooks/useSearch';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import {
   Plus,
   FileText,
@@ -88,9 +82,12 @@ export default function CoverLettersPage() {
 
   const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, clearSearch } = useSearch();
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedCoverLetter, setSelectedCoverLetter] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const deleteDialog = useConfirmDialog({
+    onConfirm: async (id) => {
+      await deleteCoverLetter(id);
+      await fetchStats();
+    },
+  });
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -119,27 +116,6 @@ export default function CoverLettersPage() {
 
   const handlePageChange = (newPage: number) => {
     fetchCoverLetters({ page: newPage });
-  };
-
-  const handleDelete = async () => {
-    if (!selectedCoverLetter) return;
-
-    try {
-      setDeletingId(selectedCoverLetter);
-      await deleteCoverLetter(selectedCoverLetter);
-      setDeleteDialogOpen(false);
-      setSelectedCoverLetter(null);
-      await fetchStats(); // Refresh stats
-    } catch (err) {
-      // Error handled by store
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const openDeleteDialog = (id: string) => {
-    setSelectedCoverLetter(id);
-    setDeleteDialogOpen(true);
   };
 
   const handleDownload = async (id: string, format: 'pdf' | 'docx') => {
@@ -499,7 +475,7 @@ export default function CoverLettersPage() {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      openDeleteDialog(coverLetter.id);
+                      deleteDialog.open(coverLetter.id);
                     }}
                     className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   >
@@ -523,40 +499,14 @@ export default function CoverLettersPage() {
       />
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Cover Letter</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this cover letter? This action cannot be
-              undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-              disabled={deletingId !== null}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deletingId !== null}
-            >
-              {deletingId ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={deleteDialog.isOpen}
+        onOpenChange={() => deleteDialog.close()}
+        title="Delete Cover Letter"
+        description="Are you sure you want to delete this cover letter? This action cannot be undone."
+        isConfirming={deleteDialog.isConfirming}
+        onConfirm={deleteDialog.confirm}
+      />
     </div>
   );
 }
