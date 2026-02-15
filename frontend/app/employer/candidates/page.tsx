@@ -22,6 +22,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { EmptyState } from '@/components/domain/EmptyState';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { titleCase } from '@/lib/utils';
 
 interface CandidateProfile {
   id: string;
@@ -298,7 +299,7 @@ export default function CandidateSearchPage() {
                         }}
                       />
                       <Label htmlFor={`exp-${level}`} className="font-normal">
-                        {level.charAt(0).toUpperCase() + level.slice(1)}
+                        {titleCase(level)}
                       </Label>
                     </div>
                   ))}
@@ -365,7 +366,7 @@ export default function CandidateSearchPage() {
                     <SelectItem value="">Any</SelectItem>
                     {LOCATION_TYPES.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                        {titleCase(type)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -421,7 +422,7 @@ export default function CandidateSearchPage() {
                         }}
                       />
                       <Label htmlFor={`avail-${status}`} className="font-normal">
-                        {status.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                        {titleCase(status)}
                       </Label>
                     </div>
                   ))}

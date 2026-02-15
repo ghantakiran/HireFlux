@@ -12,6 +12,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Clock, FileText } from 'lucide-react';
 import { CodeExecutionResults } from '@/components/assessment/CodeExecutionResults';
+import { formatDuration } from '@/lib/utils';
 
 interface AssessmentResult {
   id: string;
@@ -141,12 +142,6 @@ export default function AssessmentResultsPage() {
     loadResults();
   }, [assessmentId]);
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}m ${secs}s`;
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -227,7 +222,7 @@ export default function AssessmentResultsPage() {
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 text-blue-600 mb-1">
                   <Clock className="w-5 h-5" />
-                  <span className="text-2xl font-bold">{formatTime(results.timeSpent)}</span>
+                  <span className="text-2xl font-bold">{formatDuration(results.timeSpent)}</span>
                 </div>
                 <p className="text-sm text-gray-600">Time Spent</p>
               </div>

@@ -64,6 +64,7 @@ import {
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { Pagination } from '@/components/ui/pagination';
 import { usePagination } from '@/hooks/usePagination';
+import { titleCase } from '@/lib/utils';
 
 // Types
 interface Interview {
@@ -409,12 +410,6 @@ export default function InterviewSchedulingPage() {
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
 
-  const formatInterviewType = (type: string) => {
-    return type.split('_').map(word =>
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
-  };
-
   const formatDateTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return {
@@ -521,7 +516,7 @@ export default function InterviewSchedulingPage() {
                           <TableCell>{interview.job_title}</TableCell>
                           <TableCell className="hidden lg:table-cell">
                             <Badge className="bg-purple-100 text-purple-800">
-                              {formatInterviewType(interview.interview_type)}
+                              {titleCase(interview.interview_type)}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -619,7 +614,7 @@ export default function InterviewSchedulingPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            {formatInterviewType(interview.interview_type)}
+                            {titleCase(interview.interview_type)}
                           </TableCell>
                           <TableCell className="hidden md:table-cell">Round {interview.interview_round}</TableCell>
                           <TableCell>
@@ -704,7 +699,7 @@ export default function InterviewSchedulingPage() {
                             <h3 className="font-semibold">{interview.candidate_name}</h3>
                             <p className="text-sm text-gray-600">{interview.job_title}</p>
                             <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                              <span>{formatInterviewType(interview.interview_type)}</span>
+                              <span>{titleCase(interview.interview_type)}</span>
                               <span>Round {interview.interview_round}</span>
                               <span>{formatDateTime(interview.scheduled_at).date}</span>
                             </div>

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { Avatar } from '@/components/ui/optimized-image';
 import { NoActivityEmptyState } from '@/components/ui/empty-state';
+import { formatDateTime } from '@/lib/utils';
 
 // Types
 interface HealthScore {
@@ -636,7 +637,7 @@ export default function DashboardPage() {
                       <p className="font-medium text-gray-900 dark:text-gray-100">{activity.title}</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{activity.description}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-2" data-testid="timestamp">
-                        {new Date(activity.timestamp).toLocaleString()}
+                        {formatDateTime(activity.timestamp)}
                       </p>
                     </div>
                   </div>

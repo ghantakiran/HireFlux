@@ -18,6 +18,7 @@ import { candidateProfileSchema, portfolioItemSchema } from '@/lib/validations/c
 import { useRouter } from 'next/navigation';
 import { Loader2, Eye, EyeOff, Trash2, Plus, X, Github, Globe, FileText, Briefcase } from 'lucide-react';
 import { toast } from 'sonner';
+import { titleCase } from '@/lib/utils';
 
 interface PortfolioItem {
   type: 'github' | 'website' | 'article' | 'project';
@@ -388,7 +389,7 @@ export default function ProfileSettingsPage() {
                   <SelectContent>
                     {EXPERIENCE_LEVELS.map((level) => (
                       <SelectItem key={level} value={level}>
-                        {level.charAt(0).toUpperCase() + level.slice(1)}
+                        {titleCase(level)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -450,7 +451,7 @@ export default function ProfileSettingsPage() {
                 <SelectContent>
                   {LOCATION_TYPES.map((type) => (
                     <SelectItem key={type} value={type}>
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                      {titleCase(type)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -487,7 +488,7 @@ export default function ProfileSettingsPage() {
                 <SelectContent>
                   {AVAILABILITY_STATUSES.map((status) => (
                     <SelectItem key={status} value={status}>
-                      {status.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                      {titleCase(status)}
                     </SelectItem>
                   ))}
                 </SelectContent>

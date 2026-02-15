@@ -60,6 +60,7 @@ import {
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { EmptyState } from '@/components/domain/EmptyState';
 import { toast } from 'sonner';
+import { titleCase, formatRelativeTime, formatDate } from '@/lib/utils';
 
 // Types
 interface TeamMember {
@@ -325,26 +326,6 @@ export default function TeamManagementPage() {
     return colors[role] || 'bg-gray-100 text-gray-800';
   };
 
-  const formatRole = (role: string) => {
-    return role.split('_').map(word =>
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
-  };
-
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
-
   const canManageTeam = permissions?.permissions?.manage_team ?? false;
 
   if (loading && members.length === 0) {
@@ -447,7 +428,7 @@ export default function TeamManagementPage() {
                         <TableCell className="hidden md:table-cell">{member.email}</TableCell>
                         <TableCell>
                           <Badge className={getRoleBadgeColor(member.role)}>
-                            {formatRole(member.role)}
+                            {titleCase(member.role)}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -459,11 +440,11 @@ export default function TeamManagementPage() {
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
                           {member.last_active_at
-                            ? formatTimestamp(member.last_active_at)
+                            ? formatRelativeTime(member.last_active_at)
                             : 'Never'}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {new Date(member.joined_at).toLocaleDateString()}
+                          {formatDate(member.joined_at)}
                         </TableCell>
                         {canManageTeam && member.role !== 'owner' && (
                           <TableCell className="text-right">
@@ -554,11 +535,11 @@ export default function TeamManagementPage() {
                         <TableCell className="font-medium">{invitation.email}</TableCell>
                         <TableCell>
                           <Badge className={getRoleBadgeColor(invitation.role)}>
-                            {formatRole(invitation.role)}
+                            {titleCase(invitation.role)}
                           </Badge>
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {new Date(invitation.expires_at).toLocaleDateString()}
+                          {formatDate(invitation.expires_at)}
                         </TableCell>
                         <TableCell>
                           <Badge className="bg-yellow-100 text-yellow-800">
@@ -646,7 +627,7 @@ export default function TeamManagementPage() {
                         <p className="text-sm text-gray-600">{activity.description}</p>
                         <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
                           <Clock className="h-3 w-3" />
-                          {formatTimestamp(activity.created_at)}
+                          {formatRelativeTime(activity.created_at)}
                         </div>
                       </div>
                     </div>

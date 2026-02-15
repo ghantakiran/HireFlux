@@ -27,6 +27,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { candidateAssessmentApi, ApiResponse } from '@/lib/api';
 import { toast } from 'sonner';
+import { formatDateTime, formatDuration } from '@/lib/utils';
 
 interface QuestionResult {
   id: string;
@@ -230,12 +231,6 @@ export default function AssessmentResultsPage() {
     );
   }
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}m ${secs}s`;
-  };
-
   const getScoreColor = (percentage: number) => {
     if (percentage >= 90) return 'text-green-600 dark:text-green-400';
     if (percentage >= 70) return 'text-blue-600 dark:text-blue-400';
@@ -319,7 +314,7 @@ export default function AssessmentResultsPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{results.assessment_title}</h2>
-              <p className="text-gray-600 dark:text-gray-400">Submitted {new Date(results.submitted_at).toLocaleString()}</p>
+              <p className="text-gray-600 dark:text-gray-400">Submitted {formatDateTime(results.submitted_at)}</p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" className="flex items-center gap-2">
@@ -487,7 +482,7 @@ export default function AssessmentResultsPage() {
                         </span>
                         <span className="text-sm text-gray-500 dark:text-gray-400">•</span>
                         <Clock className="w-3 h-3 text-gray-400" />
-                        <span className="text-sm text-gray-500 dark:text-gray-400">{formatTime(question.time_spent_seconds)}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">{formatDuration(question.time_spent_seconds)}</span>
                       </div>
                       <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">{question.question_text}</p>
 

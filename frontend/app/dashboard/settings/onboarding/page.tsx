@@ -35,6 +35,7 @@ import { useTour } from '@/components/tours/tour-provider';
 import { tourRegistry } from '@/lib/tours/tour-registry';
 import { TourConfig, TourProgress } from '@/lib/tours/types';
 import { toast } from 'sonner';
+import { formatDate } from '@/lib/utils';
 
 export default function OnboardingSettingsPage() {
   const {
@@ -233,7 +234,7 @@ export default function OnboardingSettingsPage() {
                 <p className="text-sm text-gray-600">Last Completed</p>
                 <p className="text-sm font-medium text-gray-900">
                   {stats.lastCompleted
-                    ? new Date(stats.lastCompleted).toLocaleDateString()
+                    ? formatDate(stats.lastCompleted)
                     : 'Never'}
                 </p>
               </div>

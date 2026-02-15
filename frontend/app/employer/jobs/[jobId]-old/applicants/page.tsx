@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { atsApi } from '@/lib/api';
 import CandidateDetailModal from '@/components/employer/CandidateDetailModal';
+import { formatDate } from '@/lib/utils';
 
 // Types
 interface Application {
@@ -358,7 +359,7 @@ export default function ApplicantsPage() {
                       <StatusBadge status={app.status} />
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {new Date(app.applied_at).toLocaleDateString()}
+                      {formatDate(app.applied_at)}
                     </td>
                     <td className="px-6 py-4">
                       <button

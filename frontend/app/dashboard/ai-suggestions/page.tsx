@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { titleCase } from '@/lib/utils';
 import {
   Lightbulb,
   TrendingUp,
@@ -760,7 +761,7 @@ export default function AISuggestionsPage() {
                     size="sm"
                     onClick={() => setActiveCategory(category)}
                   >
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                    {titleCase(category)}
                     <Badge variant="secondary" className="ml-2">
                       {getCategoryCount(category)}
                     </Badge>

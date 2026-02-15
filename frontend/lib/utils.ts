@@ -127,3 +127,23 @@ export function debounce<T extends (...args: any[]) => any>(
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+/**
+ * Convert a snake_case or lowercase string to Title Case
+ * e.g., "hiring_manager" → "Hiring Manager", "admin" → "Admin"
+ */
+export function titleCase(str: string): string {
+  return str
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
+ * Format a duration in seconds to a human-readable string (e.g., "5m 30s")
+ */
+export function formatDuration(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}m ${secs}s`;
+}

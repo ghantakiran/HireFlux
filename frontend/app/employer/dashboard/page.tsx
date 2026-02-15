@@ -31,6 +31,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatDateTime } from '@/lib/utils';
 
 // Types
 interface DashboardStats {
@@ -507,7 +508,7 @@ export default function EmployerDashboardPage() {
                     <div className="flex-1">
                       <p className="text-sm font-medium">{event.description}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {new Date(event.timestamp).toLocaleString()}
+                        {formatDateTime(event.timestamp)}
                       </p>
                     </div>
                   </div>
