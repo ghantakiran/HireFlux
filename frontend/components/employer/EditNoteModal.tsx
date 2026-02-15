@@ -11,12 +11,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { applicationNoteSchema, ApplicationNoteFormData } from '@/lib/validations/notes';
 import { X, Clock } from 'lucide-react';
 import {
   ApplicationNote,
   updateApplicationNote,
   UpdateNoteRequest,
-  validateNoteContent,
   getRemainingEditTime,
   formatRemainingTime,
   NoteError,
@@ -33,15 +35,29 @@ export default function EditNoteModal({
   onClose,
   onNoteUpdated,
 }: EditNoteModalProps) {
-  const [content, setContent] = useState(note.content);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isValid },
+  } = useForm<ApplicationNoteFormData>({
+    resolver: zodResolver(applicationNoteSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      content: note.content,
+      type: 'note',
+    },
+  });
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [remainingTime, setRemainingTime] = useState(
     getRemainingEditTime(note.created_at)
   );
 
-  const validation = validateNoteContent(content);
-  const charCount = content.length;
+  const content = watch('content');
+  const charCount = content?.length || 0;
   const charLimit = 5000;
   const charRemaining = charLimit - charCount;
   const hasChanges = content !== note.content;
@@ -62,16 +78,9 @@ export default function EditNoteModal({
   }, [note.created_at]);
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onFormSubmit = handleSubmit(async (data) => {
     if (remainingTime <= 0) {
       setError('Edit window has expired. Cannot save changes.');
-      return;
-    }
-
-    if (!validation.valid) {
-      setError(validation.error || 'Invalid note content');
       return;
     }
 
@@ -85,7 +94,7 @@ export default function EditNoteModal({
       setError(null);
 
       const updateData: UpdateNoteRequest = {
-        content: content.trim(),
+        content: data.content.trim(),
       };
 
       const updatedNote = await updateApplicationNote(note.id, updateData);
@@ -104,7 +113,7 @@ export default function EditNoteModal({
     } finally {
       setSubmitting(false);
     }
-  };
+  });
 
   // Close on Escape key
   useEffect(() => {
@@ -127,7 +136,7 @@ export default function EditNoteModal({
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={onFormSubmit}>
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-3">
@@ -174,8 +183,7 @@ export default function EditNoteModal({
                 </label>
                 <textarea
                   id="edit-note-content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  {...register('content')}
                   placeholder="Note content..."
                   rows={6}
                   maxLength={charLimit}
@@ -200,6 +208,13 @@ export default function EditNoteModal({
                     <span className="text-xs text-blue-600 dark:text-blue-400">Unsaved changes</span>
                   )}
                 </div>
+
+                {/* Validation error */}
+                {errors.content && (
+                  <p className="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+                    {errors.content.message}
+                  </p>
+                )}
               </div>
 
               {/* Note metadata (read-only) */}
@@ -246,7 +261,7 @@ export default function EditNoteModal({
               <button
                 type="submit"
                 disabled={
-                  submitting || !validation.valid || !hasChanges || remainingTime <= 0
+                  submitting || !isValid || !hasChanges || remainingTime <= 0
                 }
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >

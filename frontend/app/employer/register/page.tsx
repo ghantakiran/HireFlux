@@ -15,25 +15,14 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Building2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { employerRegistrationSchema, EmployerRegistrationFormData } from '@/lib/validations/company';
 
 // ============================================================================
 // Types
 // ============================================================================
-
-interface FormData {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  agreeToTerms: boolean;
-}
-
-interface FormErrors {
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  terms?: string;
-}
 
 interface PasswordStrength {
   score: number; // 0-4
@@ -48,15 +37,25 @@ interface PasswordStrength {
 export default function EmployerRegisterPage() {
   const router = useRouter();
 
-  // Form state
-  const [formData, setFormData] = useState<FormData>({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    agreeToTerms: false,
+  // Form state via react-hook-form
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setError,
+    formState: { errors },
+  } = useForm<EmployerRegistrationFormData>({
+    resolver: zodResolver(employerRegistrationSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+      agreeToTerms: false as any,
+    },
   });
 
-  const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,101 +95,14 @@ export default function EmployerRegisterPage() {
     return { score, ...strengthMap[score] };
   };
 
-  const passwordStrength = calculatePasswordStrength(formData.password);
-
-  // ============================================================================
-  // Validation
-  // ============================================================================
-
-  const validateEmail = (email: string): string | undefined => {
-    if (!email) {
-      return 'Email is required';
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return 'Please enter a valid email address';
-    }
-    return undefined;
-  };
-
-  const validatePassword = (password: string): string | undefined => {
-    if (!password) {
-      return 'Password is required';
-    }
-    if (password.length < 8) {
-      return 'Password must be at least 8 characters';
-    }
-    if (!/[A-Z]/.test(password)) {
-      return 'Password must contain at least one uppercase letter';
-    }
-    if (!/[a-z]/.test(password)) {
-      return 'Password must contain at least one lowercase letter';
-    }
-    if (!/\d/.test(password)) {
-      return 'Password must contain at least one number';
-    }
-    return undefined;
-  };
-
-  const validateConfirmPassword = (password: string, confirmPassword: string): string | undefined => {
-    if (!confirmPassword) {
-      return 'Please confirm your password';
-    }
-    if (password !== confirmPassword) {
-      return 'Passwords do not match';
-    }
-    return undefined;
-  };
-
-  const validateTerms = (agreeToTerms: boolean): string | undefined => {
-    if (!agreeToTerms) {
-      return 'You must agree to the Terms of Service';
-    }
-    return undefined;
-  };
+  const watchedPassword = watch('password');
+  const passwordStrength = calculatePasswordStrength(watchedPassword);
 
   // ============================================================================
   // Handlers
   // ============================================================================
 
-  const handleEmailBlur = () => {
-    const error = validateEmail(formData.email);
-    setErrors(prev => ({ ...prev, email: error }));
-  };
-
-  const handlePasswordBlur = () => {
-    const error = validatePassword(formData.password);
-    setErrors(prev => ({ ...prev, password: error }));
-  };
-
-  const handleConfirmPasswordBlur = () => {
-    const error = validateConfirmPassword(formData.password, formData.confirmPassword);
-    setErrors(prev => ({ ...prev, confirmPassword: error }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate all fields
-    const emailError = validateEmail(formData.email);
-    const passwordError = validatePassword(formData.password);
-    const confirmPasswordError = validateConfirmPassword(formData.password, formData.confirmPassword);
-    const termsError = validateTerms(formData.agreeToTerms);
-
-    const newErrors: FormErrors = {
-      email: emailError,
-      password: passwordError,
-      confirmPassword: confirmPasswordError,
-      terms: termsError,
-    };
-
-    setErrors(newErrors);
-
-    // If any errors, don't submit
-    if (Object.values(newErrors).some(error => error !== undefined)) {
-      return;
-    }
-
+  const onFormSubmit = async (data: EmployerRegistrationFormData) => {
     // Mock API call
     setIsSubmitting(true);
 
@@ -199,8 +111,8 @@ export default function EmployerRegisterPage() {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Check for existing email (mock)
-      if (formData.email === 'existing@example.com') {
-        setErrors({ email: 'An account with this email already exists' });
+      if (data.email === 'existing@example.com') {
+        setError('email', { message: 'An account with this email already exists' });
         setIsSubmitting(false);
         return;
       }
@@ -210,10 +122,10 @@ export default function EmployerRegisterPage() {
 
       // Redirect to email verification page after 2 seconds
       setTimeout(() => {
-        router.push('/employer/verify-email?email=' + encodeURIComponent(formData.email));
+        router.push('/employer/verify-email?email=' + encodeURIComponent(data.email));
       }, 2000);
     } catch (error) {
-      setErrors({ email: 'An error occurred. Please try again.' });
+      setError('email', { message: 'An error occurred. Please try again.' });
       setIsSubmitting(false);
     }
   };
@@ -248,7 +160,7 @@ export default function EmployerRegisterPage() {
         )}
 
         {/* Registration Form */}
-        <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-lg p-8 space-y-6">
+        <form onSubmit={handleSubmit(onFormSubmit)} className="bg-white shadow-lg rounded-lg p-8 space-y-6">
           {/* Email Field */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -258,9 +170,7 @@ export default function EmployerRegisterPage() {
               id="email"
               type="email"
               data-email-input
-              value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-              onBlur={handleEmailBlur}
+              {...register('email')}
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                 errors.email ? 'border-red-500' : 'border-gray-300'
               }`}
@@ -270,7 +180,7 @@ export default function EmployerRegisterPage() {
             {errors.email && (
               <p data-email-error className="mt-1 text-sm text-red-600 flex items-center gap-1">
                 <AlertCircle className="w-4 h-4" />
-                {errors.email}
+                {errors.email.message}
               </p>
             )}
           </div>
@@ -285,9 +195,7 @@ export default function EmployerRegisterPage() {
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 data-password-input
-                value={formData.password}
-                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                onBlur={handlePasswordBlur}
+                {...register('password')}
                 className={`w-full px-4 py-2 pr-10 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                   errors.password ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -305,7 +213,7 @@ export default function EmployerRegisterPage() {
             </div>
 
             {/* Password Strength Indicator */}
-            {formData.password && (
+            {watchedPassword && (
               <div data-password-strength className="mt-2">
                 <div className="flex gap-1 mb-1">
                   {[1, 2, 3, 4].map((level) => (
@@ -328,11 +236,11 @@ export default function EmployerRegisterPage() {
             {errors.password && (
               <p data-password-error className="mt-1 text-sm text-red-600 flex items-center gap-1">
                 <AlertCircle className="w-4 h-4" />
-                {errors.password}
+                {errors.password.message}
               </p>
             )}
 
-            {!errors.password && formData.password && (
+            {!errors.password && watchedPassword && (
               <p className="mt-1 text-xs text-gray-500">
                 Must be at least 8 characters with uppercase, lowercase, and numbers
               </p>
@@ -349,9 +257,7 @@ export default function EmployerRegisterPage() {
                 id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
                 data-confirm-password-input
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                onBlur={handleConfirmPasswordBlur}
+                {...register('confirmPassword')}
                 className={`w-full px-4 py-2 pr-10 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                   errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -370,7 +276,7 @@ export default function EmployerRegisterPage() {
             {errors.confirmPassword && (
               <p data-confirm-password-error className="mt-1 text-sm text-red-600 flex items-center gap-1">
                 <AlertCircle className="w-4 h-4" />
-                {errors.confirmPassword}
+                {errors.confirmPassword.message}
               </p>
             )}
           </div>
@@ -381,10 +287,9 @@ export default function EmployerRegisterPage() {
               <input
                 type="checkbox"
                 data-terms-checkbox
-                checked={formData.agreeToTerms}
-                onChange={(e) => setFormData(prev => ({ ...prev, agreeToTerms: e.target.checked }))}
+                {...register('agreeToTerms')}
                 className={`mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 ${
-                  errors.terms ? 'border-red-500' : ''
+                  errors.agreeToTerms ? 'border-red-500' : ''
                 }`}
                 disabled={isSubmitting || !!successMessage}
               />
@@ -399,10 +304,10 @@ export default function EmployerRegisterPage() {
                 </Link>
               </span>
             </label>
-            {errors.terms && (
+            {errors.agreeToTerms && (
               <p data-terms-error className="mt-1 text-sm text-red-600 flex items-center gap-1 ml-7">
                 <AlertCircle className="w-4 h-4" />
-                {errors.terms}
+                {errors.agreeToTerms.message}
               </p>
             )}
           </div>

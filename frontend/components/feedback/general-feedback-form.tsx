@@ -6,6 +6,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { generalFeedbackSchema, GeneralFeedbackFormData } from '@/lib/validations/schemas';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -31,83 +34,58 @@ export interface GeneralFeedbackFormProps {
 }
 
 export function GeneralFeedbackForm({ onSubmit, onCancel }: GeneralFeedbackFormProps) {
-  const [formData, setFormData] = useState<Partial<GeneralFeedbackData>>({
-    rating: 0,
-    feedback: '',
-    category: 'user-experience',
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    trigger,
+    watch,
+    formState: { errors },
+  } = useForm<GeneralFeedbackFormData>({
+    resolver: zodResolver(generalFeedbackSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      rating: 0,
+      feedback: '',
+      category: 'user-experience',
+    },
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [hoveredStar, setHoveredStar] = useState(0);
 
-  const handleRatingClick = (rating: number) => {
-    setFormData((prev) => ({ ...prev, rating }));
-    if (errors.rating) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.rating;
-        return newErrors;
-      });
-    }
+  const currentRating = watch('rating');
+
+  const handleRatingClick = (star: number) => {
+    setValue('rating', star);
+    trigger('rating');
   };
 
-  const handleChange = (field: keyof GeneralFeedbackData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-  };
-
-  const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.rating || formData.rating < 1 || formData.rating > 5) {
-      newErrors.rating = 'Please select a rating';
-    }
-
-    if (!formData.feedback?.trim()) {
-      newErrors.feedback = 'Feedback is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validate()) {
-      return;
-    }
-
+  const onFormSubmit = handleSubmit(async (data) => {
     try {
       setIsSubmitting(true);
+      setSubmitError(null);
 
       const submitData: GeneralFeedbackData = {
-        rating: formData.rating!,
-        feedback: formData.feedback!,
-        category: formData.category || 'user-experience',
+        rating: data.rating,
+        feedback: data.feedback,
+        category: data.category,
       };
 
       await onSubmit(submitData);
     } catch (error) {
       console.error('Submit failed:', error);
-      setErrors((prev) => ({
-        ...prev,
-        submit: 'Failed to submit feedback. Please try again.',
-      }));
+      setSubmitError('Failed to submit feedback. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
-  };
+  });
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" data-testid="general-feedback-form" data-general-feedback-form>
+    <form onSubmit={onFormSubmit} className="space-y-4" data-testid="general-feedback-form" data-general-feedback-form>
       {/* Rating */}
       <div>
         <Label>
@@ -127,7 +105,7 @@ export function GeneralFeedbackForm({ onSubmit, onCancel }: GeneralFeedbackFormP
             >
               <Star
                 className={`h-8 w-8 transition-colors ${
-                  star <= (hoveredStar || formData.rating || 0)
+                  star <= (hoveredStar || currentRating || 0)
                     ? 'fill-yellow-400 text-yellow-400'
                     : 'text-gray-300'
                 }`}
@@ -135,16 +113,16 @@ export function GeneralFeedbackForm({ onSubmit, onCancel }: GeneralFeedbackFormP
             </button>
           ))}
         </div>
-        {formData.rating && formData.rating > 0 && (
+        {currentRating && currentRating > 0 && (
           <p className="text-sm text-muted-foreground mt-1">
-            {formData.rating === 5 && 'Excellent!'}
-            {formData.rating === 4 && 'Good'}
-            {formData.rating === 3 && 'Average'}
-            {formData.rating === 2 && 'Below Average'}
-            {formData.rating === 1 && 'Poor'}
+            {currentRating === 5 && 'Excellent!'}
+            {currentRating === 4 && 'Good'}
+            {currentRating === 3 && 'Average'}
+            {currentRating === 2 && 'Below Average'}
+            {currentRating === 1 && 'Poor'}
           </p>
         )}
-        <FieldError error={errors.rating} fieldName="rating" />
+        <FieldError error={errors.rating?.message} fieldName="rating" />
       </div>
 
       {/* Feedback */}
@@ -154,41 +132,46 @@ export function GeneralFeedbackForm({ onSubmit, onCancel }: GeneralFeedbackFormP
         </Label>
         <Textarea
           id="feedback"
-          value={formData.feedback}
-          onChange={(e) => handleChange('feedback', e.target.value)}
+          {...register('feedback')}
           placeholder="Tell us what you think..."
           className={errors.feedback ? 'border-destructive' : ''}
           data-field="feedback"
           rows={5}
           required
         />
-        <FieldError error={errors.feedback} fieldName="feedback" />
+        <FieldError error={errors.feedback?.message} fieldName="feedback" />
       </div>
 
       {/* Category */}
       <div>
         <Label htmlFor="category">Category</Label>
-        <Select
-          value={formData.category}
-          onValueChange={(value) => handleChange('category', value as GeneralFeedbackData['category'])}
-        >
-          <SelectTrigger id="category" data-field="category">
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="user-experience" data-category="user-experience">User Experience</SelectItem>
-            <SelectItem value="performance" data-category="performance">Performance</SelectItem>
-            <SelectItem value="features" data-category="features">Features</SelectItem>
-            <SelectItem value="support" data-category="support">Support</SelectItem>
-            <SelectItem value="other" data-category="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
+        <Controller
+          name="category"
+          control={control}
+          render={({ field }) => (
+            <Select
+              value={field.value}
+              onValueChange={field.onChange}
+            >
+              <SelectTrigger id="category" data-field="category">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="user-experience" data-category="user-experience">User Experience</SelectItem>
+                <SelectItem value="performance" data-category="performance">Performance</SelectItem>
+                <SelectItem value="features" data-category="features">Features</SelectItem>
+                <SelectItem value="support" data-category="support">Support</SelectItem>
+                <SelectItem value="other" data-category="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
       </div>
 
       {/* Submit Error */}
-      {errors.submit && (
+      {submitError && (
         <div className="bg-destructive/10 text-destructive p-3 rounded-lg text-sm">
-          {errors.submit}
+          {submitError}
         </div>
       )}
 

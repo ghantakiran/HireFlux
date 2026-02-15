@@ -6,6 +6,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { featureRequestSchema, FeatureRequestFormData } from '@/lib/validations/schemas';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -35,27 +38,27 @@ export interface FeatureRequestFormProps {
 }
 
 export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormProps) {
-  const [formData, setFormData] = useState<Partial<FeatureRequestData>>({
-    title: '',
-    description: '',
-    useCase: '',
-    priority: 'medium',
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<FeatureRequestFormData>({
+    resolver: zodResolver(featureRequestSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      title: '',
+      description: '',
+      useCase: '',
+      priority: 'medium',
+    },
   });
 
   const [mockups, setMockups] = useState<Array<{ file: File; preview: string }>>([]);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [mockupError, setMockupError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (field: keyof FeatureRequestData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-  };
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -64,28 +67,21 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
     const validFiles: Array<{ file: File; preview: string }> = [];
     const maxSize = 5 * 1024 * 1024; // 5MB
 
+    setMockupError(null);
+
     for (const file of files) {
       if (!file.type.startsWith('image/')) {
-        setErrors((prev) => ({
-          ...prev,
-          mockups: 'Only image files are allowed',
-        }));
+        setMockupError('Only image files are allowed');
         continue;
       }
 
       if (file.size > maxSize) {
-        setErrors((prev) => ({
-          ...prev,
-          mockups: 'Images must be less than 5MB',
-        }));
+        setMockupError('Images must be less than 5MB');
         continue;
       }
 
       if (mockups.length + validFiles.length >= 3) {
-        setErrors((prev) => ({
-          ...prev,
-          mockups: 'Maximum 3 images allowed',
-        }));
+        setMockupError('Maximum 3 images allowed');
         break;
       }
 
@@ -108,57 +104,30 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
     });
   };
 
-  const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.title?.trim()) {
-      newErrors.title = 'Title is required';
-    }
-
-    if (!formData.description?.trim()) {
-      newErrors.description = 'Description is required';
-    }
-
-    if (!formData.useCase?.trim()) {
-      newErrors.useCase = 'Use case is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validate()) {
-      return;
-    }
-
+  const onFormSubmit = handleSubmit(async (data) => {
     try {
       setIsSubmitting(true);
+      setSubmitError(null);
 
       const submitData: FeatureRequestData = {
-        title: formData.title!,
-        description: formData.description!,
-        useCase: formData.useCase!,
-        priority: formData.priority || 'medium',
+        title: data.title,
+        description: data.description,
+        useCase: data.useCase,
+        priority: data.priority,
         mockups: mockups.map((m) => m.file),
       };
 
       await onSubmit(submitData);
     } catch (error) {
       console.error('Submit failed:', error);
-      setErrors((prev) => ({
-        ...prev,
-        submit: 'Failed to submit feature request. Please try again.',
-      }));
+      setSubmitError('Failed to submit feature request. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
-  };
+  });
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" data-testid="feature-request-form" data-feature-request-form>
+    <form onSubmit={onFormSubmit} className="space-y-4" data-testid="feature-request-form" data-feature-request-form>
       {/* Title */}
       <div>
         <Label htmlFor="title">
@@ -166,14 +135,13 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
         </Label>
         <Input
           id="title"
-          value={formData.title}
-          onChange={(e) => handleChange('title', e.target.value)}
+          {...register('title')}
           placeholder="What feature would you like to see?"
           className={errors.title ? 'border-destructive' : ''}
           data-field="title"
           required
         />
-        <FieldError error={errors.title} fieldName="title" />
+        <FieldError error={errors.title?.message} fieldName="title" />
       </div>
 
       {/* Description */}
@@ -183,15 +151,14 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
         </Label>
         <Textarea
           id="description"
-          value={formData.description}
-          onChange={(e) => handleChange('description', e.target.value)}
+          {...register('description')}
           placeholder="Describe the feature in detail"
           className={errors.description ? 'border-destructive' : ''}
           data-field="description"
           rows={4}
           required
         />
-        <FieldError error={errors.description} fieldName="description" />
+        <FieldError error={errors.description?.message} fieldName="description" />
       </div>
 
       {/* Use Case */}
@@ -201,33 +168,38 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
         </Label>
         <Textarea
           id="useCase"
-          value={formData.useCase}
-          onChange={(e) => handleChange('useCase', e.target.value)}
+          {...register('useCase')}
           placeholder="How would you use this feature? What problem does it solve?"
           className={errors.useCase ? 'border-destructive' : ''}
           data-field="use-case"
           rows={3}
           required
         />
-        <FieldError error={errors.useCase} fieldName="use-case" />
+        <FieldError error={errors.useCase?.message} fieldName="use-case" />
       </div>
 
       {/* Priority */}
       <div>
         <Label htmlFor="priority">Priority</Label>
-        <Select
-          value={formData.priority}
-          onValueChange={(value) => handleChange('priority', value as FeatureRequestData['priority'])}
-        >
-          <SelectTrigger id="priority" data-field="priority">
-            <SelectValue placeholder="Select priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="low" data-priority="low">Low - Nice to have</SelectItem>
-            <SelectItem value="medium" data-priority="medium">Medium - Would improve experience</SelectItem>
-            <SelectItem value="high" data-priority="high">High - Essential for workflow</SelectItem>
-          </SelectContent>
-        </Select>
+        <Controller
+          name="priority"
+          control={control}
+          render={({ field }) => (
+            <Select
+              value={field.value}
+              onValueChange={field.onChange}
+            >
+              <SelectTrigger id="priority" data-field="priority">
+                <SelectValue placeholder="Select priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low" data-priority="low">Low - Nice to have</SelectItem>
+                <SelectItem value="medium" data-priority="medium">Medium - Would improve experience</SelectItem>
+                <SelectItem value="high" data-priority="high">High - Essential for workflow</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
       </div>
 
       {/* Mockup Upload */}
@@ -283,16 +255,16 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
             </div>
           )}
 
-          {errors.mockups && (
-            <p className="text-sm text-destructive">{errors.mockups}</p>
+          {mockupError && (
+            <p className="text-sm text-destructive">{mockupError}</p>
           )}
         </div>
       </div>
 
       {/* Submit Error */}
-      {errors.submit && (
+      {submitError && (
         <div className="bg-destructive/10 text-destructive p-3 rounded-lg text-sm">
-          {errors.submit}
+          {submitError}
         </div>
       )}
 

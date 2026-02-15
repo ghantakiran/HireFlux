@@ -48,6 +48,7 @@ import { CompanyLogoUpload } from '@/components/employer/CompanyLogoUpload';
 import { toast } from 'sonner';
 import { RichTextEditor } from '@/components/employer/RichTextEditor';
 import { NotificationSettings } from '@/components/employer/NotificationSettings';
+import { employerSettingsSchema } from '@/lib/validations/company';
 
 // Types
 interface Company {
@@ -190,38 +191,30 @@ export default function CompanyProfileSettingsPage() {
   };
 
   const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
+    const result = employerSettingsSchema.safeParse({
+      name: formData.name,
+      website: formData.website || '',
+      description: formData.description || '',
+      linkedin_url: formData.linkedin_url || '',
+      twitter_url: formData.twitter_url || '',
+      industry: formData.industry,
+      size: formData.size,
+      location: formData.location || '',
+      timezone: formData.timezone,
+    });
 
-    // Required fields
-    if (!formData.name || formData.name.trim().length < 2) {
-      newErrors.name = 'Company name is required (minimum 2 characters)';
+    if (!result.success) {
+      const newErrors: FormErrors = {};
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as string;
+        newErrors[field as keyof FormErrors] = issue.message;
+      }
+      setErrors(newErrors);
+      return false;
     }
 
-    // Website URL validation
-    if (formData.website && !/^https?:\/\/.+/.test(formData.website)) {
-      newErrors.website = 'Please enter a valid URL (e.g., https://example.com)';
-    }
-
-    // LinkedIn URL validation
-    if (
-      formData.linkedin_url &&
-      !formData.linkedin_url.startsWith('https://linkedin.com/')
-    ) {
-      newErrors.linkedin_url = 'LinkedIn URL must start with https://linkedin.com/';
-    }
-
-    // Twitter URL validation
-    if (formData.twitter_url && !formData.twitter_url.startsWith('https://twitter.com/')) {
-      newErrors.twitter_url = 'Twitter URL must start with https://twitter.com/';
-    }
-
-    // Description length validation
-    if (formData.description && formData.description.length > 5000) {
-      newErrors.description = `Description must be under 5000 characters (currently ${formData.description.length})`;
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors({});
+    return true;
   };
 
   const handleSave = async () => {

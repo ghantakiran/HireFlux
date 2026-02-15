@@ -13,6 +13,7 @@ import { TagInput } from "@/components/ui/tag-input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { candidateProfileApi } from '@/lib/api';
+import { candidateProfileSchema, portfolioItemSchema } from '@/lib/validations/candidate';
 import { useRouter } from 'next/navigation';
 import { Loader2, Eye, EyeOff, Trash2, Plus, X, Github, Globe, FileText, Briefcase } from 'lucide-react';
 import { toast } from 'sonner';
@@ -120,14 +121,26 @@ export default function ProfileSettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
-    if (!profile.headline?.trim()) {
-      setMessage({ type: 'error', text: 'Headline is required' });
-      return;
-    }
+    // Zod schema validation
+    const result = candidateProfileSchema.safeParse({
+      headline: profile.headline || '',
+      bio: profile.bio || '',
+      location: profile.location || '',
+      skills: profile.skills || [],
+      years_experience: profile.years_experience ?? null,
+      experience_level: profile.experience_level || '',
+      min_salary: profile.min_salary ?? null,
+      max_salary: profile.max_salary ?? null,
+      preferred_location_type: profile.preferred_location_type || '',
+      open_to_remote: profile.open_to_remote || false,
+      availability_status: profile.availability_status || '',
+      available_from: profile.available_from || '',
+      visibility: (profile.visibility as 'public' | 'private') || 'private',
+    });
 
-    if (!profile.visibility) {
-      setMessage({ type: 'error', text: 'Visibility is required' });
+    if (!result.success) {
+      const firstError = result.error.issues[0];
+      setMessage({ type: 'error', text: firstError.message });
       return;
     }
 
@@ -210,22 +223,17 @@ export default function ProfileSettingsPage() {
   };
 
   const handleAddPortfolioItem = async () => {
-    // Validation
-    if (!portfolioForm.title.trim()) {
-      setMessage({ type: 'error', text: 'Portfolio title is required' });
-      return;
-    }
+    // Zod schema validation
+    const result = portfolioItemSchema.safeParse({
+      type: portfolioForm.type,
+      title: portfolioForm.title,
+      url: portfolioForm.url,
+      description: portfolioForm.description || '',
+    });
 
-    if (!portfolioForm.url.trim()) {
-      setMessage({ type: 'error', text: 'Portfolio URL is required' });
-      return;
-    }
-
-    // URL validation
-    try {
-      new URL(portfolioForm.url);
-    } catch {
-      setMessage({ type: 'error', text: 'Please enter a valid URL' });
+    if (!result.success) {
+      const firstError = result.error.issues[0];
+      setMessage({ type: 'error', text: firstError.message });
       return;
     }
 

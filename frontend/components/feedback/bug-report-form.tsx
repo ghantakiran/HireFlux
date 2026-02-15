@@ -6,6 +6,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { bugReportSchema, BugReportFormData } from '@/lib/validations/schemas';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -46,16 +49,23 @@ export interface BugReportFormProps {
 }
 
 export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFormProps) {
-  const [formData, setFormData] = useState<Partial<BugReportData>>({
-    title: '',
-    description: errorContext?.message || '',
-    stepsToReproduce: '',
-    expectedBehavior: '',
-    actualBehavior: '',
-    severity: 'medium',
-    errorId: errorContext?.errorId || '',
-    url: errorContext?.url || window.location.href,
-    userAgent: navigator.userAgent,
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<BugReportFormData>({
+    resolver: zodResolver(bugReportSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      title: '',
+      description: errorContext?.message || '',
+      stepsToReproduce: '',
+      expectedBehavior: '',
+      actualBehavior: '',
+      severity: 'medium',
+    },
   });
 
   const [screenshot, setScreenshot] = useState<{
@@ -64,9 +74,9 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
     size: string;
   } | null>(null);
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Auto-capture screenshot on mount
   useEffect(() => {
@@ -85,18 +95,6 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
     autoCapture();
   }, []);
 
-  const handleChange = (field: keyof BugReportData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error for this field
-    if (errors[field]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-  };
-
   const handleCaptureScreenshot = async () => {
     try {
       setIsCapturing(true);
@@ -104,10 +102,6 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
       setScreenshot(captured);
     } catch (error) {
       console.error('Screenshot capture failed:', error);
-      setErrors((prev) => ({
-        ...prev,
-        screenshot: 'Failed to capture screenshot',
-      }));
     } finally {
       setIsCapturing(false);
     }
@@ -117,68 +111,41 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
     setScreenshot(null);
   };
 
-  const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.title?.trim()) {
-      newErrors.title = 'Title is required';
-    }
-
-    if (!formData.description?.trim()) {
-      newErrors.description = 'Description is required';
-    }
-
-    if (!formData.stepsToReproduce?.trim()) {
-      newErrors.stepsToReproduce = 'Steps to reproduce are required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validate()) {
-      return;
-    }
-
+  const onFormSubmit = handleSubmit(async (data) => {
     try {
       setIsSubmitting(true);
+      setSubmitError(null);
 
       const submitData: BugReportData = {
-        title: formData.title!,
-        description: formData.description!,
-        stepsToReproduce: formData.stepsToReproduce!,
-        expectedBehavior: formData.expectedBehavior || '',
-        actualBehavior: formData.actualBehavior || '',
-        severity: formData.severity || 'medium',
+        title: data.title,
+        description: data.description,
+        stepsToReproduce: data.stepsToReproduce,
+        expectedBehavior: data.expectedBehavior || '',
+        actualBehavior: data.actualBehavior || '',
+        severity: data.severity,
         screenshot: screenshot?.file,
-        errorId: formData.errorId,
-        url: formData.url!,
-        userAgent: formData.userAgent!,
+        errorId: errorContext?.errorId,
+        url: errorContext?.url || window.location.href,
+        userAgent: navigator.userAgent,
       };
 
       await onSubmit(submitData);
     } catch (error) {
       console.error('Submit failed:', error);
-      setErrors((prev) => ({
-        ...prev,
-        submit: 'Failed to submit bug report. Please try again.',
-      }));
+      setSubmitError('Failed to submit bug report. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
-  };
+  });
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" data-testid="bug-report-form" data-bug-report-form>
+    <form onSubmit={onFormSubmit} className="space-y-4" data-testid="bug-report-form" data-bug-report-form>
       {/* Error ID (if from error context) */}
-      {formData.errorId && (
+      {errorContext?.errorId && (
         <div className="bg-muted p-3 rounded-lg">
           <Label className="text-xs text-muted-foreground">Error ID</Label>
           <Input
-            value={formData.errorId}
+            value={errorContext.errorId}
             readOnly
             className="mt-1"
             data-testid="error-id-input"
@@ -193,14 +160,13 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
         </Label>
         <Input
           id="title"
-          value={formData.title}
-          onChange={(e) => handleChange('title', e.target.value)}
+          {...register('title')}
           placeholder="Brief description of the bug"
           className={errors.title ? 'border-destructive' : ''}
           data-field="title"
           required
         />
-        <FieldError error={errors.title} fieldName="title" />
+        <FieldError error={errors.title?.message} fieldName="title" />
       </div>
 
       {/* Description */}
@@ -210,15 +176,14 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
         </Label>
         <Textarea
           id="description"
-          value={formData.description}
-          onChange={(e) => handleChange('description', e.target.value)}
+          {...register('description')}
           placeholder="Describe what went wrong"
           className={errors.description ? 'border-destructive' : ''}
           data-field="description"
           rows={3}
           required
         />
-        <FieldError error={errors.description} fieldName="description" />
+        <FieldError error={errors.description?.message} fieldName="description" />
       </div>
 
       {/* Steps to Reproduce */}
@@ -228,15 +193,14 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
         </Label>
         <Textarea
           id="steps"
-          value={formData.stepsToReproduce}
-          onChange={(e) => handleChange('stepsToReproduce', e.target.value)}
+          {...register('stepsToReproduce')}
           placeholder="1. Go to...\n2. Click on...\n3. Notice..."
           className={errors.stepsToReproduce ? 'border-destructive' : ''}
           data-field="steps"
           rows={4}
           required
         />
-        <FieldError error={errors.stepsToReproduce} fieldName="steps" />
+        <FieldError error={errors.stepsToReproduce?.message} fieldName="steps" />
       </div>
 
       {/* Expected Behavior */}
@@ -244,8 +208,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
         <Label htmlFor="expected">Expected Behavior</Label>
         <Textarea
           id="expected"
-          value={formData.expectedBehavior}
-          onChange={(e) => handleChange('expectedBehavior', e.target.value)}
+          {...register('expectedBehavior')}
           placeholder="What should happen"
           data-field="expected"
           rows={2}
@@ -257,8 +220,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
         <Label htmlFor="actual">Actual Behavior</Label>
         <Textarea
           id="actual"
-          value={formData.actualBehavior}
-          onChange={(e) => handleChange('actualBehavior', e.target.value)}
+          {...register('actualBehavior')}
           placeholder="What actually happened"
           data-field="actual"
           rows={2}
@@ -268,20 +230,26 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
       {/* Severity */}
       <div>
         <Label htmlFor="severity">Severity</Label>
-        <Select
-          value={formData.severity}
-          onValueChange={(value) => handleChange('severity', value as BugReportData['severity'])}
-        >
-          <SelectTrigger id="severity" data-field="severity">
-            <SelectValue placeholder="Select severity" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="low" data-severity="low">Low - Minor inconvenience</SelectItem>
-            <SelectItem value="medium" data-severity="medium">Medium - Affects functionality</SelectItem>
-            <SelectItem value="high" data-severity="high">High - Major functionality broken</SelectItem>
-            <SelectItem value="critical" data-severity="critical">Critical - App unusable</SelectItem>
-          </SelectContent>
-        </Select>
+        <Controller
+          name="severity"
+          control={control}
+          render={({ field }) => (
+            <Select
+              value={field.value}
+              onValueChange={field.onChange}
+            >
+              <SelectTrigger id="severity" data-field="severity">
+                <SelectValue placeholder="Select severity" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low" data-severity="low">Low - Minor inconvenience</SelectItem>
+                <SelectItem value="medium" data-severity="medium">Medium - Affects functionality</SelectItem>
+                <SelectItem value="high" data-severity="high">High - Major functionality broken</SelectItem>
+                <SelectItem value="critical" data-severity="critical">Critical - App unusable</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
       </div>
 
       {/* Screenshot */}
@@ -346,9 +314,9 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
       </div>
 
       {/* Submit Error */}
-      {errors.submit && (
+      {submitError && (
         <div className="bg-destructive/10 text-destructive p-3 rounded-lg text-sm">
-          {errors.submit}
+          {submitError}
         </div>
       )}
 
@@ -356,7 +324,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
       <div className="flex gap-2 pt-2">
         <Button
           type="submit"
-          disabled={isSubmitting || Object.keys(errors).length > 0}
+          disabled={isSubmitting}
           className="flex-1"
           data-submit-feedback
         >

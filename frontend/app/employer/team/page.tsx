@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { teamInviteSchema, TeamInviteFormData } from '@/lib/validations/schemas';
 import { useRouter } from 'next/navigation';
 import { teamCollaborationApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -132,8 +135,21 @@ export default function TeamManagementPage() {
 
   // Modal states
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<string>('recruiter');
+  const {
+    register: inviteRegister,
+    handleSubmit: inviteHandleSubmit,
+    control: inviteControl,
+    reset: inviteReset,
+    formState: { errors: inviteErrors, isValid: inviteIsValid },
+  } = useForm<TeamInviteFormData>({
+    resolver: zodResolver(teamInviteSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      email: '',
+      role: 'recruiter',
+    },
+  });
   const [inviting, setInviting] = useState(false);
 
   const [roleModalOpen, setRoleModalOpen] = useState(false);
@@ -206,20 +222,17 @@ export default function TeamManagementPage() {
   };
 
   // Actions
-  const handleInviteMember = async () => {
-    if (!inviteEmail || !inviteRole) return;
-
+  const handleInviteMember = inviteHandleSubmit(async (data) => {
     try {
       setInviting(true);
       setError(null);
       await teamCollaborationApi.inviteTeamMember({
-        email: inviteEmail,
-        role: inviteRole as any,
+        email: data.email,
+        role: data.role as any,
       });
 
       setInviteModalOpen(false);
-      setInviteEmail('');
-      setInviteRole('recruiter');
+      inviteReset();
       await loadTeamData();
       toast.success('Invitation sent');
     } catch (err: any) {
@@ -228,7 +241,7 @@ export default function TeamManagementPage() {
     } finally {
       setInviting(false);
     }
-  };
+  });
 
   const handleResendInvitation = async (invitationId: string) => {
     try {
@@ -693,31 +706,46 @@ export default function TeamManagementPage() {
                 id="email"
                 type="email"
                 placeholder="colleague@company.com"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
+                {...inviteRegister('email')}
               />
+              {inviteErrors.email && (
+                <p className="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+                  {inviteErrors.email.message}
+                </p>
+              )}
             </div>
             <div>
               <Label htmlFor="role">Role</Label>
-              <Select value={inviteRole} onValueChange={setInviteRole}>
-                <SelectTrigger id="role">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="hiring_manager">Hiring Manager</SelectItem>
-                  <SelectItem value="recruiter">Recruiter</SelectItem>
-                  <SelectItem value="interviewer">Interviewer</SelectItem>
-                  <SelectItem value="viewer">Viewer</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="role"
+                control={inviteControl}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id="role">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="hiring_manager">Hiring Manager</SelectItem>
+                      <SelectItem value="recruiter">Recruiter</SelectItem>
+                      <SelectItem value="interviewer">Interviewer</SelectItem>
+                      <SelectItem value="viewer">Viewer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {inviteErrors.role && (
+                <p className="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+                  {inviteErrors.role.message}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setInviteModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleInviteMember} disabled={inviting || !inviteEmail}>
+            <Button onClick={handleInviteMember} disabled={inviting || !inviteIsValid}>
               {inviting ? 'Sending...' : 'Send Invitation'}
             </Button>
           </DialogFooter>

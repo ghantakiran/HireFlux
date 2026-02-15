@@ -43,6 +43,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { OptimizedImage } from '@/components/ui/optimized-image';
+import { portfolioItemSchema } from '@/lib/validations/candidate';
 
 // Portfolio item types
 export type PortfolioItemType = 'github' | 'website' | 'article' | 'project';
@@ -96,38 +97,18 @@ export default function PortfolioManagement({
     return typeConfig?.icon || Globe;
   };
 
-  // Validate URL
-  const validateUrl = (url: string): boolean => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  // Validate portfolio item
+  // Validate portfolio item using Zod schema
   const validateItem = (): string | null => {
-    if (!newItem.title || newItem.title.trim().length === 0) {
-      return 'Title is required';
-    }
+    const result = portfolioItemSchema.safeParse({
+      type: newItem.type,
+      title: newItem.title || '',
+      url: newItem.url || '',
+      description: newItem.description || '',
+    });
 
-    if (newItem.title.length > 100) {
-      return 'Title must be 100 characters or less';
+    if (!result.success) {
+      return result.error.issues[0].message;
     }
-
-    if (!newItem.url || newItem.url.trim().length === 0) {
-      return 'URL is required';
-    }
-
-    if (!validateUrl(newItem.url)) {
-      return 'Please enter a valid URL (must start with http:// or https://)';
-    }
-
-    if (newItem.description && newItem.description.length > 500) {
-      return 'Description must be 500 characters or less';
-    }
-
     return null;
   };
 

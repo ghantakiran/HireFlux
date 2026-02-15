@@ -13,12 +13,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { applicationNoteSchema, ApplicationNoteFormData } from '@/lib/validations/notes';
 import { X, Lock, Users } from 'lucide-react';
 import {
   createApplicationNote,
   ApplicationNote,
   CreateNoteRequest,
-  validateNoteContent,
   NoteError,
 } from '@/lib/api/applicationNotes';
 
@@ -33,7 +35,22 @@ export default function AddNoteForm({
   onNoteCreated,
   onCancel,
 }: AddNoteFormProps) {
-  const [content, setContent] = useState('');
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<ApplicationNoteFormData>({
+    resolver: zodResolver(applicationNoteSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      content: '',
+      type: 'note',
+    },
+  });
+
   const [visibility, setVisibility] = useState<'private' | 'team'>('team');
   const [noteType, setNoteType] = useState<
     'internal' | 'feedback' | 'interview_notes'
@@ -41,26 +58,19 @@ export default function AddNoteForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const validation = validateNoteContent(content);
-  const charCount = content.length;
+  const content = watch('content');
+  const charCount = content?.length || 0;
   const charLimit = 5000;
   const charRemaining = charLimit - charCount;
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validation.valid) {
-      setError(validation.error || 'Invalid note content');
-      return;
-    }
-
+  const onFormSubmit = handleSubmit(async (data) => {
     try {
       setSubmitting(true);
       setError(null);
 
       const noteData: CreateNoteRequest = {
-        content: content.trim(),
+        content: data.content.trim(),
         visibility,
         note_type: noteType,
       };
@@ -69,7 +79,7 @@ export default function AddNoteForm({
       onNoteCreated(newNote);
 
       // Reset form
-      setContent('');
+      reset();
       setVisibility('team');
       setNoteType('internal');
     } catch (err) {
@@ -78,11 +88,11 @@ export default function AddNoteForm({
     } finally {
       setSubmitting(false);
     }
-  };
+  });
 
   return (
     <div className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg p-4 shadow-sm">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={onFormSubmit} className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Add Note</h4>
@@ -102,8 +112,7 @@ export default function AddNoteForm({
           </label>
           <textarea
             id="note-content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+            {...register('content')}
             placeholder="Add your note here... Use @username to mention team members"
             rows={4}
             maxLength={charLimit}
@@ -124,12 +133,19 @@ export default function AddNoteForm({
             </span>
 
             {/* @mention hint */}
-            {content.includes('@') && (
+            {content?.includes('@') && (
               <span className="text-xs text-blue-600 dark:text-blue-400">
                 @mentions will notify team members
               </span>
             )}
           </div>
+
+          {/* Validation error */}
+          {errors.content && (
+            <p className="text-sm text-red-600 dark:text-red-400 mt-1" role="alert">
+              {errors.content.message}
+            </p>
+          )}
         </div>
 
         {/* Options row */}
@@ -210,7 +226,7 @@ export default function AddNoteForm({
           </button>
           <button
             type="submit"
-            disabled={submitting || !validation.valid}
+            disabled={submitting || !isValid}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? 'Saving...' : 'Save Note'}

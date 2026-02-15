@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { OptimizedImage } from '@/components/ui/optimized-image';
 import { toast } from 'sonner';
+import { companyProfileSchema } from '@/lib/validations/company';
 
 // ============================================================================
 // Types & Interfaces
@@ -242,42 +243,29 @@ export default function CompanyProfileSetupPage() {
     setHasUnsavedChanges(true);
   };
 
-  const validateWebsite = (url: string): boolean => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const validateSocialMedia = (platform: string, url: string): boolean => {
-    if (!url) return true; // Optional field
-    if (!validateWebsite(url)) return false;
-
-    const platformDomains: Record<string, string> = {
-      linkedin: 'linkedin.com',
-      twitter: 'twitter.com',
-      facebook: 'facebook.com',
-      instagram: 'instagram.com',
-    };
-
-    return url.includes(platformDomains[platform]);
-  };
-
   const handleWebsiteBlur = () => {
-    if (profile.website && !validateWebsite(profile.website)) {
-      setErrors((prev) => ({ ...prev, website: 'Please enter a valid URL' }));
+    if (profile.website) {
+      const result = companyProfileSchema.shape.website.safeParse(profile.website);
+      if (!result.success) {
+        setErrors((prev) => ({ ...prev, website: result.error.issues[0].message }));
+      } else {
+        setErrors((prev) => ({ ...prev, website: '' }));
+      }
     }
   };
 
   const handleSocialMediaBlur = (platform: keyof SocialMedia) => {
     const url = profile.socialMedia[platform];
-    if (url && !validateSocialMedia(platform, url)) {
-      setErrors((prev) => ({
-        ...prev,
-        [platform]: `Please enter a valid ${platform.charAt(0).toUpperCase() + platform.slice(1)} URL`,
-      }));
+    if (url) {
+      const result = companyProfileSchema.shape[platform].safeParse(url);
+      if (!result.success) {
+        setErrors((prev) => ({
+          ...prev,
+          [platform]: result.error.issues[0].message,
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, [platform]: '' }));
+      }
     } else {
       setErrors((prev) => ({ ...prev, [platform]: '' }));
     }
@@ -458,14 +446,27 @@ export default function CompanyProfileSetupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newErrors: ValidationErrors = {};
+    const result = companyProfileSchema.safeParse({
+      name: profile.name,
+      industry: profile.industry,
+      size: profile.size,
+      website: profile.website,
+      description: profile.description,
+      values: profile.values,
+      culture: profile.culture,
+      linkedin: profile.socialMedia.linkedin,
+      twitter: profile.socialMedia.twitter,
+      facebook: profile.socialMedia.facebook,
+      instagram: profile.socialMedia.instagram,
+    });
 
-    if (!profile.name) {
-      newErrors.name = 'Company name is required';
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (!result.success) {
+      const fieldErrors: ValidationErrors = {};
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as string;
+        fieldErrors[field] = issue.message;
+      }
+      setErrors(fieldErrors);
       return;
     }
 
