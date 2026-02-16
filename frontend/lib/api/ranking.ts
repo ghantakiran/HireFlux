@@ -224,13 +224,6 @@ export function getFitIndexColor(fitIndex: number): {
 }
 
 /**
- * Format fit index as percentage string
- */
-export function formatFitIndex(fitIndex: number): string {
-  return `${fitIndex}%`;
-}
-
-/**
  * Get human-readable label for breakdown score
  */
 export function getBreakdownLabel(score: number): string {
@@ -239,50 +232,6 @@ export function getBreakdownLabel(score: number): string {
   if (score >= 60) return "Fair";
   if (score >= 40) return "Below Average";
   return "Poor";
-}
-
-/**
- * Calculate average fit index from list
- */
-export function calculateAverageFitIndex(applicants: { fit_index: number }[]): number {
-  if (applicants.length === 0) return 0;
-  const sum = applicants.reduce((acc, app) => acc + app.fit_index, 0);
-  return Math.round(sum / applicants.length);
-}
-
-/**
- * Get weighted component contribution to total fit index
- */
-export function getComponentContribution(componentScore: number, weight: number): number {
-  return componentScore * weight;
-}
-
-/**
- * Validate that breakdown components sum correctly
- */
-export function validateBreakdown(
-  breakdown: FitIndexBreakdown,
-  totalFitIndex: number
-): boolean {
-  const WEIGHTS = {
-    skills_match: 0.30,
-    experience_level: 0.20,
-    location_match: 0.15,
-    culture_fit: 0.15,
-    salary_expectation: 0.10,
-    availability: 0.10,
-  };
-
-  const calculated =
-    breakdown.skills_match * WEIGHTS.skills_match +
-    breakdown.experience_level * WEIGHTS.experience_level +
-    breakdown.location_match * WEIGHTS.location_match +
-    breakdown.culture_fit * WEIGHTS.culture_fit +
-    breakdown.salary_expectation * WEIGHTS.salary_expectation +
-    breakdown.availability * WEIGHTS.availability;
-
-  // Allow 1 point rounding error
-  return Math.abs(calculated - totalFitIndex) <= 1;
 }
 
 /**
