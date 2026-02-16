@@ -32,6 +32,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Upload, FileText, AlertCircle, CheckCircle2, XCircle, Download, Sparkles, DollarSign } from 'lucide-react';
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { formatFileSize, downloadFile } from '@/lib/utils';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Types matching backend schemas
 interface ValidationError {
@@ -155,17 +156,9 @@ export default function BulkJobUploadPage() {
       setUploadProgress(100);
       setUploadStage('review');
       setUploadResponse(response.data.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setUploadStage('error');
-      // Prefer details message if available, fallback to main error message
-      const details = error.response?.data?.error?.details;
-      const detailsMsg = details && details.length > 0 ? details[0].message : null;
-      const errorMsg = detailsMsg ||
-                       error.response?.data?.error?.message ||
-                       error.response?.data?.detail ||
-                       error.message ||
-                       'Upload failed. Please try again.';
-      setErrorMessage(errorMsg);
+      setErrorMessage(getErrorMessage(error, 'Upload failed. Please try again.'));
     }
   };
 

@@ -22,6 +22,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { StepProgress } from '@/components/ui/step-progress';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { userApi } from '@/lib/api';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 const ONBOARDING_STEPS = [
   { label: 'Profile' },
@@ -208,10 +209,8 @@ export default function OnboardingPage() {
 
       clearDraft();
       router.push('/dashboard');
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.error?.message || 'Failed to complete onboarding. Please try again.';
-      setError(errorMessage);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to complete onboarding. Please try again.'));
     } finally {
       setIsLoading(false);
     }

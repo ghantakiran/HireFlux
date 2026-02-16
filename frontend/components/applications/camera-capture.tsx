@@ -15,6 +15,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Camera, X, RotateCcw, Check, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface CameraCaptureProps {
   onCapture: (imageUrl: string) => void;
@@ -53,15 +54,16 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
         if (videoRef.current) {
           videoRef.current.srcObject = mediaStream;
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (!mounted) return;
 
-        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        const err = error as { name?: string };
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
           setCameraError('Camera permission denied. Please grant camera access to continue.');
-        } else if (error.name === 'NotFoundError') {
+        } else if (err.name === 'NotFoundError') {
           setCameraError('No camera found on this device.');
         } else {
-          setCameraError('Failed to access camera. Please try again.');
+          setCameraError(getErrorMessage(error, 'Failed to access camera. Please try again.'));
         }
       }
     };

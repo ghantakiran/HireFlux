@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { ApplicationData } from '../mobile-apply-modal';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface ApplicationFormStepProps {
   applicationData: ApplicationData;
@@ -122,8 +123,8 @@ Best regards,
 ${applicationData.fullName}`;
 
       updateData({ coverLetter: generated });
-    } catch (error: any) {
-      setGenerationError(error.message || 'Failed to generate cover letter. Please try again.');
+    } catch (error: unknown) {
+      setGenerationError(getErrorMessage(error, 'Failed to generate cover letter. Please try again.'));
     } finally {
       setIsGenerating(false);
     }

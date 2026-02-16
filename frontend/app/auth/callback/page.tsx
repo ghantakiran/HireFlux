@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { userApi } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 function AuthCallbackContent() {
   const router = useRouter();
@@ -57,12 +58,9 @@ function AuthCallbackContent() {
           sessionStorage.removeItem('oauth_return_url');
           router.push(returnUrl || '/dashboard');
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('OAuth callback error:', err);
-        const errorMessage =
-          err?.response?.data?.error?.message ||
-          'Failed to complete authentication. Please try again.';
-        setError(errorMessage);
+        setError(getErrorMessage(err, 'Failed to complete authentication. Please try again.'));
         setTimeout(() => router.push('/signin'), 3000);
       }
     };

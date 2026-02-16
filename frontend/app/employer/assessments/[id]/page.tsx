@@ -51,6 +51,7 @@ import {
 import { toast } from 'sonner';
 import { PageLoader } from '@/components/ui/page-loader';
 import { assessmentApi } from '@/lib/api';
+import { getErrorMessage } from '@/lib/api-error-handler';
 import { getAssessmentStatusBadgeColor } from '@/lib/badge-helpers';
 
 interface Question {
@@ -135,9 +136,9 @@ export default function AssessmentDetailPage() {
         } else {
           setError('Failed to load assessment');
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Failed to fetch assessment:', error);
-        setError(error.response?.data?.error?.message || 'Failed to load assessment');
+        setError(getErrorMessage(error, 'Failed to load assessment'));
       } finally {
         setLoading(false);
       }
@@ -166,8 +167,8 @@ export default function AssessmentDetailPage() {
       } else {
         throw new Error('Failed to update assessment');
       }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error?.message || 'Failed to update assessment';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to update assessment');
       toast.error(errorMessage);
       console.error('Assessment update error:', error);
     }
@@ -224,8 +225,8 @@ export default function AssessmentDetailPage() {
       setCorrectOptions([false, false, false, false]);
 
       toast.success('Question added successfully');
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error?.message || 'Failed to add question';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to add question');
       toast.error(errorMessage);
       console.error('Question add error:', error);
     }
@@ -242,8 +243,8 @@ export default function AssessmentDetailPage() {
       } else {
         throw new Error('Failed to delete question');
       }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error?.message || 'Failed to delete question';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to delete question');
       toast.error(errorMessage);
       console.error('Question delete error:', error);
     }

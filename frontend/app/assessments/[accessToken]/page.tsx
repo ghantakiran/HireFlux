@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { candidateAssessmentApi, ApiResponse } from '@/lib/api';
+import { getErrorMessage } from '@/lib/api-error-handler';
 import { AssessmentTimer } from '@/components/assessment/AssessmentTimer';
 import { useTabSwitchTracking } from '@/components/assessment/useTabSwitchTracking';
 import { AssessmentProgress, QuestionNavigator } from '@/components/assessment/AssessmentProgress';
@@ -127,9 +128,9 @@ export default function TakeAssessmentPage() {
             setAccessError('This assessment has expired.');
           }
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Failed to access assessment:', error);
-        setAccessError(error.response?.data?.detail || 'Failed to load assessment');
+        setAccessError(getErrorMessage(error, 'Failed to load assessment'));
         toast.error('Failed to load assessment');
       } finally {
         setIsLoading(false);
@@ -243,9 +244,9 @@ export default function TakeAssessmentPage() {
 
         toast.success('Assessment started successfully');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to start assessment:', error);
-      toast.error('Failed to start assessment');
+      toast.error(getErrorMessage(error, 'Failed to start assessment'));
     }
   };
 
@@ -356,10 +357,11 @@ export default function TakeAssessmentPage() {
           toast.error('Code execution failed');
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Code execution failed:', error);
+      const errorMsg = getErrorMessage(error, 'Failed to execute code');
       toast.error('Code execution failed');
-      setCodeOutput(`Error: ${error.response?.data?.detail || 'Failed to execute code'}`);
+      setCodeOutput(`Error: ${errorMsg}`);
     } finally {
       setIsRunningCode(false);
     }
@@ -401,9 +403,9 @@ export default function TakeAssessmentPage() {
         // Redirect to results page
         router.push(`/assessments/${accessToken}/results`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to submit assessment:', error);
-      toast.error('Failed to submit assessment');
+      toast.error(getErrorMessage(error, 'Failed to submit assessment'));
     } finally {
       setIsSubmitting(false);
     }

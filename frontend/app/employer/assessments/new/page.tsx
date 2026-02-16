@@ -29,6 +29,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { assessmentApi } from '@/lib/api';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Validation schema (BDD: Required field validation)
 const assessmentSchema = z.object({
@@ -97,9 +98,8 @@ export default function CreateAssessmentPage() {
       } else {
         throw new Error('Failed to create assessment');
       }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error?.message || 'Failed to create assessment';
-      toast.error(errorMessage);
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, 'Failed to create assessment'));
       console.error('Assessment creation error:', error);
     } finally {
       setIsSubmitting(false);

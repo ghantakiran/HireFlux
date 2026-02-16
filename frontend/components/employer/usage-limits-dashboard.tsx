@@ -11,6 +11,7 @@ import { UpgradeModal } from './upgrade-modal';
 import { LimitWarning } from './limit-warning';
 import { billingApi } from '@/lib/api';
 import { UsageLimits, UpgradeRecommendation } from '@/lib/types/usage-limits';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 export interface UsageLimitsDashboardProps {
   'data-testid'?: string;
@@ -38,9 +39,9 @@ export function UsageLimitsDashboard({ 'data-testid': dataTestId }: UsageLimitsD
       if (response.data.success) {
         setUsageLimits(response.data.data);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch usage limits:', err);
-      setError(err.response?.data?.error?.message || 'Failed to load usage limits');
+      setError(getErrorMessage(err, 'Failed to load usage limits'));
     } finally {
       setIsLoading(false);
     }
@@ -53,11 +54,9 @@ export function UsageLimitsDashboard({ 'data-testid': dataTestId }: UsageLimitsD
         setUpgradeRecommendation(response.data.data);
         setIsUpgradeModalOpen(true);
       }
-    } catch (err: any) {
-      // No upgrade needed - this is expected
-      if (err.response?.status !== 200) {
-        console.error('Failed to fetch upgrade recommendation:', err);
-      }
+    } catch (err: unknown) {
+      // No upgrade needed - this is expected, so we only log for debugging
+      console.error('Failed to fetch upgrade recommendation:', err);
     }
   };
 

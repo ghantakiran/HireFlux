@@ -32,6 +32,7 @@ import { getHealthScoreColor } from '@/lib/score-colors';
 import { StatCard } from '@/components/ui/stat-card';
 import { StatsRowSkeleton } from '@/components/skeletons/stats-skeleton';
 import { CardSkeleton } from '@/components/skeletons/card-skeleton';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Types
 interface HealthScore {
@@ -120,8 +121,8 @@ export default function DashboardPage() {
       const response = await analyticsApi.getDashboardOverview();
       setData(response.data.data);
       setLastUpdated(new Date());
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Unable to load dashboard');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Unable to load dashboard'));
     } finally {
       setLoading(false);
     }

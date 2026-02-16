@@ -47,6 +47,7 @@ import { ErrorBanner } from '@/components/ui/error-banner';
 import { useResumeStore, type ParsedResumeData } from '@/lib/stores/resume-store';
 import { resumeApi } from '@/lib/api';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface WorkExperienceForm {
   company: string;
@@ -304,8 +305,8 @@ export default function ResumeBuilderPage() {
 
       setGeneratedContent(parsedData);
       toast.success('Resume generated successfully');
-    } catch (err: any) {
-      setError(err?.response?.data?.detail || 'Failed to generate resume');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to generate resume'));
       toast.error('Failed to generate resume. Please try again.');
     } finally {
       setIsGenerating(false);
@@ -336,8 +337,8 @@ export default function ResumeBuilderPage() {
       // Redirect to resume detail page
       const resumeId = response.data.data.id;
       router.push(`/dashboard/resumes/${resumeId}`);
-    } catch (err: any) {
-      setError(err?.response?.data?.detail || 'Failed to save resume');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to save resume'));
       toast.error('Failed to save resume. Please try again.');
       setIsSaving(false);
     }

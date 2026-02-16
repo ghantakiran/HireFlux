@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/card';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { authApi } from '@/lib/api';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 const signUpSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
@@ -64,10 +65,8 @@ export default function SignUpPage() {
       await useAuthStore.getState().register(registerData);
 
       router.push('/onboarding');
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.error?.message || 'Failed to create account. Please try again.';
-      setError(errorMessage);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to create account. Please try again.'));
     } finally {
       setIsLoading(false);
     }

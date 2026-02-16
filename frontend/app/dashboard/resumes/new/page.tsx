@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/card';
 import { resumeApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 const resumeSchema = z.object({
   title: z.string().min(1, 'Resume title is required'),
@@ -76,10 +77,8 @@ export default function NewResumePage() {
       const resumeId = response.data.data.id;
 
       router.push(`/dashboard/resumes/${resumeId}`);
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.error?.message || 'Failed to create resume. Please try again.';
-      setError(errorMessage);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to create resume. Please try again.'));
     } finally {
       setIsLoading(false);
     }
@@ -103,10 +102,8 @@ export default function NewResumePage() {
       const resumeId = response.data.data.id;
 
       router.push(`/dashboard/resumes/${resumeId}`);
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.error?.message || 'Failed to upload resume. Please try again.';
-      setError(errorMessage);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to upload resume. Please try again.'));
     } finally {
       setIsLoading(false);
     }

@@ -61,6 +61,7 @@ import { ErrorBanner } from '@/components/ui/error-banner';
 import { EmptyState } from '@/components/domain/EmptyState';
 import { toast } from 'sonner';
 import { titleCase, formatRelativeTime, formatDate } from '@/lib/utils';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Types
 interface TeamMember {
@@ -191,8 +192,8 @@ export default function TeamManagementPage() {
         setMembers(response.data.data.members || []);
         setInvitations(response.data.data.pending_invitations || []);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to load team data');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to load team data'));
     } finally {
       setLoading(false);
     }
@@ -234,8 +235,8 @@ export default function TeamManagementPage() {
       inviteReset();
       await loadTeamData();
       toast.success('Invitation sent');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to send invitation');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to send invitation'));
       toast.error('Failed to update team. Please try again.');
     } finally {
       setInviting(false);
@@ -248,8 +249,8 @@ export default function TeamManagementPage() {
       await teamCollaborationApi.resendInvitation(invitationId);
       await loadTeamData();
       toast.success('Invitation resent');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to resend invitation');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to resend invitation'));
       toast.error('Failed to update team. Please try again.');
     }
   };
@@ -260,8 +261,8 @@ export default function TeamManagementPage() {
       await teamCollaborationApi.revokeInvitation(invitationId);
       await loadTeamData();
       toast.success('Invitation revoked');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to revoke invitation');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to revoke invitation'));
       toast.error('Failed to update team. Please try again.');
     }
   };
@@ -281,8 +282,8 @@ export default function TeamManagementPage() {
       setNewRole('');
       await loadTeamData();
       toast.success('Role updated');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to update role');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to update role'));
       toast.error('Failed to update team. Please try again.');
     } finally {
       setUpdatingRole(false);
@@ -295,8 +296,8 @@ export default function TeamManagementPage() {
       await teamCollaborationApi.suspendMember(memberId, {});
       await loadTeamData();
       toast.success('Team member suspended');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to suspend member');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to suspend member'));
       toast.error('Failed to update team. Please try again.');
     }
   };
@@ -307,8 +308,8 @@ export default function TeamManagementPage() {
       await teamCollaborationApi.reactivateMember(memberId);
       await loadTeamData();
       toast.success('Team member reactivated');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to reactivate member');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to reactivate member'));
       toast.error('Failed to update team. Please try again.');
     }
   };

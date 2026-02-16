@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { interviewSchedulingApi, teamCollaborationApi } from '@/lib/api';
+import { getErrorMessage } from '@/lib/api-error-handler';
 import { SearchInput } from '@/components/ui/search-input';
 import { useSearch } from '@/hooks/useSearch';
 import { Button } from '@/components/ui/button';
@@ -230,8 +231,8 @@ export default function InterviewSchedulingPage() {
       if (response.data?.data) {
         setInterviews(response.data.data.interviews || []);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to load interviews');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to load interviews'));
     } finally {
       setLoading(false);
     }
@@ -276,8 +277,8 @@ export default function InterviewSchedulingPage() {
       await loadInterviews();
       await loadUpcomingInterviews();
       toast.success('Interview scheduled');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to schedule interview');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to schedule interview'));
       toast.error('Failed to update interview. Please try again.');
     } finally {
       setSubmitting(false);
@@ -298,8 +299,8 @@ export default function InterviewSchedulingPage() {
       await loadInterviews();
       await loadUpcomingInterviews();
       toast.success('Interview updated');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to reschedule interview');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to reschedule interview'));
       toast.error('Failed to update interview. Please try again.');
     } finally {
       setSubmitting(false);
@@ -320,8 +321,8 @@ export default function InterviewSchedulingPage() {
       await loadInterviews();
       await loadUpcomingInterviews();
       toast.success('Interview cancelled');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to cancel interview');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to cancel interview'));
       toast.error('Failed to update interview. Please try again.');
     } finally {
       setCancelDialogOpen(false);
@@ -342,8 +343,8 @@ export default function InterviewSchedulingPage() {
       resetFeedbackForm();
       await loadInterviews();
       toast.success('Feedback submitted');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to submit feedback');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to submit feedback'));
       toast.error('Failed to update interview. Please try again.');
     } finally {
       setSubmitting(false);
@@ -359,8 +360,8 @@ export default function InterviewSchedulingPage() {
         timezone: 'America/New_York',
       });
       toast.success('Availability request sent to candidate');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to request availability');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to request availability'));
       toast.error('Failed to update interview. Please try again.');
     }
   };

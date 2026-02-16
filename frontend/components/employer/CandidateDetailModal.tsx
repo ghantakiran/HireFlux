@@ -14,6 +14,7 @@
 import { useEffect, useState } from 'react';
 import { atsApi } from '@/lib/api';
 import { EmptyState } from '@/components/domain/EmptyState';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface CandidateDetailModalProps {
   applicationId: string;
@@ -118,8 +119,8 @@ export default function CandidateDetailModal({
       // Refresh data
       await fetchApplicationDetails();
       onUpdate?.();
-    } catch (err: any) {
-      alert(err.response?.data?.detail || 'Failed to update status');
+    } catch (err: unknown) {
+      alert(getErrorMessage(err, 'Failed to update status'));
     } finally {
       setChangingStatus(false);
     }
@@ -146,8 +147,8 @@ export default function CandidateDetailModal({
       // Reset form
       setNewNoteContent('');
       setNewNoteVisibility('team');
-    } catch (err: any) {
-      alert(err.response?.data?.detail || 'Failed to add note');
+    } catch (err: unknown) {
+      alert(getErrorMessage(err, 'Failed to add note'));
     } finally {
       setSubmittingNote(false);
     }

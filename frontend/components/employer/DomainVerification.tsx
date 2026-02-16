@@ -33,6 +33,7 @@ import {
   Info,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Types
 interface VerificationStatus {
@@ -123,8 +124,8 @@ export function DomainVerification({ companyDomain }: { companyDomain?: string }
       setInstructions(data);
       setSuccess(data.instructions);
       await fetchStatus();
-    } catch (err: any) {
-      setError(err.message || 'Failed to initiate verification');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to initiate verification'));
     } finally {
       setLoading(false);
     }
@@ -161,8 +162,8 @@ export function DomainVerification({ companyDomain }: { companyDomain?: string }
       } else {
         setError(data.message || 'Verification failed. Please check your setup and try again.');
       }
-    } catch (err: any) {
-      setError(err.message || 'Verification failed');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Verification failed'));
     } finally {
       setVerifyLoading(false);
     }
@@ -188,8 +189,8 @@ export function DomainVerification({ companyDomain }: { companyDomain?: string }
       }
 
       setSuccess('Verification emails resent successfully!');
-    } catch (err: any) {
-      setError(err.message || 'Failed to resend email');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to resend email'));
     } finally {
       setLoading(false);
     }

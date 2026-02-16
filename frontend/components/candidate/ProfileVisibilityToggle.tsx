@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Globe, Lock, AlertCircle, Eye, Users } from 'lucide-react';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface ProfileVisibilityToggleProps {
   isPublic: boolean;
@@ -53,8 +54,8 @@ export default function ProfileVisibilityToggle({
 
     try {
       await onToggle(!isPublic);
-    } catch (err: any) {
-      setError(err.message || 'Failed to update visibility');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to update visibility'));
     } finally {
       setLoading(false);
     }

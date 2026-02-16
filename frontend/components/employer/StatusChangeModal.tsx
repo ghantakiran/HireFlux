@@ -38,6 +38,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Mail, Eye, AlertCircle, Send } from 'lucide-react';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Application status enum (matches backend ATSApplicationStatus)
 export enum ApplicationStatus {
@@ -178,8 +179,8 @@ export default function StatusChangeModal({
       });
 
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Failed to update status. Please try again.');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to update status. Please try again.'));
     } finally {
       setLoading(false);
     }

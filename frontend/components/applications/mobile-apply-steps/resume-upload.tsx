@@ -17,6 +17,7 @@ import { formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { CameraCapture } from '../camera-capture';
 import type { ApplicationData } from '../mobile-apply-modal';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface ResumeUploadStepProps {
   applicationData: ApplicationData;
@@ -90,8 +91,8 @@ export function ResumeUploadStep({
       });
 
       setUploadMode('options');
-    } catch (error: any) {
-      setUploadError(error.message || 'Upload failed. Please try again.');
+    } catch (error: unknown) {
+      setUploadError(getErrorMessage(error, 'Upload failed. Please try again.'));
     } finally {
       setIsUploading(false);
     }

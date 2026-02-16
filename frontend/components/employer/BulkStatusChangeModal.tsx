@@ -38,6 +38,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, AlertCircle, AlertTriangle } from 'lucide-react';
 import { ApplicationStatus } from './StatusChangeModal';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Status display names
 const STATUS_LABELS: Record<ApplicationStatus, string> = {
@@ -190,8 +191,8 @@ export default function BulkStatusChangeModal({
       });
 
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Failed to update applications. Please try again.');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to update applications. Please try again.'));
     } finally {
       setLoading(false);
     }

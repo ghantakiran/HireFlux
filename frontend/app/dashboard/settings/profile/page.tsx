@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2, Eye, EyeOff, Trash2, Plus, X, Github, Globe, FileText, Briefcase } from 'lucide-react';
 import { toast } from 'sonner';
 import { titleCase } from '@/lib/utils';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface PortfolioItem {
   type: 'github' | 'website' | 'article' | 'project';
@@ -119,8 +120,9 @@ export default function ProfileSettingsPage() {
         setProfile(response.data.data);
         setHasProfile(true);
       }
-    } catch (error: any) {
-      if (error.response?.status === 404) {
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'response' in error &&
+          (error as any).response?.status === 404) {
         setHasProfile(false);
       } else {
         console.error('Failed to load profile:', error);
@@ -184,11 +186,12 @@ export default function ProfileSettingsPage() {
         setHasProfile(true);
         await loadProfile();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to save profile:', error);
+      const errorMessage = getErrorMessage(error, 'Failed to save profile');
       setMessage({
         type: 'error',
-        text: error.response?.data?.detail || 'Failed to save profile'
+        text: errorMessage
       });
       toast.error('Failed to update profile. Please try again.');
     } finally {
@@ -208,11 +211,11 @@ export default function ProfileSettingsPage() {
         text: `Profile is now ${newVisibility}`
       });
       toast.success(`Profile is now ${newVisibility}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update visibility:', error);
       setMessage({
         type: 'error',
-        text: 'Failed to update visibility'
+        text: getErrorMessage(error, 'Failed to update visibility')
       });
       toast.error('Failed to update visibility. Please try again.');
     }
@@ -227,9 +230,9 @@ export default function ProfileSettingsPage() {
       setProfile({ ...profile, availability_status: status });
       setMessage({ type: 'success', text: 'Availability updated' });
       toast.success('Availability updated');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update availability:', error);
-      setMessage({ type: 'error', text: 'Failed to update availability' });
+      setMessage({ type: 'error', text: getErrorMessage(error, 'Failed to update availability') });
       toast.error('Failed to update availability. Please try again.');
     }
   };
@@ -256,9 +259,9 @@ export default function ProfileSettingsPage() {
       setShowPortfolioDialog(false);
       setPortfolioForm({ type: 'github', title: '', description: '', url: '' });
       await loadProfile();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to add portfolio item:', error);
-      setMessage({ type: 'error', text: 'Failed to add portfolio item' });
+      setMessage({ type: 'error', text: getErrorMessage(error, 'Failed to add portfolio item') });
       toast.error('Failed to add portfolio item. Please try again.');
     }
   };

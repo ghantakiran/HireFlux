@@ -21,6 +21,7 @@ import {
 import { FormShake } from '@/components/ui/form-shake';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { authApi } from '@/lib/api';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 const signInSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
@@ -62,10 +63,8 @@ export default function SignInPage() {
       const returnUrl = searchParams.get('returnUrl');
 
       router.push(returnUrl || '/dashboard');
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.error?.message || 'Failed to sign in. Please try again.';
-      setError(errorMessage);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Failed to sign in. Please try again.'));
     } finally {
       setIsLoading(false);
     }

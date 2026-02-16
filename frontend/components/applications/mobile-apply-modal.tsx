@@ -21,6 +21,7 @@ import { ResumeUploadStep } from './mobile-apply-steps/resume-upload';
 import { ApplicationFormStep } from './mobile-apply-steps/application-form';
 import { ReviewStep } from './mobile-apply-steps/review';
 import { SuccessScreen } from './mobile-apply-steps/success';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Application steps
 const STEPS = [
@@ -185,8 +186,8 @@ export function MobileApplyModal({
       // Show success screen
       setApplicationRef(result.referenceNumber || `APP-${result.id}`);
       setCurrentStep(4); // Success screen
-    } catch (error: any) {
-      setSubmissionError(error.message);
+    } catch (error: unknown) {
+      setSubmissionError(getErrorMessage(error, 'Failed to submit application. Please try again.'));
     } finally {
       setIsSubmitting(false);
     }

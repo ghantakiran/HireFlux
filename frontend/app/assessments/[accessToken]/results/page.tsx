@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import { candidateAssessmentApi, ApiResponse } from '@/lib/api';
 import { toast } from 'sonner';
 import { formatDateTime, formatDuration } from '@/lib/utils';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface QuestionResult {
   id: string;
@@ -92,9 +93,9 @@ export default function AssessmentResultsPage() {
         } else {
           throw new Error('Failed to load results');
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Failed to load results:', error);
-        setError(error.response?.data?.detail || error.message || 'Failed to load results');
+        setError(getErrorMessage(error, 'Failed to load results'));
         toast.error('Failed to load assessment results');
       } finally {
         setLoading(false);

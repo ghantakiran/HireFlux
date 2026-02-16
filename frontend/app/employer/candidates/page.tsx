@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { TagInput } from "@/components/ui/tag-input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { candidateSearchApi } from '@/lib/api';
+import { getErrorMessage } from '@/lib/api-error-handler';
 import { Search, MapPin, DollarSign, Briefcase, Eye, Save, Filter, X, Users } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { FilterBar } from '@/components/ui/filter-bar';
@@ -163,8 +164,8 @@ export default function CandidateSearchPage() {
         setCandidates(response.data.data.candidates || []);
         setTotalResults(response.data.data.total || 0);
       }
-    } catch (error: any) {
-      console.error('Search failed:', error);
+    } catch (error: unknown) {
+      console.error('Search failed:', getErrorMessage(error, 'Failed to search candidates'));
     } finally {
       setLoading(false);
     }
@@ -181,8 +182,8 @@ export default function CandidateSearchPage() {
         setSelectedCandidate(response.data.data);
         setShowCandidateModal(true);
       }
-    } catch (error: any) {
-      console.error('Failed to load profile:', error);
+    } catch (error: unknown) {
+      console.error('Failed to load profile:', getErrorMessage(error, 'Failed to load candidate profile'));
     }
   };
 

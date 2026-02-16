@@ -231,6 +231,24 @@ export async function withTimeout<T>(
 }
 
 /**
+ * Extract a user-friendly error message from an unknown error.
+ * Handles Error instances, Axios-style responses, and plain strings.
+ */
+export function getErrorMessage(error: unknown, fallback = 'An unexpected error occurred'): string {
+  if (typeof error === 'string') return error;
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'object' && error !== null) {
+    const e = error as Record<string, unknown>;
+    const response = e.response as Record<string, unknown> | undefined;
+    const data = response?.data as Record<string, unknown> | undefined;
+    if (typeof data?.detail === 'string') return data.detail;
+    if (typeof data?.message === 'string') return data.message;
+    if (typeof e.message === 'string') return e.message;
+  }
+  return fallback;
+}
+
+/**
  * Log API errors consistently
  */
 export function logApiError(error: unknown, context?: Record<string, any>) {
