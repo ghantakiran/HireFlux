@@ -50,6 +50,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { EmptyState } from '@/components/domain/EmptyState';
+import { StatCard } from '@/components/ui/stat-card';
 import { Pagination } from '@/components/ui/pagination';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -315,30 +316,10 @@ export default function EmployerJobsPage() {
       <div className="bg-white dark:bg-gray-900 border-b dark:border-gray-700">
         <div className="container mx-auto px-4 py-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6" data-job-statistics>
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Jobs</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-gray-100" data-total-jobs>
-                {jobStats.total}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Active</p>
-              <p className="text-3xl font-bold text-green-600 dark:text-green-400" data-active-jobs>
-                {jobStats.active}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Draft</p>
-              <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400" data-draft-jobs>
-                {jobStats.draft}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Closed</p>
-              <p className="text-3xl font-bold text-gray-600 dark:text-gray-400" data-closed-jobs>
-                {jobStats.closed}
-              </p>
-            </div>
+            <StatCard layout="minimal" label="Total Jobs" value={jobStats.total} data-testid="total-jobs" />
+            <StatCard layout="minimal" label="Active" value={jobStats.active} valueColor="text-green-600 dark:text-green-400" data-testid="active-jobs" />
+            <StatCard layout="minimal" label="Draft" value={jobStats.draft} valueColor="text-yellow-600 dark:text-yellow-400" data-testid="draft-jobs" />
+            <StatCard layout="minimal" label="Closed" value={jobStats.closed} valueColor="text-gray-600 dark:text-gray-400" data-testid="closed-jobs" />
           </div>
         </div>
       </div>

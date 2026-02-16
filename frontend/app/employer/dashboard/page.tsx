@@ -34,6 +34,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/domain/EmptyState';
 import { formatDateTime } from '@/lib/utils';
 import { getAuthToken } from '@/lib/api-client';
+import { StatCard } from '@/components/ui/stat-card';
 
 // Types
 interface DashboardStats {
@@ -339,59 +340,22 @@ export default function EmployerDashboardPage() {
           {showDetailedMetrics && (
             <div className="px-4 pb-6 border-t border-gray-100 dark:border-gray-800 pt-4 animate-fade-in">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Active Jobs */}
-                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-2">
-                    <Briefcase className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Active Jobs</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stats?.active_jobs ?? 0}
-                  </p>
-                </div>
-
-                {/* New Applications Today */}
-                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mb-2">
-                    <Users className="w-5 h-5 text-green-600" />
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">New Applications Today</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stats?.new_applications_today ?? 0}
-                  </p>
-                </div>
-
-                {/* Avg Fit Index */}
-                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-2">
-                    <TrendingUp className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Avg Fit Index</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stats?.avg_fit_index
-                      ? `${stats.avg_fit_index.toFixed(1)}`
-                      : '--'}
-                  </p>
-                  {stats?.avg_fit_index && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Last 30 days</p>
-                  )}
-                </div>
-
-                {/* Avg Time to Fill */}
-                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mb-2">
-                    <Clock className="w-5 h-5 text-yellow-600" />
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Avg Time to Fill</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stats?.avg_time_to_fill
-                      ? `${Math.round(stats.avg_time_to_fill)}`
-                      : '--'}
-                  </p>
-                  {stats?.avg_time_to_fill && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Days</p>
-                  )}
-                </div>
+                <StatCard icon={Briefcase} iconColor="blue" label="Active Jobs" value={stats?.active_jobs ?? 0} />
+                <StatCard icon={Users} iconColor="green" label="New Applications Today" value={stats?.new_applications_today ?? 0} />
+                <StatCard
+                  icon={TrendingUp}
+                  iconColor="purple"
+                  label="Avg Fit Index"
+                  value={stats?.avg_fit_index ? `${stats.avg_fit_index.toFixed(1)}` : '--'}
+                  subtitle={stats?.avg_fit_index ? 'Last 30 days' : undefined}
+                />
+                <StatCard
+                  icon={Clock}
+                  iconColor="yellow"
+                  label="Avg Time to Fill"
+                  value={stats?.avg_time_to_fill ? `${Math.round(stats.avg_time_to_fill)}` : '--'}
+                  subtitle={stats?.avg_time_to_fill ? 'Days' : undefined}
+                />
               </div>
             </div>
           )}

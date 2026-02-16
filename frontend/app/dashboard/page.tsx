@@ -29,6 +29,7 @@ import { Avatar } from '@/components/ui/optimized-image';
 import { NoActivityEmptyState } from '@/components/ui/empty-state';
 import { formatDateTime, downloadFile } from '@/lib/utils';
 import { getHealthScoreColor } from '@/lib/score-colors';
+import { StatCard } from '@/components/ui/stat-card';
 
 // Types
 interface HealthScore {
@@ -483,51 +484,10 @@ export default function DashboardPage() {
               <div className="px-4 pb-6 border-t border-gray-100 dark:border-gray-800 pt-4 animate-fade-in">
                 {/* Quick Stats Cards */}
                 <div data-tour="stats-cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg" data-testid="stat-applications-week">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Applications this week</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                          {data.applications_this_week}
-                        </p>
-                      </div>
-                      <Briefcase className="w-8 h-8 text-blue-600" />
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg" data-testid="stat-interviews-week">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Interviews this week</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                          {data.interviews_this_week}
-                        </p>
-                      </div>
-                      <Calendar className="w-8 h-8 text-green-600" />
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg" data-testid="stat-offers-pending">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Pending offers</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{data.offers_pending}</p>
-                      </div>
-                      <Gift className="w-8 h-8 text-purple-600" />
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg" data-testid="stat-new-matches">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">New matches</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                          {data.new_matches_count}
-                        </p>
-                      </div>
-                      <Star className="w-8 h-8 text-yellow-600" />
-                    </div>
-                  </div>
+                  <StatCard layout="icon-right" icon={Briefcase} iconColor="blue" label="Applications this week" value={data.applications_this_week} data-testid="stat-applications-week" />
+                  <StatCard layout="icon-right" icon={Calendar} iconColor="green" label="Interviews this week" value={data.interviews_this_week} data-testid="stat-interviews-week" />
+                  <StatCard layout="icon-right" icon={Gift} iconColor="purple" label="Pending offers" value={data.offers_pending} data-testid="stat-offers-pending" />
+                  <StatCard layout="icon-right" icon={Star} iconColor="yellow" label="New matches" value={data.new_matches_count} data-testid="stat-new-matches" />
                 </div>
 
                 {/* Full Pipeline Breakdown */}
