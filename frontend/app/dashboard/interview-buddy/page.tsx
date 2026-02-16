@@ -23,7 +23,7 @@ export default function InterviewCoachPage() {
         description="Practice interviews with AI feedback. Build confidence with mock questions tailored to your target roles."
         action={{
           label: 'Start Practice Session',
-          onClick: () => console.log('Start practice session'),
+          onClick: () => { /* TODO: Implement practice session */ },
         }}
       />
     </div>

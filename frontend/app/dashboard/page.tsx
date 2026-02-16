@@ -7,7 +7,6 @@ import { useTourTrigger } from '@/lib/tours/useTourTrigger';
 import {
   TrendingUp,
   TrendingDown,
-  Minus,
   RefreshCw,
   Download,
   HelpCircle,

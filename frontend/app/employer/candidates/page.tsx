@@ -56,7 +56,7 @@ interface SearchFilters {
   limit: number;
 }
 
-import { SKILLS_OPTIONS, EXPERIENCE_LEVELS, LOCATION_TYPES, AVAILABILITY_STATUSES } from '@/lib/constants/filter-options';
+import { EXPERIENCE_LEVELS, LOCATION_TYPES, AVAILABILITY_STATUSES } from '@/lib/constants/filter-options';
 import { PageLoader } from '@/components/ui/page-loader';
 
 const CANDIDATE_URL_CONFIG = {

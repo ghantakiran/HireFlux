@@ -58,7 +58,6 @@ import {
   Plus,
   Edit,
   X,
-  CheckCircle,
   MessageSquare,
   Star,
 } from 'lucide-react';
