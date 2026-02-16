@@ -241,6 +241,7 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
                 variant="ghost"
                 size="icon"
                 className="text-white hover:bg-white/20"
+                aria-label="Close camera"
               >
                 <X className="h-6 w-6" />
               </Button>

@@ -224,6 +224,7 @@ export function FeatureRequestForm({ onSubmit, onCancel }: FeatureRequestFormPro
                     size="icon"
                     className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                     onClick={() => handleRemoveMockup(index)}
+                    aria-label="Remove mockup"
                   >
                     <X className="h-3 w-3" />
                   </Button>

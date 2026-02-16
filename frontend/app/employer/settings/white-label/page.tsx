@@ -787,6 +787,7 @@ export default function WhiteLabelSettingsPage() {
                                         navigator.clipboard.writeText(domainVerification.txt_record);
                                         toast.success('Copied to clipboard');
                                       }}
+                                      aria-label="Copy TXT record"
                                     >
                                       <Copy className="h-3 w-3" />
                                     </Button>

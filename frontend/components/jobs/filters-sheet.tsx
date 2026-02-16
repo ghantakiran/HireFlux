@@ -51,7 +51,7 @@ export function FiltersSheet({ isOpen, onClose, onApply }: FiltersSheetProps) {
         {/* Header */}
         <header className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Filters</h2>
-          <Button variant="ghost" size="icon" onClick={onClose} className="h-10 w-10">
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-10 w-10" aria-label="Close filters">
             <X className="h-5 w-5" />
           </Button>
         </header>

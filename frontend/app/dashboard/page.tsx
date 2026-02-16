@@ -273,6 +273,7 @@ export default function DashboardPage() {
                 onClick={handleRefresh}
                 className="p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 rounded-lg flex items-center gap-2"
                 title="Refresh"
+                aria-label="Refresh dashboard"
               >
                 <RefreshCw className="w-5 h-5" />
               </button>
@@ -280,6 +281,7 @@ export default function DashboardPage() {
                 onClick={handleExport}
                 className="p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 rounded-lg flex items-center gap-2"
                 title="Export"
+                aria-label="Export dashboard data"
               >
                 <Download className="w-5 h-5" />
               </button>
@@ -341,6 +343,7 @@ export default function DashboardPage() {
               tabIndex={0}
               role="button"
               aria-expanded={healthScoreExpanded}
+              aria-label="Toggle health score details"
               onClick={() => setHealthScoreExpanded(!healthScoreExpanded)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setHealthScoreExpanded(!healthScoreExpanded); } }}
             >

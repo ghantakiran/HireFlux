@@ -397,6 +397,7 @@ export function DomainVerification({ companyDomain }: { companyDomain?: string }
                         size="sm"
                         onClick={() => copyToClipboard(instructions.txt_record || '')}
                         data-testid="copy-txt-record"
+                        aria-label="Copy TXT record"
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
@@ -414,6 +415,7 @@ export function DomainVerification({ companyDomain }: { companyDomain?: string }
                         size="sm"
                         onClick={() => copyToClipboard(instructions.txt_record_value || '')}
                         data-testid="copy-txt-value"
+                        aria-label="Copy TXT record value"
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
@@ -476,6 +478,7 @@ export function DomainVerification({ companyDomain }: { companyDomain?: string }
                         variant="outline"
                         size="sm"
                         onClick={() => copyToClipboard(instructions.filename || '')}
+                        aria-label="Copy filename"
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
@@ -493,6 +496,7 @@ export function DomainVerification({ companyDomain }: { companyDomain?: string }
                         size="sm"
                         onClick={() => copyToClipboard(instructions.file_content || '')}
                         data-testid="copy-file-content"
+                        aria-label="Copy file content"
                       >
                         <Copy className="h-4 w-4" />
                       </Button>

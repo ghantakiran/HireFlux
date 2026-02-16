@@ -285,6 +285,7 @@ export function BugReportForm({ onSubmit, onCancel, errorContext }: BugReportFor
                   onClick={handleRemoveScreenshot}
                   data-testid="screenshot-remove"
                   data-remove-screenshot
+                  aria-label="Remove screenshot"
                 >
                   <X className="h-4 w-4" />
                 </Button>

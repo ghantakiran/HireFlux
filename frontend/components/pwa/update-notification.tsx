@@ -61,6 +61,7 @@ export function UpdateNotification() {
             variant="ghost"
             size="icon"
             className="h-8 w-8 text-white hover:bg-blue-700 -mt-1 -mr-1"
+            aria-label="Dismiss update notification"
           >
             <X className="h-4 w-4" />
           </Button>

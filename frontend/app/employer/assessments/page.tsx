@@ -300,7 +300,7 @@ export default function AssessmentsPage() {
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()} aria-label="Assessment actions">
                       <MoreVertical className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>

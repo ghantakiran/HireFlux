@@ -253,6 +253,7 @@ export default function APIKeysPage() {
                 variant="outline"
                 size="icon"
                 onClick={() => handleCopyKey(newlyCreatedKey)}
+                aria-label="Copy API key"
               >
                 <Copy className="h-4 w-4" />
               </Button>

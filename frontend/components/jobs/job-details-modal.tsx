@@ -49,6 +49,7 @@ export function JobDetailsModal({
             size="icon"
             onClick={onClose}
             className="h-10 w-10"
+            aria-label="Close job details"
           >
             <X className="h-5 w-5" />
           </Button>

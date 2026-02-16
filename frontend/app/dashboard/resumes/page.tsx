@@ -334,6 +334,7 @@ export default function ResumesPage() {
                       variant="ghost"
                       size="sm"
                       onClick={(e) => handleDeleteClick(resume.id, e)}
+                      aria-label="Delete resume"
                     >
                       <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
                     </Button>

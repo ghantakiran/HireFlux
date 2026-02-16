@@ -285,6 +285,7 @@ export default function JobsPage() {
                         size="sm"
                         onClick={(e) => handleSaveJob(job.id, e)}
                         disabled={savingJobId === job.id}
+                        aria-label={saved ? 'Unsave job' : 'Save job'}
                       >
                         {savingJobId === job.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
