@@ -90,17 +90,7 @@ export default function RootLayout({
         {/* DNS prefetch for external resources */}
         <link rel="dns-prefetch" href="https://storage.hireflux.com" />
 
-        {/* Preload critical fonts (Issue #144: Performance Optimization) */}
-        <link
-          rel="preload"
-          href="/_next/static/media/inter-latin-ext.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-
-        {/* Preload critical CSS for faster FCP/LCP */}
-        <link rel="preload" href="/_next/static/css/app.css" as="style" />
+        {/* Next.js handles font preloading and CSS injection automatically */}
 
         {/* PWA Manifest - Issue #143 */}
         <link rel="manifest" href="/manifest.json" />
@@ -109,10 +99,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="HireFlux" />
 
-        {/* Apple touch icons */}
-        <link rel="apple-touch-icon" sizes="180x180" href="/icon-192.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/icon-192.png" />
+        {/* TODO: Add favicon and touch icons to /public when assets are ready */}
       </head>
       <body className={inter.className}>
         <ThemeProvider>

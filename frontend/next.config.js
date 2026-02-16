@@ -110,7 +110,7 @@ const nextConfig = {
 
   // Enable experimental features for better performance
   experimental: {
-    optimizeCss: true, // Enable CSS optimization
+    // optimizeCss: true, // Disabled: causes MIME type issues with next start
     optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'], // Tree shake icon libraries
   },
 

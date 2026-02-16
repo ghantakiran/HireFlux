@@ -6,8 +6,7 @@
  * Based on: UX_UI_IMPLEMENTATION_ROADMAP.md
  */
 
-@layer base {
-  :root {
+:root {
     /* ===== PRIMARY COLORS (AI/Tech) ===== */
     --primary-50: #F0F9FF;
     --primary-100: #E0F2FE;
@@ -166,11 +165,11 @@
     --shadow-card-hover: 0 12px 24px -4px rgb(0 0 0 / 0.12), 0 4px 8px -2px rgb(0 0 0 / 0.08);
     --scale-press: 0.97;
     --ring-pulse-color: hsl(var(--ring) / 0.4);
-  }
+}
 
-  /* ===== DARK MODE ===== */
-  .dark,
-  [data-theme="dark"] {
+/* ===== DARK MODE ===== */
+.dark,
+[data-theme="dark"] {
     /* Background & Surface */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -218,52 +217,50 @@
 
     /* Interactive tokens (dark) */
     --shadow-card-hover: 0 12px 24px -4px rgb(0 0 0 / 0.3), 0 4px 8px -2px rgb(0 0 0 / 0.2);
-  }
 }
 
 /* ===== UTILITY CLASSES ===== */
-@layer utilities {
-  /* Transition utilities */
-  .transition-fast {
-    transition-duration: var(--duration-fast);
-    transition-timing-function: var(--ease-default);
-  }
 
-  .transition-normal {
-    transition-duration: var(--duration-normal);
-    transition-timing-function: var(--ease-default);
-  }
+/* Transition utilities */
+.transition-fast {
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-default);
+}
 
-  .transition-slow {
-    transition-duration: var(--duration-slow);
-    transition-timing-function: var(--ease-default);
-  }
+.transition-normal {
+  transition-duration: var(--duration-normal);
+  transition-timing-function: var(--ease-default);
+}
 
-  .transition-bounce {
-    transition-timing-function: var(--ease-bounce);
-  }
+.transition-slow {
+  transition-duration: var(--duration-slow);
+  transition-timing-function: var(--ease-default);
+}
 
-  /* Shadow utilities */
-  .shadow-hover {
-    box-shadow: var(--shadow-sm);
-  }
+.transition-bounce {
+  transition-timing-function: var(--ease-bounce);
+}
 
-  .shadow-card {
-    box-shadow: var(--shadow);
-  }
+/* Shadow utilities */
+.shadow-hover {
+  box-shadow: var(--shadow-sm);
+}
 
-  .shadow-dropdown {
-    box-shadow: var(--shadow-md);
-  }
+.shadow-card {
+  box-shadow: var(--shadow);
+}
 
-  .shadow-modal {
-    box-shadow: var(--shadow-lg);
-  }
+.shadow-dropdown {
+  box-shadow: var(--shadow-md);
+}
 
-  /* Interactive transition utility */
-  .transition-interactive {
-    transition-property: transform, box-shadow, border-color;
-    transition-duration: var(--duration-normal);
-    transition-timing-function: var(--ease-default);
-  }
+.shadow-modal {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Interactive transition utility */
+.transition-interactive {
+  transition-property: transform, box-shadow, border-color;
+  transition-duration: var(--duration-normal);
+  transition-timing-function: var(--ease-default);
 }

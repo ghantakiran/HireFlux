@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "hireflux",
   "builds": [
     {
       "src": "frontend/package.json",
@@ -27,12 +26,7 @@
       "NODE_ENV": "production"
     }
   },
-  "functions": {
-    "frontend/**/*.js": {
-      "maxDuration": 10
-    }
-  },
-  "regions": ["sfo1", "iad1"],
+  "regions": ["sfo1"],
   "github": {
     "enabled": true,
     "autoAlias": true,
