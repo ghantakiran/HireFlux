@@ -7,10 +7,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys, cacheInvalidation } from '../react-query';
-import axios from 'axios';
+import { createAuthAxios } from '../api-client';
 import { toast } from 'sonner';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 export interface Application {
   id: string;
@@ -54,12 +52,10 @@ export function useApplications(filters?: ApplicationFilters) {
   return useQuery({
     queryKey: queryKeys.applications.list(filters),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: Application[] }>(
-        `${API_BASE_URL}/applications`,
+      const response = await createAuthAxios().get<{ data: Application[] }>(
+        '/applications',
         {
           params: filters,
-          headers: { Authorization: `Bearer ${token}` },
         }
       );
       return response.data.data;
@@ -74,12 +70,8 @@ export function useApplication(id: string) {
   return useQuery({
     queryKey: queryKeys.applications.detail(id),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: Application }>(
-        `${API_BASE_URL}/applications/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await createAuthAxios().get<{ data: Application }>(
+        `/applications/${id}`,
       );
       return response.data.data;
     },
@@ -94,12 +86,8 @@ export function useApplicationStats() {
   return useQuery({
     queryKey: queryKeys.applications.stats(),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: ApplicationStats }>(
-        `${API_BASE_URL}/applications/stats`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await createAuthAxios().get<{ data: ApplicationStats }>(
+        '/applications/stats',
       );
       return response.data.data;
     },
@@ -114,12 +102,9 @@ export function useApplicationTimeline(applicationId: string) {
   return useQuery({
     queryKey: queryKeys.applications.timeline(applicationId),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{
+      const response = await createAuthAxios().get<{
         data: Array<{ event: string; timestamp: string; note?: string }>;
-      }>(`${API_BASE_URL}/applications/${applicationId}/timeline`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      }>(`/applications/${applicationId}/timeline`);
       return response.data.data;
     },
     enabled: !!applicationId,
@@ -138,13 +123,9 @@ export function useCreateApplication() {
       resume_id: string;
       cover_letter_id?: string;
     }) => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.post<{ data: Application }>(
-        `${API_BASE_URL}/applications`,
+      const response = await createAuthAxios().post<{ data: Application }>(
+        '/applications',
         data,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
       return response.data.data;
     },
@@ -172,13 +153,9 @@ export function useUpdateApplicationStatus() {
       status: Application['status'];
       note?: string;
     }) => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.patch<{ data: Application }>(
-        `${API_BASE_URL}/applications/${id}/status`,
+      const response = await createAuthAxios().patch<{ data: Application }>(
+        `/applications/${id}/status`,
         { status, note },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
       return response.data.data;
     },
@@ -202,13 +179,9 @@ export function useAddApplicationNote() {
 
   return useMutation({
     mutationFn: async ({ id, note }: { id: string; note: string }) => {
-      const token = localStorage.getItem('access_token');
-      await axios.post(
-        `${API_BASE_URL}/applications/${id}/notes`,
+      await createAuthAxios().post(
+        `/applications/${id}/notes`,
         { note },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
     },
     onSuccess: (_, variables) => {
@@ -229,10 +202,7 @@ export function useDeleteApplication() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const token = localStorage.getItem('access_token');
-      await axios.delete(`${API_BASE_URL}/applications/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await createAuthAxios().delete(`/applications/${id}`);
     },
     onSuccess: () => {
       cacheInvalidation.invalidateApplications(queryClient);

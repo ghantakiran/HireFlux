@@ -7,10 +7,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys, cacheInvalidation } from '../react-query';
-import axios from 'axios';
+import { createAuthAxios } from '../api-client';
 import { toast } from 'sonner';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 export interface Job {
   id: string;
@@ -45,10 +43,8 @@ export function useJobs(filters?: JobFilters) {
   return useQuery({
     queryKey: queryKeys.jobs.list(filters),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: Job[] }>(`${API_BASE_URL}/jobs`, {
+      const response = await createAuthAxios().get<{ data: Job[] }>('/jobs', {
         params: filters,
-        headers: { Authorization: `Bearer ${token}` },
       });
       return response.data.data;
     },
@@ -62,10 +58,7 @@ export function useJob(id: string) {
   return useQuery({
     queryKey: queryKeys.jobs.detail(id),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: Job }>(`${API_BASE_URL}/jobs/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await createAuthAxios().get<{ data: Job }>(`/jobs/${id}`);
       return response.data.data;
     },
     enabled: !!id,
@@ -79,10 +72,7 @@ export function useSavedJobs() {
   return useQuery({
     queryKey: queryKeys.jobs.saved(),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: Job[] }>(`${API_BASE_URL}/jobs/saved`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await createAuthAxios().get<{ data: Job[] }>('/jobs/saved');
       return response.data.data;
     },
   });
@@ -95,12 +85,8 @@ export function useJobRecommendations(userId: string) {
   return useQuery({
     queryKey: queryKeys.jobs.recommendations(userId),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: Job[] }>(
-        `${API_BASE_URL}/jobs/recommendations`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await createAuthAxios().get<{ data: Job[] }>(
+        '/jobs/recommendations'
       );
       return response.data.data;
     },
@@ -116,12 +102,8 @@ export function useJobMatchScore(jobId: string, resumeId: string) {
   return useQuery({
     queryKey: queryKeys.jobs.matchScore(jobId, resumeId),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: { score: number; reasons: string[] } }>(
-        `${API_BASE_URL}/jobs/${jobId}/match/${resumeId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await createAuthAxios().get<{ data: { score: number; reasons: string[] } }>(
+        `/jobs/${jobId}/match/${resumeId}`
       );
       return response.data.data;
     },
@@ -138,15 +120,8 @@ export function useToggleSaveJob() {
 
   return useMutation({
     mutationFn: async ({ jobId, save }: { jobId: string; save: boolean }) => {
-      const token = localStorage.getItem('access_token');
       const endpoint = save ? 'save' : 'unsave';
-      await axios.post(
-        `${API_BASE_URL}/jobs/${jobId}/${endpoint}`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await createAuthAxios().post(`/jobs/${jobId}/${endpoint}`, {});
     },
     onSuccess: (_, variables) => {
       cacheInvalidation.invalidateJobs(queryClient);

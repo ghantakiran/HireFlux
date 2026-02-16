@@ -7,11 +7,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys, cacheInvalidation } from '../react-query';
-import axios from 'axios';
+import { createAuthAxios } from '../api-client';
 import { toast } from 'sonner';
-
-// API Base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 // Types
 export interface Resume {
@@ -40,12 +37,8 @@ export function useResumes(filters?: ResumeFilters) {
   return useQuery({
     queryKey: queryKeys.resumes.list(filters),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: Resume[] }>(`${API_BASE_URL}/resumes`, {
+      const response = await createAuthAxios().get<{ data: Resume[] }>('/resumes', {
         params: filters,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
       return response.data.data;
     },
@@ -62,12 +55,7 @@ export function useResume(id: string) {
   return useQuery({
     queryKey: queryKeys.resumes.detail(id),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: Resume }>(`${API_BASE_URL}/resumes/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await createAuthAxios().get<{ data: Resume }>(`/resumes/${id}`);
       return response.data.data;
     },
     enabled: !!id, // Only run query if id is provided
@@ -84,12 +72,7 @@ export function useCreateResume() {
 
   return useMutation({
     mutationFn: async (data: Partial<Resume>) => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.post<{ data: Resume }>(`${API_BASE_URL}/resumes`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await createAuthAxios().post<{ data: Resume }>('/resumes', data);
       return response.data.data;
     },
     onSuccess: (data) => {
@@ -114,15 +97,9 @@ export function useUpdateResume() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<Resume> }) => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.put<{ data: Resume }>(
-        `${API_BASE_URL}/resumes/${id}`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await createAuthAxios().put<{ data: Resume }>(
+        `/resumes/${id}`,
+        data
       );
       return response.data.data;
     },
@@ -149,12 +126,7 @@ export function useDeleteResume() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const token = localStorage.getItem('access_token');
-      await axios.delete(`${API_BASE_URL}/resumes/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await createAuthAxios().delete(`/resumes/${id}`);
     },
     onSuccess: () => {
       // Invalidate resume list

@@ -7,11 +7,9 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys, cacheInvalidation } from '../react-query';
-import axios from 'axios';
+import { createAuthAxios } from '../api-client';
 import { toast } from 'sonner';
 import { downloadBlob } from '@/lib/utils';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 export interface CoverLetter {
   id: string;
@@ -50,12 +48,10 @@ export function useCoverLetters(filters?: CoverLetterFilters) {
   return useQuery({
     queryKey: queryKeys.coverLetters.list(filters),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: CoverLetter[] }>(
-        `${API_BASE_URL}/cover-letters`,
+      const response = await createAuthAxios().get<{ data: CoverLetter[] }>(
+        '/cover-letters',
         {
           params: filters,
-          headers: { Authorization: `Bearer ${token}` },
         }
       );
       return response.data.data;
@@ -70,12 +66,8 @@ export function useCoverLetter(id: string) {
   return useQuery({
     queryKey: queryKeys.coverLetters.detail(id),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: CoverLetter }>(
-        `${API_BASE_URL}/cover-letters/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await createAuthAxios().get<{ data: CoverLetter }>(
+        `/cover-letters/${id}`
       );
       return response.data.data;
     },
@@ -91,12 +83,10 @@ export function useGenerateCoverLetter() {
 
   return useMutation({
     mutationFn: async (data: GenerateCoverLetterRequest) => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.post<{ data: CoverLetter }>(
-        `${API_BASE_URL}/cover-letters/generate`,
+      const response = await createAuthAxios().post<{ data: CoverLetter }>(
+        '/cover-letters/generate',
         data,
         {
-          headers: { Authorization: `Bearer ${token}` },
           timeout: 60000, // 60 seconds - AI generation can take time
         }
       );
@@ -122,13 +112,9 @@ export function useUpdateCoverLetter() {
 
   return useMutation({
     mutationFn: async ({ id, content }: { id: string; content: string }) => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.put<{ data: CoverLetter }>(
-        `${API_BASE_URL}/cover-letters/${id}`,
-        { content },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await createAuthAxios().put<{ data: CoverLetter }>(
+        `/cover-letters/${id}`,
+        { content }
       );
       return response.data.data;
     },
@@ -156,12 +142,10 @@ export function useRegenerateCoverLetter() {
       tone?: CoverLetter['tone'];
       custom_instructions?: string;
     }) => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.post<{ data: CoverLetter }>(
-        `${API_BASE_URL}/cover-letters/${id}/regenerate`,
+      const response = await createAuthAxios().post<{ data: CoverLetter }>(
+        `/cover-letters/${id}/regenerate`,
         { tone, custom_instructions },
         {
-          headers: { Authorization: `Bearer ${token}` },
           timeout: 60000,
         }
       );
@@ -181,11 +165,9 @@ export function useRegenerateCoverLetter() {
 export function useDownloadCoverLetter() {
   return useMutation({
     mutationFn: async ({ id, format }: { id: string; format: 'pdf' | 'docx' }) => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get(
-        `${API_BASE_URL}/cover-letters/${id}/download/${format}`,
+      const response = await createAuthAxios().get(
+        `/cover-letters/${id}/download/${format}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
           responseType: 'blob',
         }
       );
@@ -207,10 +189,7 @@ export function useDeleteCoverLetter() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const token = localStorage.getItem('access_token');
-      await axios.delete(`${API_BASE_URL}/cover-letters/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await createAuthAxios().delete(`/cover-letters/${id}`);
     },
     onSuccess: () => {
       cacheInvalidation.invalidateCoverLetters(queryClient);

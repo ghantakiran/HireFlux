@@ -7,10 +7,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys, cacheInvalidation } from '../react-query';
-import axios from 'axios';
+import { createAuthAxios } from '../api-client';
 import { toast } from 'sonner';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 export interface Subscription {
   id: string;
@@ -54,12 +52,8 @@ export function useSubscription() {
   return useQuery({
     queryKey: queryKeys.billing.subscription(),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: Subscription }>(
-        `${API_BASE_URL}/billing/subscription`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await createAuthAxios().get<{ data: Subscription }>(
+        '/billing/subscription',
       );
       return response.data.data;
     },
@@ -74,12 +68,8 @@ export function useCredits() {
   return useQuery({
     queryKey: queryKeys.billing.credits(),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: CreditBalance }>(
-        `${API_BASE_URL}/billing/credits`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await createAuthAxios().get<{ data: CreditBalance }>(
+        '/billing/credits',
       );
       return response.data.data;
     },
@@ -94,12 +84,8 @@ export function useCreditUsage() {
   return useQuery({
     queryKey: queryKeys.billing.usage(),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: CreditUsage[] }>(
-        `${API_BASE_URL}/billing/credits/usage`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await createAuthAxios().get<{ data: CreditUsage[] }>(
+        '/billing/credits/usage',
       );
       return response.data.data;
     },
@@ -113,12 +99,8 @@ export function useInvoices() {
   return useQuery({
     queryKey: queryKeys.billing.invoices(),
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.get<{ data: Invoice[] }>(
-        `${API_BASE_URL}/billing/invoices`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const response = await createAuthAxios().get<{ data: Invoice[] }>(
+        '/billing/invoices',
       );
       return response.data.data;
     },
@@ -133,13 +115,9 @@ export function useUpgradeSubscription() {
 
   return useMutation({
     mutationFn: async (plan: 'plus' | 'pro') => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.post<{ data: { checkout_url: string } }>(
-        `${API_BASE_URL}/billing/subscription/upgrade`,
+      const response = await createAuthAxios().post<{ data: { checkout_url: string } }>(
+        '/billing/subscription/upgrade',
         { plan },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
       return response.data.data;
     },
@@ -162,13 +140,9 @@ export function useCancelSubscription() {
 
   return useMutation({
     mutationFn: async () => {
-      const token = localStorage.getItem('access_token');
-      await axios.post(
-        `${API_BASE_URL}/billing/subscription/cancel`,
+      await createAuthAxios().post(
+        '/billing/subscription/cancel',
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
     },
     onSuccess: () => {
@@ -186,13 +160,9 @@ export function useReactivateSubscription() {
 
   return useMutation({
     mutationFn: async () => {
-      const token = localStorage.getItem('access_token');
-      await axios.post(
-        `${API_BASE_URL}/billing/subscription/reactivate`,
+      await createAuthAxios().post(
+        '/billing/subscription/reactivate',
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
     },
     onSuccess: () => {
@@ -210,13 +180,9 @@ export function usePurchaseCredits() {
 
   return useMutation({
     mutationFn: async (amount: number) => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.post<{ data: { checkout_url: string } }>(
-        `${API_BASE_URL}/billing/credits/purchase`,
+      const response = await createAuthAxios().post<{ data: { checkout_url: string } }>(
+        '/billing/credits/purchase',
         { amount },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
       return response.data.data;
     },
@@ -237,13 +203,9 @@ export function usePurchaseCredits() {
 export function useUpdatePaymentMethod() {
   return useMutation({
     mutationFn: async () => {
-      const token = localStorage.getItem('access_token');
-      const response = await axios.post<{ data: { setup_url: string } }>(
-        `${API_BASE_URL}/billing/payment-method/update`,
+      const response = await createAuthAxios().post<{ data: { setup_url: string } }>(
+        '/billing/payment-method/update',
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
       return response.data.data;
     },
