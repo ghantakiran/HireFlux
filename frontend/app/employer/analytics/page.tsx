@@ -169,7 +169,6 @@ export default function AnalyticsPage() {
 
   // Handle export
   const handleExport = async (format: 'pdf' | 'csv') => {
-    console.log(`Exporting analytics as ${format}...`);
     // API call would go here
   };
 

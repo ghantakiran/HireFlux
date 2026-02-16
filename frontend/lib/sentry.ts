@@ -90,8 +90,6 @@ export function initializeSentry() {
       /^moz-extension:\/\//i,
     ],
   });
-
-  console.log('Sentry initialized for environment:', ENVIRONMENT);
 }
 
 /**

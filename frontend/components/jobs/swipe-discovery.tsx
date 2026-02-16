@@ -132,7 +132,6 @@ export function SwipeDiscovery() {
     // Preload more jobs if needed
     if (currentIndex + 5 >= jobs.length) {
       // TODO: Load more jobs from API
-      console.log('Loading more jobs...');
     }
   }, [jobs, currentIndex, savedJobs]);
 

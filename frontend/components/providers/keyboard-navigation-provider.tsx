@@ -30,11 +30,9 @@ export function KeyboardNavigationProvider({
     // Note: Using Next.js router with setTimeout to escape event handler context
     // This ensures router.push works reliably even in keyboard event handlers
     const navigate = (href: string) => {
-      console.log('[KeyboardNav] Navigation action called for:', href);
       // Use setTimeout(0) to escape the keyboard event handler call stack
       // This allows Next.js router.push to work correctly
       setTimeout(() => {
-        console.log('[KeyboardNav] Executing router.push to:', href);
         router.push(href);
       }, 0);
     };

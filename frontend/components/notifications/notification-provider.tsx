@@ -168,12 +168,10 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   // Real-time subscription (placeholder for WebSocket/SSE)
   const subscribeToNotifications = useCallback(() => {
     // TODO: Implement WebSocket or Server-Sent Events connection
-    console.log('Subscribed to real-time notifications');
   }, []);
 
   const unsubscribeFromNotifications = useCallback(() => {
     // TODO: Clean up WebSocket/SSE connection
-    console.log('Unsubscribed from real-time notifications');
   }, []);
 
   // Helper: Play notification sound

@@ -82,10 +82,6 @@ export async function retryWithBackoff<T>(
       // Calculate delay and wait
       const delay = getRetryDelay(attempt, fullConfig);
 
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`[Retry] Attempt ${attempt + 1} failed, retrying in ${delay}ms...`);
-      }
-
       await sleep(delay);
     }
   }

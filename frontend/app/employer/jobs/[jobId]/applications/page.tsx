@@ -151,7 +151,6 @@ export default function ATSPage({ params }: ATSPageProps) {
   const handleBulkUpdate = async (applicationIds: string[], action: any) => {
     try {
       // TODO: Implement bulk update
-      console.log('Bulk update:', applicationIds, action);
       toast.success(`${applicationIds.length} applications updated`);
     } catch (err) {
       console.error('Bulk update error:', err);

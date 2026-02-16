@@ -119,8 +119,7 @@ export function StageDetailsModal({ isOpen, onClose, stage, stageData }: StageDe
               <button
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                 onClick={() => {
-                  // Navigate to applications filtered by stage
-                  console.log('Navigate to applications for stage:', stage);
+                  // TODO: Navigate to applications filtered by stage
                 }}
               >
                 View All Applications

@@ -176,8 +176,6 @@ export async function retryRequest<T>(
 
       // Wait before retrying
       await new Promise(resolve => setTimeout(resolve, delay));
-
-      console.log(`Retrying request (attempt ${attempt + 1}/${maxRetries})...`);
     }
   }
 

@@ -196,10 +196,8 @@ export default function TakeAssessmentPage() {
     attemptId,
     enabled: hasStarted && !isSubmitting,
     onTabSwitch: () => {
-      console.log('Tab switch detected');
     },
     onFullScreenExit: () => {
-      console.log('Full-screen exit detected');
     },
     onSuspiciousBehavior: (eventType) => {
       console.warn('Suspicious behavior detected:', eventType);

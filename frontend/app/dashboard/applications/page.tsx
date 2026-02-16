@@ -246,7 +246,6 @@ export default function ApplicationTrackingDashboardPage() {
   // Handle application click
   const handleApplicationClick = (applicationId: string) => {
     // Navigate to application details or open modal
-    console.log('Application clicked:', applicationId);
   };
 
   // Handle AI suggestion actions

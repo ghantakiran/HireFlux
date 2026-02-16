@@ -55,9 +55,7 @@ export function UsageLimitsDashboard({ 'data-testid': dataTestId }: UsageLimitsD
       }
     } catch (err: any) {
       // No upgrade needed - this is expected
-      if (err.response?.status === 200) {
-        console.log('No upgrade recommended');
-      } else {
+      if (err.response?.status !== 200) {
         console.error('Failed to fetch upgrade recommendation:', err);
       }
     }

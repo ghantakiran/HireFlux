@@ -17,8 +17,6 @@ export function PWAInstaller() {
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
-          console.log('Service Worker registered:', registration);
-
           // Check for updates periodically
           setInterval(() => {
             registration.update();
@@ -44,7 +42,6 @@ export function PWAInstaller() {
     // Hide install button when already installed
     window.addEventListener('appinstalled', () => {
       setShowInstallPrompt(false);
-      console.log('PWA was installed');
     });
 
     return () => {
@@ -62,8 +59,6 @@ export function PWAInstaller() {
 
     // Wait for the user to respond
     const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to install prompt: ${outcome}`);
-
     // Clear the prompt
     setDeferredPrompt(null);
     setShowInstallPrompt(false);

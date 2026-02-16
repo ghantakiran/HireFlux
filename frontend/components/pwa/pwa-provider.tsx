@@ -71,11 +71,7 @@ export function PWAProvider({ children }: PWAProviderProps) {
     setOnline(isOnline());
 
     // Register service worker
-    registerServiceWorker().then((registration) => {
-      if (registration) {
-        console.log('[PWA] Service worker registered successfully');
-      }
-    });
+    registerServiceWorker();
 
     // Listen for connectivity changes
     const removeListeners = addConnectivityListeners(

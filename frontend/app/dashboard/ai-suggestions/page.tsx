@@ -533,7 +533,6 @@ export default function AISuggestionsPage() {
 
     // Navigate to relevant edit page based on category
     // This would be actual navigation in production
-    console.log('Navigate to:', suggestion.category, 'edit page');
   };
 
   const handleRejectSuggestion = (suggestionId: string) => {
