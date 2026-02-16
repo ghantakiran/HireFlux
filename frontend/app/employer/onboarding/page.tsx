@@ -33,13 +33,14 @@ interface OnboardingStep {
   status: 'pending' | 'active' | 'complete';
 }
 
-interface OnboardingData {
+export interface OnboardingData {
   currentStep: number;
   completedSteps: number[];
-  companyProfile?: any;
-  firstJob?: any;
-  teamInvitations?: any[];
+  companyProfile?: Record<string, string>;
+  firstJob?: Record<string, string>;
+  teamInvitations?: Array<{ id: string; email: string; role: string }>;
   tourCompleted?: boolean;
+  [key: string]: unknown;
 }
 
 // ============================================================================
@@ -116,7 +117,7 @@ export default function EmployerOnboardingPage() {
     router.push(`/employer/onboarding?step=${step}`);
   };
 
-  const handleStepComplete = (stepData: any) => {
+  const handleStepComplete = (stepData: Record<string, unknown> | unknown[]) => {
     const newCompletedSteps = [...completedSteps, currentStep].filter(
       (v, i, a) => a.indexOf(v) === i
     );

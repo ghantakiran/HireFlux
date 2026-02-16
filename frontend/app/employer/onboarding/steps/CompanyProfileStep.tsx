@@ -13,11 +13,13 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, Save, SkipForward } from 'lucide-react';
 
+import type { OnboardingData } from '../page';
+
 interface CompanyProfileStepProps {
-  onContinue: (data: any) => void;
+  onContinue: (data: Record<string, string>) => void;
   onSkip: () => void;
   onSaveAndExit: () => void;
-  savedData: any;
+  savedData: OnboardingData | null;
 }
 
 export default function CompanyProfileStep({

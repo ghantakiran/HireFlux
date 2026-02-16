@@ -13,11 +13,13 @@
 import React, { useState } from 'react';
 import { LayoutDashboard, Inbox, GitBranch, Star, Calendar, MessageSquare, ChevronLeft, ChevronRight, SkipForward, PlayCircle } from 'lucide-react';
 
+import type { OnboardingData } from '../page';
+
 interface ATSTourStepProps {
-  onContinue: (data: any) => void;
+  onContinue: (data: Record<string, unknown>) => void;
   onSkip: () => void;
   onSaveAndExit: () => void;
-  savedData: any;
+  savedData: OnboardingData | null;
 }
 
 const TOUR_STEPS = [

@@ -14,8 +14,10 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Sparkles, Briefcase, Users, TrendingUp } from 'lucide-react';
 
+import type { OnboardingData } from '../page';
+
 interface CompletionStepProps {
-  onboardingData: any;
+  onboardingData: OnboardingData | null;
 }
 
 export default function CompletionStep({ onboardingData }: CompletionStepProps) {
@@ -28,10 +30,10 @@ export default function CompletionStep({ onboardingData }: CompletionStepProps) 
   };
 
   // Determine what was completed
-  const completedCompanyProfile = !!onboardingData.companyProfile;
-  const completedJobPost = !!onboardingData.firstJob;
-  const completedTeamInvites = onboardingData.teamInvitations?.length > 0;
-  const completedTour = !!onboardingData.tourCompleted;
+  const completedCompanyProfile = !!onboardingData?.companyProfile;
+  const completedJobPost = !!onboardingData?.firstJob;
+  const completedTeamInvites = (onboardingData?.teamInvitations?.length ?? 0) > 0;
+  const completedTour = !!onboardingData?.tourCompleted;
 
   return (
     <div className="text-center">
@@ -62,7 +64,7 @@ export default function CompletionStep({ onboardingData }: CompletionStepProps) 
               <p className="font-medium text-gray-900">Company Profile</p>
               <p className="text-sm text-gray-600">
                 {completedCompanyProfile
-                  ? `Set up ${onboardingData.companyProfile?.name}`
+                  ? `Set up ${onboardingData?.companyProfile?.name}`
                   : 'Skipped'}
               </p>
             </div>
@@ -74,7 +76,7 @@ export default function CompletionStep({ onboardingData }: CompletionStepProps) 
               <p className="font-medium text-gray-900">First Job Post</p>
               <p className="text-sm text-gray-600">
                 {completedJobPost
-                  ? `Posted "${onboardingData.firstJob?.title}"`
+                  ? `Posted "${onboardingData?.firstJob?.title}"`
                   : 'Skipped'}
               </p>
             </div>
@@ -86,7 +88,7 @@ export default function CompletionStep({ onboardingData }: CompletionStepProps) 
               <p className="font-medium text-gray-900">Team Invitations</p>
               <p className="text-sm text-gray-600">
                 {completedTeamInvites
-                  ? `Invited ${onboardingData.teamInvitations?.length} team member${onboardingData.teamInvitations?.length > 1 ? 's' : ''}`
+                  ? `Invited ${onboardingData?.teamInvitations?.length} team member${(onboardingData?.teamInvitations?.length ?? 0) > 1 ? 's' : ''}`
                   : 'Skipped'}
               </p>
             </div>

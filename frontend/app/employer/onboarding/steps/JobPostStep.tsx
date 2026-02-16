@@ -13,11 +13,13 @@
 import React, { useState } from 'react';
 import { Briefcase, Sparkles, Save, SkipForward } from 'lucide-react';
 
+import type { OnboardingData } from '../page';
+
 interface JobPostStepProps {
-  onContinue: (data: any) => void;
+  onContinue: (data: Record<string, string>) => void;
   onSkip: () => void;
   onSaveAndExit: () => void;
-  savedData: any;
+  savedData: OnboardingData | null;
 }
 
 export default function JobPostStep({

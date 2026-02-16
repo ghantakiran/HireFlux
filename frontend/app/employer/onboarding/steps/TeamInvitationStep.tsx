@@ -14,11 +14,13 @@
 import React, { useState } from 'react';
 import { Users, Plus, Trash2, SkipForward, Send } from 'lucide-react';
 
+import type { OnboardingData } from '../page';
+
 interface TeamInvitationStepProps {
-  onContinue: (data: any) => void;
+  onContinue: (data: Record<string, unknown> | unknown[]) => void;
   onSkip: () => void;
   onSaveAndExit: () => void;
-  savedData: any;
+  savedData: OnboardingData | null;
 }
 
 interface Invitation {
