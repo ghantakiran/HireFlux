@@ -31,6 +31,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/domain/EmptyState';
 import { formatDateTime } from '@/lib/utils';
 
 // Types
@@ -525,7 +526,7 @@ export default function EmployerDashboardPage() {
                 )}
               </div>
             ) : (
-              <p className="text-center py-8 text-gray-500">No recent activity</p>
+              <EmptyState title="No recent activity" variant="compact" showIcon={false} />
             )}
           </CardContent>
         </Card>

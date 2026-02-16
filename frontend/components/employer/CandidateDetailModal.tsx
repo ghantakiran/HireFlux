@@ -13,6 +13,7 @@
 
 import { useEffect, useState } from 'react';
 import { atsApi } from '@/lib/api';
+import { EmptyState } from '@/components/domain/EmptyState';
 
 interface CandidateDetailModalProps {
   applicationId: string;
@@ -413,7 +414,7 @@ export default function CandidateDetailModal({
                         All Notes ({notes.length})
                       </h3>
                       {notes.length === 0 ? (
-                        <p className="text-gray-500 dark:text-gray-400 text-center py-8">No notes yet</p>
+                        <EmptyState title="No notes yet" variant="compact" showIcon={false} />
                       ) : (
                         <div className="space-y-3">
                           {notes.map((note) => (

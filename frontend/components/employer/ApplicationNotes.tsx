@@ -22,6 +22,7 @@ import {
 } from '@/lib/api/applicationNotes';
 import NoteItem from './NoteItem';
 import AddNoteForm from './AddNoteForm';
+import { EmptyState } from '@/components/domain/EmptyState';
 
 interface ApplicationNotesProps {
   applicationId: string;
@@ -227,26 +228,14 @@ export default function ApplicationNotes({
       {/* Notes List */}
       {filteredNotes.length === 0 ? (
         // Empty state
-        <div className="text-center py-12 bg-gray-50 dark:bg-gray-950 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
-          <div className="w-12 h-12 mx-auto bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-            <Plus className="w-6 h-6 text-gray-400 dark:text-gray-400" />
-          </div>
-          <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
-            No notes yet
-          </h4>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            Be the first to add a note about this candidate
-          </p>
-          {!showAddForm && (
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Note
-            </button>
-          )}
-        </div>
+        <EmptyState
+          title="No notes yet"
+          description="Be the first to add a note about this candidate"
+          variant="compact"
+          icon={<Plus className="h-12 w-12 text-muted-foreground" />}
+          actionLabel={!showAddForm ? "Add Note" : undefined}
+          onAction={!showAddForm ? () => setShowAddForm(true) : undefined}
+        />
       ) : (
         // Notes list (newest first)
         <div className="space-y-3">

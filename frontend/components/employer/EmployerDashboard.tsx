@@ -26,6 +26,7 @@ import {
   Activity,
 } from 'lucide-react';
 import { OptimizedImage } from '@/components/ui/optimized-image';
+import { EmptyState } from '@/components/domain/EmptyState';
 
 // Types
 interface DashboardStats {
@@ -265,7 +266,7 @@ export function EmployerDashboard({
           <div data-testid="top-performing-jobs" className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Top Performing Jobs</h2>
             {data.topJobs.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No jobs yet</p>
+              <EmptyState title="No jobs yet" variant="compact" showIcon={false} />
             ) : (
               <div className="space-y-4">
                 {data.topJobs.map((job) => (
@@ -315,7 +316,7 @@ export function EmployerDashboard({
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Recent Activity</h2>
           <div className="space-y-4">
             {data.recentActivity.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No recent activity</p>
+              <EmptyState title="No recent activity" variant="compact" showIcon={false} />
             ) : (
               data.recentActivity.map((activity) => (
                 <div

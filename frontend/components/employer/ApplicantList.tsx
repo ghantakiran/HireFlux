@@ -14,6 +14,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Filter, ChevronDown, Eye, CheckSquare, Square } from 'lucide-react';
 import { ErrorBanner } from '@/components/ui/error-banner';
+import { EmptyState } from '@/components/domain/EmptyState';
 import StatusChangeModal from './StatusChangeModal';
 import BulkActionToolbar from './BulkActionToolbar';
 import BulkStatusChangeModal from './BulkStatusChangeModal';
@@ -210,13 +211,13 @@ export function ApplicantList({
 
   if (applicants.length === 0) {
     return (
-      <div className="text-center py-12 bg-gray-50 dark:bg-gray-950 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
-        <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No applicants yet</h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
-          When candidates apply to "{jobTitle}", they'll appear here.
-        </p>
-      </div>
+      <EmptyState
+        title="No applicants yet"
+        description={`When candidates apply to "${jobTitle}", they'll appear here.`}
+        variant="compact"
+        icon={<Search className="h-12 w-12 text-gray-400" />}
+        className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-950"
+      />
     );
   }
 
