@@ -5,6 +5,8 @@
  * Calculates 0-100 fit index based on weighted factors.
  */
 
+import { API_BASE_URL, getAuthHeaders, handleApiError } from './client';
+
 // ========================================================================
 // Types & Interfaces
 // ========================================================================
@@ -47,33 +49,6 @@ export interface RankedApplicantListResponse {
   limit: number;
   total_pages: number;
   avg_fit_index: number;
-}
-
-export interface RankingError {
-  detail: string;
-}
-
-// ========================================================================
-// API Configuration
-// ========================================================================
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-function getAuthHeaders(): HeadersInit {
-  const token = localStorage.getItem("access_token");
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
-  return {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
-}
-
-function handleApiError(response: Response, data: any): never {
-  const error: RankingError = data;
-  throw new Error(error.detail || `Request failed with status ${response.status}`);
 }
 
 // ========================================================================

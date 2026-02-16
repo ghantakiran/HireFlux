@@ -4,6 +4,8 @@
  * TypeScript client for Job CRUD and AI-assisted creation endpoints.
  */
 
+import { API_BASE_URL, getAuthHeaders, handleApiError } from './client';
+
 // ========================================================================
 // Types & Interfaces
 // ========================================================================
@@ -182,33 +184,6 @@ export interface JobSalarySuggestionResponse {
     location_adjustment?: number;
     notes?: string;
   };
-}
-
-export interface JobError {
-  detail: string;
-}
-
-// ========================================================================
-// API Configuration
-// ========================================================================
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-function getAuthHeaders(): HeadersInit {
-  const token = localStorage.getItem("access_token");
-  if (!token) {
-    throw new Error("No authentication token found");
-  }
-
-  return {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
-}
-
-function handleApiError(response: Response, data: any): never {
-  const error: JobError = data;
-  throw new Error(error.detail || `Request failed with status ${response.status}`);
 }
 
 // ========================================================================

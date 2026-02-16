@@ -12,7 +12,7 @@
  * TypeScript types and helper utilities included.
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import { API_BASE_URL, getAuthHeaders, handleApiError } from './client';
 
 // ============================================================================
 // TypeScript Interfaces
@@ -115,23 +115,6 @@ export interface CreateJobFromTemplateResponse {
 }
 
 // ============================================================================
-// Error Handling
-// ============================================================================
-
-export interface TemplateError {
-  detail: string;
-  status: number;
-}
-
-function handleApiError(response: Response, data: any): never {
-  const error: TemplateError = {
-    detail: data.detail || data.message || 'An error occurred',
-    status: response.status,
-  };
-  throw error;
-}
-
-// ============================================================================
 // API Functions
 // ============================================================================
 
@@ -141,11 +124,6 @@ function handleApiError(response: Response, data: any): never {
 export async function listJobTemplates(
   filters?: ListTemplatesFilters
 ): Promise<JobTemplateListResponse> {
-  const token = localStorage.getItem('access_token');
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-
   // Build query params
   const params = new URLSearchParams();
   if (filters?.visibility) params.append('visibility', filters.visibility);
@@ -157,10 +135,7 @@ export async function listJobTemplates(
 
   const response = await fetch(url, {
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
   });
 
   const data = await response.json();
@@ -176,19 +151,11 @@ export async function listJobTemplates(
  * Get a specific job template by ID
  */
 export async function getJobTemplate(templateId: string): Promise<JobTemplate> {
-  const token = localStorage.getItem('access_token');
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-
   const url = `${API_BASE_URL}/api/v1/employer/job-templates/${templateId}`;
 
   const response = await fetch(url, {
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
   });
 
   const data = await response.json();
@@ -206,19 +173,11 @@ export async function getJobTemplate(templateId: string): Promise<JobTemplate> {
 export async function createJobTemplate(
   templateData: CreateJobTemplateRequest
 ): Promise<JobTemplate> {
-  const token = localStorage.getItem('access_token');
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-
   const url = `${API_BASE_URL}/api/v1/employer/job-templates`;
 
   const response = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(templateData),
   });
 
@@ -238,19 +197,11 @@ export async function updateJobTemplate(
   templateId: string,
   templateData: UpdateJobTemplateRequest
 ): Promise<JobTemplate> {
-  const token = localStorage.getItem('access_token');
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-
   const url = `${API_BASE_URL}/api/v1/employer/job-templates/${templateId}`;
 
   const response = await fetch(url, {
     method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(templateData),
   });
 
@@ -267,18 +218,11 @@ export async function updateJobTemplate(
  * Delete a job template
  */
 export async function deleteJobTemplate(templateId: string): Promise<void> {
-  const token = localStorage.getItem('access_token');
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-
   const url = `${API_BASE_URL}/api/v1/employer/job-templates/${templateId}`;
 
   const response = await fetch(url, {
     method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -296,19 +240,11 @@ export async function deleteJobTemplate(templateId: string): Promise<void> {
 export async function createJobFromTemplate(
   templateId: string
 ): Promise<CreateJobFromTemplateResponse> {
-  const token = localStorage.getItem('access_token');
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-
   const url = `${API_BASE_URL}/api/v1/employer/job-templates/jobs/from-template/${templateId}`;
 
   const response = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
   });
 
   const data = await response.json();

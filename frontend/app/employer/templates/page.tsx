@@ -25,7 +25,6 @@ import {
   TemplateCategory,
   TemplateVisibility,
   getCategoryOptions,
-  TemplateError,
 } from '@/lib/api/jobTemplates';
 import { EmptyState } from '@/components/domain/EmptyState';
 import { toast } from 'sonner';
@@ -89,8 +88,8 @@ export default function TemplatesPage() {
       const response = await listJobTemplates(filters);
       setTemplates(response.templates);
     } catch (err) {
-      const error = err as TemplateError;
-      setError(error.detail || 'Failed to load templates');
+      const error = err as Error;
+      setError(error.message || 'Failed to load templates');
     } finally {
       setLoading(false);
     }
@@ -131,8 +130,7 @@ export default function TemplatesPage() {
       toast.success('Template created');
       router.push('/employer/jobs/new');
     } catch (err) {
-      const error = err as TemplateError;
-      toast.error('Failed to update template. Please try again.');
+      toast.error('Failed to use template. Please try again.');
     }
   }
 

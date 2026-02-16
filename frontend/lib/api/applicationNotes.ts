@@ -8,7 +8,7 @@
  * - Delete note (within 5-minute window)
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+import { API_BASE_URL, getAuthHeaders } from './client';
 
 // ============================================================================
 // Types
@@ -51,25 +51,6 @@ export interface NoteError {
 // ============================================================================
 
 /**
- * Get authentication token from localStorage
- */
-function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('auth_token');
-}
-
-/**
- * Create headers for API requests
- */
-function getHeaders(): HeadersInit {
-  const token = getAuthToken();
-  return {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  };
-}
-
-/**
  * Get all notes for an application
  *
  * Returns team notes + current user's private notes
@@ -81,10 +62,10 @@ export async function getApplicationNotes(
   applicationId: string
 ): Promise<ApplicationNote[]> {
   const response = await fetch(
-    `${API_BASE_URL}/applications/${applicationId}/notes`,
+    `${API_BASE_URL}/api/v1/applications/${applicationId}/notes`,
     {
       method: 'GET',
-      headers: getHeaders(),
+      headers: getAuthHeaders(),
     }
   );
 
@@ -111,10 +92,10 @@ export async function createApplicationNote(
   noteData: CreateNoteRequest
 ): Promise<ApplicationNote> {
   const response = await fetch(
-    `${API_BASE_URL}/applications/${applicationId}/notes`,
+    `${API_BASE_URL}/api/v1/applications/${applicationId}/notes`,
     {
       method: 'POST',
-      headers: getHeaders(),
+      headers: getAuthHeaders(),
       body: JSON.stringify(noteData),
     }
   );
@@ -146,9 +127,9 @@ export async function updateApplicationNote(
   noteId: string,
   noteData: UpdateNoteRequest
 ): Promise<ApplicationNote> {
-  const response = await fetch(`${API_BASE_URL}/notes/${noteId}`, {
+  const response = await fetch(`${API_BASE_URL}/api/v1/notes/${noteId}`, {
     method: 'PUT',
-    headers: getHeaders(),
+    headers: getAuthHeaders(),
     body: JSON.stringify(noteData),
   });
 
@@ -175,9 +156,9 @@ export async function updateApplicationNote(
  * @throws NoteError with status 400 (time limit), 403 (not author), or 404 (not found)
  */
 export async function deleteApplicationNote(noteId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/notes/${noteId}`, {
+  const response = await fetch(`${API_BASE_URL}/api/v1/notes/${noteId}`, {
     method: 'DELETE',
-    headers: getHeaders(),
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {

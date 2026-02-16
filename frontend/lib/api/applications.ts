@@ -6,8 +6,7 @@
  */
 
 import { ApplicationStatus } from '@/components/employer/StatusChangeModal';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import { API_BASE_URL, getAuthHeaders } from './client';
 
 interface StatusChangeRequest {
   applicationId: string;
@@ -50,10 +49,7 @@ export async function updateApplicationStatus(
       `${API_BASE_URL}/api/v1/applications/${data.applicationId}/status`,
       {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${getAuthToken()}`,
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           status: data.newStatus,
           send_email: data.sendEmail,
@@ -84,10 +80,7 @@ export async function bulkUpdateApplicationStatus(
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/applications/bulk-update`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${getAuthToken()}`,
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         application_ids: data.applicationIds,
         action: 'move_to_stage',
@@ -134,9 +127,7 @@ export async function previewStatusChangeEmail(
     const response = await fetch(
       `${API_BASE_URL}/api/v1/applications/${applicationId}/email-preview?${params}`,
       {
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-        },
+        headers: getAuthHeaders(),
       }
     );
 
@@ -160,9 +151,7 @@ export async function getApplicationStatusHistory(applicationId: string) {
     const response = await fetch(
       `${API_BASE_URL}/api/v1/applications/${applicationId}/status-history`,
       {
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-        },
+        headers: getAuthHeaders(),
       }
     );
 
@@ -178,14 +167,3 @@ export async function getApplicationStatusHistory(applicationId: string) {
   }
 }
 
-/**
- * Get auth token from session/cookies
- * TODO: Replace with actual auth implementation
- */
-function getAuthToken(): string {
-  // This is a placeholder - replace with actual auth token retrieval
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('auth_token') || '';
-  }
-  return '';
-}

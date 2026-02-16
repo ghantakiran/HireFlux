@@ -5,7 +5,7 @@
  * Client-side API integration for employer email verification
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+import { API_BASE_URL } from './client';
 
 export interface SendCodeResponse {
   success: boolean;
@@ -47,7 +47,7 @@ export interface ApiError {
  */
 export async function sendVerificationCode(email: string): Promise<SendCodeResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/email-verification/send-code`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/email-verification/send-code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ export async function sendVerificationCode(email: string): Promise<SendCodeRespo
  */
 export async function verifyCode(email: string, code: string): Promise<VerifyCodeResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/email-verification/verify-code`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/email-verification/verify-code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ export async function verifyCode(email: string, code: string): Promise<VerifyCod
  */
 export async function resendVerificationCode(email: string): Promise<ResendCodeResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/email-verification/resend-code`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/email-verification/resend-code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
