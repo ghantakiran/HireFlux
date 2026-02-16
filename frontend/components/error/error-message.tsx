@@ -12,7 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { formatError, ErrorDetails, ErrorType } from '@/lib/error-utils';
 
 export interface ErrorMessageProps {
-  error: any;
+  error: unknown;
   onRetry?: () => void;
   isRetrying?: boolean;
   className?: string;

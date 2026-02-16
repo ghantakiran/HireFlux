@@ -148,7 +148,7 @@ export default function ATSPage({ params }: ATSPageProps) {
   };
 
   // Handle bulk update from List view
-  const handleBulkUpdate = async (applicationIds: string[], action: any) => {
+  const handleBulkUpdate = async (applicationIds: string[], action: { stage?: string; action?: string }) => {
     try {
       // TODO: Implement bulk update
       toast.success(`${applicationIds.length} applications updated`);

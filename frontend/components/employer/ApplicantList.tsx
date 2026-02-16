@@ -50,8 +50,8 @@ export interface ApplicantListProps {
   error?: string;
   onViewApplicant: (applicantId: string) => void;
   onUpdateStage: (applicantId: string, newStage: string) => void;
-  onBulkUpdate: (applicantIds: string[], action: any) => void;
-  onFilterChange: (filters: any) => void;
+  onBulkUpdate: (applicantIds: string[], action: { stage?: string; action?: string }) => void;
+  onFilterChange: (filters: Filters) => void;
   onSortChange: (sortBy: string) => void;
 }
 
@@ -162,7 +162,7 @@ export function ApplicantList({
   };
 
   // Handler for status change confirmation (Issue #58)
-  const handleStatusChangeConfirm = async (data: any) => {
+  const handleStatusChangeConfirm = async (data: { newStatus: string }) => {
     if (!currentApplicantForStatus) return;
 
     // Call parent handler
@@ -179,7 +179,7 @@ export function ApplicantList({
   };
 
   // Handler for bulk status change confirmation (Issue #58)
-  const handleBulkConfirm = async (data: any) => {
+  const handleBulkConfirm = async (data: { newStatus: string }) => {
     if (selectedIds.length === 0) return;
 
     // Call parent handler
