@@ -258,21 +258,6 @@ export function extractMentions(content: string): string[] {
 }
 
 /**
- * Highlight @mentions in note content for display
- *
- * @param content - Note content
- * @returns HTML string with highlighted @mentions
- */
-export function highlightMentions(content: string): string {
-  const pattern = /(?<![a-zA-Z0-9])(@[a-zA-Z0-9_]+)/g;
-
-  return content.replace(
-    pattern,
-    '<span class="mention">$1</span>'
-  );
-}
-
-/**
  * Get note type badge color
  *
  * @param noteType - Note type

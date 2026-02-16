@@ -1,11 +1,9 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
-
-// API Client Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+import { API_URL, getAuthToken } from './api-client';
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_URL,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -15,7 +13,7 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor - Add auth token
 apiClient.interceptors.request.use(
   (config) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    const token = getAuthToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -42,7 +40,7 @@ apiClient.interceptors.response.use(
           throw new Error('No refresh token');
         }
 
-        const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+        const { data } = await axios.post(`${API_URL}/auth/refresh`, {
           refresh_token: refreshToken,
         });
 

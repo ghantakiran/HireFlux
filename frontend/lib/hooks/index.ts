@@ -19,3 +19,6 @@ export * from './useCoverLetters';
 
 // Billing hooks
 export * from './useBilling';
+
+// Employer Analytics hooks
+export * from './useEmployerAnalytics';
