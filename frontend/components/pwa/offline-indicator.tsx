@@ -22,6 +22,7 @@ export function OfflineIndicator() {
 
   return (
     <div
+      data-testid="offline-banner"
       data-offline-banner
       data-offline-indicator
       className="fixed top-0 left-0 right-0 z-50 bg-yellow-500 text-white px-4 py-2 animate-in slide-in-from-top"
@@ -69,6 +70,7 @@ export function OnlineIndicator() {
 
   return (
     <div
+      data-testid="online-success-message"
       className="fixed top-0 left-0 right-0 z-50 bg-green-500 text-white px-4 py-2 animate-in slide-in-from-top"
       role="alert"
       aria-live="polite"
