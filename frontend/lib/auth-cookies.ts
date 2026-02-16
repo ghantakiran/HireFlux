@@ -5,7 +5,7 @@
  * enforce route protection server-side.
  */
 
-const AUTH_COOKIE_NAME = 'hf_session';
+export const AUTH_COOKIE_NAME = 'hf_session';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 /**

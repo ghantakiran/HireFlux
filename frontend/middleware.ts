@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-
-const AUTH_COOKIE = 'hf_session';
+import { AUTH_COOKIE_NAME } from '@/lib/auth-cookies';
 
 /** Route prefixes that require authentication */
 const PROTECTED_PREFIXES = ['/dashboard', '/employer', '/onboarding', '/candidate'];
@@ -58,7 +57,7 @@ export function middleware(request: NextRequest) {
 
   // Auth check for protected routes
   if (isProtectedRoute(pathname)) {
-    const authCookie = request.cookies.get(AUTH_COOKIE);
+    const authCookie = request.cookies.get(AUTH_COOKIE_NAME);
 
     if (!authCookie?.value) {
       // No auth cookie — redirect to sign in with return URL
@@ -72,7 +71,7 @@ export function middleware(request: NextRequest) {
 
   // Redirect authenticated users away from auth pages
   if (AUTH_PAGES.some((page) => pathname === page)) {
-    const authCookie = request.cookies.get(AUTH_COOKIE);
+    const authCookie = request.cookies.get(AUTH_COOKIE_NAME);
 
     if (authCookie?.value) {
       const dashboardUrl = new URL('/dashboard', request.url);
