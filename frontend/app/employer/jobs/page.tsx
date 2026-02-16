@@ -176,7 +176,7 @@ export default function EmployerJobsPage() {
       }
 
       // Build filters
-      const filters: any = {
+      const filters: Record<string, string | number> = {
         page,
         limit,
       };

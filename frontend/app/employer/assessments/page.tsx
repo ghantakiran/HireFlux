@@ -29,6 +29,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { usePagination } from '@/hooks/usePagination';
 import { useColumnSort, parseSortValue } from '@/hooks/useColumnSort';
 import { useURLState } from '@/hooks/useURLState';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface Assessment {
   id: string;
@@ -117,7 +118,7 @@ export default function AssessmentsPage() {
     setLoading(true);
     setError(null);
     try {
-      const params: any = {};
+      const params: Record<string, string | number> = {};
       if (statusFilter !== 'all') {
         params.status = statusFilter;
       }
@@ -132,9 +133,9 @@ export default function AssessmentsPage() {
       } else {
         setError('Failed to load assessments');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch assessments:', error);
-      setError(error.response?.data?.error?.message || 'Failed to load assessments');
+      setError(getErrorMessage(error, 'Failed to load assessments'));
     } finally {
       setLoading(false);
     }

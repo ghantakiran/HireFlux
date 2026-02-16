@@ -566,7 +566,7 @@ export default function NewJobPage() {
                 <Label htmlFor="employment_type">Employment Type *</Label>
                 <Select
                   value={formData.employment_type}
-                  onValueChange={(value: any) => updateField('employment_type', value)}
+                  onValueChange={(value: string) => updateField('employment_type', value)}
                 >
                   <SelectTrigger data-employment-type-select>
                     <SelectValue />

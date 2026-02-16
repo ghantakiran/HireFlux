@@ -140,7 +140,7 @@ export default function CandidateSearchPage() {
     try {
       setLoading(true);
 
-      const searchData: any = {
+      const searchData: Record<string, string | number | boolean | string[]> = {
         page: filters.page,
         limit: filters.limit,
       };

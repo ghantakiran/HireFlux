@@ -706,7 +706,7 @@ export default function ProfileSettingsPage() {
               <Label htmlFor="portfolio_type">Type</Label>
               <Select
                 value={portfolioForm.type}
-                onValueChange={(value: any) => setPortfolioForm({ ...portfolioForm, type: value })}
+                onValueChange={(value: string) => setPortfolioForm({ ...portfolioForm, type: value as 'article' | 'website' | 'github' | 'project' })}
               >
                 <SelectTrigger id="portfolio_type">
                   <SelectValue />

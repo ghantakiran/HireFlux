@@ -51,6 +51,7 @@ import { toast } from 'sonner';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { format } from 'date-fns';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface APIKey {
   id: string;
@@ -102,8 +103,7 @@ export default function APIKeysPage() {
     },
     successMessage: 'API key revoked successfully',
     onError: (error) => {
-      const detail = (error as any).response?.data?.detail;
-      toast.error(detail || 'Failed to revoke API key');
+      toast.error(getErrorMessage(error, 'Failed to revoke API key'));
     },
   });
 
@@ -152,8 +152,8 @@ export default function APIKeysPage() {
         rate_limit_tier: 'standard',
       });
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create API key');
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Failed to create API key'));
     },
   });
 
@@ -368,8 +368,8 @@ export default function APIKeysPage() {
               <Label htmlFor="tier">Rate Limit Tier</Label>
               <Select
                 value={formData.rate_limit_tier}
-                onValueChange={(value: any) =>
-                  setFormData({ ...formData, rate_limit_tier: value })
+                onValueChange={(value: string) =>
+                  setFormData({ ...formData, rate_limit_tier: value as 'standard' | 'elevated' | 'enterprise' })
                 }
               >
                 <SelectTrigger>

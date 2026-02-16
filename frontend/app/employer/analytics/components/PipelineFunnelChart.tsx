@@ -60,6 +60,7 @@ export function PipelineFunnelChart({ data, isLoading, onStageClick }: PipelineF
       stageKey: stage.stage,
     }));
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleBarClick = (entry: any) => {
     setSelectedStage(entry.stageKey);
     if (onStageClick) {

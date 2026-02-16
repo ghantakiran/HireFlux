@@ -27,6 +27,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { CheckCircle2, AlertCircle, Eye, Settings } from 'lucide-react';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface PrivacySettings {
   showSalary: boolean;
@@ -91,9 +92,9 @@ export default function ProfileSettingsPage() {
       };
 
       setProfile(mockData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load profile:', error);
-      setSaveError('Failed to load profile data');
+      setSaveError(getErrorMessage(error, 'Failed to load profile data'));
     } finally {
       setLoading(false);
     }
@@ -116,8 +117,8 @@ export default function ProfileSettingsPage() {
       setProfile((prev) => ({ ...prev, isPublic }));
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (error: any) {
-      setSaveError(error.message || 'Failed to update visibility');
+    } catch (error: unknown) {
+      setSaveError(getErrorMessage(error, 'Failed to update visibility'));
     } finally {
       setLoading(false);
     }
@@ -153,8 +154,8 @@ export default function ProfileSettingsPage() {
       setHasUnsavedChanges(false);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (error: any) {
-      setSaveError(error.message || 'Failed to save changes');
+    } catch (error: unknown) {
+      setSaveError(getErrorMessage(error, 'Failed to save changes'));
     } finally {
       setLoading(false);
     }

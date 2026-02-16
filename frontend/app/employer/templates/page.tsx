@@ -82,7 +82,7 @@ export default function TemplatesPage() {
       setLoading(true);
       setError(null);
 
-      const filters: any = {};
+      const filters: Record<string, string> = {};
       if (categoryFilter) filters.category = categoryFilter;
       if (visibilityFilter !== 'all') filters.visibility = visibilityFilter;
 

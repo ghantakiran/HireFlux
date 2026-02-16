@@ -45,6 +45,7 @@ import {
 import { toast } from 'sonner';
 import { PageLoader } from '@/components/ui/page-loader';
 import { OptimizedImage } from '@/components/ui/optimized-image';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface WhiteLabelConfig {
   id: string;
@@ -142,8 +143,8 @@ export default function WhiteLabelSettingsPage() {
       queryClient.invalidateQueries({ queryKey: ['whiteLabelConfig'] });
       toast.success('White-label branding enabled');
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to enable white-label branding');
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Failed to enable white-label branding'));
     },
   });
 
@@ -154,8 +155,8 @@ export default function WhiteLabelSettingsPage() {
       queryClient.invalidateQueries({ queryKey: ['whiteLabelConfig'] });
       toast.success('Branding configuration updated');
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update configuration');
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Failed to update configuration'));
     },
   });
 
@@ -167,8 +168,8 @@ export default function WhiteLabelSettingsPage() {
       queryClient.invalidateQueries({ queryKey: ['whiteLabelConfig'] });
       toast.success(`${variables.type} logo uploaded successfully`);
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to upload logo');
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Failed to upload logo'));
     },
   });
 
@@ -179,8 +180,8 @@ export default function WhiteLabelSettingsPage() {
       queryClient.invalidateQueries({ queryKey: ['whiteLabelConfig', 'domainVerification'] });
       toast.success('Custom domain configured. Please verify DNS records.');
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to set custom domain');
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Failed to set custom domain'));
     },
   });
 
@@ -191,8 +192,8 @@ export default function WhiteLabelSettingsPage() {
       queryClient.invalidateQueries({ queryKey: ['domainVerification'] });
       toast.success('Domain verified successfully!');
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Domain verification failed');
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Domain verification failed'));
     },
   });
 

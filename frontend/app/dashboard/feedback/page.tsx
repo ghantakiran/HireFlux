@@ -142,7 +142,7 @@ export default function FeedbackPage() {
       {/* Filter */}
       <div className="mb-6 flex items-center gap-4">
         <Filter className="h-5 w-5 text-gray-600" />
-        <Select value={selectedType} onValueChange={(value: any) => setSelectedType(value)}>
+        <Select value={selectedType} onValueChange={(value: string) => setSelectedType(value as 'all' | 'bug' | 'feature' | 'general')}>
           <SelectTrigger className="w-48" data-filter-feedback>
             <SelectValue placeholder="Filter by type" />
           </SelectTrigger>
