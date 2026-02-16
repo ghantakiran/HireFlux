@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { billingApi } from '@/lib/api';
 import { getAuthToken } from '@/lib/api-client';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Types
 export type SubscriptionPlan = 'free' | 'plus' | 'pro';
@@ -195,9 +196,8 @@ export const useBillingStore = create<BillingState>((set, get) => ({
         subscription,
         isLoadingSubscription: false,
       });
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.error?.message || 'Failed to fetch subscription';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to fetch subscription');
       set({
         subscriptionError: errorMessage,
         isLoadingSubscription: false,
@@ -229,9 +229,8 @@ export const useBillingStore = create<BillingState>((set, get) => ({
       set({ isCreatingCheckout: false });
 
       return checkoutData;
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.error?.message || 'Failed to create checkout session';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to create checkout session');
       set({
         checkoutError: errorMessage,
         isCreatingCheckout: false,
@@ -254,9 +253,8 @@ export const useBillingStore = create<BillingState>((set, get) => ({
       await get().fetchSubscription();
 
       set({ isLoadingSubscription: false });
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.error?.message || 'Failed to cancel subscription';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to cancel subscription');
       set({
         subscriptionError: errorMessage,
         isLoadingSubscription: false,
@@ -274,9 +272,8 @@ export const useBillingStore = create<BillingState>((set, get) => ({
       });
 
       return response.data.data.url;
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.error?.message || 'Failed to create billing portal session';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to create billing portal session');
       set({ subscriptionError: errorMessage });
       throw error;
     }
@@ -294,9 +291,8 @@ export const useBillingStore = create<BillingState>((set, get) => ({
         credits,
         isLoadingCredits: false,
       });
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.error?.message || 'Failed to fetch credits';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to fetch credits');
       set({
         creditsError: errorMessage,
         isLoadingCredits: false,
@@ -321,9 +317,8 @@ export const useBillingStore = create<BillingState>((set, get) => ({
         creditHistory: history,
         isLoadingCredits: false,
       });
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.error?.message || 'Failed to fetch credit history';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to fetch credit history');
       set({
         creditsError: errorMessage,
         isLoadingCredits: false,
@@ -349,9 +344,8 @@ export const useBillingStore = create<BillingState>((set, get) => ({
       set({ isCreatingCheckout: false });
 
       return checkoutData;
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.error?.message || 'Failed to purchase credits';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to purchase credits');
       set({
         checkoutError: errorMessage,
         isCreatingCheckout: false,
@@ -365,7 +359,7 @@ export const useBillingStore = create<BillingState>((set, get) => ({
     try {
       const response = await billingApi.checkCredits(creditType, amount);
       return response.data.data.sufficient;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to check credits:', error);
       return false;
     }

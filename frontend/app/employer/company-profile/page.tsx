@@ -229,7 +229,7 @@ export default function CompanyProfileSetupPage() {
     setTimeout(() => setSaveIndicator(''), 2000);
   };
 
-  const handleInputChange = (field: keyof CompanyProfile, value: any) => {
+  const handleInputChange = (field: keyof CompanyProfile, value: CompanyProfile[keyof CompanyProfile]) => {
     setProfile((prev) => ({ ...prev, [field]: value }));
     setHasUnsavedChanges(true);
     setErrors((prev) => ({ ...prev, [field]: '' }));

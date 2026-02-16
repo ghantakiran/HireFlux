@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { API_URL, getAuthToken, createAuthAxios } from '@/lib/api-client';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Types based on backend schemas
 export type ApplicationStatus = 'saved' | 'applied' | 'interview' | 'offer' | 'rejected';
@@ -179,9 +180,8 @@ export const useApplicationStore = create<ApplicationState>()(
             },
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to fetch applications';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to fetch applications');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -199,9 +199,8 @@ export const useApplicationStore = create<ApplicationState>()(
             currentApplication: response.data.data,
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to fetch application';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to fetch application');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -225,9 +224,8 @@ export const useApplicationStore = create<ApplicationState>()(
           });
 
           return newApplication;
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to create application';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to create application');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -255,9 +253,8 @@ export const useApplicationStore = create<ApplicationState>()(
                 : get().currentApplication,
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to update application';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to update application');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -281,9 +278,8 @@ export const useApplicationStore = create<ApplicationState>()(
                 : get().currentApplication,
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to delete application';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to delete application');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -301,9 +297,8 @@ export const useApplicationStore = create<ApplicationState>()(
             stats: response.data.data,
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to fetch statistics';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to fetch statistics');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }

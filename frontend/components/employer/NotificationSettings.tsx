@@ -33,6 +33,7 @@ interface NotificationSettingsData {
     new_application: boolean;
     team_activity: boolean;
     stage_change: boolean;
+    weekly_digest: boolean;
   };
 }
 
@@ -52,6 +53,7 @@ const DEFAULT_SETTINGS: NotificationSettingsData = {
     new_application: true,
     team_activity: true,
     stage_change: false,
+    weekly_digest: false,
   },
 };
 
@@ -93,6 +95,7 @@ export function NotificationSettings({ settings, onChange }: NotificationSetting
         new_application: true,
         team_activity: true,
         stage_change: true,
+        weekly_digest: true,
       },
     });
   };
@@ -109,6 +112,7 @@ export function NotificationSettings({ settings, onChange }: NotificationSetting
         new_application: false,
         team_activity: false,
         stage_change: false,
+        weekly_digest: false,
       },
     });
   };

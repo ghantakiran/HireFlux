@@ -179,7 +179,7 @@ export default function NewJobPage() {
   }, [isDuplicate]);
 
   // Update form field
-  const updateField = (field: keyof JobFormData, value: any) => {
+  const updateField = (field: keyof JobFormData, value: JobFormData[keyof JobFormData]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear validation error for this field
     setValidationErrors((prev) => {

@@ -91,7 +91,7 @@ export default function JobsPage() {
     fetchSavedJobs();
   }, []);
 
-  const handleFilterChange = (key: keyof JobSearchFilters, value: any) => {
+  const handleFilterChange = (key: keyof JobSearchFilters, value: JobSearchFilters[keyof JobSearchFilters]) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     fetchJobs({ ...newFilters, page: 1 });

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { API_URL, getAuthToken, createAuthAxios } from '@/lib/api-client';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Types based on backend schemas
 export interface Job {
@@ -155,9 +156,8 @@ export const useJobStore = create<JobState>()(
             },
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to fetch jobs';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to fetch jobs');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -175,9 +175,8 @@ export const useJobStore = create<JobState>()(
             currentJob: response.data.data,
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to fetch job';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to fetch job');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -203,9 +202,8 @@ export const useJobStore = create<JobState>()(
             },
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to search jobs';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to search jobs');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -227,9 +225,8 @@ export const useJobStore = create<JobState>()(
             savedJobs: [savedJob, ...savedJobs],
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to save job';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to save job');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -249,9 +246,8 @@ export const useJobStore = create<JobState>()(
             savedJobs: savedJobs.filter((job) => job.job_id !== jobId),
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to unsave job';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to unsave job');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -269,9 +265,8 @@ export const useJobStore = create<JobState>()(
             savedJobs: response.data.data || [],
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to fetch saved jobs';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to fetch saved jobs');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }

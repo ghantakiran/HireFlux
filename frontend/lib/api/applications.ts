@@ -7,6 +7,7 @@
 
 import { ApplicationStatus } from '@/components/employer/StatusChangeModal';
 import { API_BASE_URL, getAuthHeaders } from './client';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 interface StatusChangeRequest {
   applicationId: string;
@@ -65,7 +66,7 @@ export async function updateApplicationStatus(
     }
 
     return await response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating application status:', error);
     throw error;
   }
@@ -97,7 +98,7 @@ export async function bulkUpdateApplicationStatus(
     }
 
     return await response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error bulk updating application statuses:', error);
     throw error;
   }
@@ -137,7 +138,7 @@ export async function previewStatusChangeEmail(
     }
 
     return await response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error previewing email:', error);
     throw error;
   }
@@ -161,7 +162,7 @@ export async function getApplicationStatusHistory(applicationId: string) {
     }
 
     return await response.json();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching status history:', error);
     throw error;
   }

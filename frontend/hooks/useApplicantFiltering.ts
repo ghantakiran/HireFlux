@@ -13,6 +13,7 @@
 
 import { create } from 'zustand';
 import { atsApi } from '@/lib/api';
+import { getErrorMessage } from '@/lib/api-error-handler';
 import {
   Application,
   FilterParams,
@@ -142,11 +143,11 @@ export const useApplicantFiltering = create<ApplicantFilteringStore>((set, get) 
       } else {
         throw new Error('Failed to fetch applications');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching applications:', error);
       set({
         isLoading: false,
-        error: error.response?.data?.detail || error.message || 'Failed to fetch applications',
+        error: getErrorMessage(error, 'Failed to fetch applications'),
         applications: [],
       });
     }

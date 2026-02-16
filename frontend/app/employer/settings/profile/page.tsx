@@ -265,7 +265,7 @@ export default function CompanyProfileSettingsPage() {
     }
   };
 
-  const handleInputChange = (field: keyof Company, value: any) => {
+  const handleInputChange = (field: keyof Company, value: Company[keyof Company]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error for this field
     if (errors[field as keyof FormErrors]) {

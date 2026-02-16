@@ -111,7 +111,7 @@ export function JobPosting({
   }, [formData, initialData]);
 
   // Update form data
-  const updateFormData = (field: keyof JobData, value: any) => {
+  const updateFormData = (field: keyof JobData, value: JobData[keyof JobData]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear validation error for this field
     if (validationErrors[field]) {

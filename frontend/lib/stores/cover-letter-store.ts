@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { downloadBlob } from '@/lib/utils';
 import { API_URL, getAuthToken, createAuthAxios } from '@/lib/api-client';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Types based on backend schemas
 export type CoverLetterTone = 'formal' | 'concise' | 'conversational';
@@ -142,9 +143,8 @@ export const useCoverLetterStore = create<CoverLetterState>((set, get) => ({
         },
         isLoading: false,
       });
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.detail || 'Failed to fetch cover letters';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to fetch cover letters');
       set({ error: errorMessage, isLoading: false });
       throw error;
     }
@@ -162,9 +162,8 @@ export const useCoverLetterStore = create<CoverLetterState>((set, get) => ({
         currentCoverLetter: response.data.data,
         isLoading: false,
       });
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.detail || 'Failed to fetch cover letter';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to fetch cover letter');
       set({ error: errorMessage, isLoading: false });
       throw error;
     }
@@ -200,10 +199,9 @@ export const useCoverLetterStore = create<CoverLetterState>((set, get) => ({
       });
 
       return newCoverLetter;
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ generationProgress: 0 });
-      const errorMessage =
-        error?.response?.data?.detail || 'Failed to generate cover letter';
+      const errorMessage = getErrorMessage(error, 'Failed to generate cover letter');
       set({ error: errorMessage, isGenerating: false });
       throw error;
     }
@@ -231,9 +229,8 @@ export const useCoverLetterStore = create<CoverLetterState>((set, get) => ({
             : get().currentCoverLetter,
         isLoading: false,
       });
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.detail || 'Failed to update cover letter';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to update cover letter');
       set({ error: errorMessage, isLoading: false });
       throw error;
     }
@@ -255,9 +252,8 @@ export const useCoverLetterStore = create<CoverLetterState>((set, get) => ({
           get().currentCoverLetter?.id === id ? null : get().currentCoverLetter,
         isLoading: false,
       });
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.detail || 'Failed to delete cover letter';
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, 'Failed to delete cover letter');
       set({ error: errorMessage, isLoading: false });
       throw error;
     }
@@ -293,9 +289,8 @@ export const useCoverLetterStore = create<CoverLetterState>((set, get) => ({
       downloadBlob(blob, filename);
 
       set({ isLoading: false });
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.detail || `Failed to download cover letter as ${format.toUpperCase()}`;
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error, `Failed to download cover letter as ${format.toUpperCase()}`);
       set({ error: errorMessage, isLoading: false });
       throw error;
     }
@@ -310,7 +305,7 @@ export const useCoverLetterStore = create<CoverLetterState>((set, get) => ({
       set({
         stats: response.data.data,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Silently fail - stats are not critical
       console.error('Failed to fetch cover letter stats:', error);
     }

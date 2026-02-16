@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { authApi, userApi } from '../api';
 import { setAuthCookie, clearAuthCookie } from '../auth-cookies';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 export interface User {
   id: string;
@@ -70,9 +71,8 @@ export const useAuthStore = create<AuthState>()(
 
           get().setTokens(access_token, refresh_token);
           set({ user, isAuthenticated: true, isLoading: false });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.error?.message || 'Failed to sign in. Please try again.';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to sign in. Please try again.');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -86,9 +86,8 @@ export const useAuthStore = create<AuthState>()(
 
           get().setTokens(access_token, refresh_token);
           set({ user, isAuthenticated: true, isLoading: false });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.error?.message || 'Failed to create account. Please try again.';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to create account. Please try again.');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -203,9 +202,12 @@ export const useAuthStore = create<AuthState>()(
               isInitialized: true,
               isLoading: false,
             });
-          } catch (error: any) {
+          } catch (error: unknown) {
             // Token might be expired, try to refresh
-            if (error?.response?.status === 401) {
+            const status = typeof error === 'object' && error !== null && 'response' in error
+              ? (error as { response?: { status?: number } }).response?.status
+              : undefined;
+            if (status === 401) {
               try {
                 await get().refreshAccessToken();
                 // Try getting user again

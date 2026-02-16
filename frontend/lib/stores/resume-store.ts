@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
 import { API_URL, getAuthToken, createAuthAxios } from '@/lib/api-client';
+import { getErrorMessage } from '@/lib/api-error-handler';
 
 // Types based on backend schemas
 export interface ContactInfo {
@@ -141,9 +142,8 @@ export const useResumeStore = create<ResumeState>()(
             defaultResumeId: default_resume_id,
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to fetch resumes';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to fetch resumes');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -161,9 +161,8 @@ export const useResumeStore = create<ResumeState>()(
             currentResume: response.data.data,
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to fetch resume';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to fetch resume');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -221,9 +220,8 @@ export const useResumeStore = create<ResumeState>()(
           }
 
           return uploadedResume;
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || error.message || 'Failed to upload resume';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to upload resume');
           set({ error: errorMessage, isUploading: false, uploadProgress: 0 });
           throw error;
         }
@@ -252,9 +250,8 @@ export const useResumeStore = create<ResumeState>()(
           if (defaultResumeId === resumeId && updatedResumes.length > 0) {
             await get().setDefaultResume(updatedResumes[0].id);
           }
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to delete resume';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to delete resume');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -280,9 +277,8 @@ export const useResumeStore = create<ResumeState>()(
             defaultResumeId: resumeId,
             isLoading: false,
           });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to set default resume';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to set default resume');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -310,9 +306,8 @@ export const useResumeStore = create<ResumeState>()(
           }
 
           set({ isLoading: false });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to update resume';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to update resume');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -336,9 +331,8 @@ export const useResumeStore = create<ResumeState>()(
           }
 
           set({ isLoading: false });
-        } catch (error: any) {
-          const errorMessage =
-            error?.response?.data?.detail || 'Failed to download resume';
+        } catch (error: unknown) {
+          const errorMessage = getErrorMessage(error, 'Failed to download resume');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
