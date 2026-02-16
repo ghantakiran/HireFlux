@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { getKeyboardShortcutsRegistry } from '@/lib/keyboard-shortcuts-registry';
 import { useKeyboardEventHandler } from '@/hooks/use-keyboard-shortcuts-registry';
 import { CommandPalette } from '@/components/command-palette';
@@ -20,7 +20,9 @@ export function KeyboardNavigationProvider({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const detectedRole = pathname.startsWith('/employer') ? 'employer' as const : 'job_seeker' as const;
 
   // Initialize shortcuts registry
   useEffect(() => {
@@ -207,7 +209,7 @@ export function KeyboardNavigationProvider({
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
-        role="job_seeker" // TODO: Detect role from auth context
+        role={detectedRole}
       />
     </>
   );

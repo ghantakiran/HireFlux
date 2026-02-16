@@ -119,7 +119,8 @@ export function StageDetailsModal({ isOpen, onClose, stage, stageData }: StageDe
               <button
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                 onClick={() => {
-                  // TODO: Navigate to applications filtered by stage
+                  onClose();
+                  window.location.href = `/employer/jobs?stage=${stage}`;
                 }}
               >
                 View All Applications

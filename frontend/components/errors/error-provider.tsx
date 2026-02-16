@@ -6,6 +6,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import {
   AppError,
   ErrorHandlerOptions,
@@ -298,20 +299,18 @@ function logToSentry(error: AppError, context?: any) {
     });
   }
 
-  // TODO: Implement actual Sentry integration
-  // Example:
-  // Sentry.captureException(error.originalError || new Error(error.message), {
-  //   level: getSentryLevel(error.severity),
-  //   tags: {
-  //     errorType: error.type,
-  //     statusCode: error.statusCode?.toString(),
-  //   },
-  //   extra: {
-  //     ...error.context,
-  //     referenceNumber: error.referenceNumber,
-  //   },
-  //   user: context?.user,
-  // });
+  Sentry.captureException(error.originalError || new Error(error.message), {
+    level: getSentryLevel(error.severity),
+    tags: {
+      errorType: error.type,
+      statusCode: error.statusCode?.toString(),
+    },
+    extra: {
+      ...error.context,
+      referenceNumber: error.referenceNumber,
+    },
+    user: context?.user,
+  });
 }
 
 function getSentryLevel(severity: string): 'fatal' | 'error' | 'warning' | 'info' {

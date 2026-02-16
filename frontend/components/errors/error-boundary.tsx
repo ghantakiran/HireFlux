@@ -6,6 +6,7 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { ErrorBoundaryState } from '@/lib/errors/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -93,17 +94,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       });
     }
 
-    // TODO: Implement actual Sentry logging
-    // Sentry.captureException(error, {
-    //   contexts: {
-    //     react: {
-    //       componentStack: errorInfo.componentStack,
-    //     },
-    //   },
-    //   tags: {
-    //     componentName: this.props.componentName || 'unknown',
-    //   },
-    // });
+    Sentry.captureException(error, {
+      contexts: {
+        react: {
+          componentStack: errorInfo.componentStack,
+        },
+      },
+      tags: {
+        componentName: this.props.componentName || 'unknown',
+      },
+    });
   }
 
   handleReset = () => {

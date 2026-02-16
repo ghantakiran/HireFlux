@@ -136,7 +136,6 @@ export default function TemplatesPage() {
 
   // Handle edit template
   function handleEdit(template: JobTemplate) {
-    // TODO: Navigate to edit template page
     router.push(`/employer/templates/${template.id}/edit`);
   }
 
