@@ -62,6 +62,7 @@ import {
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { formatSalaryCompact } from '@/lib/utils';
+import { getAuthToken } from '@/lib/api-client';
 
 // Types
 interface JobFormData {
@@ -281,7 +282,7 @@ export default function NewJobPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem('access_token');
+      const token = getAuthToken();
       if (!token) {
         router.push('/employer/login');
         return;
@@ -332,7 +333,7 @@ export default function NewJobPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem('access_token');
+      const token = getAuthToken();
       if (!token) {
         router.push('/employer/login');
         return;
@@ -381,7 +382,7 @@ export default function NewJobPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem('access_token');
+      const token = getAuthToken();
       if (!token) {
         router.push('/employer/login');
         return;

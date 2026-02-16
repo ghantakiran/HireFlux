@@ -12,6 +12,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Save, Eye, ArrowLeft } from 'lucide-react';
 import { PageLoader } from '@/components/ui/page-loader';
 import { Button } from '@/components/ui/button';
+import { getAuthToken } from '@/lib/api-client';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function EditJobPage() {
@@ -25,7 +26,7 @@ export default function EditJobPage() {
     // Fetch job and redirect to edit mode
     const loadJob = async () => {
       try {
-        const token = localStorage.getItem('access_token');
+        const token = getAuthToken();
         if (!token) {
           router.push('/employer/login');
           return;

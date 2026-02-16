@@ -33,6 +33,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/domain/EmptyState';
 import { formatDateTime } from '@/lib/utils';
+import { getAuthToken } from '@/lib/api-client';
 
 // Types
 interface DashboardStats {
@@ -90,7 +91,7 @@ export default function EmployerDashboardPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem('access_token');
+      const token = getAuthToken();
       if (!token) {
         router.push('/employer/login');
         return;

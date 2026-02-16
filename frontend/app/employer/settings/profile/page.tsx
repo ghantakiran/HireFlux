@@ -50,6 +50,7 @@ import { toast } from 'sonner';
 import { RichTextEditor } from '@/components/employer/RichTextEditor';
 import { NotificationSettings } from '@/components/employer/NotificationSettings';
 import { employerSettingsSchema } from '@/lib/validations/company';
+import { getAuthToken } from '@/lib/api-client';
 
 // Types
 interface Company {
@@ -169,7 +170,7 @@ export default function CompanyProfileSettingsPage() {
       setIsLoading(true);
       const response = await fetch('/api/v1/employers/me', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          Authorization: `Bearer ${getAuthToken()}`,
         },
       });
 
@@ -233,7 +234,7 @@ export default function CompanyProfileSettingsPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          Authorization: `Bearer ${getAuthToken()}`,
         },
         body: JSON.stringify(formData),
       });

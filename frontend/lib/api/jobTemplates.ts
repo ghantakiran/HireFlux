@@ -301,16 +301,9 @@ export function getCategoryColor(category: TemplateCategory): string {
 }
 
 /**
- * Check if template is public
- */
-export function isPublicTemplate(template: JobTemplate): boolean {
-  return template.visibility === TemplateVisibility.PUBLIC;
-}
-
-/**
  * Check if template belongs to current company
  */
-export function isCompanyTemplate(template: JobTemplate, companyId: string): boolean {
+function isCompanyTemplate(template: JobTemplate, companyId: string): boolean {
   return template.company_id === companyId;
 }
 
@@ -354,33 +347,3 @@ export function getCategoryOptions(): Array<{ value: TemplateCategory; label: st
   }));
 }
 
-/**
- * Validate template data before submission
- */
-export function validateTemplateData(
-  data: CreateJobTemplateRequest | UpdateJobTemplateRequest
-): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
-
-  // For create, these fields are required
-  if ('name' in data && data.name !== undefined) {
-    if (!data.name || data.name.trim().length === 0) {
-      errors.push('Template name is required');
-    } else if (data.name.length > 255) {
-      errors.push('Template name must be less than 255 characters');
-    }
-  }
-
-  if ('title' in data && data.title !== undefined) {
-    if (!data.title || data.title.trim().length === 0) {
-      errors.push('Job title is required');
-    } else if (data.title.length > 255) {
-      errors.push('Job title must be less than 255 characters');
-    }
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors,
-  };
-}

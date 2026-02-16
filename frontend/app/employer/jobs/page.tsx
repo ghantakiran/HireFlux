@@ -54,6 +54,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { formatDate } from '@/lib/utils';
+import { getAuthToken } from '@/lib/api-client';
 
 // Import API client and types
 import {
@@ -168,7 +169,7 @@ export default function EmployerJobsPage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem('access_token');
+      const token = getAuthToken();
       if (!token) {
         router.push('/employer/login');
         return;

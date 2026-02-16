@@ -37,6 +37,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { formatDateLong } from '@/lib/utils';
+import { getAuthToken } from '@/lib/api-client';
 
 // Types
 interface Job {
@@ -81,7 +82,7 @@ export default function JobDetailPage() {
       setError(null);
 
       try {
-        const token = localStorage.getItem('access_token');
+        const token = getAuthToken();
         if (!token) {
           router.push('/employer/login');
           return;

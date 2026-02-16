@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/dialog';
 import { Upload, Trash2, X, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
+import { getAuthToken } from '@/lib/api-client';
 
 interface CompanyLogoUploadProps {
   currentLogoUrl?: string;
@@ -130,7 +131,7 @@ export function CompanyLogoUpload({
       const response = await fetch('/api/v1/employers/me/logo', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          Authorization: `Bearer ${getAuthToken()}`,
         },
         body: formData,
       });
@@ -162,7 +163,7 @@ export function CompanyLogoUpload({
       const response = await fetch('/api/v1/employers/me/logo', {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          Authorization: `Bearer ${getAuthToken()}`,
         },
       });
 
