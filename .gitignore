@@ -54,6 +54,9 @@ htmlcov/
 .pytest_cache/
 .tox/
 coverage/
+.playwright-mcp/
+*-test.png
+*-page.png
 
 # Logs
 *.log
