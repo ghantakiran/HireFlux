@@ -16,6 +16,7 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Eye, MessageSquare, UserPlus } from 'lucide-react';
+import { getFitIndexDetailedColor } from '@/lib/score-colors';
 
 export interface Applicant {
   id: string;
@@ -39,15 +40,6 @@ interface KanbanCardProps {
   onAddNote?: () => void;
   onAssignRecruiter?: () => void;
   isDragging?: boolean;
-}
-
-/**
- * Get color class for fit index badge
- */
-function getFitIndexColor(fitIndex: number): string {
-  if (fitIndex > 80) return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-300';
-  if (fitIndex >= 60) return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-300';
-  return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-300';
 }
 
 /**
@@ -103,7 +95,7 @@ export default function KanbanCard({
     willChange: 'transform, opacity, box-shadow',
   };
 
-  const fitIndexColor = getFitIndexColor(applicant.fitIndex);
+  const fitIndexColor = getFitIndexDetailedColor(applicant.fitIndex);
   const relativeTime = formatRelativeTime(applicant.appliedAt);
   const initials = getInitials(applicant.candidateName);
 

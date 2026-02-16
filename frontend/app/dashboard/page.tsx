@@ -28,6 +28,7 @@ import {
 import { Avatar } from '@/components/ui/optimized-image';
 import { NoActivityEmptyState } from '@/components/ui/empty-state';
 import { formatDateTime } from '@/lib/utils';
+import { getHealthScoreColor } from '@/lib/score-colors';
 
 // Types
 interface HealthScore {
@@ -145,13 +146,6 @@ export default function DashboardPage() {
     } catch (err) {
       console.error('Export failed:', err);
     }
-  };
-
-  const getHealthColor = (score: number) => {
-    if (score >= 80) return 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/20';
-    if (score >= 60) return 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20';
-    if (score >= 40) return 'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-900/20';
-    return 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/20';
   };
 
   if (loading) {
@@ -363,7 +357,7 @@ export default function DashboardPage() {
 
               <div className="flex items-center gap-6">
                 <div
-                  className={`w-24 h-24 rounded-full flex items-center justify-center ${getHealthColor(
+                  className={`w-24 h-24 rounded-full flex items-center justify-center ${getHealthScoreColor(
                     data.health_score.overall_score
                   )}`}
                 >

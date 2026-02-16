@@ -31,6 +31,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { useURLState } from '@/hooks/useURLState';
 import { PageLoader } from '@/components/ui/page-loader';
 import { formatSalaryCompact, formatRelativeTime } from '@/lib/utils';
+import { getFitIndexBadgeColor, getFitIndexLabel } from '@/lib/score-colors';
 
 const JOBS_URL_CONFIG = {
   remote_policy: { defaultValue: 'any' },
@@ -125,20 +126,6 @@ export default function JobsPage() {
 
   const handleJobClick = (jobId: string) => {
     router.push(`/dashboard/jobs/${jobId}`);
-  };
-
-  const getFitIndexColor = (fitIndex: number) => {
-    if (fitIndex >= 80) return 'bg-green-500';
-    if (fitIndex >= 60) return 'bg-blue-500';
-    if (fitIndex >= 40) return 'bg-yellow-500';
-    return 'bg-gray-500';
-  };
-
-  const getFitIndexLabel = (fitIndex: number) => {
-    if (fitIndex >= 80) return 'Excellent Match';
-    if (fitIndex >= 60) return 'Good Match';
-    if (fitIndex >= 40) return 'Fair Match';
-    return 'Low Match';
   };
 
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
@@ -288,7 +275,7 @@ export default function JobsPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {fitIndex > 0 && (
-                        <Badge className={getFitIndexColor(fitIndex)}>
+                        <Badge className={getFitIndexBadgeColor(fitIndex)}>
                           <TrendingUp className="mr-1 h-3 w-3" />
                           Fit: {fitIndex}
                         </Badge>

@@ -33,6 +33,7 @@ import { toast } from 'sonner';
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { PageLoader } from '@/components/ui/page-loader';
 import { formatSalaryCompact, formatRelativeTime } from '@/lib/utils';
+import { getFitIndexBadgeColor, getScoreColors } from '@/lib/score-colors';
 
 export default function JobDetailsPage() {
   const router = useRouter();
@@ -88,20 +89,6 @@ export default function JobDetailsPage() {
     router.push(`/dashboard/applications/new?job=${jobId}`);
   };
 
-  const getFitIndexColor = (fitIndex: number) => {
-    if (fitIndex >= 80) return 'bg-green-500';
-    if (fitIndex >= 60) return 'bg-blue-500';
-    if (fitIndex >= 40) return 'bg-yellow-500';
-    return 'bg-gray-500';
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return { bg: 'bg-green-600', text: 'text-green-600' };
-    if (score >= 60) return { bg: 'bg-blue-600', text: 'text-blue-600' };
-    if (score >= 40) return { bg: 'bg-yellow-600', text: 'text-yellow-600' };
-    return { bg: 'bg-gray-600', text: 'text-gray-600' };
-  };
-
   if (isLoading || !currentJob) {
     return <PageLoader message="Loading job details..." fullScreen />;
   }
@@ -139,7 +126,7 @@ export default function JobDetailsPage() {
                   </CardDescription>
                 </div>
                 {fitIndex > 0 && (
-                  <Badge className={`${getFitIndexColor(fitIndex)} text-lg px-3 py-1`}>
+                  <Badge className={`${getFitIndexBadgeColor(fitIndex)} text-lg px-3 py-1`}>
                     <TrendingUp className="mr-1 h-4 w-4" />
                     Fit: {fitIndex}
                   </Badge>
@@ -316,7 +303,7 @@ export default function JobDetailsPage() {
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`${
-                          getScoreColor(matchScore.fit_index).bg
+                          getScoreColors(matchScore.fit_index).bg
                         } h-2 rounded-full`}
                         style={{ width: `${matchScore.fit_index}%` }}
                       ></div>
@@ -334,7 +321,7 @@ export default function JobDetailsPage() {
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`${
-                          getScoreColor(matchScore.skills_match_score).bg
+                          getScoreColors(matchScore.skills_match_score).bg
                         } h-2 rounded-full`}
                         style={{ width: `${matchScore.skills_match_score}%` }}
                       ></div>
@@ -352,7 +339,7 @@ export default function JobDetailsPage() {
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`${
-                          getScoreColor(matchScore.experience_match_score).bg
+                          getScoreColors(matchScore.experience_match_score).bg
                         } h-2 rounded-full`}
                         style={{ width: `${matchScore.experience_match_score}%` }}
                       ></div>
@@ -370,7 +357,7 @@ export default function JobDetailsPage() {
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`${
-                          getScoreColor(matchScore.location_match_score).bg
+                          getScoreColors(matchScore.location_match_score).bg
                         } h-2 rounded-full`}
                         style={{ width: `${matchScore.location_match_score}%` }}
                       ></div>
@@ -389,7 +376,7 @@ export default function JobDetailsPage() {
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className={`${
-                            getScoreColor(matchScore.salary_match_score).bg
+                            getScoreColors(matchScore.salary_match_score).bg
                           } h-2 rounded-full`}
                           style={{ width: `${matchScore.salary_match_score}%` }}
                         ></div>

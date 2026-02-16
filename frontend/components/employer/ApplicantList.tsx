@@ -17,6 +17,7 @@ import { ErrorBanner } from '@/components/ui/error-banner';
 import StatusChangeModal from './StatusChangeModal';
 import BulkActionToolbar from './BulkActionToolbar';
 import BulkStatusChangeModal from './BulkStatusChangeModal';
+import { getFitIndexDetailedColor } from '@/lib/score-colors';
 
 // ============================================================================
 // Types & Interfaces
@@ -81,15 +82,6 @@ const SORT_OPTIONS = [
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-/**
- * Get color class for fit index badge
- */
-function getFitIndexColor(fitIndex: number): string {
-  if (fitIndex > 80) return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-300';
-  if (fitIndex >= 60) return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-300';
-  return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-300';
-}
 
 /**
  * Format relative time from ISO date string
@@ -457,7 +449,7 @@ export function ApplicantList({
                     {/* Fit Index */}
                     <td className="px-4 py-3">
                       <div
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-semibold border ${getFitIndexColor(
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-semibold border ${getFitIndexDetailedColor(
                           applicant.fitIndex
                         )}`}
                         data-testid="fit-index-badge"

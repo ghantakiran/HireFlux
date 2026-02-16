@@ -27,6 +27,7 @@ import {
 import { SortableColumnHeader } from '@/components/ui/sortable-column-header';
 import { useApplicantFiltering } from '@/hooks/useApplicantFiltering';
 import { Application, STATUS_LABELS, STATUS_COLORS } from '@/lib/types/applicant-filtering';
+import { getFitScoreColor } from '@/lib/score-colors';
 import { formatDistanceToNow } from 'date-fns';
 
 interface ApplicantListWithFilteringProps {
@@ -70,13 +71,6 @@ export default function ApplicantListWithFiltering({
   // Handle applicant click
   const handleApplicantClick = (applicationId: string) => {
     router.push(`/employer/jobs/${jobId}/applications/${applicationId}`);
-  };
-
-  // Get fit score color
-  const getFitScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-700 bg-green-50 dark:bg-green-900/20 dark:text-green-400';
-    if (score >= 60) return 'text-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400';
-    return 'text-red-700 bg-red-50 dark:bg-red-900/20 dark:text-red-400';
   };
 
   // Get status badge color
