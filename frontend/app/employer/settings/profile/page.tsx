@@ -44,6 +44,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from 'lucide-react';
+import { PageLoader } from '@/components/ui/page-loader';
 import { CompanyLogoUpload } from '@/components/employer/CompanyLogoUpload';
 import { toast } from 'sonner';
 import { RichTextEditor } from '@/components/employer/RichTextEditor';
@@ -284,14 +285,7 @@ export default function CompanyProfileSettingsPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading company settings...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading company settings..." fullScreen />;
   }
 
   return (

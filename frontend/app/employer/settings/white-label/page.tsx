@@ -43,6 +43,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageLoader } from '@/components/ui/page-loader';
 import { OptimizedImage } from '@/components/ui/optimized-image';
 
 interface WhiteLabelConfig {
@@ -220,11 +221,7 @@ export default function WhiteLabelSettingsPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto py-8 px-4">
-        <div className="text-center py-12">Loading white-label settings...</div>
-      </div>
-    );
+    return <PageLoader message="Loading white-label settings..." />;
   }
 
   return (

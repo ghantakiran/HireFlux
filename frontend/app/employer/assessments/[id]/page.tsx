@@ -49,6 +49,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { PageLoader } from '@/components/ui/page-loader';
 import { assessmentApi } from '@/lib/api';
 import { getAssessmentStatusBadgeColor } from '@/lib/badge-helpers';
 
@@ -286,12 +287,7 @@ export default function AssessmentDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="container mx-auto py-8 px-4 text-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent mb-2"></div>
-        <p className="text-gray-500 dark:text-gray-400">Loading assessment...</p>
-      </div>
-    );
+    return <PageLoader message="Loading assessment..." />;
   }
 
   if (error || !assessment) {

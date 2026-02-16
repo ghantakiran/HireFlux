@@ -9,7 +9,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Save, Eye, Loader2, ArrowLeft } from 'lucide-react';
+import { Save, Eye, ArrowLeft } from 'lucide-react';
+import { PageLoader } from '@/components/ui/page-loader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -53,14 +54,7 @@ export default function EditJobPage() {
   }, [jobId]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading job...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="Loading job..." fullScreen />;
   }
 
   return (

@@ -23,6 +23,7 @@ import ATSViewToggle from '@/components/employer/ATSViewToggle';
 import ApplicantList from '@/components/employer/ApplicantList';
 import ApplicantKanbanBoard from '@/components/employer/ApplicantKanbanBoard';
 import CandidateDetailModal from '@/components/employer/CandidateDetailModal';
+import { PageLoader } from '@/components/ui/page-loader';
 
 interface ATSPageProps {
   params: {
@@ -194,12 +195,7 @@ export default function ATSPage({ params }: ATSPageProps) {
   if (loading && applications.length === 0) {
     // Loading state
     content = (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading applications...</p>
-        </div>
-      </div>
+      <PageLoader message="Loading applications..." />
     );
   } else if (error) {
     // Error state

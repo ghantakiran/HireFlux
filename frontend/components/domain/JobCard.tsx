@@ -7,12 +7,11 @@
 
 'use client';
 
-import { cn } from '@/lib/utils';
+import { cn, formatRelativeTime } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { FitIndexBadge } from '@/components/domain/FitIndexBadge';
 import { Bookmark, BookmarkCheck, MapPin, Building2, Clock } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
 
 export interface Job {
   id: string;
@@ -99,18 +98,6 @@ function getLocationTypeColor(type: Job['locationType']): string {
       return 'bg-gray-600 text-white';
     default:
       return 'bg-gray-600 text-white';
-  }
-}
-
-/**
- * Format relative time
- */
-function formatPostedDate(dateString: string): string {
-  try {
-    const date = new Date(dateString);
-    return formatDistanceToNow(date, { addSuffix: true });
-  } catch {
-    return '';
   }
 }
 
@@ -252,7 +239,7 @@ export function JobCard({
         {job.postedDate && (
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="h-3.5 w-3.5" />
-            <span>{formatPostedDate(job.postedDate)}</span>
+            <span>{formatRelativeTime(job.postedDate)}</span>
           </div>
         )}
       </div>

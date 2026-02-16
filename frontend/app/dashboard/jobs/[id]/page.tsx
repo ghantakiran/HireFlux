@@ -32,7 +32,7 @@ import { useJobStore } from '@/lib/stores/job-store';
 import { toast } from 'sonner';
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { PageLoader } from '@/components/ui/page-loader';
-import { formatSalaryCompact } from '@/lib/utils';
+import { formatSalaryCompact, formatRelativeTime } from '@/lib/utils';
 
 export default function JobDetailsPage() {
   const router = useRouter();
@@ -86,19 +86,6 @@ export default function JobDetailsPage() {
 
   const handleApply = () => {
     router.push(`/dashboard/applications/new?job=${jobId}`);
-  };
-
-  const formatPostedDate = (dateString: string) => {
-    const posted = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - posted.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return `${Math.floor(diffDays / 30)} months ago`;
   };
 
   const getFitIndexColor = (fitIndex: number) => {
@@ -168,7 +155,7 @@ export default function JobDetailsPage() {
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Clock className="h-4 w-4" />
-                  <span>{formatPostedDate(job.posted_at)}</span>
+                  <span>{formatRelativeTime(job.posted_at)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <DollarSign className="h-4 w-4" />

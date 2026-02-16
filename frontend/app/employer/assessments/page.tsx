@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { PageLoader } from '@/components/ui/page-loader';
 import { assessmentApi } from '@/lib/api';
 import { getAssessmentStatusBadgeColor, getAssessmentTypeBadgeColor } from '@/lib/badge-helpers';
 import { Pagination } from '@/components/ui/pagination';
@@ -242,10 +243,7 @@ export default function AssessmentsPage() {
       {/* Assessments List */}
       <div className="space-y-4">
         {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent mb-2"></div>
-            <p className="text-gray-500 dark:text-gray-400">Loading assessments...</p>
-          </div>
+          <PageLoader message="Loading assessments..." />
         ) : assessments.length === 0 && !error ? (
           <EmptyState
             title="No assessments yet"
