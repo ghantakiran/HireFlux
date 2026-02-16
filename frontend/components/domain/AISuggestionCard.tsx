@@ -8,7 +8,7 @@
 'use client';
 
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
+import { cn, capitalize } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronUp, Check, X, Undo2 } from 'lucide-react';
@@ -86,13 +86,6 @@ function getCategoryLabel(category: AISuggestion['category']): string {
     case 'interview':
       return 'Interview';
   }
-}
-
-/**
- * Capitalize first letter
- */
-function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export function AISuggestionCard({

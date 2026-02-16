@@ -15,6 +15,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { capitalize } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -203,7 +204,7 @@ export function EmployerRegistration({ onComplete, onCancel }: EmployerRegistrat
       // Pre-fill company name from domain (capitalize first letter)
       if (domain && !companyName) {
         const name = domain.split('.')[0];
-        setCompanyName(name.charAt(0).toUpperCase() + name.slice(1));
+        setCompanyName(capitalize(name));
       }
     }
   }, [email, companyName]);

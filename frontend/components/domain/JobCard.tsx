@@ -7,7 +7,7 @@
 
 'use client';
 
-import { cn, formatRelativeTime } from '@/lib/utils';
+import { cn, capitalize, formatRelativeTime } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { FitIndexBadge } from '@/components/domain/FitIndexBadge';
@@ -218,7 +218,7 @@ export function JobCard({
         {/* Location Type Badge */}
         {job.locationType && (
           <Badge className={cn('text-xs', getLocationTypeColor(job.locationType))}>
-            {job.locationType.charAt(0).toUpperCase() + job.locationType.slice(1)}
+            {capitalize(job.locationType)}
           </Badge>
         )}
 

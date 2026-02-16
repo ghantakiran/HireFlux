@@ -152,6 +152,15 @@ export function titleCase(str: string): string {
 }
 
 /**
+ * Capitalize the first letter of a string
+ * e.g., "remote" → "Remote"
+ */
+export function capitalize(str: string): string {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
  * Get initials from a name (e.g., "John Doe" → "JD", "Alice" → "AL")
  */
 export function getInitials(name?: string): string {
