@@ -32,6 +32,7 @@ import {
   Shield,
   Info,
 } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
 
 // Types
 interface VerificationStatus {
@@ -228,7 +229,7 @@ export function DomainVerification({ companyDomain }: { companyDomain?: string }
             <p>
               <strong>Verified on:</strong>{' '}
               {status.verified_at
-                ? new Date(status.verified_at).toLocaleDateString()
+                ? formatDate(status.verified_at)
                 : 'N/A'}
             </p>
           </div>

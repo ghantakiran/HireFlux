@@ -13,6 +13,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Camera, Upload, FileText, Check } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { CameraCapture } from '../camera-capture';
 import type { ApplicationData } from '../mobile-apply-modal';
@@ -327,7 +328,7 @@ export function ResumeUploadStep({
                       {resume.name}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Updated {new Date(resume.updatedAt).toLocaleDateString()}
+                      Updated {formatDate(resume.updatedAt)}
                     </p>
                   </div>
                 </button>

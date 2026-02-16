@@ -64,7 +64,7 @@ import {
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { Pagination } from '@/components/ui/pagination';
 import { usePagination } from '@/hooks/usePagination';
-import { titleCase } from '@/lib/utils';
+import { titleCase, formatDate } from '@/lib/utils';
 
 // Types
 interface Interview {
@@ -413,7 +413,7 @@ export default function InterviewSchedulingPage() {
   const formatDateTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return {
-      date: date.toLocaleDateString(),
+      date: formatDate(date),
       time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
   };

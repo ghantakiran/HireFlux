@@ -8,6 +8,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { X, MapPin, DollarSign, Clock, Building, Heart, Ban, Send } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -106,7 +107,7 @@ export function JobDetailsModal({
             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 col-span-2">
               <Clock className="h-5 w-5 flex-shrink-0" />
               <span className="text-sm">
-                Posted {new Date(job.postedAt).toLocaleDateString()}
+                Posted {formatDate(job.postedAt)}
               </span>
             </div>
           </div>

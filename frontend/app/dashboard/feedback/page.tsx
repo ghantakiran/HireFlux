@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Bug, Lightbulb, MessageCircle, MessageSquare, Filter, ChevronRight } from 'lucide-react';
+import { formatDate, formatDateTimeLong } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/empty-state';
 import {
   Dialog,
@@ -221,11 +222,7 @@ export default function FeedbackPage() {
                   {/* Meta Info */}
                   <div className="flex items-center gap-4 text-sm text-gray-500">
                     <span data-feedback-date>
-                      {new Date(item.date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                      })}
+                      {formatDate(item.date)}
                     </span>
                     {item.trackingId && (
                       <span className="font-mono text-xs">
@@ -288,13 +285,7 @@ export default function FeedbackPage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Submitted</span>
                     <span className="font-medium text-gray-900" data-feedback-date>
-                      {new Date(selectedFeedback.date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      {formatDateTimeLong(selectedFeedback.date)}
                     </span>
                   </div>
                   {selectedFeedback.trackingId && (

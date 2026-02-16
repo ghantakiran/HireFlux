@@ -16,6 +16,7 @@
 import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Shield, CheckCircle } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
 import {
   Tooltip,
   TooltipContent,
@@ -75,7 +76,7 @@ export function VerifiedBadge({
   }
 
   const verifiedDate = badgeData.verified_at
-    ? new Date(badgeData.verified_at).toLocaleDateString()
+    ? formatDate(badgeData.verified_at)
     : null;
 
   return (
