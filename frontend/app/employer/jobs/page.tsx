@@ -19,7 +19,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { useColumnSort } from '@/hooks/useColumnSort';
+import { useColumnSort, parseSortValue } from '@/hooks/useColumnSort';
 import { useURLState } from '@/hooks/useURLState';
 import {
   Plus,
@@ -113,11 +113,9 @@ export default function EmployerJobsPage() {
   const sortDropdownValue = `${urlState.params.sort}_${urlState.params.sort_dir}`;
 
   const handleSortChange = (value: string) => {
-    const lastUnderscore = value.lastIndexOf('_');
-    const col = value.substring(0, lastUnderscore);
-    const dir = value.substring(lastUnderscore + 1) as 'asc' | 'desc';
-    setSort(col, dir);
-    urlState.setParams({ sort: col, sort_dir: dir, page: '1' });
+    const { column, direction } = parseSortValue(value);
+    setSort(column, direction);
+    urlState.setParams({ sort: column, sort_dir: direction, page: '1' });
   };
 
   const { query: searchQuery, debouncedQuery, setQuery: setSearchQuery, clearSearch, isDebouncing } = useSearch({

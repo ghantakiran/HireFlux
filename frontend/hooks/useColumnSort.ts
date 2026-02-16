@@ -107,3 +107,14 @@ export function useColumnSort<T, K extends string = string>({
 
   return { sortedItems, sortState, toggleSort, setSort, clearSort };
 }
+
+/**
+ * Parse a compound sort value like "created_at_desc" into column and direction.
+ * Splits on the last underscore to handle column names containing underscores.
+ */
+export function parseSortValue(value: string): { column: string; direction: 'asc' | 'desc' } {
+  const lastUnderscore = value.lastIndexOf('_');
+  const column = value.substring(0, lastUnderscore);
+  const direction = value.substring(lastUnderscore + 1) as 'asc' | 'desc';
+  return { column, direction };
+}

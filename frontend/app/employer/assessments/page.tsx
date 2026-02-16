@@ -27,7 +27,7 @@ import { assessmentApi } from '@/lib/api';
 import { getAssessmentStatusBadgeColor, getAssessmentTypeBadgeColor } from '@/lib/badge-helpers';
 import { Pagination } from '@/components/ui/pagination';
 import { usePagination } from '@/hooks/usePagination';
-import { useColumnSort } from '@/hooks/useColumnSort';
+import { useColumnSort, parseSortValue } from '@/hooks/useColumnSort';
 import { useURLState } from '@/hooks/useURLState';
 
 interface Assessment {
@@ -85,11 +85,9 @@ export default function AssessmentsPage() {
   const sortDropdownValue = `${urlState.params.sort}_${urlState.params.sort_dir}`;
 
   const handleSortChange = (value: string) => {
-    const lastUnderscore = value.lastIndexOf('_');
-    const col = value.substring(0, lastUnderscore);
-    const dir = value.substring(lastUnderscore + 1) as 'asc' | 'desc';
-    setSort(col, dir);
-    urlState.setParams({ sort: col, sort_dir: dir });
+    const { column, direction } = parseSortValue(value);
+    setSort(column, direction);
+    urlState.setParams({ sort: column, sort_dir: direction });
   };
 
   useEffect(() => {

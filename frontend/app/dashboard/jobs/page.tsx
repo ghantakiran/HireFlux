@@ -23,6 +23,7 @@ import {
 import { SearchInput } from '@/components/ui/search-input';
 import { FilterBar } from '@/components/ui/filter-bar';
 import { useSearch } from '@/hooks/useSearch';
+import { parseSortValue } from '@/hooks/useColumnSort';
 import { useJobStore, type JobSearchFilters } from '@/lib/stores/job-store';
 import { CompanyLogo } from '@/components/ui/optimized-image';
 import { ErrorBanner } from '@/components/ui/error-banner';
@@ -76,10 +77,8 @@ export default function JobsPage() {
   const sortDropdownValue = `${urlState.params.sort}_${urlState.params.sort_dir}`;
 
   const handleSortChange = (value: string) => {
-    const lastUnderscore = value.lastIndexOf('_');
-    const col = value.substring(0, lastUnderscore);
-    const dir = value.substring(lastUnderscore + 1);
-    urlState.setParams({ sort: col, sort_dir: dir, page: '1' });
+    const { column, direction } = parseSortValue(value);
+    urlState.setParams({ sort: column, sort_dir: direction, page: '1' });
   };
 
   useEffect(() => {

@@ -16,7 +16,7 @@ import { candidateSearchApi } from '@/lib/api';
 import { Search, MapPin, DollarSign, Briefcase, Star, Eye, Save, Filter, X, Users } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { FilterBar } from '@/components/ui/filter-bar';
-import { useColumnSort } from '@/hooks/useColumnSort';
+import { useColumnSort, parseSortValue } from '@/hooks/useColumnSort';
 import { useURLState } from '@/hooks/useURLState';
 import { Pagination } from '@/components/ui/pagination';
 import { EmptyState } from '@/components/domain/EmptyState';
@@ -125,11 +125,9 @@ export default function CandidateSearchPage() {
   const sortDropdownValue = `${urlState.params.sort}_${urlState.params.sort_dir}`;
 
   const handleSortChange = (value: string) => {
-    const lastUnderscore = value.lastIndexOf('_');
-    const col = value.substring(0, lastUnderscore);
-    const dir = value.substring(lastUnderscore + 1) as 'asc' | 'desc';
-    setSort(col, dir);
-    urlState.setParams({ sort: col, sort_dir: dir, page: '1' });
+    const { column, direction } = parseSortValue(value);
+    setSort(column, direction);
+    urlState.setParams({ sort: column, sort_dir: direction, page: '1' });
   };
 
   useEffect(() => {
