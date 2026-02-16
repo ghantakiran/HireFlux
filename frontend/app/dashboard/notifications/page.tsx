@@ -14,7 +14,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { formatDistanceToNow, format, isToday, isYesterday, isSameDay } from 'date-fns';
+import { format, isToday, isYesterday, isSameDay } from 'date-fns';
+import { formatRelativeTime } from '@/lib/utils';
 import {
   Bell,
   Trash2,
@@ -511,9 +512,7 @@ export default function NotificationsHistoryPage() {
                                 dateTime={notification.timestamp}
                                 className="text-xs text-muted-foreground mt-2 block"
                               >
-                                {formatDistanceToNow(new Date(notification.timestamp), {
-                                  addSuffix: true,
-                                })}
+                                {formatRelativeTime(notification.timestamp, true)}
                               </time>
                             </div>
                           </div>

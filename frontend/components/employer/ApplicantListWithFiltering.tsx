@@ -28,7 +28,7 @@ import { SortableColumnHeader } from '@/components/ui/sortable-column-header';
 import { useApplicantFiltering } from '@/hooks/useApplicantFiltering';
 import { Application, STATUS_LABELS, STATUS_COLORS } from '@/lib/types/applicant-filtering';
 import { getFitScoreColor } from '@/lib/score-colors';
-import { formatDistanceToNow } from 'date-fns';
+import { formatRelativeTime } from '@/lib/utils';
 
 interface ApplicantListWithFilteringProps {
   jobId: string;
@@ -215,9 +215,7 @@ export default function ApplicantListWithFiltering({
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {formatDistanceToNow(new Date(application.applied_at), {
-                    addSuffix: true,
-                  })}
+                  {formatRelativeTime(application.applied_at, true)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {application.candidate.location || '-'}

@@ -19,6 +19,7 @@ import BulkActionToolbar from './BulkActionToolbar';
 import BulkStatusChangeModal from './BulkStatusChangeModal';
 import { getFitIndexDetailedColor } from '@/lib/score-colors';
 import { formatRelativeTime } from '@/lib/utils';
+import { EMPLOYER_STAGES } from '@/lib/constants/employer-stages';
 
 // ============================================================================
 // Types & Interfaces
@@ -62,17 +63,6 @@ interface Filters {
 // Constants
 // ============================================================================
 
-const STAGES = [
-  { value: 'new', label: 'New' },
-  { value: 'reviewing', label: 'Reviewing' },
-  { value: 'phone_screen', label: 'Phone Screen' },
-  { value: 'technical_interview', label: 'Technical Interview' },
-  { value: 'final_interview', label: 'Final Interview' },
-  { value: 'offer', label: 'Offer' },
-  { value: 'hired', label: 'Hired' },
-  { value: 'rejected', label: 'Rejected' },
-];
-
 const SORT_OPTIONS = [
   { value: 'fit_index_desc', label: 'Fit Index (High to Low)' },
   { value: 'fit_index_asc', label: 'Fit Index (Low to High)' },
@@ -88,7 +78,7 @@ const SORT_OPTIONS = [
  * Get stage label from value
  */
 function getStageLabel(stageValue: string): string {
-  const stage = STAGES.find(s => s.value === stageValue);
+  const stage = EMPLOYER_STAGES.find(s => s.id === stageValue);
   return stage?.label || stageValue;
 }
 
@@ -300,8 +290,8 @@ export function ApplicantList({
             className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">All Stages</option>
-            {STAGES.map(stage => (
-              <option key={stage.value} value={stage.value}>
+            {EMPLOYER_STAGES.map(stage => (
+              <option key={stage.id} value={stage.id}>
                 {stage.label}
               </option>
             ))}

@@ -27,7 +27,7 @@ import { useNotifications } from './notification-provider';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Notification, NotificationType } from '@/lib/types/notifications';
-import { formatDistanceToNow } from 'date-fns';
+import { formatRelativeTime } from '@/lib/utils';
 
 // Notification type icons
 const NOTIFICATION_ICONS: Record<NotificationType, React.ElementType> = {
@@ -118,7 +118,7 @@ function NotificationItem({
             dateTime={notification.timestamp}
             className="mt-1 text-xs text-gray-500 dark:text-gray-400"
           >
-            {formatDistanceToNow(new Date(notification.timestamp), { addSuffix: true })}
+            {formatRelativeTime(notification.timestamp, true)}
           </time>
         </div>
 

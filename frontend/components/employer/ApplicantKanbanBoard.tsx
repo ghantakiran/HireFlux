@@ -33,6 +33,7 @@ import KanbanColumn from './KanbanColumn';
 import KanbanCard, { Applicant } from './KanbanCard';
 import { atsApi } from '@/lib/api';
 import { useATSStore } from '@/hooks/useATSStore';
+import { EMPLOYER_STAGES } from '@/lib/constants/employer-stages';
 
 // ============================================================================
 // Types & Interfaces
@@ -78,21 +79,6 @@ interface UndoAction {
   newStage: ApplicationStatus;
   timestamp: number;
 }
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-const STAGES: Array<{ id: ApplicationStatus; label: string; color: string }> = [
-  { id: 'new', label: 'New', color: 'blue' },
-  { id: 'reviewing', label: 'Reviewing', color: 'yellow' },
-  { id: 'phone_screen', label: 'Phone Screen', color: 'purple' },
-  { id: 'technical_interview', label: 'Technical Interview', color: 'orange' },
-  { id: 'final_interview', label: 'Final Interview', color: 'green' },
-  { id: 'offer', label: 'Offer', color: 'green' },
-  { id: 'hired', label: 'Hired', color: 'green' },
-  { id: 'rejected', label: 'Rejected', color: 'red' },
-];
 
 // ============================================================================
 // Main Component
@@ -234,7 +220,7 @@ export default function ApplicantKanbanBoard({
 
   // Organize applicants by stage (using store's filtered data)
   const stages: KanbanStage[] = useMemo(() => {
-    return STAGES.map((stage) => ({
+    return EMPLOYER_STAGES.map((stage) => ({
       ...stage,
       candidates: filteredApplications.filter((a) => a.stage === stage.id),
     }));
@@ -259,7 +245,7 @@ export default function ApplicantKanbanBoard({
 
     const applicant = applicants.find((a) => a.id === active.id);
     if (applicant) {
-      const stage = STAGES.find((s) => s.id === applicant.stage);
+      const stage = EMPLOYER_STAGES.find((s) => s.id === applicant.stage);
       setAnnouncement(
         `Picked up ${applicant.candidateName} from ${stage?.label} column`
       );
@@ -270,7 +256,7 @@ export default function ApplicantKanbanBoard({
     const { over } = event;
     if (over && activeId) {
       const overId = over.id as string;
-      const overStage = STAGES.find((s) => s.id === overId);
+      const overStage = EMPLOYER_STAGES.find((s) => s.id === overId);
 
       if (overStage) {
         setAnnouncement(`Press arrow keys to move. Currently over ${overStage.label}`);
@@ -299,7 +285,7 @@ export default function ApplicantKanbanBoard({
     }
 
     // Check if dropped on a stage (not another card)
-    const targetStage = STAGES.find((s) => s.id === overId);
+    const targetStage = EMPLOYER_STAGES.find((s) => s.id === overId);
     if (!targetStage) {
       setActiveId(null);
       return;
@@ -349,8 +335,8 @@ export default function ApplicantKanbanBoard({
       });
 
       // Update candidate counts announcement
-      const oldStageData = STAGES.find((s) => s.id === oldStage);
-      const newStageData = STAGES.find((s) => s.id === newStage);
+      const oldStageData = EMPLOYER_STAGES.find((s) => s.id === oldStage);
+      const newStageData = EMPLOYER_STAGES.find((s) => s.id === newStage);
       const oldCount = stages.find((s) => s.id === oldStage)?.candidates.length || 0;
       const newCount = stages.find((s) => s.id === newStage)?.candidates.length || 0;
 
