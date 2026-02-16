@@ -39,6 +39,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { JobCardSkeleton } from '@/components/skeletons/card-skeleton';
 import { SearchInput } from '@/components/ui/search-input';
 import { FilterBar } from '@/components/ui/filter-bar';
 import { useSearch } from '@/hooks/useSearch';
@@ -254,13 +255,7 @@ export default function EmployerJobsPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="space-y-4">
             {[1, 2, 3, 4, 5].map((i) => (
-              <Card key={i}>
-                <CardContent className="p-6">
-                  <Skeleton className="h-6 w-64 mb-3" />
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-3/4" />
-                </CardContent>
-              </Card>
+              <JobCardSkeleton key={i} />
             ))}
           </div>
         </div>

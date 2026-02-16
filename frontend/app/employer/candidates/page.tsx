@@ -57,6 +57,7 @@ interface SearchFilters {
 }
 
 import { SKILLS_OPTIONS, EXPERIENCE_LEVELS, LOCATION_TYPES, AVAILABILITY_STATUSES } from '@/lib/constants/filter-options';
+import { PageLoader } from '@/components/ui/page-loader';
 
 const CANDIDATE_URL_CONFIG = {
   sort: { defaultValue: 'updated_at' },
@@ -525,9 +526,7 @@ export default function CandidateSearchPage() {
 
           {/* Candidate Cards */}
           {loading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
+            <PageLoader message="Searching candidates..." />
           ) : sortedCandidates.length > 0 ? (
             <div className="space-y-4">
               {sortedCandidates.map((candidate) => (

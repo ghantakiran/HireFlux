@@ -35,6 +35,7 @@ import { EmptyState } from '@/components/domain/EmptyState';
 import { formatDateTime } from '@/lib/utils';
 import { getAuthToken } from '@/lib/api-client';
 import { StatCard } from '@/components/ui/stat-card';
+import { StatsRowSkeleton } from '@/components/skeletons/stats-skeleton';
 
 // Types
 interface DashboardStats {
@@ -223,17 +224,7 @@ export default function EmployerDashboardPage() {
           </div>
         </div>
         <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <Card key={i}>
-                <CardContent className="p-6">
-                  <Skeleton className="h-12 w-12 rounded-lg mb-3" />
-                  <Skeleton className="h-4 w-24 mb-2" />
-                  <Skeleton className="h-8 w-16" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <StatsRowSkeleton count={4} />
         </div>
       </div>
     );

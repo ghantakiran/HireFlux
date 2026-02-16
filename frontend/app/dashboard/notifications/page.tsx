@@ -27,13 +27,13 @@ import {
   Gift,
   AlertCircle,
   Clock,
-  Loader2,
   X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { SearchInput } from '@/components/ui/search-input';
 import { FilterBar } from '@/components/ui/filter-bar';
+import { PageLoader } from '@/components/ui/page-loader';
 import { useSearch } from '@/hooks/useSearch';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -288,11 +288,8 @@ export default function NotificationsHistoryPage() {
 
   if (isLoading) {
     return (
-      <div
-        data-notification-loading
-        className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[400px]"
-      >
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      <div data-notification-loading>
+        <PageLoader message="Loading notifications..." />
       </div>
     );
   }

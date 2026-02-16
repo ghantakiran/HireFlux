@@ -34,6 +34,7 @@ import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Pagination } from '@/components/ui/pagination';
 import { usePagination } from '@/hooks/usePagination';
+import { CardSkeleton } from '@/components/skeletons/card-skeleton';
 
 export default function TemplatesPage() {
   const router = useRouter();
@@ -239,22 +240,7 @@ export default function TemplatesPage() {
         {loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                className="bg-white border border-gray-200 rounded-lg p-5 animate-pulse"
-              >
-                <div className="h-6 bg-gray-200 rounded mb-3"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
-                <div className="flex space-x-2 mb-4">
-                  <div className="h-6 w-20 bg-gray-200 rounded-full"></div>
-                  <div className="h-6 w-16 bg-gray-200 rounded-full"></div>
-                </div>
-                <div className="flex space-x-2">
-                  <div className="h-10 flex-1 bg-gray-200 rounded"></div>
-                  <div className="h-10 flex-1 bg-gray-200 rounded"></div>
-                </div>
-              </div>
+              <CardSkeleton key={i} showFooter={true} lines={2} />
             ))}
           </div>
         )}

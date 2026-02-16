@@ -30,6 +30,8 @@ import { NoActivityEmptyState } from '@/components/ui/empty-state';
 import { formatDateTime, downloadFile } from '@/lib/utils';
 import { getHealthScoreColor } from '@/lib/score-colors';
 import { StatCard } from '@/components/ui/stat-card';
+import { StatsRowSkeleton } from '@/components/skeletons/stats-skeleton';
+import { CardSkeleton } from '@/components/skeletons/card-skeleton';
 
 // Types
 interface HealthScore {
@@ -147,11 +149,11 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-8">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Dashboard</h1>
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="mb-4 animate-pulse" data-testid="skeleton-loader">
-              <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
-            </div>
-          ))}
+          <div className="space-y-4" data-testid="skeleton-loader">
+            <StatsRowSkeleton count={4} />
+            <CardSkeleton />
+            <CardSkeleton lines={2} />
+          </div>
         </div>
       </div>
     );
