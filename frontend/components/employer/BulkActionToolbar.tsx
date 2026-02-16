@@ -24,19 +24,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { X, ChevronDown } from 'lucide-react';
-import { ApplicationStatus } from './StatusChangeModal';
-
-// Status display names
-const STATUS_LABELS: Record<ApplicationStatus, string> = {
-  [ApplicationStatus.NEW]: 'New',
-  [ApplicationStatus.REVIEWING]: 'Reviewing',
-  [ApplicationStatus.PHONE_SCREEN]: 'Phone Screen',
-  [ApplicationStatus.TECHNICAL_INTERVIEW]: 'Technical Interview',
-  [ApplicationStatus.FINAL_INTERVIEW]: 'Final Interview',
-  [ApplicationStatus.OFFER]: 'Offer',
-  [ApplicationStatus.HIRED]: 'Hired',
-  [ApplicationStatus.REJECTED]: 'Rejected',
-};
+import { ApplicationStatus, STATUS_LABELS } from './StatusChangeModal';
 
 interface BulkActionToolbarProps {
   selectedCount: number;

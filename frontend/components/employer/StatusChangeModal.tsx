@@ -53,7 +53,7 @@ export enum ApplicationStatus {
 }
 
 // Status display names
-const STATUS_LABELS: Record<ApplicationStatus, string> = {
+export const STATUS_LABELS: Record<ApplicationStatus, string> = {
   [ApplicationStatus.NEW]: 'New',
   [ApplicationStatus.REVIEWING]: 'Reviewing',
   [ApplicationStatus.PHONE_SCREEN]: 'Phone Screen',
@@ -65,7 +65,7 @@ const STATUS_LABELS: Record<ApplicationStatus, string> = {
 };
 
 // Rejection reasons
-const REJECTION_REASONS = [
+export const REJECTION_REASONS = [
   'Not enough experience with required technologies',
   'Looking for different skill set',
   'Position filled',

@@ -37,32 +37,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, AlertCircle, AlertTriangle } from 'lucide-react';
-import { ApplicationStatus } from './StatusChangeModal';
+import { ApplicationStatus, STATUS_LABELS, REJECTION_REASONS } from './StatusChangeModal';
 import { getErrorMessage } from '@/lib/api-error-handler';
-
-// Status display names
-const STATUS_LABELS: Record<ApplicationStatus, string> = {
-  [ApplicationStatus.NEW]: 'New',
-  [ApplicationStatus.REVIEWING]: 'Reviewing',
-  [ApplicationStatus.PHONE_SCREEN]: 'Phone Screen',
-  [ApplicationStatus.TECHNICAL_INTERVIEW]: 'Technical Interview',
-  [ApplicationStatus.FINAL_INTERVIEW]: 'Final Interview',
-  [ApplicationStatus.OFFER]: 'Offer',
-  [ApplicationStatus.HIRED]: 'Hired',
-  [ApplicationStatus.REJECTED]: 'Rejected',
-};
-
-// Rejection reasons
-const REJECTION_REASONS = [
-  'Not enough experience with required technologies',
-  'Looking for different skill set',
-  'Position filled',
-  'Salary expectations too high',
-  'Location mismatch',
-  'Not a cultural fit',
-  'Failed technical assessment',
-  'Other',
-];
 
 interface Application {
   id: string;
