@@ -66,12 +66,24 @@ export function formatDateTimeLong(date: Date | string | null): string {
 }
 
 /**
- * Format a relative time (e.g., "2 hours ago", "Yesterday", "3d ago")
+ * Format a relative time (e.g., "3h ago" or verbose "3 hours ago")
+ * @param verbose - When true, uses full words ("5 minutes ago") instead of abbreviated ("5m ago")
  */
-export function formatRelativeTime(date: Date | string): string {
+export function formatRelativeTime(date: Date | string, verbose?: boolean): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);
+
+  if (verbose) {
+    if (diffInSeconds < 60) return 'just now';
+    const minutes = Math.floor(diffInSeconds / 60);
+    if (diffInSeconds < 3600) return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+    const hours = Math.floor(diffInSeconds / 3600);
+    if (diffInSeconds < 86400) return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+    const days = Math.floor(diffInSeconds / 86400);
+    if (diffInSeconds < 2592000) return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+    return formatDate(d);
+  }
 
   if (diffInSeconds < 60) return 'just now';
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
@@ -137,6 +149,18 @@ export function titleCase(str: string): string {
     .split('_')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+/**
+ * Get initials from a name (e.g., "John Doe" → "JD", "Alice" → "AL")
+ */
+export function getInitials(name?: string): string {
+  if (!name) return '?';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
 }
 
 /**

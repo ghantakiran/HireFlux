@@ -17,6 +17,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Eye, MessageSquare, UserPlus } from 'lucide-react';
 import { getFitIndexDetailedColor } from '@/lib/score-colors';
+import { formatRelativeTime, getInitials } from '@/lib/utils';
 
 export interface Applicant {
   id: string;
@@ -40,35 +41,6 @@ interface KanbanCardProps {
   onAddNote?: () => void;
   onAssignRecruiter?: () => void;
   isDragging?: boolean;
-}
-
-/**
- * Format relative time from ISO date string
- */
-function formatRelativeTime(isoDate: string): string {
-  const date = new Date(isoDate);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins} ${diffMins === 1 ? 'minute' : 'minutes'} ago`;
-  if (diffHours < 24) return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
-  if (diffDays < 30) return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
-  return date.toLocaleDateString();
-}
-
-/**
- * Get initials from name
- */
-function getInitials(name: string): string {
-  const parts = name.split(' ');
-  if (parts.length >= 2) {
-    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-  }
-  return name.slice(0, 2).toUpperCase();
 }
 
 export default function KanbanCard({
@@ -96,7 +68,7 @@ export default function KanbanCard({
   };
 
   const fitIndexColor = getFitIndexDetailedColor(applicant.fitIndex);
-  const relativeTime = formatRelativeTime(applicant.appliedAt);
+  const relativeTime = formatRelativeTime(applicant.appliedAt, true);
   const initials = getInitials(applicant.candidateName);
 
   const handleClick = (e: React.MouseEvent) => {

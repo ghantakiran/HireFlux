@@ -18,6 +18,7 @@ import StatusChangeModal from './StatusChangeModal';
 import BulkActionToolbar from './BulkActionToolbar';
 import BulkStatusChangeModal from './BulkStatusChangeModal';
 import { getFitIndexDetailedColor } from '@/lib/score-colors';
+import { formatRelativeTime } from '@/lib/utils';
 
 // ============================================================================
 // Types & Interfaces
@@ -82,25 +83,6 @@ const SORT_OPTIONS = [
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-/**
- * Format relative time from ISO date string
- */
-function formatRelativeTime(isoDate: string): string {
-  const date = new Date(isoDate);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins} minute${diffMins === 1 ? '' : 's'} ago`;
-  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
-  if (diffDays < 30) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
-
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
 
 /**
  * Get stage label from value
@@ -479,7 +461,7 @@ export function ApplicantList({
                     {/* Applied Date */}
                     <td className="hidden lg:table-cell px-4 py-3">
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {formatRelativeTime(applicant.appliedAt)}
+                        {formatRelativeTime(applicant.appliedAt, true)}
                       </span>
                     </td>
 
