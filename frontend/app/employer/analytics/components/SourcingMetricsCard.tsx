@@ -33,19 +33,19 @@ const SOURCE_LABELS: Record<string, string> = {
 export function SourcingMetricsCard({ data, isLoading }: SourcingMetricsCardProps) {
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="h-6 bg-gray-200 rounded w-1/3 mb-4 animate-pulse"></div>
-        <div className="h-64 bg-gray-100 rounded animate-pulse"></div>
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4 animate-pulse"></div>
+        <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded animate-pulse"></div>
       </div>
     );
   }
 
   if (!data.sources || data.sources.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Sourcing Metrics</h3>
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Sourcing Metrics</h3>
         <div className="text-center py-12">
-          <p className="text-gray-500">No sourcing data available</p>
+          <p className="text-gray-500 dark:text-gray-400">No sourcing data available</p>
         </div>
       </div>
     );
@@ -63,11 +63,11 @@ export function SourcingMetricsCard({ data, isLoading }: SourcingMetricsCardProp
   );
 
   return (
-    <div className="bg-white rounded-lg shadow p-6" data-testid="sourcing-metrics-card">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6" data-testid="sourcing-metrics-card">
       {/* Header */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Application Sources</h3>
-        <p className="text-sm text-gray-600 mt-1">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Application Sources</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           {data.total_applications} total applications from {data.sources.length} sources
         </p>
       </div>
@@ -103,8 +103,8 @@ export function SourcingMetricsCard({ data, isLoading }: SourcingMetricsCardProp
             key={source.source}
             className={`p-4 rounded-lg border-2 transition-all ${
               source.source === bestSource.source
-                ? 'border-green-500 bg-green-50'
-                : 'border-gray-200 bg-gray-50'
+                ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
             }`}
             data-testid={`source-${source.source}`}
           >
@@ -114,7 +114,7 @@ export function SourcingMetricsCard({ data, isLoading }: SourcingMetricsCardProp
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: SOURCE_COLORS[source.source] }}
                 ></div>
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-gray-900 dark:text-gray-100">
                   {SOURCE_LABELS[source.source] || source.source}
                 </span>
                 {source.source === bestSource.source && (
@@ -123,20 +123,20 @@ export function SourcingMetricsCard({ data, isLoading }: SourcingMetricsCardProp
                   </span>
                 )}
               </div>
-              <span className="text-lg font-bold text-gray-900">{source.count}</span>
+              <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{source.count}</span>
             </div>
             <div className="grid grid-cols-3 gap-4 mt-2 text-sm">
               <div>
-                <p className="text-gray-500">Fit Index</p>
-                <p className="font-semibold text-gray-900">{source.avg_fit_index.toFixed(1)}</p>
+                <p className="text-gray-500 dark:text-gray-400">Fit Index</p>
+                <p className="font-semibold text-gray-900 dark:text-gray-100">{source.avg_fit_index.toFixed(1)}</p>
               </div>
               <div>
-                <p className="text-gray-500">Hires</p>
-                <p className="font-semibold text-gray-900">{source.hires}</p>
+                <p className="text-gray-500 dark:text-gray-400">Hires</p>
+                <p className="font-semibold text-gray-900 dark:text-gray-100">{source.hires}</p>
               </div>
               <div>
-                <p className="text-gray-500">Conversion</p>
-                <p className="font-semibold text-green-600">
+                <p className="text-gray-500 dark:text-gray-400">Conversion</p>
+                <p className="font-semibold text-green-600 dark:text-green-400">
                   {(source.conversion_rate * 100).toFixed(1)}%
                 </p>
               </div>
@@ -146,15 +146,15 @@ export function SourcingMetricsCard({ data, isLoading }: SourcingMetricsCardProp
       </div>
 
       {/* Summary Stats */}
-      <div className="mt-6 pt-6 border-t border-gray-200">
+      <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
         <div className="grid grid-cols-2 gap-4">
-          <div className="text-center p-3 bg-blue-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Total Applications</p>
-            <p className="text-2xl font-bold text-blue-600">{data.total_applications}</p>
+          <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Applications</p>
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{data.total_applications}</p>
           </div>
-          <div className="text-center p-3 bg-green-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-1">Total Hires</p>
-            <p className="text-2xl font-bold text-green-600">{data.total_hires}</p>
+          <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Hires</p>
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{data.total_hires}</p>
           </div>
         </div>
       </div>

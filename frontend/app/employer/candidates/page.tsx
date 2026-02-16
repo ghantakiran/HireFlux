@@ -13,14 +13,13 @@ import { Badge } from "@/components/ui/badge";
 import { TagInput } from "@/components/ui/tag-input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { candidateSearchApi } from '@/lib/api';
-import { Search, MapPin, DollarSign, Briefcase, Star, Eye, Save, Filter, X, Users } from 'lucide-react';
+import { Search, MapPin, DollarSign, Briefcase, Eye, Save, Filter, X, Users } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { FilterBar } from '@/components/ui/filter-bar';
 import { useColumnSort, parseSortValue } from '@/hooks/useColumnSort';
 import { useURLState } from '@/hooks/useURLState';
 import { Pagination } from '@/components/ui/pagination';
 import { EmptyState } from '@/components/domain/EmptyState';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { titleCase } from '@/lib/utils';
 

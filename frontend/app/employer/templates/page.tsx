@@ -141,14 +141,14 @@ export default function TemplatesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Job Templates</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Job Templates</h1>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Browse and use templates to quickly create job postings
               </p>
             </div>
@@ -164,7 +164,7 @@ export default function TemplatesPage() {
       </div>
 
       {/* Filters & Controls */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
             <SearchInput
@@ -205,13 +205,13 @@ export default function TemplatesPage() {
                 showClearButton={false}
               />
               {/* View Mode Toggle */}
-              <div className="flex items-center border border-gray-300 rounded-lg">
+              <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg">
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-2 ${
                     viewMode === 'grid'
-                      ? 'bg-gray-100 text-gray-900'
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                   } transition-colors rounded-l-lg`}
                   title="Grid view"
                 >
@@ -221,9 +221,9 @@ export default function TemplatesPage() {
                   onClick={() => setViewMode('list')}
                   className={`p-2 ${
                     viewMode === 'list'
-                      ? 'bg-gray-100 text-gray-900'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  } transition-colors rounded-r-lg border-l border-gray-300`}
+                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  } transition-colors rounded-r-lg border-l border-gray-300 dark:border-gray-600`}
                   title="List view"
                 >
                   <List className="w-5 h-5" />
@@ -247,8 +247,8 @@ export default function TemplatesPage() {
 
         {/* Error State */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-            <p className="text-red-800">{error}</p>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-center">
+            <p className="text-red-800 dark:text-red-300">{error}</p>
             <button
               onClick={fetchTemplates}
               className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"

@@ -27,9 +27,9 @@ interface TimeToHireChartProps {
 export function TimeToHireChart({ data, isLoading }: TimeToHireChartProps) {
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="h-6 bg-gray-200 rounded w-1/3 mb-4 animate-pulse"></div>
-        <div className="h-80 bg-gray-100 rounded animate-pulse"></div>
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4 animate-pulse"></div>
+        <div className="h-80 bg-gray-100 dark:bg-gray-800 rounded animate-pulse"></div>
       </div>
     );
   }
@@ -72,21 +72,21 @@ export function TimeToHireChart({ data, isLoading }: TimeToHireChartProps) {
       : 'text-gray-600';
 
   return (
-    <div className="bg-white rounded-lg shadow p-6" data-testid="time-to-hire-chart">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6" data-testid="time-to-hire-chart">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Time Metrics</h3>
-            <p className="text-sm text-gray-600 mt-1">Average time in days for key milestones</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Time Metrics</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Average time in days for key milestones</p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-600">vs Target</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">vs Target</p>
             <p className={`text-2xl font-bold ${performanceColor}`}>
               {data.performance_vs_target > 0 ? '+' : ''}
               {data.performance_vs_target.toFixed(1)}%
             </p>
-            <p className="text-xs text-gray-500">{performanceIndicator}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{performanceIndicator}</p>
           </div>
         </div>
       </div>
@@ -116,9 +116,9 @@ export function TimeToHireChart({ data, isLoading }: TimeToHireChartProps) {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload;
                   return (
-                    <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-4">
-                      <p className="font-semibold text-gray-900 mb-2">{data.label}</p>
-                      <p className="text-sm text-gray-600">
+                    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4">
+                      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{data.label}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         <span className="font-medium">Average:</span> {data.days.toFixed(1)} days
                       </p>
                     </div>
@@ -141,47 +141,47 @@ export function TimeToHireChart({ data, isLoading }: TimeToHireChartProps) {
 
       {/* Detailed Metrics Grid */}
       <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 bg-blue-50 rounded-lg">
-          <p className="text-xs text-gray-600 mb-1">First Application</p>
-          <p className="text-2xl font-bold text-blue-600">
+        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">First Application</p>
+          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
             {data.avg_time_to_first_application.toFixed(1)}
           </p>
-          <p className="text-xs text-gray-500 mt-1">days</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">days</p>
         </div>
-        <div className="p-4 bg-purple-50 rounded-lg">
-          <p className="text-xs text-gray-600 mb-1">Shortlist</p>
-          <p className="text-2xl font-bold text-purple-600">
+        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Shortlist</p>
+          <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
             {data.avg_time_to_shortlist.toFixed(1)}
           </p>
-          <p className="text-xs text-gray-500 mt-1">days</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">days</p>
         </div>
-        <div className="p-4 bg-orange-50 rounded-lg">
-          <p className="text-xs text-gray-600 mb-1">Offer</p>
-          <p className="text-2xl font-bold text-orange-600">
+        <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Offer</p>
+          <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
             {data.avg_time_to_offer.toFixed(1)}
           </p>
-          <p className="text-xs text-gray-500 mt-1">days</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">days</p>
         </div>
-        <div className="p-4 bg-green-50 rounded-lg">
-          <p className="text-xs text-gray-600 mb-1">Hire</p>
-          <p className="text-2xl font-bold text-green-600">
+        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Hire</p>
+          <p className="text-2xl font-bold text-green-600 dark:text-green-400">
             {data.avg_time_to_hire.toFixed(1)}
           </p>
-          <p className="text-xs text-gray-500 mt-1">days</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">days</p>
         </div>
       </div>
 
       {/* Target Comparison */}
-      <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+      <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-900">Target Time to Hire</p>
-            <p className="text-xs text-gray-600 mt-1">Company goal</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Target Time to Hire</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Company goal</p>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{data.target_time_to_hire} days</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{data.target_time_to_hire} days</p>
         </div>
         <div className="mt-3">
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
             <div
               className={`h-2.5 rounded-full transition-all duration-500 ${
                 data.avg_time_to_hire <= data.target_time_to_hire

@@ -32,19 +32,19 @@ export function PipelineFunnelChart({ data, isLoading, onStageClick }: PipelineF
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="h-6 bg-gray-200 rounded w-1/3 mb-4 animate-pulse"></div>
-        <div className="h-96 bg-gray-100 rounded animate-pulse"></div>
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4 animate-pulse"></div>
+        <div className="h-96 bg-gray-100 dark:bg-gray-800 rounded animate-pulse"></div>
       </div>
     );
   }
 
   if (!data.stages || data.stages.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Pipeline Funnel</h3>
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Pipeline Funnel</h3>
         <div className="text-center py-12">
-          <p className="text-gray-500">No pipeline data available</p>
+          <p className="text-gray-500 dark:text-gray-400">No pipeline data available</p>
         </div>
       </div>
     );
@@ -68,12 +68,12 @@ export function PipelineFunnelChart({ data, isLoading, onStageClick }: PipelineF
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Pipeline Funnel</h3>
-          <p className="text-sm text-gray-600 mt-1">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Pipeline Funnel</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Overall conversion rate: {(data.overall_conversion_rate * 100).toFixed(1)}%
           </p>
         </div>
@@ -106,13 +106,13 @@ export function PipelineFunnelChart({ data, isLoading, onStageClick }: PipelineF
                 if (active && payload && payload.length) {
                   const data = payload[0].payload;
                   return (
-                    <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-4">
-                      <p className="font-semibold text-gray-900 mb-2">{data.stage}</p>
-                      <p className="text-sm text-gray-600">
+                    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4">
+                      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{data.stage}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         <span className="font-medium">Count:</span> {data.count}
                       </p>
                       {data.avgDays !== null && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
                           <span className="font-medium">Avg days:</span> {data.avgDays.toFixed(1)}
                         </p>
                       )}
@@ -157,14 +157,14 @@ export function PipelineFunnelChart({ data, isLoading, onStageClick }: PipelineF
               key={stage.stage}
               className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
                 selectedStage === stage.stage
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
               onClick={() => handleBarClick({ stageKey: stage.stage })}
               data-testid={`stage-card-${stage.stage}`}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-gray-600 uppercase">
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
                   {STAGE_LABELS[stage.stage]}
                 </span>
                 <div
@@ -172,9 +172,9 @@ export function PipelineFunnelChart({ data, isLoading, onStageClick }: PipelineF
                   style={{ backgroundColor: STAGE_COLORS[stage.stage] }}
                 ></div>
               </div>
-              <p className="text-2xl font-bold text-gray-900">{stage.count}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stage.count}</p>
               {stage.avg_days_in_stage !== null && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {stage.avg_days_in_stage.toFixed(1)} days avg
                 </p>
               )}
@@ -189,7 +189,7 @@ export function PipelineFunnelChart({ data, isLoading, onStageClick }: PipelineF
 
       {/* Rejected Summary */}
       {data.stages.find((s) => s.stage === 'rejected') && (
-        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-red-900">Rejected Candidates</p>

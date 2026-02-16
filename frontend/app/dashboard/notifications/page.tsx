@@ -14,7 +14,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { format, isToday, isYesterday, isSameDay } from 'date-fns';
+import { format, isToday, isYesterday } from 'date-fns';
 import { formatRelativeTime } from '@/lib/utils';
 import {
   Bell,
@@ -27,7 +27,6 @@ import {
   Gift,
   AlertCircle,
   Clock,
-  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
