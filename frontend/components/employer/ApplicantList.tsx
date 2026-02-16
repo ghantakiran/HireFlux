@@ -15,9 +15,18 @@ import React, { useState, useMemo } from 'react';
 import { Search, Filter, ChevronDown, Eye, CheckSquare, Square } from 'lucide-react';
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { EmptyState } from '@/components/domain/EmptyState';
-import StatusChangeModal from './StatusChangeModal';
 import BulkActionToolbar from './BulkActionToolbar';
-import BulkStatusChangeModal from './BulkStatusChangeModal';
+import dynamic from 'next/dynamic';
+
+const StatusChangeModal = dynamic(
+  () => import('./StatusChangeModal'),
+  { ssr: false }
+);
+
+const BulkStatusChangeModal = dynamic(
+  () => import('./BulkStatusChangeModal'),
+  { ssr: false }
+);
 import { getFitIndexDetailedColor } from '@/lib/score-colors';
 import { formatRelativeTime } from '@/lib/utils';
 import { EMPLOYER_STAGES } from '@/lib/constants/employer-stages';

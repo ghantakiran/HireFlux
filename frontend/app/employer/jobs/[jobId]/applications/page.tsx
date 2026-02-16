@@ -22,8 +22,13 @@ import { useATSStore } from '@/hooks/useATSStore';
 import ATSViewToggle from '@/components/employer/ATSViewToggle';
 import ApplicantList from '@/components/employer/ApplicantList';
 import ApplicantKanbanBoard from '@/components/employer/ApplicantKanbanBoard';
-import CandidateDetailModal from '@/components/employer/CandidateDetailModal';
 import { PageLoader } from '@/components/ui/page-loader';
+import dynamic from 'next/dynamic';
+
+const CandidateDetailModal = dynamic(
+  () => import('@/components/employer/CandidateDetailModal'),
+  { ssr: false }
+);
 
 interface ATSPageProps {
   params: {

@@ -29,8 +29,13 @@ import {
 import { EmptyState } from '@/components/domain/EmptyState';
 import { toast } from 'sonner';
 import TemplateCard from '@/components/employer/TemplateCard';
-import TemplatePreviewModal from '@/components/employer/TemplatePreviewModal';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import dynamic from 'next/dynamic';
+
+const TemplatePreviewModal = dynamic(
+  () => import('@/components/employer/TemplatePreviewModal'),
+  { ssr: false }
+);
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Pagination } from '@/components/ui/pagination';
 import { usePagination } from '@/hooks/usePagination';

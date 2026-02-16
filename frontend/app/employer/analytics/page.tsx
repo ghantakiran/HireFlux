@@ -25,12 +25,16 @@ import { DateRangePicker } from './components/DateRangePicker';
 import { AnalyticsOverview } from './components/AnalyticsOverview';
 import { QualityMetricsGrid } from './components/QualityMetricsGrid';
 import { ExportReportButton } from './components/ExportReportButton';
-import { StageDetailsModal } from './components/StageDetailsModal';
 import { AnalyticsEmptyState } from './components/AnalyticsEmptyState';
 
 // Lazy load heavy chart components (recharts library ~100KB)
 // Using dynamic import to defer loading until needed
 import dynamic from 'next/dynamic';
+
+const StageDetailsModal = dynamic(
+  () => import('./components/StageDetailsModal').then(mod => ({ default: mod.StageDetailsModal })),
+  { ssr: false }
+);
 
 const PipelineFunnelChart = dynamic(
   () => import('./components/PipelineFunnelChart').then(mod => ({ default: mod.PipelineFunnelChart })),

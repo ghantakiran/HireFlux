@@ -3,7 +3,6 @@
  * Uses html2canvas to capture page screenshots for bug reports
  */
 
-import html2canvas from 'html2canvas';
 import { formatFileSize } from '@/lib/utils';
 
 export interface ScreenshotOptions {
@@ -36,6 +35,9 @@ export async function captureScreenshot(
   } = options;
 
   try {
+    // Dynamic import — only loaded when user initiates screenshot
+    const html2canvas = (await import('html2canvas')).default;
+
     // Capture canvas
     const canvas = await html2canvas(element, {
       useCORS: true,

@@ -1,15 +1,16 @@
 /**
  * Offline Banner Component
  * Issue #138: Error States & Recovery Flows
+ *
+ * Uses CSS transitions instead of framer-motion (~30KB saved)
  */
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useOffline } from '@/lib/errors/use-offline';
 import { WifiOff, Wifi, X, CloudOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { motion, AnimatePresence } from 'framer-motion';
 
 // ============================================================================
 // TYPES
@@ -27,6 +28,64 @@ interface OfflineBannerProps {
 
   /** Custom className */
   className?: string;
+}
+
+// ============================================================================
+// SLIDE BANNER (CSS transition wrapper)
+// ============================================================================
+
+function SlideBanner({
+  visible,
+  position,
+  className,
+  children,
+  'data-testid': testId,
+}: {
+  visible: boolean;
+  position: 'top' | 'bottom';
+  className?: string;
+  children: React.ReactNode;
+  'data-testid'?: string;
+}) {
+  const [mounted, setMounted] = useState(false);
+  const [show, setShow] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    if (visible) {
+      setMounted(true);
+      // Trigger enter animation on next frame
+      timeoutRef.current = setTimeout(() => setShow(true), 10);
+    } else {
+      setShow(false);
+      // Unmount after exit animation
+      timeoutRef.current = setTimeout(() => setMounted(false), 300);
+    }
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [visible]);
+
+  if (!mounted) return null;
+
+  const positionClasses = position === 'top'
+    ? 'top-0 left-0 right-0'
+    : 'bottom-0 left-0 right-0';
+
+  const translateClass = show
+    ? 'translate-y-0 opacity-100'
+    : position === 'top'
+      ? '-translate-y-full opacity-0'
+      : 'translate-y-full opacity-0';
+
+  return (
+    <div
+      className={`fixed ${positionClasses} z-50 transition-all duration-300 ease-out ${translateClass} ${className || ''}`}
+      data-testid={testId}
+    >
+      {children}
+    </div>
+  );
 }
 
 // ============================================================================
@@ -72,98 +131,82 @@ export function OfflineBanner({
     setWasOffline(false);
   };
 
-  const positionClasses = position === 'top'
-    ? 'top-0 left-0 right-0'
-    : 'bottom-0 left-0 right-0';
-
   return (
     <>
       {/* Offline Banner */}
-      <AnimatePresence>
-        {isOffline && !dismissed && (
-          <motion.div
-            initial={{ y: position === 'top' ? -100 : 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: position === 'top' ? -100 : 100, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className={`fixed ${positionClasses} z-50 ${className}`}
-            data-testid="offline-banner"
-          >
-            <div className="bg-yellow-500 dark:bg-yellow-600 text-yellow-950 dark:text-yellow-50 shadow-lg">
-              <div className="max-w-7xl mx-auto px-4 py-3">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 flex-1">
-                    <WifiOff className="h-5 w-5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <p className="font-medium text-sm sm:text-base">
-                        You're offline
-                      </p>
-                      <p className="text-xs sm:text-sm opacity-90 mt-0.5">
-                        Some features may be unavailable
-                        {showQueueCount && queuedActions.length > 0 && (
-                          <span className="ml-2">
-                            ({queuedActions.length} action{queuedActions.length !== 1 ? 's' : ''} queued)
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-
-                  {dismissible && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={handleDismiss}
-                      className="text-yellow-950 dark:text-yellow-50 hover:bg-yellow-600 dark:hover:bg-yellow-700"
-                      data-testid="offline-banner-dismiss"
-                      aria-label="Dismiss offline banner"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
+      <SlideBanner
+        visible={isOffline && !dismissed}
+        position={position}
+        className={className}
+        data-testid="offline-banner"
+      >
+        <div className="bg-yellow-500 dark:bg-yellow-600 text-yellow-950 dark:text-yellow-50 shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 flex-1">
+                <WifiOff className="h-5 w-5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="font-medium text-sm sm:text-base">
+                    You're offline
+                  </p>
+                  <p className="text-xs sm:text-sm opacity-90 mt-0.5">
+                    Some features may be unavailable
+                    {showQueueCount && queuedActions.length > 0 && (
+                      <span className="ml-2">
+                        ({queuedActions.length} action{queuedActions.length !== 1 ? 's' : ''} queued)
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
+
+              {dismissible && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleDismiss}
+                  className="text-yellow-950 dark:text-yellow-50 hover:bg-yellow-600 dark:hover:bg-yellow-700"
+                  data-testid="offline-banner-dismiss"
+                  aria-label="Dismiss offline banner"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      </SlideBanner>
 
       {/* Online Success Message */}
-      <AnimatePresence>
-        {showOnlineMessage && !isOffline && (
-          <motion.div
-            initial={{ y: position === 'top' ? -100 : 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: position === 'top' ? -100 : 100, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className={`fixed ${positionClasses} z-50 ${className}`}
-            data-testid="online-success-message"
-          >
-            <div className="bg-green-500 dark:bg-green-600 text-green-950 dark:text-green-50 shadow-lg">
-              <div className="max-w-7xl mx-auto px-4 py-3">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 flex-1">
-                    <Wifi className="h-5 w-5 flex-shrink-0" />
-                    <p className="font-medium text-sm sm:text-base">
-                      You're back online
-                    </p>
-                  </div>
-
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={handleDismissOnlineMessage}
-                    className="text-green-950 dark:text-green-50 hover:bg-green-600 dark:hover:bg-green-700"
-                    aria-label="Dismiss online message"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
+      <SlideBanner
+        visible={showOnlineMessage && !isOffline}
+        position={position}
+        className={className}
+        data-testid="online-success-message"
+      >
+        <div className="bg-green-500 dark:bg-green-600 text-green-950 dark:text-green-50 shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 flex-1">
+                <Wifi className="h-5 w-5 flex-shrink-0" />
+                <p className="font-medium text-sm sm:text-base">
+                  You're back online
+                </p>
               </div>
+
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleDismissOnlineMessage}
+                className="text-green-950 dark:text-green-50 hover:bg-green-600 dark:hover:bg-green-700"
+                aria-label="Dismiss online message"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      </SlideBanner>
     </>
   );
 }
