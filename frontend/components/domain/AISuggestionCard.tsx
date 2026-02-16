@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { cn, capitalize } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -88,7 +88,7 @@ function getCategoryLabel(category: AISuggestion['category']): string {
   }
 }
 
-export function AISuggestionCard({
+function AISuggestionCardInner({
   suggestion,
   onAccept,
   onReject,
@@ -293,3 +293,6 @@ export function AISuggestionCard({
     </div>
   );
 }
+
+export const AISuggestionCard = React.memo(AISuggestionCardInner);
+AISuggestionCard.displayName = 'AISuggestionCard';

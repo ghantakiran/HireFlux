@@ -33,7 +33,7 @@ export interface MCQQuestionProps {
   className?: string;
 }
 
-export function MCQQuestion({
+function MCQQuestionInner({
   question,
   value,
   onAnswerChange,
@@ -160,3 +160,6 @@ export function MCQQuestion({
     </div>
   );
 }
+
+export const MCQQuestion = React.memo(MCQQuestionInner);
+MCQQuestion.displayName = 'MCQQuestion';

@@ -7,6 +7,7 @@
 
 'use client';
 
+import React from 'react';
 import { cn, capitalize, formatRelativeTime, getCurrencySymbol } from '@/lib/utils';
 import { getLocationTypeBadgeColor } from '@/lib/badge-helpers';
 import { Button } from '@/components/ui/button';
@@ -73,7 +74,7 @@ function formatSalary(salary: Job['salary']): string {
   return `${symbol}${min}+`;
 }
 
-export function JobCard({
+function JobCardInner({
   job,
   onClick,
   onSave,
@@ -256,3 +257,6 @@ export function JobCard({
     </article>
   );
 }
+
+export const JobCard = React.memo(JobCardInner);
+JobCard.displayName = 'JobCard';

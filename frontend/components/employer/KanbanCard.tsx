@@ -43,7 +43,7 @@ interface KanbanCardProps {
   isDragging?: boolean;
 }
 
-export default function KanbanCard({
+function KanbanCard({
   applicant,
   onClick,
   onAddNote,
@@ -206,3 +206,7 @@ export default function KanbanCard({
     </div>
   );
 }
+
+const MemoizedKanbanCard = React.memo(KanbanCard);
+MemoizedKanbanCard.displayName = 'KanbanCard';
+export default MemoizedKanbanCard;

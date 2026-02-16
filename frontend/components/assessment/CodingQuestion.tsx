@@ -50,7 +50,7 @@ export interface CodingQuestionProps {
   className?: string;
 }
 
-export function CodingQuestion({
+function CodingQuestionInner({
   question,
   value,
   onAnswerChange,
@@ -198,3 +198,6 @@ export function CodingQuestion({
     </div>
   );
 }
+
+export const CodingQuestion = React.memo(CodingQuestionInner);
+CodingQuestion.displayName = 'CodingQuestion';

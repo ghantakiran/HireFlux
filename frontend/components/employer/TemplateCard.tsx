@@ -32,7 +32,7 @@ interface TemplateCardProps {
   onDelete?: (template: JobTemplate) => void;
 }
 
-export default function TemplateCard({
+function TemplateCard({
   template,
   companyId,
   onPreview,
@@ -145,3 +145,7 @@ export default function TemplateCard({
     </div>
   );
 }
+
+const MemoizedTemplateCard = React.memo(TemplateCard);
+MemoizedTemplateCard.displayName = 'TemplateCard';
+export default MemoizedTemplateCard;

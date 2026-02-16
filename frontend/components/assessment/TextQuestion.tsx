@@ -33,7 +33,7 @@ export interface TextQuestionProps {
   className?: string;
 }
 
-export function TextQuestion({
+function TextQuestionInner({
   question,
   value,
   onAnswerChange,
@@ -154,3 +154,6 @@ export function TextQuestion({
     </div>
   );
 }
+
+export const TextQuestion = React.memo(TextQuestionInner);
+TextQuestion.displayName = 'TextQuestion';
