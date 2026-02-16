@@ -56,14 +56,7 @@ interface SearchFilters {
   limit: number;
 }
 
-const SKILLS_OPTIONS = [
-  'Python', 'React', 'TypeScript', 'JavaScript', 'Node.js', 'PostgreSQL', 'MongoDB',
-  'AWS', 'Docker', 'Kubernetes', 'TensorFlow', 'PyTorch', 'FastAPI', 'Django', 'Go', 'Rust'
-];
-
-const EXPERIENCE_LEVELS = ['entry', 'mid', 'senior', 'lead', 'executive'];
-const LOCATION_TYPES = ['remote', 'hybrid', 'onsite', 'any'];
-const AVAILABILITY_STATUSES = ['actively_looking', 'open_to_offers', 'not_looking'];
+import { SKILLS_OPTIONS, EXPERIENCE_LEVELS, LOCATION_TYPES, AVAILABILITY_STATUSES } from '@/lib/constants/filter-options';
 
 const CANDIDATE_URL_CONFIG = {
   sort: { defaultValue: 'updated_at' },

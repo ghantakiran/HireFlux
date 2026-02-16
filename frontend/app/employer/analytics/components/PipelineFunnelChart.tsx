@@ -25,29 +25,7 @@ interface PipelineFunnelChartProps {
   onStageClick?: (stage: string) => void;
 }
 
-// Color palette for stages
-const STAGE_COLORS: Record<string, string> = {
-  new: '#3B82F6', // blue
-  reviewing: '#8B5CF6', // purple
-  phone_screen: '#EC4899', // pink
-  technical_interview: '#F59E0B', // amber
-  final_interview: '#10B981', // green
-  offer: '#14B8A6', // teal
-  hired: '#06B6D4', // cyan
-  rejected: '#EF4444', // red
-};
-
-// Stage labels for display
-const STAGE_LABELS: Record<string, string> = {
-  new: 'New',
-  reviewing: 'Reviewing',
-  phone_screen: 'Phone Screen',
-  technical_interview: 'Technical',
-  final_interview: 'Final Interview',
-  offer: 'Offer',
-  hired: 'Hired',
-  rejected: 'Rejected',
-};
+import { STAGE_LABELS, STAGE_COLORS } from '@/lib/constants/employer-stages';
 
 export function PipelineFunnelChart({ data, isLoading, onStageClick }: PipelineFunnelChartProps) {
   const [selectedStage, setSelectedStage] = useState<string | null>(null);

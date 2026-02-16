@@ -19,16 +19,7 @@ interface StageDetailsModalProps {
   };
 }
 
-const STAGE_LABELS: Record<string, string> = {
-  new: 'New',
-  reviewing: 'Reviewing',
-  phone_screen: 'Phone Screen',
-  technical_interview: 'Technical Interview',
-  final_interview: 'Final Interview',
-  offer: 'Offer',
-  hired: 'Hired',
-  rejected: 'Rejected',
-};
+import { STAGE_LABELS } from '@/lib/constants/employer-stages';
 
 export function StageDetailsModal({ isOpen, onClose, stage, stageData }: StageDetailsModalProps) {
   if (!isOpen || !stage || !stageData) {
