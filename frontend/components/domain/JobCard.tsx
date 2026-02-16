@@ -7,7 +7,8 @@
 
 'use client';
 
-import { cn, capitalize, formatRelativeTime } from '@/lib/utils';
+import { cn, capitalize, formatRelativeTime, getCurrencySymbol } from '@/lib/utils';
+import { getLocationTypeBadgeColor } from '@/lib/badge-helpers';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { FitIndexBadge } from '@/components/domain/FitIndexBadge';
@@ -56,19 +57,6 @@ export interface JobCardProps {
 }
 
 /**
- * Format currency symbol
- */
-function getCurrencySymbol(currency: string): string {
-  const symbols: Record<string, string> = {
-    USD: '$',
-    EUR: '€',
-    GBP: '£',
-    INR: '₹',
-  };
-  return symbols[currency] || currency;
-}
-
-/**
  * Format salary range
  */
 function formatSalary(salary: Job['salary']): string {
@@ -83,22 +71,6 @@ function formatSalary(salary: Job['salary']): string {
   }
 
   return `${symbol}${min}+`;
-}
-
-/**
- * Get location type badge color
- */
-function getLocationTypeColor(type: Job['locationType']): string {
-  switch (type) {
-    case 'remote':
-      return 'bg-success-500 text-white';
-    case 'hybrid':
-      return 'bg-accent-500 text-white';
-    case 'onsite':
-      return 'bg-gray-600 text-white';
-    default:
-      return 'bg-gray-600 text-white';
-  }
 }
 
 export function JobCard({
@@ -217,7 +189,7 @@ export function JobCard({
 
         {/* Location Type Badge */}
         {job.locationType && (
-          <Badge className={cn('text-xs', getLocationTypeColor(job.locationType))}>
+          <Badge className={cn('text-xs', getLocationTypeBadgeColor(job.locationType))}>
             {capitalize(job.locationType)}
           </Badge>
         )}

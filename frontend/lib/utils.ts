@@ -208,6 +208,20 @@ export function formatSalaryCompact(
 }
 
 /**
+ * Get currency symbol from ISO currency code
+ * e.g., "USD" → "$", "EUR" → "€"
+ */
+export function getCurrencySymbol(currency: string): string {
+  const symbols: Record<string, string> = {
+    USD: '$',
+    EUR: '€',
+    GBP: '£',
+    INR: '₹',
+  };
+  return symbols[currency] || currency;
+}
+
+/**
  * Download a Blob as a file in the browser
  */
 export function downloadBlob(blob: Blob, filename: string): void {

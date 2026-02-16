@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+import { API_URL, getAuthToken, createAuthAxios } from '@/lib/api-client';
 
 // Types based on backend schemas
 export type ApplicationStatus = 'saved' | 'applied' | 'interview' | 'offer' | 'rejected';
@@ -131,21 +129,6 @@ interface ApplicationState {
   clearError: () => void;
   clearCurrentApplication: () => void;
 }
-
-// Helper function to get auth token
-const getAuthToken = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('access_token');
-};
-
-// Axios instance with auth
-const createAuthAxios = () => {
-  const token = getAuthToken();
-  return axios.create({
-    baseURL: API_URL,
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-};
 
 export const useApplicationStore = create<ApplicationState>()(
   persist(

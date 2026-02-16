@@ -17,6 +17,20 @@ export function getAssessmentStatusBadgeColor(status: string): string {
   }
 }
 
+/** Job location type → badge className */
+export function getLocationTypeBadgeColor(type: string): string {
+  switch (type) {
+    case 'remote':
+      return 'bg-success-500 text-white';
+    case 'hybrid':
+      return 'bg-accent-500 text-white';
+    case 'onsite':
+      return 'bg-gray-600 text-white';
+    default:
+      return 'bg-gray-600 text-white';
+  }
+}
+
 /** Assessment type → badge className */
 export function getAssessmentTypeBadgeColor(type: string): string {
   const colors: Record<string, string> = {

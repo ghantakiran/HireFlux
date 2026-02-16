@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { billingApi } from '@/lib/api';
+import { getAuthToken } from '@/lib/api-client';
 
 // Types
 export type SubscriptionPlan = 'free' | 'plus' | 'pro';
@@ -167,12 +168,6 @@ export const PLANS: PlanInfo[] = [
     },
   },
 ];
-
-// Helper function to get auth token
-const getAuthToken = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('access_token');
-};
 
 export const useBillingStore = create<BillingState>((set, get) => ({
   // Initial state
