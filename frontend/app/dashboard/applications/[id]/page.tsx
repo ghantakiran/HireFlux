@@ -60,7 +60,7 @@ import { toast } from 'sonner';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { PageLoader } from '@/components/ui/page-loader';
-import { formatDateLong } from '@/lib/utils';
+import { formatDateLong, formatSalaryCompact } from '@/lib/utils';
 
 export default function ApplicationDetailPage() {
   const params = useParams();
@@ -174,16 +174,6 @@ export default function ApplicationDetailPage() {
         {config.label}
       </Badge>
     );
-  };
-
-  const formatSalary = (min?: number, max?: number) => {
-    if (!min && !max) return 'Not disclosed';
-    const formatNum = (num: number) =>
-      num >= 1000 ? `$${(num / 1000).toFixed(0)}k` : `$${num}`;
-    if (min && max) return `${formatNum(min)} - ${formatNum(max)}`;
-    if (min) return `${formatNum(min)}+`;
-    if (max) return `Up to ${formatNum(max)}`;
-    return 'Not disclosed';
   };
 
   if (isLoading || !currentApplication) {
@@ -322,7 +312,7 @@ export default function ApplicationDetailPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span>{formatSalary(job.salary_min, job.salary_max)}</span>
+                      <span>{formatSalaryCompact(job.salary_min, job.salary_max)}</span>
                     </div>
                   </div>
 

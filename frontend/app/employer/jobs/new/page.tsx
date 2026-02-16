@@ -61,6 +61,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
+import { formatSalaryCompact } from '@/lib/utils';
 
 // Types
 interface JobFormData {
@@ -932,11 +933,7 @@ export default function NewJobPage() {
                 </div>
                 {(formData.salary_min || formData.salary_max) && (
                   <p className="text-green-600 font-medium mt-2">
-                    {formData.salary_min && formData.salary_max
-                      ? `$${(formData.salary_min / 1000).toFixed(0)}K - $${(formData.salary_max / 1000).toFixed(0)}K`
-                      : formData.salary_min
-                      ? `$${(formData.salary_min / 1000).toFixed(0)}K+`
-                      : `Up to $${(formData.salary_max! / 1000).toFixed(0)}K`}
+                    {formatSalaryCompact(formData.salary_min, formData.salary_max)}
                   </p>
                 )}
               </div>

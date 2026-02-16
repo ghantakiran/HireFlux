@@ -147,3 +147,29 @@ export function formatDuration(seconds: number): string {
   const secs = seconds % 60;
   return `${mins}m ${secs}s`;
 }
+
+/**
+ * Format bytes to a human-readable file size (e.g., "1.5 MB", "256 KB")
+ */
+export function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+}
+
+/**
+ * Format a salary range in compact form (e.g., "$120K - $180K")
+ */
+export function formatSalaryCompact(
+  min?: number | null,
+  max?: number | null
+): string {
+  if (!min && !max) return 'Salary not disclosed';
+  const fmt = (num: number) =>
+    num >= 1000 ? `$${(num / 1000).toFixed(0)}K` : `$${num}`;
+  if (min && max) return `${fmt(min)} - ${fmt(max)}`;
+  if (min) return `${fmt(min)}+`;
+  return `Up to ${fmt(max!)}`;
+}

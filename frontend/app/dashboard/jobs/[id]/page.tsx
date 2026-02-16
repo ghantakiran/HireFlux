@@ -32,6 +32,7 @@ import { useJobStore } from '@/lib/stores/job-store';
 import { toast } from 'sonner';
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { PageLoader } from '@/components/ui/page-loader';
+import { formatSalaryCompact } from '@/lib/utils';
 
 export default function JobDetailsPage() {
   const router = useRouter();
@@ -85,18 +86,6 @@ export default function JobDetailsPage() {
 
   const handleApply = () => {
     router.push(`/dashboard/applications/new?job=${jobId}`);
-  };
-
-  const formatSalary = (min?: number, max?: number, currency: string = 'USD') => {
-    if (!min && !max) return 'Salary not disclosed';
-    const formatNumber = (num: number) => {
-      if (num >= 1000) return `$${(num / 1000).toFixed(0)}k`;
-      return `$${num}`;
-    };
-    if (min && max) return `${formatNumber(min)} - ${formatNumber(max)}`;
-    if (min) return `${formatNumber(min)}+`;
-    if (max) return `Up to ${formatNumber(max)}`;
-    return 'Salary not disclosed';
   };
 
   const formatPostedDate = (dateString: string) => {
@@ -183,7 +172,7 @@ export default function JobDetailsPage() {
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <DollarSign className="h-4 w-4" />
-                  <span>{formatSalary(job.salary_min, job.salary_max)}</span>
+                  <span>{formatSalaryCompact(job.salary_min, job.salary_max)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">{job.remote_policy}</Badge>

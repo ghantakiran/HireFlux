@@ -32,7 +32,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { usePagination } from '@/hooks/usePagination';
 import { useColumnSort } from '@/hooks/useColumnSort';
 import { useURLState } from '@/hooks/useURLState';
-import { formatDate } from '@/lib/utils';
+import { formatDate, formatFileSize } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const RESUMES_URL_CONFIG = {
@@ -153,14 +153,6 @@ export default function ResumesPage() {
     } catch (err) {
       toast.error('Failed to download resume. Please try again.');
     }
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
   if (isLoading && resumes.length === 0) {

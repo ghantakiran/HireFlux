@@ -30,7 +30,7 @@ import {
 import { ParseStatusBadge } from '@/components/ui/status-badges';
 import { ErrorBanner } from '@/components/ui/error-banner';
 import { PageLoader } from '@/components/ui/page-loader';
-import { formatDateLong } from '@/lib/utils';
+import { formatDateLong, formatFileSize } from '@/lib/utils';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
@@ -165,7 +165,7 @@ export default function ResumeDetailPage() {
             <div>
               <p className="text-sm text-muted-foreground mb-1">File Size</p>
               <p className="font-medium">
-                {(resume.file_size / 1024).toFixed(1)} KB
+                {formatFileSize(resume.file_size)}
               </p>
             </div>
           </div>

@@ -31,6 +31,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Upload, FileText, AlertCircle, CheckCircle2, XCircle, Download, Sparkles, DollarSign } from 'lucide-react';
 import { ErrorBanner } from '@/components/ui/error-banner';
+import { formatFileSize } from '@/lib/utils';
 
 // Types matching backend schemas
 interface ValidationError {
@@ -261,7 +262,7 @@ export default function BulkJobUploadPage() {
                   <div className="mt-4 flex items-center justify-center space-x-2">
                     <FileText className="h-5 w-5 text-green-600" />
                     <span className="font-medium">{selectedFile.name}</span>
-                    <Badge variant="outline">{(selectedFile.size / 1024).toFixed(1)} KB</Badge>
+                    <Badge variant="outline">{formatFileSize(selectedFile.size)}</Badge>
                   </div>
                 )}
                 <input

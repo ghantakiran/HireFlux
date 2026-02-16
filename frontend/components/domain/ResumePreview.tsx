@@ -8,7 +8,7 @@
 
 'use client';
 
-import { cn } from '@/lib/utils';
+import { cn, formatFileSize } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { EmptyState } from '@/components/domain/EmptyState';
@@ -52,15 +52,6 @@ export interface ResumePreviewProps {
   variant?: 'default' | 'card' | 'minimal';
   /** Additional CSS classes */
   className?: string;
-}
-
-/**
- * Format file size
- */
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export function ResumePreview({
