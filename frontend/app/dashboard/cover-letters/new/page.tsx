@@ -74,6 +74,7 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { downloadFile } from '@/lib/utils';
 
 // Types
 type Tone = 'formal' | 'conversational';
@@ -473,31 +474,13 @@ export default function CoverLetterGeneratorPage() {
       const filename = `cover-letter-${jobDetails.company || 'untitled'}-${Date.now()}`;
 
       if (format === 'txt') {
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${filename}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
+        downloadFile(content, `${filename}.txt`);
       } else if (format === 'pdf') {
         // Mock PDF export (in production, use a library like jsPDF or server-side generation)
-        const blob = new Blob([content], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${filename}.pdf`;
-        a.click();
-        URL.revokeObjectURL(url);
+        downloadFile(content, `${filename}.pdf`, 'application/pdf');
       } else if (format === 'docx') {
         // Mock DOCX export (in production, use a library like docx or server-side generation)
-        const blob = new Blob([content], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${filename}.docx`;
-        a.click();
-        URL.revokeObjectURL(url);
+        downloadFile(content, `${filename}.docx`, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
       }
 
       toast.success(`Cover letter exported as ${format.toUpperCase()}`);

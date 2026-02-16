@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import axios from 'axios';
+import { downloadBlob } from '@/lib/utils';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -305,17 +306,8 @@ export const useCoverLetterStore = create<CoverLetterState>((set, get) => ({
         }
       }
 
-      // Create download link and trigger download
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-
-      // Cleanup
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Trigger download
+      downloadBlob(blob, filename);
 
       set({ isLoading: false });
     } catch (error: any) {

@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { Avatar } from '@/components/ui/optimized-image';
 import { NoActivityEmptyState } from '@/components/ui/empty-state';
-import { formatDateTime } from '@/lib/utils';
+import { formatDateTime, downloadFile } from '@/lib/utils';
 import { getHealthScoreColor } from '@/lib/score-colors';
 
 // Types
@@ -135,14 +135,7 @@ export default function DashboardPage() {
   const handleExport = async () => {
     try {
       const response = await analyticsApi.exportDashboardData(timeRange);
-      const blob = new Blob([JSON.stringify(response.data.data, null, 2)], {
-        type: 'application/json',
-      });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `dashboard-export-${new Date().toISOString()}.json`;
-      a.click();
+      downloadFile(JSON.stringify(response.data.data, null, 2), `dashboard-export-${new Date().toISOString()}.json`, 'application/json');
     } catch (err) {
       console.error('Export failed:', err);
     }

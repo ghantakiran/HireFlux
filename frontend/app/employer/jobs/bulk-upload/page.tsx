@@ -31,7 +31,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Upload, FileText, AlertCircle, CheckCircle2, XCircle, Download, Sparkles, DollarSign } from 'lucide-react';
 import { ErrorBanner } from '@/components/ui/error-banner';
-import { formatFileSize } from '@/lib/utils';
+import { formatFileSize, downloadFile } from '@/lib/utils';
 
 // Types matching backend schemas
 interface ValidationError {
@@ -175,14 +175,8 @@ export default function BulkJobUploadPage() {
       const response = await bulkJobPostingApi.getTemplate();
       const { filename, content } = response.data.data;
 
-      // Create downloadable blob
-      const blob = new Blob([content], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.click();
-      URL.revokeObjectURL(url);
+      // Download CSV file
+      downloadFile(content, filename, 'text/csv');
     } catch (error) {
       console.error('Failed to download template:', error);
     }

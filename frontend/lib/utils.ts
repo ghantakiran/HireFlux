@@ -197,3 +197,28 @@ export function formatSalaryCompact(
   if (min) return `${fmt(min)}+`;
   return `Up to ${fmt(max!)}`;
 }
+
+/**
+ * Download a Blob as a file in the browser
+ */
+export function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Download string content as a file in the browser
+ */
+export function downloadFile(
+  content: string,
+  filename: string,
+  mimeType = 'text/plain'
+): void {
+  downloadBlob(new Blob([content], { type: mimeType }), filename);
+}

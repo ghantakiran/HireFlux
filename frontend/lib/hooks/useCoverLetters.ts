@@ -9,6 +9,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys, cacheInvalidation } from '../react-query';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { downloadBlob } from '@/lib/utils';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -189,15 +190,8 @@ export function useDownloadCoverLetter() {
         }
       );
 
-      // Create download link
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `cover-letter.${format}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+      // Trigger download
+      downloadBlob(new Blob([response.data]), `cover-letter.${format}`);
     },
     onSuccess: (_, variables) => {
       toast.success(`Cover letter downloaded as ${variables.format.toUpperCase()}`);

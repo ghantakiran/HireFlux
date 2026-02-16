@@ -13,6 +13,7 @@ import {
   ShortcutDefinition,
   ShortcutSequence,
 } from '@/lib/keyboard-shortcuts-registry';
+import { downloadFile } from '@/lib/utils';
 
 /**
  * Hook to use the global keyboard shortcuts registry
@@ -146,15 +147,7 @@ export function useShortcutImportExport() {
   const exportShortcuts = useCallback(() => {
     try {
       const json = registry.export();
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `keyboard-shortcuts-${Date.now()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      downloadFile(json, `keyboard-shortcuts-${Date.now()}.json`, 'application/json');
       setError(null);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to export shortcuts';

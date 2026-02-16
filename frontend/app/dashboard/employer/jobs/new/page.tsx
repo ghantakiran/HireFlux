@@ -40,6 +40,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { downloadFile } from '@/lib/utils';
 import {
   Loader2,
   Sparkles,
@@ -781,15 +782,7 @@ export default function AIJobDescriptionGenerator() {
     // Mock file download
     const content = `${generatedJD.jobTitle}\n\n${generatedJD.overview}\n\nResponsibilities:\n${generatedJD.responsibilities.join('\n')}\n\nRequired Qualifications:\n${generatedJD.requiredQualifications.join('\n')}`;
 
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `job-description-${jobTitle.toLowerCase().replace(/\s+/g, '-')}.${format}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadFile(content, `job-description-${jobTitle.toLowerCase().replace(/\s+/g, '-')}.${format}`);
 
     toast.success(`Exported as ${format.toUpperCase()}`, {
       description: 'Download started',
