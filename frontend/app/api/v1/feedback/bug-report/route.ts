@@ -4,8 +4,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+  const { allowed, resetIn } = checkRateLimit(`bug-report:${ip}`, 5, 60_000);
+  if (!allowed) {
+    return NextResponse.json(
+      { success: false, error: 'Too many requests. Please try again later.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil(resetIn / 1000)) } }
+    );
+  }
+
   try {
     const formData = await request.formData();
 

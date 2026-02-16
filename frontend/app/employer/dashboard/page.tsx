@@ -519,7 +519,7 @@ export default function EmployerDashboardPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => router.push('/employer/activity')}
+                    onClick={() => router.push('/employer/dashboard')}
                     className="w-full"
                   >
                     View All Activity

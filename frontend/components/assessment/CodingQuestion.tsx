@@ -8,8 +8,17 @@
 'use client';
 
 import React from 'react';
-import Editor from '@monaco-editor/react';
+import dynamic from 'next/dynamic';
 import { Label } from '@/components/ui/label';
+
+const Editor = dynamic(() => import('@monaco-editor/react'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[400px] bg-gray-900 rounded-lg flex items-center justify-center">
+      <span className="text-gray-400 text-sm">Loading code editor...</span>
+    </div>
+  ),
+});
 import { Code, CheckCircle, EyeOff } from 'lucide-react';
 
 export interface CodingQuestionProps {

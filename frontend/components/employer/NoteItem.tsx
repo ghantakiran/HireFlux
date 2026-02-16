@@ -100,11 +100,17 @@ export default function NoteItem({
     green: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
   };
 
-  // Highlight @mentions in content
-  const highlightedContent = note.content.replace(
-    /(?<![a-zA-Z0-9])(@[a-zA-Z0-9_]+)/g,
-    '<span class="text-blue-600 dark:text-blue-400 font-medium">$1</span>'
-  );
+  // Highlight @mentions in content (safe React rendering — no dangerouslySetInnerHTML)
+  const renderContentWithMentions = (text: string) => {
+    const parts = text.split(/((?<![a-zA-Z0-9])@[a-zA-Z0-9_]+)/g);
+    return parts.map((part, i) =>
+      /^@[a-zA-Z0-9_]+$/.test(part) ? (
+        <span key={i} className="text-blue-600 dark:text-blue-400 font-medium">{part}</span>
+      ) : (
+        part
+      )
+    );
+  };
 
   return (
     <>
@@ -199,10 +205,9 @@ export default function NoteItem({
         </div>
 
         {/* Content */}
-        <div
-          className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words"
-          dangerouslySetInnerHTML={{ __html: highlightedContent }}
-        />
+        <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
+          {renderContentWithMentions(note.content)}
+        </div>
 
         {/* Delete error */}
         {deleteError && (

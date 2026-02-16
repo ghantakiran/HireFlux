@@ -221,7 +221,7 @@ export default function DashboardPage() {
     actionCards.push({
       title: 'Prepare for Interviews',
       description: `${data.interviews_this_week} interview${data.interviews_this_week === 1 ? '' : 's'} scheduled this week`,
-      href: '/dashboard/interview-prep',
+      href: '/dashboard',
       borderColor: 'border-l-green-500',
       icon: <Video className="w-5 h-5 text-green-600" />,
       cta: 'Start Prep',

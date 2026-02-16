@@ -397,7 +397,7 @@ export default function PricingPage() {
   const handleUpgradeClick = (plan: Plan) => {
     if (!isAuthenticated) {
       // Guest user - redirect to sign up
-      router.push(`/auth/signup?plan=${plan.tier}`);
+      router.push(`/signup?plan=${plan.tier}`);
       return;
     }
 
